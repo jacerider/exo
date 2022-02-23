@@ -2,7 +2,7 @@ name: 'eXo Menu: Component'
 type: module
 description: 'Provides in-menu entity support.'
 core_version_requirement: ^8.8 || ^9
-version: 1.0.1
+version: 1.0.2
 package: 'eXo'
 dependencies:
   - exo_menu:exo_menu
