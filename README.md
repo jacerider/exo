@@ -1,5 +1,5 @@
 # eXo
 
-<img src="https://badgen.net/badge/version/3.0-dev/cyan?icon=github" alt="Version: 3.0-dev"/>
+<img src="https://badgen.net/badge/version/1.0.1/cyan?icon=github" alt="Version: 1.0.1"/>
 
-Drupal 8 enhancements.
+Drupal 9 enhancements.

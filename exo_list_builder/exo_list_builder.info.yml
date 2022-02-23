@@ -2,5 +2,5 @@ name: 'eXo List Builder'
 type: module
 description: 'Provides an enhanced entity list builder.'
 package: 'eXo'
-version: 1.0.0
+version: 1.0.1
 core_version_requirement: ^8.8 || ^9

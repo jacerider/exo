@@ -3,5 +3,5 @@ type: module
 description: 'Provides breadcrumbs enhancements.'
 core_version_requirement: ^8.8 || ^9
 package: 'eXo'
-version: 1.0.0
+version: 1.0.1
 dependencies:
