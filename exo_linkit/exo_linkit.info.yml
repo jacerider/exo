@@ -3,7 +3,7 @@ type: module
 description: Adds a widget to replace the core link field with linkit field.
 core: 8.x
 core_version_requirement: ^8 || ^9
-package: Custom
+package: eXo
 dependencies:
   - exo_link:exo_link
   - linkit (>=8.x-5.0-beta12)
