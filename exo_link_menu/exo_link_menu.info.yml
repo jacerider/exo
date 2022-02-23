@@ -1,7 +1,6 @@
 name: eXo Link Menu
 type: module
 description: Provides the ability to set additional data (icons, target, etc) for menu link content.
-version: 1.0.2
 core_version_requirement: ^8.8 || ^9
 package: eXo
 dependencies:

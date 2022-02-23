@@ -2,5 +2,4 @@ name: 'eXo Config File'
 type: module
 description: 'Provdes an API to allow config entities to contain files for import/export.'
 package: 'eXo'
-version: 1.0.2
 core_version_requirement: ^8.8 || ^9

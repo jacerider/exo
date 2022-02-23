@@ -3,7 +3,6 @@ type: module
 description: 'Provides an enhanced media entity that combines both image and video.'
 core_version_requirement: ^8.8 || ^9
 package: 'eXo'
-version: 1.0.2
 dependencies:
   - exo
   - media
