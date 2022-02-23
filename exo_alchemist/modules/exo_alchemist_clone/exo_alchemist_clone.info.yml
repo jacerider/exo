@@ -2,7 +2,7 @@ name: 'eXo Alchemist: Clone'
 type: module
 description: 'Support cloning entities that are Alchemist enabled.'
 package: 'eXo'
-version: 1.0.0
+version: 1.0.1
 core_version_requirement: ^8.8 || ^9
 dependencies:
   - exo:exo_alchemist
