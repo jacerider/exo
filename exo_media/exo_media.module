@@ -1,0 +1,308 @@
+<?php
+
+/**
+ * @file
+ * Contains exo_media.module.
+ */
+
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\editor\Entity\Editor;
+use Drupal\exo_modal\ExoModalInterface;
+use Drupal\views\ViewExecutable;
+
+/**
+ * Implements hook_theme().
+ */
+function exo_media_theme($existing, $type, $theme, $path) {
+  return [
+    // Render only the content area for entity browser modals.
+    'views_view__media_library' => [
+      'template' => 'views-view--media-library',
+      'base hook' => 'views_view',
+    ],
+    'views_view_unformatted__media_library' => [
+      'template' => 'views-view-unformatted--media-library',
+      'base hook' => 'views_view_unformatted',
+    ],
+    'views_view_table__media_library' => [
+      'template' => 'views-view-table--media-library',
+      'base hook' => 'views_view_table',
+    ],
+    'media__media_library' => [
+      'template' => 'media--media-library',
+      'base hook' => 'media',
+    ],
+    'container__media_library_content' => [
+      'template' => 'container--media-library-content',
+      'base hook' => 'container',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function exo_media_theme_registry_alter(&$theme_registry) {
+  $path = drupal_get_path('module', 'exo_media');
+  $theme_registry['media__media_library']['path'] = $path . '/templates';
+  $theme_registry['media_library_wrapper']['path'] = $path . '/templates';
+  $theme_registry['container__media_library_content']['path'] = $path . '/templates';
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function exo_media_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $info = $form_state->getBuildInfo();
+  if (isset($info['base_form_id']) && in_array($info['base_form_id'], ['media_form'])) {
+    exo_media_revision_hide($form, $form_state);
+  }
+  if ($form_id === 'editor_media_dialog') {
+    if (isset($form['align'])) {
+      $form['align']['#type'] = 'exo_radios';
+      $form['align']['#exo_style'] = 'inline';
+      $form['align']['#attributes']['class'] = [];
+      $form['align']['#options']['left'] = exo_icon($form['align']['#options']['left'])->setIcon('regular-long-arrow-left');
+      $form['align']['#options']['center'] = exo_icon($form['align']['#options']['center'])->setIcon('regular-arrows-h');
+      $form['align']['#options']['right'] = exo_icon($form['align']['#options']['right'])->setIcon('regular-long-arrow-right');
+    }
+  }
+}
+
+/**
+ * Implements hook_library_info_alter().
+ */
+function exo_media_library_info_alter(&$libraries, $extension) {
+  if ($extension == 'media_library') {
+    if (isset($libraries['widget'])) {
+      $path = '/' . drupal_get_path('module', 'exo_media');
+      $libraries['widget']['css']['component'][$path . '/css/exo-media.library.css'] = ['minified' => TRUE];
+    }
+    if (isset($libraries['view'])) {
+      $path = '/' . drupal_get_path('module', 'exo_media');
+      $libraries['view']['css']['component'][$path . '/css/exo-media.library.css'] = ['minified' => TRUE];
+    }
+  }
+}
+
+/**
+ * Implements hook_ckeditor_css_alter().
+ */
+function exo_media_ckeditor_css_alter(array &$css, Editor $editor) {
+  $css[] = drupal_get_path('module', 'exo_media') . '/css/exo-media.library.css';
+}
+
+/**
+ * Implements hook_inline_entity_form_entity_form_alter().
+ */
+function exo_media_inline_entity_form_entity_form_alter(&$form, FormStateInterface $form_state) {
+  if ($form['#entity_type'] == 'media') {
+    exo_media_revision_hide($form, $form_state);
+  }
+}
+
+/**
+ * Hide any revision field that exists.
+ */
+function exo_media_revision_hide(&$form, FormStateInterface $form_state) {
+  $form['revision']['#access'] = FALSE;
+  $form['revision_log_message']['#access'] = FALSE;
+  $form['advanced']['#access'] = FALSE;
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_view_alter().
+ */
+function exo_media_media_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
+  if ($build['#view_mode'] == 'media_library') {
+    $build['#attributes']['class'][] = 'exo-media-preview';
+    $build['#attributes']['class'][] = 'exo-media-type--' . Html::getClass($entity->bundle());
+  }
+}
+
+/**
+ * Given an entity, find the best image file entity.
+ */
+function exo_media_smart_image(ContentEntityInterface $entity) {
+  $fieldnames = ['field_banner', 'field_image', 'field_body'];
+  foreach ($fieldnames as $fieldname) {
+    if ($entity->hasField($fieldname)) {
+      $image = exo_media_smart_image_find($entity->get($fieldname));
+      if ($image) {
+        return $image;
+      }
+    }
+  }
+  return NULL;
+}
+
+/**
+ * Given a field, locate an image field.
+ */
+function exo_media_smart_image_find(FieldItemListInterface $field, $path = []) {
+  if (!$field->isEmpty()) {
+    switch ($field->getFieldDefinition()->getType()) {
+      case 'entity_reference_revisions':
+      case 'entity_reference':
+        $subpath = $path;
+        $subpath[] = $field->getName() . ':0:entity';
+        $entity = $field->first()->entity;
+        if ($entity && $entity instanceof ContentEntityInterface) {
+          $fields = $entity->getFields(FALSE);
+          uasort($fields, function ($a, $b) {
+            return substr($a->getName(), -3) === '_fg' ? -1 : 1;
+          });
+          foreach ($fields as $subfield) {
+            $image = exo_media_smart_image_find($subfield, $subpath);
+            if ($image) {
+              return $image;
+            }
+          }
+        }
+        break;
+
+      case 'image':
+        return [
+          'fieldname' => $field->getName(),
+          'entity' => $field->getEntity(),
+          'path' => $path,
+        ];
+    }
+  }
+  return NULL;
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ */
+function exo_media_page_attachments_alter(array &$attachments) {
+  if (isset($attachments['#attached']['html_head'])) {
+    foreach ($attachments['#attached']['html_head'] as $key => $items) {
+      foreach ($items as $key1 => $item) {
+        if (isset($item['#attributes']['content']) && is_string($item['#attributes']['content']) && strpos($item['#attributes']['content'], '?h=') !== FALSE) {
+          $attachments['#attached']['html_head'][$key][$key1]['#attributes']['content'] = preg_replace('/\?h=[a-z0-9]+\&/', '?', $item['#attributes']['content']);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_exo_modal_alter().
+ */
+function exo_media_exo_modal_alter(ExoModalInterface $modal, array $context) {
+  switch ($context['route_name']) {
+    case 'editor.media_dialog':
+    case 'media_library.ui':
+      $modal->setSetting('theme', 'black');
+      $modal->setSetting('theme_content', 'black');
+      $modal->setModalSetting('nest', TRUE);
+      $modal->addModalClass('is-admin');
+      break;
+  }
+  switch ($modal->getSetting(['modal', 'title'])) {
+    case 'Add or select media':
+    case 'Edit media':
+      $modal->setModalSetting('icon', 'regular-photo-video');
+      $modal->setSetting('theme', 'black');
+      $modal->setSetting('theme_content', 'black');
+      $modal->setModalSetting('nest', TRUE);
+      $modal->addModalClass('is-admin');
+      $modal->setModalSetting('width', '80%');
+      break;
+  }
+}
+
+/**
+ * Implements hook_exo_form_settings_alter().
+ */
+function exo_media_exo_form_settings_alter(array &$settings, array $context) {
+  switch ($context['route_name']) {
+    case 'editor.media_dialog':
+    case 'media_library.ui':
+      $settings['theme'] = 'black';
+      $settings['style'] = 'intersect';
+      break;
+  }
+  // $trigger_name = $context['request']->request->get('_triggering_element_name');
+  // if ($trigger_name && strpos($trigger_name, 'media-library') !== FALSE) {
+  //   $settings['theme'] = 'black';
+  //   $settings['style'] = 'intersect';
+  // }
+}
+
+/**
+ * Implements hook_views_pre_render().
+ */
+function exo_media_views_pre_render(ViewExecutable $view) {
+  if (isset($view) && ($view->storage->id() == 'media_library')) {
+    // For some reason, CKEditor media library does not include this library.
+    $view->element['#attached']['library'][] = 'media_library/widget';
+  }
+}
+
+/**
+ * Implements hook_views_data_alter().
+ *
+ * @param array $data
+ */
+function exo_media_views_data_alter(array &$data) {
+  $data['media_field_data']['created_fulldata'] = [
+    'title' => t('Created date'),
+    'help' => t('Date in the form of CCYYMMDD.'),
+    'argument' => [
+      'field' => 'created',
+      'id' => 'date_fulldate',
+    ],
+  ];
+
+  $data['media_field_data']['created_year_month'] = [
+    'title' => t('Created year + month'),
+    'help' => t('Date in the form of YYYYMM.'),
+    'argument' => [
+      'field' => 'created',
+      'id' => 'date_year_month',
+    ],
+  ];
+
+  $data['media_field_data']['created_year'] = [
+    'title' => t('Created year'),
+    'help' => t('Date in the form of YYYY.'),
+    'argument' => [
+      'field' => 'created',
+      'id' => 'date_year',
+    ],
+  ];
+
+  $data['media_field_data']['created_month'] = [
+    'title' => t('Created month'),
+    'help' => t('Date in the form of MM (01 - 12).'),
+    'argument' => [
+      'field' => 'created',
+      'id' => 'date_month',
+    ],
+  ];
+
+  $data['media_field_data']['created_day'] = [
+    'title' => t('Created day'),
+    'help' => t('Date in the form of DD (01 - 31).'),
+    'argument' => [
+      'field' => 'created',
+      'id' => 'date_day',
+    ],
+  ];
+
+  $data['media_field_data']['created_week'] = [
+    'title' => t('Created week'),
+    'help' => t('Date in the form of WW (01 - 53).'),
+    'argument' => [
+      'field' => 'created',
+      'id' => 'date_week',
+    ],
+  ];
+}

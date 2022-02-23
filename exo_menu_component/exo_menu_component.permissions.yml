@@ -1,0 +1,16 @@
+add menu components:
+  title: 'Create new Menu Components'
+
+administer menu components:
+  title: 'Administer Menu Components'
+  description: 'Allow to access the administration form to configure Menu Components.'
+  restrict access: true
+
+delete menu components:
+  title: 'Delete Menu Components'
+
+edit menu components:
+  title: 'Edit Menu Components'
+
+view menu components:
+  title: 'View Menu Components'

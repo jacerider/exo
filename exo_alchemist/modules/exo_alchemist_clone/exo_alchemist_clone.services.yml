@@ -1,0 +1,5 @@
+services:
+  exo_alchemist_clone.entity_clone_subscriber:
+    class: Drupal\exo_alchemist_clone\EventSubscriber\EntityClone
+    tags:
+     - { name: event_subscriber }

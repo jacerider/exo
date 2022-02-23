@@ -1,0 +1,8 @@
+name: 'eXo Entity Embed'
+type: module
+description: 'Provides entity embed enhancements.'
+core_version_requirement: ^8.8 || ^9
+package: 'eXo'
+version: 1.0.0
+dependencies:
+  - entity_embed

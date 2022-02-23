@@ -1,0 +1,79 @@
+$sizes: 12, 6, 3, 4;
+$gutter-sizes: 10, 20, 30, 60, 90, 120;
+
+.exo-modifier--column {
+  @include exo-grid;
+  @include flex-align(center, top);
+
+  > * {
+    @include exo-cell(12, $gutters: 0, $gutter-output: false);
+  }
+
+  @each $gutter-size in $gutter-sizes {
+    &.exo-modifier--column-gutter-#{$gutter-size} {
+      @include exo-gutters(top right bottom left, $gutters: rem-calc($gutter-size), $negative: true);
+
+      > * {
+        @include exo-cell(12, top right bottom left, $gutters: rem-calc($gutter-size));
+      }
+    }
+  }
+}
+
+@each $size in $sizes {
+  .exo-modifier--column-#{$size} {
+
+    > * {
+
+      @include breakpoint(large) {
+        @include exo-cell($size, $gutters: 0, $gutter-output: false);
+      }
+    }
+
+    @each $gutter-size in $gutter-sizes {
+      &.exo-modifier--column-gutter-#{$gutter-size} {
+        @include exo-gutters(top right bottom left, $gutters: rem-calc($gutter-size), $negative: true);
+
+        > * {
+
+          @include breakpoint(large) {
+            @include exo-cell($size, top right bottom left, $gutters: rem-calc($gutter-size));
+          }
+        }
+      }
+    }
+  }
+}
+
+.exo-modifier--column-5 {
+
+  > * {
+    @include exo-cell(12, $gutters: 0, $gutter-output: false);
+
+    @include breakpoint(medium) {
+      @include exo-cell(4, $gutters: 0, $gutter-output: false);
+    }
+
+    @include breakpoint(large) {
+      @include exo-cell(20%, $gutters: 0, $gutter-output: false);
+    }
+  }
+
+  @each $gutter-size in $gutter-sizes {
+    &.exo-modifier--column-gutter-#{$gutter-size} {
+      @include exo-gutters(top right bottom left, $gutters: rem-calc($gutter-size), $negative: true);
+
+      > * {
+        @include exo-cell(12, top right bottom left, $gutters: rem-calc($gutter-size));
+
+        @include breakpoint(medium) {
+          @include exo-cell(4, top right bottom left, $gutters: rem-calc($gutter-size));
+        }
+
+        @include breakpoint(large) {
+          @include exo-cell(20%, top right bottom left, $gutters: rem-calc($gutter-size));
+        }
+      }
+    }
+  }
+}

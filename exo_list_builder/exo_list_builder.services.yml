@@ -1,0 +1,17 @@
+services:
+  plugin.manager.exo_list_field:
+    class: Drupal\exo_list_builder\ExoListFieldManager
+    arguments: ['@module_handler', '@cache.discovery']
+  plugin.manager.exo_list_element:
+    class: Drupal\exo_list_builder\ExoListManager
+    arguments: [element, '@container.namespaces', '@cache.discovery', '@module_handler']
+  plugin.manager.exo_list_filter:
+    class: Drupal\exo_list_builder\ExoListManager
+    arguments: [filter, '@container.namespaces', '@cache.discovery', '@module_handler']
+  plugin.manager.exo_list_action:
+    class: Drupal\exo_list_builder\ExoListActionManager
+    arguments: ['@container.namespaces', '@cache.discovery', '@module_handler']
+  exo_list_builder.route_subscriber:
+    class: Drupal\exo_list_builder\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }

@@ -1,0 +1,13 @@
+exo_menu_component.add_link_type:
+  route_name: exo_menu_component.add_link_type
+  title: 'Add component'
+  # class: \Drupal\exo_menu_component\Plugin\Menu\LocalAction\MenuComponentLinkAdd
+  weight: 10
+  appears_on:
+    - entity.menu.edit_form
+
+entity.exo_menu_component_type.add_form:
+  route_name: entity.exo_menu_component_type.add_form
+  title: 'Add Menu Component Type'
+  appears_on:
+    - entity.exo_menu_component_type.collection

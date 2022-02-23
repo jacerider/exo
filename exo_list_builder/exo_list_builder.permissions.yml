@@ -1,0 +1,4 @@
+permission_callbacks:
+  - Drupal\exo_list_builder\ExoListBuilderPermissions::permissions
+administer exo list builder:
+  title: 'Administer eXo List Builder'

@@ -1,0 +1,4 @@
+services:
+  exo_reverse_entity_reference.manager:
+    class: Drupal\exo_reverse_entity_reference\ExoReverseEntityReferenceManager
+    arguments: ['@entity_type.manager', '@entity_field.manager', '@plugin.manager.field.field_type']

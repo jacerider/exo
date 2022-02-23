@@ -1,0 +1,8 @@
+administer exo:
+  title: 'Administer eXo'
+
+administer exo themes:
+  title: 'Administer eXo Themes'
+
+administer ajax loader:
+  title: 'Administer ajax loader'

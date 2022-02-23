@@ -1,0 +1,16 @@
+exo_alchemist.component.refresh:
+  route_name: exo_alchemist.component.refresh
+  title: 'Refresh Components'
+  appears_on:
+    - exo_alchemist.component.collection
+exo_alchemist.component.view.refresh:
+  route_name: exo_alchemist.component.refresh
+  title: 'Refresh'
+  class: \Drupal\menu_ui\Plugin\Menu\LocalAction\MenuLinkAdd
+  appears_on:
+    - exo_alchemist.component.preview
+exo_alchemist.component.view.return:
+  route_name: exo_alchemist.component.collection
+  title: 'Return to Library'
+  appears_on:
+    - exo_alchemist.component.preview

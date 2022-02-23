@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - exo_icon
+third_party_settings:
+  exo_icon:
+    'entity:media_type:document': regular-file-invoice
+id: document
+label: Document
+description: 'An uploaded file or document, such as a PDF.'
+source: file
+queue_thumbnail_downloads: false
+new_revision: true
+source_configuration:
+  source_field: field_media_document
+field_map:
+  name: name

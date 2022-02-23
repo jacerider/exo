@@ -1,0 +1,89 @@
+////////////////////////////////////////////////////////////////////////////////
+/// Theme Structure
+/// -------
+/// Place all base structures here.
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/// Theme Structure
+/// -------
+/// Place all base structures here.
+////////////////////////////////////////////////////////////////////////////////
+
+.exo-layout-builder {
+
+  .exo-layout-builder-top {
+
+    .exo-layout-builder-top-inner {
+
+      .exo-form,
+      .form-actions {
+
+        .button {
+          color: color(theme-white);
+
+          &.exo-layout-builder-submit {
+            background: color(theme-primary);
+            text-shadow: 0 0 3px color-scale-direct(theme-primary, 10%);
+
+            &:hover {
+              background: color-scale-direct(theme-primary, 10%);
+            }
+          }
+
+          &.exo-layout-builder-discard {
+            background: color(theme-warning);
+            text-shadow: 0 0 3px color-scale-direct(theme-warning, 10%);
+
+            &:hover {
+              background: color-scale-direct(theme-warning, 10%);
+            }
+          }
+
+          &.exo-layout-builder-revert {
+            background: color(theme-gray);
+            text-shadow: 0 0 3px color-scale-direct(theme-gray, 10%);
+
+            &:hover {
+              background: color-scale-direct(theme-gray, 10%);
+            }
+          }
+        }
+      }
+    }
+
+    .layout-builder__message {
+      border-bottom: 1px solid alpha(theme-white, 0.4);
+
+      .messages {
+        background: color(theme-success);
+        text-shadow: 0 0 3px color-scale-direct(theme-success, 10%);
+      }
+    }
+  }
+
+  .layout-builder {
+    border: 0;
+    padding: 0;
+    background-color: transparent;
+  }
+}
+
+.layout-selection {
+
+  a {
+    background-color: alpha(theme-gray, 0.1);
+    border: 1px solid color(theme-gray);
+    transition: background-color $global-speed;
+    color: color(theme-white);
+
+    img {
+      display: block;
+      border: 1px solid color(theme-gray);
+    }
+
+    &:hover {
+      background-color: alpha(theme-gray, 0.2);
+      color: color(theme-white);
+    }
+  }
+}

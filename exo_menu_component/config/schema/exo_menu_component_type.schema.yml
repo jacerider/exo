@@ -1,0 +1,18 @@
+exo_menu_component.exo_menu_component_type.*:
+  type: config_entity
+  label: 'Menu Component type config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    uuid:
+      type: string
+    targetMenu:
+      type: sequence
+      label: 'Target menus'
+      sequence:
+        type: string
+        label: 'Menu name'

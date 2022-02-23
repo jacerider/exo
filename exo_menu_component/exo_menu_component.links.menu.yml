@@ -1,0 +1,8 @@
+
+# Menu Component type menu items definition
+entity.exo_menu_component_type.collection:
+  title: 'Menu Component Types'
+  route_name: entity.exo_menu_component_type.collection
+  description: 'Manage menu component types.'
+  parent: system.admin_config_exo
+  weight: 0

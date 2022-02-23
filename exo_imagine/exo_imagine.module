@@ -1,0 +1,45 @@
+<?php
+
+/**
+ * @file
+ * Contains exo_imagine.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function exo_imagine_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the exo_imagine module.
+    case 'help.page.exo_imagine':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Improved responsive image handler along with other image enhancements.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function exo_imagine_theme() {
+  return [
+    'exo_imagine' => [
+      'variables' => [
+        'item' => NULL,
+        'attributes' => [],
+        'tag' => 'div',
+        'image_picture_attributes' => [],
+        'image_attributes' => [],
+        'image_sources' => [],
+        'preview_picture_attributes' => [],
+        'preview_attributes' => [],
+        'preview_sources' => [],
+      ],
+    ],
+  ];
+}

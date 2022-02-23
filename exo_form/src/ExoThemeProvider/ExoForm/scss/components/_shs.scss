@@ -1,0 +1,37 @@
+.exo-form .field--widget-options-shs {
+
+  .exo-form-element-float-inside.exo-form-input.form-item {
+    @include label-float-inside-wrapper;
+
+    > .field-label,
+    &.value > .field-label {
+      @include label;
+      height: auto;
+      position: static;
+      transform: none;
+    }
+
+    .shs-field-container {
+      margin: 0;
+      padding: $global-padding / 2 0;
+    }
+
+    .shs-widget-container {
+      margin-right: $global-margin / 2;
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+
+    select {
+      height: $input-height;
+      min-height: $input-height;
+      padding: 0 $global-margin / 2;
+    }
+  }
+
+  .shs-enabled.hidden {
+    display: none;
+  }
+}

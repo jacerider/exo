@@ -1,0 +1,9 @@
+exo_link_menu.config:
+  path: '/admin/config/exo/link'
+  defaults:
+    _form: '\Drupal\exo_link_menu\Form\ExoLinkMenuConfigForm'
+    _title: 'Link Menu'
+  requirements:
+    _permission: 'administer exo link menu'
+  options:
+    _admin_route: TRUE

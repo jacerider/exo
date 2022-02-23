@@ -1,0 +1,25 @@
+.exo-form {
+
+  .module-list {
+
+    .module-list__module {
+
+      td {
+        vertical-align: middle;
+      }
+    }
+  }
+
+  .modules-table-filter {
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .field-ui-overview .field-plugin-settings-editing {
+
+    .exo-form-container-field-plugin-type {
+      display: none;
+    }
+  }
+}

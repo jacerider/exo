@@ -1,0 +1,20 @@
+.exo-form-input {
+
+  .mini-colors {
+    text-indent: 20px;
+
+    .exo-form-style-intersect & {
+      text-indent: 28px;
+    }
+  }
+
+  .minicolors-swatch  {
+    top: calc((#{$input-height} / 2) - 10px);
+    left: rem-calc(10);
+
+    .exo-form-style-intersect & {
+      top: calc((#{$input-height} / 2) - 8px);
+      left: rem-calc(14);
+    }
+  }
+}

@@ -1,0 +1,574 @@
+.exo-form {
+
+  @include breakpoint(small only) {
+
+    select,
+    textarea,
+    input[type='text'],
+    input[type='password'],
+    input[type='datetime'],
+    input[type='datetime-local'],
+    input[type='date'],
+    input[type='month'],
+    input[type='time'],
+    input[type='week'],
+    input[type='number'],
+    input[type='email'],
+    input[type='url'] {
+      font-size: 16px !important;
+    }
+  }
+
+  &.is-disabled {
+    cursor: progress !important;
+    opacity: 0.6;
+
+    * {
+      pointer-events: none !important;
+    }
+  }
+
+  .exo-form-hide {
+    display: none;
+  }
+
+  &.exo-form-wrap {
+
+    // > .exo-form-inline {
+    //   margin-top: $global-margin * -1;
+    //   margin-bottom: $global-margin * -1;
+    // }
+
+    .exo-modal & {
+      border: 0;
+      box-shadow: none;
+      background: inherit;
+      padding: 0;
+    }
+  }
+
+  .messages {
+    margin-top: $global-margin;
+    margin-bottom: $global-margin;
+  }
+
+  .exo-form-container-js-hide {
+
+    .js & {
+      display: none;
+    }
+  }
+
+  .field-label {
+    @include flex-align(left, middle);
+    display: flex !important;
+
+    &.exo-tooltip {
+      @include flex-align(left, middle);
+
+      > span {
+        width: auto !important;
+      }
+
+      .description {
+        position: relative;
+        padding: 0;
+        margin: 0 0 0 $global-margin / 2;
+        width: rem-calc(30) !important;
+      }
+
+      .exo-tooltip-trigger {
+        @include flex-align(center, middle);
+        display: flex !important;
+        font-size: $description-font-size;
+        font-weight: 700;
+        width: rem-calc(14) !important;
+        height: rem-calc(14) !important;
+        background: gray;
+        border-width: 1px;
+        border-style: solid;
+        border-radius: 50%;
+        margin: 0 0 3px;
+        pointer-events: auto;
+        cursor: pointer;
+      }
+
+      .webform-element-help {
+        display: none;
+      }
+
+      .exo-tooltip-content {
+        display: none !important;
+      }
+    }
+  }
+
+  // The line placed beneath input fields.
+  .exo-form-input-line {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    bottom: -2px;
+    left: -2px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity $global-speed;
+    width: auto !important;
+  }
+
+  // Many themes put margin and padding here. We don't want that.
+  .form-item,
+  #field-display-overview .field-plugin-settings-edit-form .form-item:not(.fieldgroup) {
+    padding: 0;
+    margin: 0;
+  }
+
+  .exo-form-element {
+    margin-top: $global-margin;
+    margin-bottom: $global-margin;
+
+    label,
+    .fieldgroup .fieldset-legend {
+      @include label;
+    }
+
+    .label {
+      font-weight: inherit;
+    }
+
+    legend {
+      margin: 0;
+      width: 100%;
+
+      .field-label {
+
+        * {
+          display: inline-block;
+        }
+      }
+    }
+
+    .description,
+    .form-item--error-message {
+      @include description;
+    }
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    // > .exo-form-element {
+
+    //   &:first-child {
+    //     margin-top: 0;
+    //   }
+
+    //   &:last-child {
+    //     margin-bottom: 0;
+    //   }
+    // }
+  }
+
+  > .exo-form-inline {
+
+    &:first-child {
+
+      > .exo-form-element {
+
+        @include breakpoint(medium) {
+          margin-top: 0 !important;
+          margin-bottom: 0 !important;
+        }
+      }
+    }
+  }
+
+  .exo-form-element-float {
+    &:before {
+      content: '';
+      display: block;
+      height: $label-height;
+    }
+  }
+
+  .exo-form-element-inner {
+    position: relative;
+
+    &:after {
+      content: '';
+      display: table;
+      clear: both;
+    }
+  }
+
+  .tabledrag-toggle-weight-wrapper {
+    position: relative;
+
+    a,
+    button {
+      @include exo-icon(regular, f338);
+      position: absolute;
+      bottom: 2px;
+      right: 0;
+      text-transform: uppercase;
+      font-size: rem-calc(10);
+      font-weight: 300;
+      white-space: nowrap;
+      padding: 0;
+      margin: 0 0 $global-margin / 2;
+      overflow: hidden;
+      width: 13px;
+
+      &:before {
+        margin: 0 $global-padding 0 0;
+      }
+    }
+  }
+
+  label.form-required, // sass-lint:disable-line no-qualifying-elements
+  .required > .field-label,
+  .required > .fieldset-legend,
+  .fieldset-legend.form-required,
+  .exo-form-element-type-checkbox.exo-form-container-required .field-label > span {
+
+    &:after {
+      content: '*';
+      display: inline-block;
+      background: none;
+      padding-left: rem-calc(3);
+      font-size: 13px;
+      width: auto;
+      height: auto;
+      vertical-align: middle;
+    }
+  }
+
+  .field-error {
+    @include error;
+  }
+
+  .claro-autocomplete {
+    margin: 0;
+  }
+
+  .imp--viewers {
+    z-index: 100;
+  }
+
+  .exo-ripple {
+    @include exo-ripple;
+  }
+
+  ::-webkit-input-placeholder {
+    @include placeholder;
+  }
+
+  :-moz-placeholder {
+    @include placeholder;
+  }
+
+  ::-moz-placeholder {
+    @include placeholder;
+  }
+
+  :-ms-input-placeholder {
+    @include placeholder;
+  }
+
+  ::placeholder {
+    @include placeholder;
+  }
+}
+
+.exo-form-inline {
+
+  @include breakpoint(medium) {
+    @include flex;
+    @include exo-flex-direction(column, row);
+    @include flex-align(justify, bottom);
+    // flex-wrap: nowrap;
+    // align-items: flex-end;
+    // min-width: 100%;
+    box-sizing: border-box;
+    margin-left: $global-margin / 2 * -1;
+    margin-right: $global-margin / 2 * -1;
+
+    > label {
+      margin-left: $global-margin / 2 !important;
+      margin-right: $global-margin / 2 !important;
+    }
+
+    > a {
+      align-self: center;
+    }
+
+    .separator {
+      align-self: center;
+      padding: 0 $global-padding;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    > .fieldset-wrapper {
+      margin-left: $global-margin / 2 * -1;
+      margin-right: $global-margin / 2 * -1;
+    }
+
+    &,
+    > .fieldset-wrapper {
+
+      &.exo-form-inline-all > *,
+      > .exo-form-element,
+      > .form-item,
+      > .button {
+        flex: 1 1 100%;
+        padding: 0;
+        margin-left: $global-margin / 2;
+        margin-right: $global-margin / 2;
+        // Needed for IE but ignored.
+        width: 100%;
+
+        > .exo-form-element-inner .exo-form-button {
+          width: 100%;
+          box-sizing: border-box;
+        }
+
+        &.exo-form-element-type-actions,
+        &.form-actions {
+          width: auto;
+          flex: 0 1 0%;
+          white-space: nowrap;
+        }
+      }
+
+      > .exo-form-element-compact {
+        width: auto;
+        flex: 0 1 0%;
+        white-space: nowrap;
+      }
+
+      > .exo-form-element {
+
+        &,
+        &.exo-form-element-first,
+        &.exo-form-element-last,
+        &:first-child,
+        &:last-child {
+          margin-top: $global-margin;
+          margin-bottom: $global-margin;
+        }
+      }
+
+      .exo-form-inline {
+        margin-left: $global-margin / 2 * -1;
+        margin-right: $global-margin / 2 * -1;
+      }
+    }
+
+    &.exo-form-inline-pad-top {
+      padding-top: $global-padding;
+    }
+
+    &.exo-form-inline-pad-bottom {
+      padding-bottom: $global-padding;
+    }
+
+    &.exo-form-inline-align-top {
+      @include flex-align(left, top);
+    }
+
+    &.exo-form-inline-align-middle {
+      @include flex-align(left, middle);
+    }
+
+    &.exo-form-inline-compact {
+
+      &.exo-form-inline-all > *,
+      > .exo-form-element,
+      > .form-item,
+      > .button {
+        flex: 0 1 auto;
+        width: auto;
+      }
+    }
+
+    // Make sure all nested elements will fit. The parent will handle the margin.
+    .exo-form-element & {
+
+      .exo-form-element {
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+    }
+
+    > .exo-form-element-type-fieldset.exo-form-element & {
+
+      .exo-form-element {
+        margin-top: $global-margin;
+      }
+    }
+
+    > .exo-form-container {
+      flex-basis: 100%;
+      // padding-top: $global-padding;
+    }
+
+    .fieldset-wrapper,
+    .details-wrapper {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+
+      .exo-form-container {
+        flex: auto;
+        width: 100%;
+      }
+    }
+
+    &.exo-form-inline-top,
+    > .fieldset-wrapper {
+
+      > .exo-form-element {
+
+        &,
+        .exo-form-element-type-fieldset.exo-form-element & {
+          margin-top: 0 !important;
+        }
+      }
+    }
+
+    &.exo-form-inline-bottom,
+    > .fieldset-wrapper {
+
+      > .exo-form-element {
+
+        &,
+        .exo-form-element-type-fieldset.exo-form-element & {
+          margin-bottom: $global-margin;
+        }
+      }
+    }
+  }
+
+  &.exo-form-inline-stack {
+    padding-top: $global-margin;
+
+    > .exo-form-element {
+      margin-top: 0;
+    }
+
+    @include breakpoint(medium) {
+      flex-wrap: wrap;
+
+      > .exo-form-element {
+        flex: 1 1 calc(20% + #{$global-margin} / 2);
+      }
+    }
+
+    @include breakpoint(large) {
+      flex-wrap: wrap;
+
+      > .exo-form-element {
+        flex: 1 1 calc(15% + #{$global-margin} / 2);
+      }
+    }
+  }
+}
+
+.colorpicker {
+  z-index: 100;
+}
+
+.theme-gin {
+
+  .page-title {
+    padding-right: $global-padding / 2;
+  }
+
+  [data-drupal-selector*="-bulk-form"] .form-item,
+  [data-drupal-selector*="-bulk-form"] .form-actions,
+  .views-exposed-form__item.views-exposed-form__item {
+    margin: 0;
+  }
+
+  [data-drupal-selector*="-bulk-form"] {
+    flex-wrap: nowrap;
+  }
+
+  .views-exposed-form.views-exposed-form {
+    display: block;
+    padding: $global-padding * 1.5;
+    width: auto;
+    margin: 0 0 $global-margin;
+  }
+
+  .block-system > .views-form [data-drupal-selector*="edit-header"],
+  .view-content .views-form [data-drupal-selector*="edit-header"] {
+    background: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .form--inline, [data-drupal-selector*="-bulk-form"],
+  .layout-region-node-footer__content {
+    align-items: flex-end;
+    padding: 0;
+    margin: 0;
+  }
+
+  .gin-table-scroll-wrapper {
+    overflow: visible;
+  }
+}
+
+.exo-tooltip-wrapper {
+  position: absolute !important;
+  z-index: 1000 !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(-20px) !important;
+  transition: opacity $global-speed, visibility $global-speed, transform $global-speed !important;
+  background: none !important;
+  padding: 0 !important;
+  box-shadow: 0 !important;
+
+  &.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: translateY(0) !important;
+  }
+
+  .exo-tooltip-inner {
+    position: absolute;
+    right: -10px;
+    bottom: 10px;
+    min-width: rem-calc(160);
+    max-width: rem-calc(300);
+    padding: rem-calc(10 15);
+
+    &,
+    .exo-form-element-wrapper-description {
+      font-size: $description-font-size * 1.2;
+    }
+
+    .exo-form-element-wrapper-description {
+      padding: 0;
+    }
+  }
+
+  &:before {
+    position: absolute;
+    bottom: 5px;
+    left: -5px;
+  }
+}
+
+.js .exo-form .js-hide {
+  display: none;
+}

@@ -1,0 +1,42 @@
+.field--type-smartdate {
+
+  .smartdate--widget {
+
+    .allday-label {
+      float: none;
+
+      .allday {
+        margin: $global-margin $global-margin / 2 0;
+      }
+    }
+
+    .clearfix {
+      display: none;
+    }
+
+    .byday-checkboxes {
+      display: block;
+
+      legend {
+        float: none;
+        margin: 0;
+      }
+
+      .fieldset-wrapper {
+        margin: 0 !important;
+      }
+    }
+  }
+
+  .draggable td:nth-child(2) {
+    padding: $global-padding * 2;
+  }
+
+  .repeat--label {
+    margin-bottom: 0 !important;
+  }
+
+  .exo-form-container-recur-repeat {
+    margin-top: 0;
+  }
+}

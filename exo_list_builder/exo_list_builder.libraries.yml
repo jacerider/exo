@@ -1,0 +1,17 @@
+list:
+  version: VERSION
+  css:
+    component:
+      css/exo.list-builder.css: { minified: true }
+  js:
+    js/exo.list-builder.list.js: { minified: true }
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/drupal
+
+download:
+  js:
+    js/exo.list-builder.download.js: { minified: true }
+  dependencies:
+    - core/jquery

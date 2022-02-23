@@ -1,0 +1,93 @@
+langcode: en
+status: true
+dependencies: {  }
+id: exo_entity_list
+label: 'eXo Entity List'
+target_entity_type: exo_entity_list
+target_bundles_include:
+  exo_entity_list: exo_entity_list
+target_bundles_exclude: {  }
+override: true
+url: ''
+limit: 0
+actions: {  }
+sort: _label
+fields:
+  _label:
+    display_label: Name
+    view:
+      type: entity_label
+      settings:
+        entity_icon: '1'
+        link_label: '1'
+      toggle: false
+      show: true
+      wrapper: ''
+      sort: asc
+    filter:
+      type: entity_label
+      settings:
+        position: header
+        match_operator: STARTS_WITH
+    weight: -10
+  target_entity_type:
+    display_label: 'Entity Type'
+    view:
+      type: config_property
+      settings:
+        link: 0
+      toggle: false
+      show: true
+      wrapper: small
+      sort: ''
+    filter:
+      type: config_property
+      settings:
+        match_operator: CONTAINS
+        select: '1'
+        autocomplete: 0
+    weight: -9
+  target_bundles_include:
+    display_label: 'Bundles Include'
+    view:
+      type: config_property
+      settings:
+        link: 0
+      toggle: false
+      show: true
+      wrapper: small
+      sort: ''
+    filter:
+      type: config_property
+      settings:
+        match_operator: '='
+        select: '1'
+        autocomplete: 0
+    weight: -8
+  target_bundles_exclude:
+    display_label: 'Bundles Exclude'
+    view:
+      type: config_property
+      settings:
+        link: 0
+      toggle: false
+      show: true
+      wrapper: small
+      sort: ''
+    filter:
+      type: ''
+    weight: -7
+  status:
+    display_label: Status
+    view:
+      type: status_icon
+      settings:
+        link: 0
+      toggle: false
+      show: true
+      wrapper: ''
+      sort: asc
+    filter:
+      type: ''
+    weight: -6
+weight: 0

@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the exo_toolbar module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function exo_toolbar_uninstall() {
+  $image_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('exo_toolbar_regular');
+  if ($image_style) {
+    $image_style->delete();
+  }
+}

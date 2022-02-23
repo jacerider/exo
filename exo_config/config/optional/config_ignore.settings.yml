@@ -1,0 +1,12 @@
+ignored_config_entities:
+  - system.site
+  - core.menu.static_menu_link_overrides
+  - redirect_404.settings
+  - redirect.settings
+  - site_settings.site
+  - 'webform.webform.*'
+  - 'webform.webform_options.*'
+  - 'image.style.exoimg*'
+  - 'search_api.server.*'
+_core:
+  default_config_hash: UVH1aJ4b44UM-VdPVN7hNNuuVqfReJxwfVeDQH1Hvsk

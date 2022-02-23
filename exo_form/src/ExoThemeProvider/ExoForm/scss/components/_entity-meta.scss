@@ -1,0 +1,174 @@
+.exo-body:not(.theme-gin) .exo-form .entity-meta {
+  margin: 0;
+  overflow: hidden;
+
+  > .exo-form-container {
+    padding: $global-padding;
+  }
+
+  > details {
+
+    > summary {
+
+      &::-webkit-details-marker {
+        display:none;
+      }
+    }
+
+    > .details-wrapper {
+      padding: $global-padding;
+      // > .form-item:not(.exo-form-item),
+      // > .profile {
+      //   padding-left: $global-padding;
+      //   padding-right: $global-padding;
+
+      //   &:first-child {
+      //     padding-top: $global-padding;
+      //   }
+
+      //   &:last-child {
+      //     padding-bottom: $global-padding;
+      //   }
+      // }
+    }
+
+    p {
+      margin: 0 0 $global-margin / 2;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .entity-meta__header {
+    padding: 0;
+    margin: 0;
+
+    > h3,
+    > div {
+      margin-top: 0;
+      margin-bottom: 0;
+      padding: $global-padding;
+      border-top: 1px solid transparent;
+      border-bottom: 1px solid transparent;
+
+      &:first-child {
+        margin-top: 0;
+        border-top: 0;
+      }
+
+      &:last-child {
+        margin-bottom: 0;
+        border-bottom-width: 0;
+      }
+    }
+
+    > .exo-form-element-name-meta-published {
+      padding: 0;
+
+      .entity-meta__status  {
+        padding: $global-padding;
+      }
+    }
+
+    > .entity-content-form-revision-information {
+
+      > .exo-form-element-name-revision {
+        margin: 0;
+      }
+    }
+  }
+
+  .entity-meta__title {
+    line-height: 1;
+    font-weight: 700;
+  }
+
+  .entity-meta__status {
+    background: color(theme-warning);
+    text-shadow: 0 0 5px color-scale-direct(theme-warning, 15%);
+    color: color(theme-white);
+    margin-top: -1px !important;
+  }
+
+  .entity-meta__is_published {
+    background: color(theme-success);
+    text-shadow: 0 0 5px color-scale-direct(theme-success, 15%);
+    color: color(theme-white);
+    margin-top: -1px !important;
+  }
+
+  .entity-meta__last-saved,
+  .entity-meta__author,
+  .meta-author {
+    @include flex;
+    @include flex-align(left, middle);
+
+    > label,
+    > .field-label label,
+    > .field-input .label {
+      margin: 0;
+      padding: 0;
+      font-weight: 700;
+
+      &:after {
+        content: ':';
+        padding-right: rem-calc(4);
+      }
+    }
+
+    > .field-input .label.inline {
+      display: inline;
+    }
+
+    > .field-input {
+      font-style: italic;
+    }
+  }
+
+  > .form-wrapper,
+  > .seven-details {
+
+    > summary {
+      cursor: pointer;
+      transition: all $global-speed;
+    }
+
+    > .details-wrapper {
+      padding: 0.5px $global-padding;
+
+      > * {
+        margin: $global-margin 0;
+      }
+    }
+  }
+}
+
+.gin--edit-form {
+
+  .gin-sidebar {
+    display: none;
+  }
+
+  .entity-meta__header {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .entity-meta {
+
+    .claro-details__wrapper {
+      margin: 0 !important;
+    }
+  }
+
+  .gin-sticky {
+    margin: $global-margin 0 !important;
+
+    .exo-form-element {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+}

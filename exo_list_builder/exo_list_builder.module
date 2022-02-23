@@ -1,0 +1,81 @@
+<?php
+
+/**
+ * @file
+ * Contains exo_list_builder.module.
+ */
+
+use Drupal\Core\Config\Entity\ConfigEntityTypeInterface;
+use Drupal\Core\Database\Query\AlterableInterface;
+use Drupal\Core\Database\Query\Select;
+use Drupal\Core\Entity\ContentEntityTypeInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function exo_list_builder_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the exo_list_builder module.
+    case 'help.page.exo_list_builder':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides an enhanced entity list builder.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function exo_list_builder_entity_type_alter(array &$entity_types) {
+  foreach ($entity_types as $entity_type_id => $entity_type) {
+    $handler = $entity_type->getHandlerClass('exo_list_builder');
+    if (!$handler) {
+      if ($entity_type instanceof ConfigEntityTypeInterface) {
+        $handler = 'Drupal\exo_list_builder\ExoListBuilderConfig';
+      }
+      elseif ($entity_type instanceof ContentEntityTypeInterface) {
+        $handler = 'Drupal\exo_list_builder\ExoListBuilderContent';
+      }
+    }
+    if (empty($handler)) {
+      continue;
+    }
+    $entity_type->setHandlerClass('exo_list_builder', $handler);
+  }
+}
+
+/**
+ * Implements hook_query_TAG_alter().
+ */
+function exo_list_builder_query_exo_entity_list_moderation_state_alter(AlterableInterface $query) {
+  if ($query instanceof Select) {
+    $entity_type = $query->getMetaData('entity_type');
+    if (!$entity_type) {
+      return;
+    }
+    $entity_type = \Drupal::entityTypeManager()->getDefinition($entity_type);
+    $join_conditions = [];
+    $join_arguments = [];
+
+    $join_conditions[] = 'md.content_entity_type_id = :content_moderation_state_entity_type';
+    $join_arguments[':content_moderation_state_entity_type'] = $entity_type->id();
+
+    $join_conditions[] = 'md.content_entity_id = base_table.' . $entity_type->getKey('id');
+    if ($entity_type->hasKey('revision')) {
+      $join_conditions[] = 'md.content_entity_revision_id = base_table.' . $entity_type->getKey('revision');
+    }
+
+    $query->addJoin('LEFT', 'content_moderation_state_field_data', 'md', implode(' AND ', $join_conditions), $join_arguments);
+    $value = $query->getMetaData('exo_entity_list_moderation_state');
+    if (!empty($value)) {
+      if (!is_array($value)) {
+        $value = [$value];
+      }
+      $query->condition('md.moderation_state', $value, 'IN');
+    }
+  }
+}

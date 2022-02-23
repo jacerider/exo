@@ -1,0 +1,2474 @@
+////////////////////////////////////////////////////////////////////////////////
+/// Theme Structure
+/// -------
+/// Place all base structures here.
+////////////////////////////////////////////////////////////////////////////////
+
+.theme-gin {
+
+  .layer-wrapper,
+  .block-system > form,
+  .view-content .views-form,
+  .panel,
+  .admin-list,
+  .view-watchdog .view-content,
+  .views-exposed-form.views-exposed-form,
+  .system-status-counter,
+  .system-status-general-info,
+  .system-status-report__requirements-group,
+  .views-edit-view,
+  .views-preview-wrapper,
+  .view-block-content .view-content,
+  .view-files .view-content,
+  .system-themes-list,
+  .modules-tabs,
+  #views-entity-list {
+    border-radius: theme-val(map-get($themes, default), form-border-radius);
+  }
+
+  @each $key, $theme in $themes {
+
+    .exo-form-theme-#{$key} {
+
+      .views-form {
+        box-shadow: theme-val($theme, form-box-shadow);
+      }
+    }
+  }
+}
+
+.exo-form {
+
+  @each $key, $theme in $themes {
+
+    &.exo-form-theme-#{$key} {
+      color: theme-val($theme, form-color, true);
+
+      .messages {
+        box-shadow: none;
+      }
+
+      &.exo-form-wrap {
+        background-color: theme-val($theme, form-bg-color, true);
+        padding: theme-val($theme, form-padding-v) theme-val($theme, form-padding-h);
+        box-shadow: theme-val($theme, form-box-shadow);
+        border-color: theme-val($theme, form-border-color, true);
+        border-style: theme-val($theme, form-border-style);
+        border-width: theme-val($theme, form-border-width);
+        border-radius: theme-val($theme, form-border-radius);
+
+        &.exo-form-wrap-pad {
+          padding-top: theme-val($theme, form-padding-h);
+        }
+      }
+
+      &.exo-tooltip-wrapper {
+
+        &:before {
+          @include exo-triangle(topright, 5px, 5px, theme-val($theme, form-tooltip-content-bg-color, true));
+        }
+
+        .exo-tooltip-inner {
+          background: theme-val($theme, form-tooltip-content-bg-color, true);
+          border-radius: theme-val($theme, form-border-radius) / 2;
+
+          &,
+          .exo-form-element-wrapper-description {
+            color: theme-val($theme, form-tooltip-content-color, true);
+          }
+
+          a {
+            color: theme-val($theme, form-tooltip-content-color, true);
+            font-weight: 700;
+          }
+        }
+      }
+
+      .exo-form-table-wrap {
+        position: relative;
+        border: theme-val($theme, form-padding-v) solid transparent;
+        border-radius: theme-val($theme, form-border-radius);
+
+        &:before {
+          content: " ";
+          position: absolute;
+          z-index: 10;
+          top: theme-val($theme, form-padding-v) * -1;
+          left: theme-val($theme, form-padding-v) * -1;
+          right: theme-val($theme, form-padding-v) * -1;
+          bottom: theme-val($theme, form-padding-v) * -1;
+          border: theme-val($theme, form-padding-v) solid theme-val($theme, form-bg-color, true);
+          pointer-events: none;
+          border-radius: theme-val($theme, form-border-radius);
+          box-shadow: theme-val($theme, form-box-shadow), 0 0 0 1px theme-val($theme, form-border-color, true);
+          outline: 1px solid theme-val($theme, table-border-color, true);
+          outline-offset: theme-val($theme, form-padding-v) * -1;
+
+          @-moz-document url-prefix() {
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+          }
+        }
+
+        &:after {
+          content: " ";
+          position: absolute;
+          z-index: 11;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          border: 1px solid theme-val($theme, table-border-color, true);
+          box-shadow: 0 0 0 (theme-val($theme, form-border-radius) / 2) theme-val($theme, form-bg-color, true);
+          border-radius: theme-val($theme, form-border-radius);
+          pointer-events: none;
+        }
+      }
+
+      .exo-form-table-overflow {
+        border-color: theme-val($theme, form-border-color, true);
+        border-style: theme-val($theme, form-border-style);
+        border-width: theme-val($theme, form-border-width);
+        border-radius: theme-val($theme, form-border-radius);
+      }
+
+      .description {
+        color: theme-val($theme, description-color, true);
+      }
+
+      .field-label {
+
+        &.exo-tooltip {
+
+          .exo-tooltip-trigger {
+            color: theme-val($theme, form-tooltip-trigger-color, true);
+            background-color: theme-val($theme, form-tooltip-trigger-bg-color, true);
+            border-color: theme-val($theme, form-tooltip-trigger-border-color, true);
+          }
+        }
+      }
+
+      .field-error {
+        background: theme-val($theme, error, true);
+        color: gray(0);
+      }
+
+      label.form-required, // sass-lint:disable-line no-qualifying-elements
+      .required label,
+      .required .fieldset-legend,
+      .fieldset-legend.form-required,
+      .exo-form-element-type-checkbox.exo-form-container-required .field-label > span {
+
+        &:after {
+          color: theme-val($theme, error, true);
+        }
+      }
+
+      .exo-ripple {
+
+        &:before {
+          background: theme-val($theme, exo-ripple-active-bg-color, true);
+        }
+
+        &:after {
+          background: theme-val($theme, exo-ripple-focus-bg-color, true);
+        }
+      }
+
+      ::-webkit-input-placeholder {
+        color: theme-val($theme, input-placeholder-color, true);
+      }
+
+      :-moz-placeholder {
+        color: theme-val($theme, input-placeholder-color, true);
+      }
+
+      ::-moz-placeholder {
+        color: theme-val($theme, input-placeholder-color, true);
+      }
+
+      :-ms-input-placeholder {
+        color: theme-val($theme, input-placeholder-color, true);
+      }
+
+      ::placeholder {
+        color: theme-val($theme, input-placeholder-color, true);
+      }
+
+      label,
+      .fieldgroup .fieldset-legend {
+        color: theme-val($theme, label-color, true);
+        font-size: theme-val($theme, label-font-size);
+        font-weight: theme-val($theme, label-font-weight);
+        letter-spacing: theme-val($theme, label-letter-spacing);
+        text-transform: theme-val($theme, label-text-transform);
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////
+      /// Wrapper
+      ////////////////////////////////////////////////////////////////////////////////
+      .exo-form-wrapper {
+
+        > .exo-form-element-inner {
+          background: theme-val($theme, wrapper-bg-color, true);
+          box-shadow: theme-val($theme, wrapper-box-shadow);
+          border-color: theme-val($theme, wrapper-border-color, true);
+          border-style: theme-val($theme, wrapper-border-style);
+          border-width: theme-val($theme, wrapper-border-width);
+          border-radius: theme-val($theme, form-border-radius);
+        }
+
+        // Nested 2 deep.
+        .exo-form-wrapper {
+
+          > .exo-form-element-inner {
+            background: theme-val($theme, wrapper-bg-2-color, true);
+            box-shadow: theme-val($theme, wrapper-box-2-shadow);
+          }
+        }
+
+        summary,
+        fieldset:not(.fieldgroup) > legend > .fieldset-legend {
+          color: theme-val($theme, wrapper-title-color, true);
+          font-weight: theme-val($theme, wrapper-title-weight);
+        }
+
+        .exo-form-element-wrapper-description {
+          color: theme-val($theme, wrapper-description-color, true);
+        }
+      }
+
+      .exo-form-element-type-details {
+
+        details {
+
+          > summary {
+            transition: color $global-speed;
+            background: none;
+
+            .claro-details__summary-summary {
+              display: none;
+            }
+
+            &:before {
+              display: none;
+            }
+
+            &:after {
+              @include exo-triangle(right, 5px, 5px, theme-val($theme, primary, true)) {
+                position: static;
+                margin: rem-calc(-3 0 0 5);
+                opacity: 1;
+              };
+            }
+
+            &:hover {
+              background: none;
+              color: theme-val($theme, primary, true);
+            }
+          }
+
+          &[open] {
+
+            > summary {
+              color: theme-val($theme, primary, true);
+
+              &:after {
+                transform: rotate(90deg);
+              }
+            }
+          }
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////
+      /// Pseudo
+      ////////////////////////////////////////////////////////////////////////////
+      .exo-form-pseudo,
+      .smartdate--widget .exo-form-container-field-duration {
+        position: relative;
+        color: theme-val($theme, base, true);
+        background-color: theme-val($theme, input-bg-color, true);
+        padding: theme-val($theme, padding);
+        border-color: theme-val($theme, border-color, true);
+        border-style: theme-val($theme, border-style);
+        border-top-width: theme-val($theme, input-border-top-width);
+        border-right-width: theme-val($theme, input-border-right-width);
+        border-bottom-width: theme-val($theme, input-border-bottom-width);
+        border-left-width: theme-val($theme, input-border-left-width);
+        border-radius: theme-val($theme, form-border-radius);
+        min-height: theme-val($theme, input-height);
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////
+      /// eXo icon
+      ////////////////////////////////////////////////////////////////////////////////
+      .exo-icon-field-widget {
+        border-radius: theme-val($theme, form-border-radius);
+        color: theme-val($theme, base, true);
+        background-color: theme-val($theme, input-bg-color, true);
+        border-color: theme-val($theme, border-color, true);
+        overflow: hidden;
+
+        .exo-icon-field-icon {
+          color: theme-val($theme, base, true);
+        }
+
+        .exo-modal-trigger {
+          color: theme-val($theme, base, true);
+          background-color: theme-val($theme, input-bg-color, true);
+          border-color: theme-val($theme, border-color, true);
+
+          .exo-icon {
+            opacity: 0.7;
+            transition: opacity 300ms;
+
+            &:hover {
+              opacity: 1;
+            }
+          }
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////
+      /// Input
+      ////////////////////////////////////////////////////////////////////////////
+      .exo-form-input {
+
+        .exo-form-input-item,
+        .field-prefix,
+        .field-suffix {
+          height: theme-val($theme, input-height);
+          // Not needed. Breaks datetime fields.
+          // line-height: theme-val($theme, input-height);
+        }
+
+        .field-prefix,
+        .field-suffix {
+          line-height: theme-val($theme, input-height);
+        }
+
+        .exo-form-input-item,
+        .field-prefix,
+        .field-suffix {
+
+          &,
+          &:focus,
+          &.picker__input {
+            color: theme-val($theme, base, true);
+            background-color: theme-val($theme, input-bg-color, true);
+            padding: theme-val($theme, padding);
+            border-color: theme-val($theme, border-color, true);
+            border-style: theme-val($theme, border-style);
+            border-top-width: theme-val($theme, input-border-top-width);
+            border-right-width: theme-val($theme, input-border-right-width);
+            border-bottom-width: theme-val($theme, input-border-bottom-width);
+            border-left-width: theme-val($theme, input-border-left-width);
+            border-radius: theme-val($theme, form-border-radius);
+          }
+        }
+
+        .exo-form-input-item.form-textarea {
+          height: (theme-val($theme, input-height) * 3);
+          min-height: (theme-val($theme, input-height) * 3);
+          padding-top: $global-padding / 2;
+          padding-bottom: $global-padding / 2;
+          line-height: 1.5;
+        }
+
+        &.has-prefix{
+
+          .field-prefix {
+            border-radius: theme-val($theme, form-border-radius) 0 0 theme-val($theme, form-border-radius);
+          }
+
+          .exo-form-input-item {
+            border-radius: 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius) 0;
+          }
+        }
+
+        &.has-suffix{
+
+          .field-suffix {
+            border-radius: 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius) 0;
+          }
+
+          .exo-form-input-item {
+            border-radius: theme-val($theme, form-border-radius) 0 0 theme-val($theme, form-border-radius);
+          }
+        }
+
+        &.has-prefix.has-suffix{
+
+          .exo-form-input-item {
+            border-radius: 0;
+          }
+        }
+
+        .field-prefix,
+        .field-suffix {
+          color: theme-val($theme, input-prefix-suffix-color, true);
+        }
+
+        .field-prefix {
+          border-radius: theme-val($theme, form-border-radius) 0 0 theme-val($theme, form-border-radius);
+        }
+
+        .field-suffix {
+          border-radius: 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius) 0;
+        }
+
+        .exo-form-input-line {
+          border-radius: theme-val($theme, form-border-radius);
+        }
+
+        // Message area.
+        &:after {
+          background: theme-val($theme, message-bg-color, true);
+          color: theme-val($theme, message-color, true);
+          text-shadow: none;
+        }
+
+        &:hover {
+
+          .exo-form-input-line {
+            box-shadow: 0 0 0 2px theme-val($theme, form-border-hover-color, true);
+            opacity: 1;
+          }
+        }
+
+        // When focused.
+        &.focused {
+
+          > .field-label label {
+            color: theme-val($theme, label-focus-color, true);
+          }
+
+          .exo-form-input-line {
+            box-shadow: 0 0 0 2px theme-val($theme, form-border-focus-color, true);
+            opacity: 1;
+          }
+        }
+
+        // When invalid.
+        &.invalid,
+        &.invalid.focused {
+
+          > .field-label label {
+            color: theme-val($theme, error, true);
+          }
+
+          .exo-form-input-line {
+            box-shadow: 0 0 0 2px theme-val($theme, input-border-invalid-color, true) !important;
+            opacity: 1;
+          }
+
+          &:after {
+            background-color: theme-val($theme, error, true);
+            color: color-pick-contrast(theme-val($theme, error, true));
+            left: theme-val($theme, form-border-radius);
+            border-radius: 0 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius);
+          }
+        }
+      }
+
+      .exo-icon-field {
+
+        .exo-icon-field-widget {
+          color: theme-val($theme, base, true);
+        }
+      }
+
+      .form-item--error-message {
+        background-color: theme-val($theme, error, true);
+        color: color-pick-contrast(theme-val($theme, error, true));
+        padding: rem-calc(5 10);
+        border-radius: 0 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius);
+        margin-left: theme-val($theme, form-border-radius);
+        margin-right: theme-val($theme, form-border-radius);
+      }
+
+      ////////////////////////////////////////////////////////////////////////////
+      /// Intersect
+      ////////////////////////////////////////////////////////////////////////////
+      &.exo-form-style-intersect {
+
+        label:not(.option),
+        .field-label {
+          font-size: theme-val($theme, label-font-size) * 0.8;
+          line-height: theme-val($theme, label-font-size) * 0.8;
+          font-weight: theme-val($theme, label-font-weight);
+          letter-spacing: theme-val($theme, label-letter-spacing);
+          text-transform: theme-val($theme, label-text-transform);
+        }
+
+        .form-item:not(.item) > .field-label,
+        .fieldgroup .fieldset-legend {
+          padding: 0 rem-calc(16);
+        }
+
+        .description {
+          padding-left: rem-calc(4);
+          padding-right: rem-calc(4);
+        }
+
+        .image-widget {
+
+          > .exo-form-inline {
+            padding-top: 0;
+
+            > .image-preview,
+            > .image-widget-data {
+              padding-top: rem-calc(6);
+            }
+          }
+        }
+
+        .exo-tooltip-trigger {
+          width: theme-val($theme, label-font-size) * 0.8;
+          height: theme-val($theme, label-font-size) * 0.8;
+        }
+
+        .exo-form-pseudo {
+          padding-left: $global-padding;
+          padding-right: $global-padding;
+          min-height: theme-val($theme, input-height) + rem-calc(5);
+          background-color: theme-val($theme, form-bg-color, true);
+        }
+
+        .exo-form-input-item,
+        .field-prefix,
+        .field-suffix {
+
+          &,
+          &:focus,
+          &.picker__input {
+            padding-top: rem-calc(5);
+            padding-bottom: rem-calc(5);
+            padding-left: $global-padding;
+            padding-right: $global-padding;
+            min-height: theme-val($theme, input-height) + rem-calc(5);
+            background-color: theme-val($theme, form-bg-color, true);
+          }
+        }
+
+        .field-prefix,
+        .field-suffix {
+          line-height: theme-val($theme, input-height) - rem-calc(5);
+        }
+
+        .exo-form-select-wrapper {
+
+          &:before {
+            height: theme-val($theme, input-height) - rem-calc(5);
+          }
+        }
+
+        .exo-form-select-dropdown .close {
+          height: theme-val($theme, input-height) + rem-calc(5);
+          line-height: theme-val($theme, input-height) + rem-calc(5);
+        }
+      }
+
+      .exo-form-fieldset-as-field {
+
+        .exo-form-element-intersect {
+          margin-top: rem-calc(10);
+        }
+      }
+
+      .exo-form-element-intersect {
+        position: relative;
+
+        > .field-label,
+        legend .fieldset-legend  {
+          position: absolute;
+          top: rem-calc(-7);
+          left: rem-calc(8);
+          z-index: 10;
+          background-color: theme-val($theme, form-bg-color, true);
+          border-radius: theme-val($theme, form-border-radius);
+          padding: 0 rem-calc(8) !important;
+          pointer-events: none;
+        }
+
+        &.exo-form-input {
+
+          > .field-label {
+            top: rem-calc(15);
+          }
+
+          > .field-prefix,
+          > .field-suffix {
+            color: transparent;
+            text-shadow: none;
+          }
+
+          &.active,
+          &.force-active,
+          &.exo-form-date {
+
+            > .field-label {
+              top: rem-calc(-7);
+            }
+
+            > .field-prefix,
+            > .field-suffix {
+              color: theme-val($theme, input-prefix-suffix-color, true);
+            }
+          }
+        }
+
+        .fieldset-legend > label {
+          padding: 0;
+          font-size: inherit;
+          line-height: inherit;
+        }
+
+        fieldset {
+          color: theme-val($theme, base, true);
+          background-color: theme-val($theme, form-bg-color, true);
+          padding: ($global-padding - rem-calc(5)) $global-padding $global-padding;
+          border-color: theme-val($theme, border-color, true);
+          border-style: theme-val($theme, border-style);
+          border-width: theme-val($theme, border-width);
+          border-radius: theme-val($theme, form-border-radius);
+
+          > legend {
+            margin-top: 2px;
+          }
+        }
+
+        .fieldset-legend {
+          margin: -2px 0 0;
+          padding-left: ($global-padding / 2);
+          font-size: theme-val($theme, label-font-size) * 0.8;
+          font-weight: theme-val($theme, label-font-weight);
+          letter-spacing: theme-val($theme, label-letter-spacing);
+          text-transform: theme-val($theme, label-text-transform);
+        }
+
+        &:not(.has-description) .fieldset-wrapper {
+          margin-top: -($global-padding / 2);
+        }
+
+        .has-legend .fieldset-wrapper {
+          margin-top: ($global-padding / 2);
+        }
+
+        .exo-form-input {
+          padding-top: 0;
+        }
+
+        .exo-icon-field-widget {
+          background-color: theme-val($theme, form-bg-color, true);
+
+          .exo-modal-trigger {
+            background-color: theme-val($theme, form-bg-color, true);
+          }
+        }
+
+        .exo-form-file-input {
+          background-color: theme-val($theme, form-bg-color, true);
+          min-height: theme-val($theme, input-height) + rem-calc(5);
+          line-height: theme-val($theme, input-height) + rem-calc(5);
+        }
+
+        .exo-form-button,
+        .form-actions .button,
+        .form-actions .exo-modal-trigger,
+        .form-actions a {
+          height: theme-val($theme, input-height) + rem-calc(5);
+        }
+
+        .exo-form-input-item.form-textarea {
+          height: auto;
+          padding-top: rem-calc(10);
+          padding-bottom: rem-calc(10);
+        }
+
+        &.exo-form-select {
+
+          > .field-label {
+            transition: opacity $global-speed;
+          }
+
+          .exo-form-select-dropdown .close {
+            height: theme-val($theme, input-height) + rem-calc(3);
+            line-height: theme-val($theme, input-height);
+          }
+
+          &.animate {
+
+            > .field-label {
+              opacity: 0;
+            }
+          }
+        }
+
+        &.exo-number {
+
+          > .field-label {
+            left: $global-padding * 3;
+          }
+
+          > .field-prefix,
+          > .field-suffix {
+            color: theme-val($theme, input-prefix-suffix-color, true);
+          }
+
+          .exo-form-input-item {
+            border-radius: 0;
+          }
+        }
+      }
+
+      .exo-form-element-type-text-format .exo-form-element-intersect {
+
+        &.textarea {
+          padding-top: $global-padding;
+
+          > .field-label {
+            top: 0;
+          }
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////
+      /// Float
+      ////////////////////////////////////////////////////////////////////////////
+      .exo-form-element-float {
+
+        .exo-form-input {
+
+          > .field-label {
+            padding: theme-val($theme, padding);
+          }
+
+          > .field-prefix,
+          > .field-suffix {
+            color: transparent;
+            text-shadow: none;
+          }
+
+          &.active,
+          &.force-active {
+
+            > .field-label {
+              padding: 0;
+            }
+
+            > .field-prefix,
+            > .field-suffix {
+              color: theme-val($theme, input-prefix-suffix-color, true);
+            }
+          }
+        }
+      }
+
+      &.exo-form-style-float-inside {
+
+        .exo-form-input {
+
+          > .field-label {
+            padding: theme-val($theme, padding);
+          }
+
+          .exo-form-input-item,
+          .field-prefix,
+          .field-suffix {
+            height: theme-val($theme, input-height) + theme-val($theme, label-font-size);
+
+            &.form-textarea {
+              height: auto;
+              line-height: 1.5;
+            }
+          }
+
+          .field-prefix,
+          .field-suffix {
+            line-height: theme-val($theme, input-height) + theme-val($theme, label-font-size);
+          }
+        }
+
+        .exo-form-select {
+
+          > .field-label {
+            padding: theme-val($theme, padding);
+          }
+
+          .exo-form-select-wrapper {
+
+            &:before {
+              height: theme-val($theme, input-height) + theme-val($theme, label-font-size) - rem-calc(10);
+            }
+          }
+        }
+
+        .exo-form-file-input {
+          min-height: theme-val($theme, input-height) + theme-val($theme, label-font-size);
+          line-height: theme-val($theme, input-height) + theme-val($theme, label-font-size);
+        }
+
+        .exo-form-select-dropdown .close {
+          height: theme-val($theme, input-height) + theme-val($theme, label-font-size);
+          line-height: theme-val($theme, input-height) + theme-val($theme, label-font-size) * .9;
+        }
+      }
+
+      .exo-form-element-float-inside {
+
+        &.exo-form-input,
+        &.exo-form-select {
+
+          > .field-label {
+            height: theme-val($theme, input-height) + theme-val($theme, label-font-size);
+            line-height: theme-val($theme, input-height) + theme-val($theme, label-font-size);
+            left: theme-val($theme, form-border-radius);
+          }
+
+          .form-textarea {
+            padding-top: theme-val($theme, label-font-size) !important;
+            padding-bottom: theme-val($theme, label-font-size) * .5 !important;
+          }
+        }
+
+        &.has-label.value {
+
+          .exo-form-input-item {
+            padding-top: theme-val($theme, label-font-size);
+            box-sizing: border-box;
+
+            &.form-textarea {
+              padding-top: theme-val($theme, label-font-size) * 1.5 !important;
+              padding-bottom: 0 !important;
+            }
+          }
+        }
+      }
+
+      .field--widget-options-shs .exo-form-element-float-inside.exo-form-input {
+
+        .shs-container {
+          color: theme-val($theme, base, true);
+          background-color: theme-val($theme, input-bg-color, true);
+          padding: theme-val($theme, padding);
+          border-color: theme-val($theme, border-color, true);
+          border-style: theme-val($theme, border-style);
+          border-top-width: theme-val($theme, input-border-top-width);
+          border-right-width: theme-val($theme, input-border-right-width);
+          border-bottom-width: theme-val($theme, input-border-bottom-width);
+          border-left-width: theme-val($theme, input-border-left-width);
+          border-radius: theme-val($theme, form-border-radius);
+        }
+
+        select {
+          height: theme-val($theme, input-height) + theme-val($theme, label-font-size);
+          background-color: theme-val($theme, number-bg-color, true);
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////
+      /// CKE
+      ////////////////////////////////////////////////////////////////////////////
+      .cke {
+
+        &.cke_chrome {
+          position: relative;
+          border-radius: theme-val($theme, form-border-radius);
+          overflow: hidden;
+          z-index: 2;
+
+          &,
+          &:focus,
+          &:hover {
+            border-color: theme-val($theme, form-border-color, true);
+          }
+        }
+
+        &.cke_focus {
+          box-shadow: 0 0 0 2px theme-val($theme, form-bg-color, true), 0 0 0 4px theme-val($theme, form-border-focus-color, true);
+        }
+
+        .cke_top {
+          border-top: 0;
+          border-left: 0;
+          border-right: 0;
+        }
+
+        .cke_contents {
+          border-left: 0;
+          border-right: 0;
+        }
+
+        .cke_bottom {
+          border-bottom: 0;
+          border-left: 0;
+          border-right: 0;
+        }
+
+        .cke_top,
+        .cke_contents,
+        .cke_bottom {
+          border-color: theme-val($theme, form-border-color, true);
+        }
+
+        &:focus {
+
+          .cke_top,
+          .cke_contents,
+          .cke_bottom {
+            border-color: theme-val($theme, form-border-focus-color, true);
+          }
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////
+      /// Linkit Input
+      ////////////////////////////////////////////////////////////////////////////
+      .exo-form-element {
+
+        .form-item.linkit {
+
+          .exo-link-linkit {
+            color: theme-val($theme, base, true);
+            background-color: theme-val($theme, input-bg-color, true);
+            padding: theme-val($theme, padding);
+            border-color: theme-val($theme, border-color, true);
+            border-style: theme-val($theme, border-style);
+            border-top-width: theme-val($theme, input-border-top-width);
+            border-right-width: theme-val($theme, input-border-right-width);
+            border-bottom-width: theme-val($theme, input-border-top-width);
+            border-left-width: theme-val($theme, input-border-left-width);
+          }
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////
+      /// Radio
+      ////////////////////////////////////////////////////////////////////////////////
+      .exo-form-radio {
+
+        label {
+
+          &.option {
+            color: theme-val($theme, label-option-color, true);
+            font-size: theme-val($theme, label-font-option-size);
+            font-size: theme-val($theme, label-font-option-weight);
+
+            &:before,
+            &:after {
+              border-width: theme-val($theme, radio-border-width);
+              border-color: theme-val($theme, radio-border-color, true);
+            }
+
+            &:after {
+              background-color: theme-val($theme, radio-active-color, true);
+            }
+
+            &:before {
+              background: theme-val($theme, radio-bg-color, true);
+
+              .error & {
+                border-color: theme-val($theme, error, true);
+              }
+            }
+          }
+        }
+
+        // Message area.
+        &:after {
+          background: theme-val($theme, message-bg-color, true);
+          color: theme-val($theme, message-color, true);
+        }
+
+        // When active.
+        &.active {
+
+          label {
+
+            &.option {
+
+              &:before {
+                border-color: theme-val($theme, radio-active-color, true);
+              }
+            }
+          }
+        }
+
+        // When focused.
+        &.focused {
+
+          label {
+
+            &.option {
+
+              &:before {
+                outline-color: theme-val($theme, radio-active-color, true);
+              }
+            }
+          }
+        }
+      }
+
+      .exo-element-options .exo-form-radio {
+
+        label.option {
+          border-color: theme-val($theme, border-color, true);
+        }
+
+        &.active {
+
+          label {
+
+            &.option {
+              color: theme-val($theme, radio-active-offset-color, true);
+              text-shadow: none;
+              border-color: theme-val($theme, radio-active-color, true);
+              background-color: theme-val($theme, radio-active-color, true);
+            }
+          }
+        }
+
+        &.focused {
+
+          label {
+
+            &.option {
+              outline: 1px dotted theme-val($theme, radio-active-color, true);
+              outline-offset: 1px;
+            }
+          }
+        }
+      }
+
+      .exo-radios-slider-slide {
+        border-color: theme-val($theme, border-color, true);
+        // background-color: theme-val($theme, radio-active-color, true);
+        border-radius: theme-val($theme, form-border-radius);
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////
+      /// Checkbox
+      ////////////////////////////////////////////////////////////////////////////////
+
+      .exo-form-checkbox {
+
+        label {
+
+          &.option {
+            color: theme-val($theme, label-option-color, true);
+            font-size: theme-val($theme, label-font-option-size);
+            font-size: theme-val($theme, label-font-option-weight);
+
+            &:before {
+              background: theme-val($theme, checkbox-bg-color, true);
+              border-color: theme-val($theme, checkbox-border-color, true);
+              border-width: theme-val($theme, checkbox-border-width);
+
+              .error & {
+                border-color: theme-val($theme, error, true);
+              }
+            }
+
+            &:after {
+              border-right-color: theme-val($theme, checkbox-check-color, true);
+              border-bottom-color: theme-val($theme, checkbox-check-color, true);
+            }
+          }
+        }
+
+        // Message area.
+        &:after {
+          background: theme-val($theme, message-bg-color, true);
+          color: theme-val($theme, message-color, true);
+        }
+
+        // When active.
+        &.active {
+
+          label {
+
+            &.option {
+
+              &:before {
+                border-color: theme-val($theme, checkbox-active-color, true);
+                background: theme-val($theme, checkbox-active-color, true);
+              }
+            }
+          }
+        }
+
+        // When focused.
+        &.focused {
+
+          label {
+
+            &.option {
+
+              &:before {
+                outline-color: theme-val($theme, radio-active-color, true);
+              }
+            }
+          }
+        }
+
+        // When invalid.
+        &.invalid,
+        &.invalid.focused {
+
+          &:after {
+            background: theme-val($theme, error, true);
+            color: color-pick-contrast(theme-val($theme, error, true));
+          }
+        }
+      }
+
+      .exo-element-options .exo-form-checkbox {
+
+        label.option {
+          border-color: theme-val($theme, border-color, true);
+        }
+
+        &.active {
+
+          label {
+
+            &.option {
+              color: theme-val($theme, radio-active-offset-color, true);
+              text-shadow: none;
+              border-color: theme-val($theme, radio-active-color, true);
+              background-color: theme-val($theme, radio-active-color, true);
+            }
+          }
+        }
+
+        &.focused {
+
+          label {
+
+            &.option {
+              outline: 1px dotted theme-val($theme, radio-active-color, true);
+              outline-offset: 1px;
+            }
+          }
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////
+      /// Number
+      ////////////////////////////////////////////////////////////////////////////////
+      .exo-form-number {
+
+        .field-prefix,
+        .field-suffix {
+          background-color: theme-val($theme, number-bg-color, true);
+          color: theme-val($theme, number-color, true);
+
+          &:hover {
+            background-color: theme-val($theme, number-hover-bg-color, true);
+            color: theme-val($theme, number-hover-color, true);
+          }
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////
+      /// Date
+      ////////////////////////////////////////////////////////////////////////////////
+      .exo-form-date-button {
+        color: theme-val($theme, primary, true);
+        transition: opacity $global-speed;
+        cursor: pointer;
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////
+      /// Select
+      ////////////////////////////////////////////////////////////////////////////////
+      .exo-form-select {
+
+        select {
+          background-color: transparent;
+          border-bottom: 1px solid theme-val($theme, input-border-color, true);
+
+          &:focus {
+            border-bottom-color: theme-val($theme, input-border-focus-color, true);
+          }
+        }
+
+        .exo-form-select-caret {
+          color: theme-val($theme, select-caret-color, true);
+        }
+
+        // When invalid.
+        &.invalid,
+        &.invalid.focused {
+
+          > .field-label label {
+            color: theme-val($theme, error, true);
+          }
+
+          .exo-form-input-line {
+            box-shadow: 0 0 0 2px theme-val($theme, input-border-invalid-color, true) !important;
+            opacity: 1;
+          }
+        }
+      }
+
+      .exo-form-select-wrapper {
+
+        &:before {
+
+          background: theme-val($theme, select-selected-bg-color, true);
+          color: theme-val($theme, select-selected-color, true);
+          border-radius: theme-val($theme, form-border-radius);
+        }
+      }
+
+      .exo-form-select-dropdown {
+
+        .close {
+          color: theme-val($theme, select-close-color, true);
+          background-color: theme-val($theme, select-bg-color, true);
+          box-shadow: theme-val($theme, select-close-shadow);
+          border-color: theme-val($theme, select-border-color, true);
+          border-radius: 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius) 0;
+          transition: color $global-speed, background-color $global-speed;
+
+          &:hover {
+            color: theme-val($theme, select-close-hover-color, true);
+            background: theme-val($theme, select-close-hover-bg, true);
+          }
+        }
+
+        .optgroup {
+          color: theme-val($theme, select-optgroup-color, true);
+        }
+
+        .selector {
+          color: theme-val($theme, select-item-color, true);
+          border-radius: theme-val($theme, form-border-radius);
+
+          > span {
+
+            > label {
+              color: theme-val($theme, select-item-color, true);
+            }
+          }
+
+          &.selected {
+            background: theme-val($theme, select-hover-bg-color, true);
+          }
+
+          &:hover {
+            background: theme-val($theme, select-hover-bg-color, true);
+          }
+        }
+
+        &.is-single {
+
+          .selected {
+            color: theme-val($theme, select-selected-color, true);
+            background: theme-val($theme, select-selected-bg-color, true);
+
+            &:hover {
+              background: theme-val($theme, select-selected-bg-color, true);
+            }
+          }
+        }
+
+        .exo-form-select-scroll {
+          background-color: theme-val($theme, select-bg-color, true);
+          box-shadow: theme-val($theme, select-box-shadow);
+          border-color: theme-val($theme, select-border-color, true);
+          margin-left: theme-val($theme, form-border-radius);
+          margin-right: theme-val($theme, form-border-radius);
+          border-radius: 0 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius);
+        }
+
+        &.from-bottom {
+
+          .exo-form-select-scroll {
+            box-shadow: theme-val($theme, select-box-shadow-from-bottom);
+            border-radius: theme-val($theme, form-border-radius) theme-val($theme, form-border-radius) 0 0;
+          }
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////
+      /// File Upload
+      ////////////////////////////////////////////////////////////////////////////////
+      .exo-form-managed-file {
+        border-color: theme-val($theme, border-color, true);
+        border-style: theme-val($theme, border-style);
+        border-width: theme-val($theme, border-width);
+        border-radius: theme-val($theme, form-border-radius);
+      }
+
+      .exo-form-file-input {
+        border-color: theme-val($theme, border-color, true);
+        border-style: theme-val($theme, border-style);
+        border-width: theme-val($theme, border-width);
+        border-radius: theme-val($theme, form-border-radius);
+        background-color: theme-val($theme, input-bg-color, true);
+
+        &:hover {
+
+          .exo-form-input-line {
+            border-radius: theme-val($theme, form-border-radius);
+            box-shadow: 0 0 0 2px theme-val($theme, form-border-hover-color, true);
+            opacity: 1;
+          }
+        }
+
+        &:before {
+          background-color: theme-val($theme, button-primary-bg-color, true);
+          color: theme-val($theme, button-primary-color, true);
+          border-color: theme-val($theme, button-primary-bg-color, true);
+          border-style: theme-val($theme, border-style);
+          border-width: theme-val($theme, border-width);
+          font-weight: theme-val($theme, button-weight);
+          text-decoration: none;
+          border-radius: 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius) 0;
+          transition: color $global-speed, border-color $global-speed, background-color $global-speed;
+        }
+
+        // &:after {
+        //   color: theme-val($theme, primary, true);
+        // }
+
+        &:hover {
+
+          &:before {
+            background-color: theme-val($theme, button-primary-hover-bg-color, true);
+            color: theme-val($theme, button-primary-hover-color, true);
+            border-color: theme-val($theme, button-primary-hover-bg-color, true);
+          }
+        }
+      }
+      // .exo-form-file {
+      //   border-color: theme-val($theme, border-color, true);
+      //   border-style: theme-val($theme, border-style);
+      //   border-width: theme-val($theme, border-width);
+      //   border-radius: theme-val($theme, form-border-radius);
+      //   padding: $global-padding;
+
+      //   .exo-form-file-item,
+      //   .image-widget {
+
+      //     &:before {
+      //       background-color: theme-val($theme, button-primary-bg-color, true);
+      //       color: theme-val($theme, button-primary-color, true);
+      //       border-color: theme-val($theme, button-primary-bg-color, true);
+      //       border-style: theme-val($theme, border-style);
+      //       border-width: theme-val($theme, border-width);
+      //       font-weight: theme-val($theme, button-weight);
+      //       text-decoration: none;
+      //       border-radius: 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius) 0;
+      //       transition: color $global-speed, border-color $global-speed, background-color $global-speed;
+      //     }
+
+      //     &:after {
+      //       border-color: theme-val($theme, border-color, true);
+      //       border-style: theme-val($theme, border-style);
+      //       border-width: theme-val($theme, border-width);
+      //       border-radius: theme-val($theme, form-border-radius);
+      //       background-color: theme-val($theme, input-bg-color, true);
+      //       color: theme-val($theme, primary, true);
+      //     }
+
+      //     &:hover {
+
+      //       &:before {
+      //         background-color: theme-val($theme, button-primary-hover-bg-color, true);
+      //         color: theme-val($theme, button-primary-hover-color, true);
+      //         border-color: theme-val($theme, button-primary-hover-bg-color, true);
+      //       }
+      //     }
+      //   }
+      // }
+
+      ////////////////////////////////////////////////////////////////////////////
+      /// Button
+      ////////////////////////////////////////////////////////////////////////////
+      .exo-form-element-type-password-confirm {
+
+        .password-strength {
+          color: theme-val($theme, base, true);
+          background-color: theme-val($theme, input-bg-color, true);
+          padding: theme-val($theme, password-strength-padding);
+          border-color: theme-val($theme, border-color, true);
+          border-style: theme-val($theme, border-style);
+          border-width: theme-val($theme, password-strength-border-width);
+
+          .password-strength__meter{
+            height: theme-val($theme, password-strength-height);
+            background-color: theme-val($theme, password-strength-bg-color, true);
+
+            .is-weak {
+              background-color: theme-val($theme, error, true);
+            }
+
+            .is-fair {
+              background-color: theme-val($theme, warning, true);
+            }
+
+            .is-good {
+              background-color: theme-val($theme, success, true);
+            }
+
+            .is-strong {
+              background-color: theme-val($theme, success, true);
+            }
+          }
+
+          .password-strength__title {
+            position: absolute;
+            top: theme-val($theme, password-strength-padding);
+            left: theme-val($theme, password-strength-padding) + ($global-padding / 2);
+            line-height: theme-val($theme, password-strength-height);
+            color: theme-val($theme, password-strength-color, true);
+            text-shadow: theme-val($theme, password-strength-text-shadow);
+          }
+        }
+
+        .password-confirm-message {
+          padding-top: theme-val($theme, password-suggestions-padding);
+          padding-bottom: theme-val($theme, password-suggestions-padding);
+          font-size: theme-val($theme, password-suggestions-font-size);
+        }
+
+        .password-suggestions {
+          padding: theme-val($theme, password-suggestions-padding);
+          border-color: theme-val($theme, border-color, true);
+          border-style: theme-val($theme, border-style);
+          border-width: theme-val($theme, password-suggestions-border-width);
+          color: theme-val($theme, password-suggestions-color, true);
+          background-color: theme-val($theme, password-suggestions-bg-color, true);
+          font-size: theme-val($theme, password-suggestions-font-size);
+          text-shadow: theme-val($theme, password-suggestions-text-shadow);
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////
+      /// Button
+      ////////////////////////////////////////////////////////////////////////////
+      .exo-form-button,
+      .form-actions .button,
+      .form-actions .exo-modal-trigger,
+      .action-link--icon-trash.action-link--danger,
+      > .button,
+      td > .button,
+      td > .exo-modal-trigger {
+
+        .is-admin & {
+          background-color: theme-val($theme, button-bg-color, true) !important;
+          color: theme-val($theme, button-color, true) !important;
+          border-color: theme-val($theme, button-border-color, true) !important;
+          border-style: theme-val($theme, border-style);
+          border-width: theme-val($theme, border-width);
+          font-weight: theme-val($theme, button-weight);
+          text-decoration: none;
+          border-radius: theme-val($theme, form-border-radius);
+          transition: color $global-speed, border-color $global-speed, background-color $global-speed;
+          // Strange alignment issue resolved.
+          margin-bottom: 1px;
+
+          &:hover {
+            background-color: theme-val($theme, button-hover-bg-color, true) !important;
+            color: theme-val($theme, button-hover-color, true) !important;
+            border-color: theme-val($theme, button-hover-bg-color, true) !important;
+            text-decoration: none;
+          }
+
+          &.button--primary {
+            background-color: theme-val($theme, button-primary-bg-color, true) !important;
+            color: theme-val($theme, button-primary-color, true) !important;
+            border-color: theme-val($theme, button-primary-bg-color, true) !important;
+
+            &:hover {
+              background-color: theme-val($theme, button-primary-hover-bg-color, true) !important;
+              color: theme-val($theme, button-primary-hover-color, true) !important;
+              border-color: theme-val($theme, button-primary-hover-bg-color, true) !important;
+            }
+          }
+
+          &[data-drupal-selector="edit-cancel"] {
+            background-color: theme-val($theme, button-error-bg-color, true) !important;
+            color: theme-val($theme, button-error-color, true) !important;
+            border-color: theme-val($theme, button-error-bg-color, true) !important;
+
+            &:hover {
+              background-color: theme-val($theme, button-error-hover-bg-color, true) !important;
+              color: theme-val($theme, button-error-hover-color, true) !important;
+              border-color: theme-val($theme, button-error-hover-bg-color, true) !important;
+            }
+          }
+        }
+      }
+
+      .sortableviews-ajax-trigger {
+
+        .is-admin & {
+          background-color: theme-val($theme, button-primary-bg-color, true);
+          color: theme-val($theme, button-primary-color, true);
+          border-color: theme-val($theme, button-primary-bg-color, true);
+          border-style: theme-val($theme, border-style);
+          border-width: theme-val($theme, border-width);
+          font-weight: theme-val($theme, button-weight);
+          text-decoration: none;
+          border-radius: theme-val($theme, form-border-radius);
+          transition: color $global-speed, border-color $global-speed, background-color $global-speed;
+          // Strange alignment issue resolved.
+          margin-bottom: 1px;
+
+          &:hover {
+            background-color: theme-val($theme, button-primary-hover-bg-color, true);
+            color: theme-val($theme, button-primary-hover-color, true);
+            border-color: theme-val($theme, button-primary-hover-bg-color, true);
+          }
+        }
+      }
+
+      td {
+
+        .button,
+        .exo-form-button,
+        .exo-modal-trigger {
+
+          .is-admin & {
+            background: lighten(theme-val($theme, table-tbody-bg-color, true), 5%);
+          }
+        }
+      }
+
+      td > .button,
+      td > .exo-modal-trigger,
+      td > a {
+
+        .is-admin & {
+          font-weight: theme-val($theme, button-alt-weight);
+        }
+      }
+
+      .form-actions {
+
+        .is-admin & {
+
+          a.button {
+            color: theme-val($theme, button-secondary-color, true);
+            font-weight: theme-val($theme, button-secondary-weight);
+          }
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////
+      /// Action-links
+      ////////////////////////////////////////////////////////////////////////////////
+      .action-links {
+
+        .button {
+
+          &.button--primary {
+            background-color: theme-val($theme, button-primary-bg-color, true);
+            color: theme-val($theme, button-primary-color, true);
+            border-color: theme-val($theme, button-primary-bg-color, true);
+            border-radius: theme-val($theme, form-border-radius);
+            transition: color $global-speed, background-color $global-speed;
+
+            &:hover {
+              background-color: theme-val($theme, button-primary-hover-bg-color, true);
+              color: theme-val($theme, button-primary-hover-color, true);
+              border-color: theme-val($theme, button-primary-hover-bg-color, true);
+            }
+          }
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////
+      /// Horizontal Tabs
+      ////////////////////////////////////////////////////////////////////////////
+      .exo-form-horizontal-tabs {
+
+        .horizontal-tab-button {
+          overflow: hidden;
+
+          a {
+            border-style: theme-val($theme, tab-border-style);
+            border-width: theme-val($theme, tab-border-width);
+            border-color: theme-val($theme, tab-border-color, true);
+            background-color: theme-val($theme, tab-menu-bg-color, true);
+            color: theme-val($theme, tab-menu-color, true);
+            border-radius: 0;
+          }
+
+          &:first-child {
+
+            a {
+              border-radius: theme-val($theme, form-border-radius) 0 0 0;
+            }
+
+            &:before {
+              margin-left: theme-val($theme, form-border-radius);
+            }
+          }
+
+          &:last-child {
+
+            a {
+              border-radius: 0 theme-val($theme, form-border-radius) 0 0;
+            }
+
+            &:before {
+              margin-left: theme-val($theme, form-border-radius) * -1;
+            }
+          }
+
+          &:first-child:last-child {
+
+            a {
+              border-radius: theme-val($theme, form-border-radius) theme-val($theme, form-border-radius) 0 0;
+            }
+
+            &:before {
+              width: calc(100% - #{theme-val($theme, form-border-radius) * 2});
+              margin-left: theme-val($theme, form-border-radius);
+            }
+          }
+
+          &.selected,
+          &.ui-tabs-active {
+
+            a {
+              background-color: theme-val($theme, tab-pane-bg-color, true);
+              color: theme-val($theme, tab-menu-active-color, true);
+              border-bottom-color: theme-val($theme, tab-pane-bg-color, true);
+            }
+          }
+
+          &:before {
+            background-image: linear-gradient(theme-val($theme, input-border-focus-color, true), theme-val($theme, input-border-focus-color, true)), linear-gradient(theme-val($theme, input-border-color, true), theme-val($theme, input-border-color, true));
+          }
+        }
+
+        .horizontal-tabs-panes {
+          background-color: theme-val($theme, tab-pane-bg-color, true);
+          border-style: theme-val($theme, tab-border-style);
+          border-width: theme-val($theme, tab-border-width);
+          border-color: theme-val($theme, tab-border-color, true);
+          border-radius: 0 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius);
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////
+      /// Vertical Tabs
+      ////////////////////////////////////////////////////////////////////////////
+      .exo-form-vertical-tabs {
+
+        .vertical-tabs__menu {
+
+          li {
+
+            a {
+              border-style: theme-val($theme, tab-border-style);
+              border-width: theme-val($theme, tab-border-width);
+              border-color: theme-val($theme, tab-border-color, true);
+              border-bottom-width: 0;
+              background-color: theme-val($theme, tab-menu-bg-color, true);
+              color: theme-val($theme, tab-menu-color, true);
+            }
+
+            &:first-child {
+
+              a {
+                border-radius: theme-val($theme, form-border-radius) 0 0 0;
+              }
+            }
+
+            &:hover {
+
+              a {
+                background-color: theme-val($theme, tab-menu-hover-bg-color, true);
+                color: theme-val($theme, tab-menu-hover-color, true);
+              }
+            }
+
+            &.is-selected {
+
+              a {
+                background-color: theme-val($theme, tab-pane-bg-color, true);
+                color: theme-val($theme, tab-menu-active-color, true);
+                border-right-width: 0;
+              }
+            }
+
+            &:after {
+              background-image: linear-gradient(theme-val($theme, input-border-focus-color, true), theme-val($theme, input-border-focus-color, true)), linear-gradient(theme-val($theme, tab-border-color, true), theme-val($theme, tab-border-color, true));
+            }
+          }
+        }
+
+        .vertical-tabs__panes,
+        .vertical-tabs__items {
+          background-color: theme-val($theme, tab-pane-bg-color, true);
+          border-style: theme-val($theme, tab-border-style);
+          border-width: theme-val($theme, tab-border-width);
+          border-color: theme-val($theme, tab-border-color, true);
+          border-radius: 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius) 0;
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////
+      /// Media library
+      ////////////////////////////////////////////////////////////////////////////
+      .media-library-view {
+
+        a {
+          color: theme-val($theme, base, true);
+          transition: color $global-speed;
+
+          &:hover {
+            color: theme-val($theme, primary, true);
+          }
+        }
+
+        .views-display-link {
+          color: theme-val($theme, base, true);
+
+          &:before {
+            background-color: theme-val($theme, base, true);
+          }
+        }
+
+        .views-form {
+          background-color: theme-val($theme, tab-pane-bg-color, true);
+          border-style: theme-val($theme, tab-border-style);
+          border-width: theme-val($theme, tab-border-width);
+          border-color: theme-val($theme, tab-border-color, true);
+          color: theme-val($theme, base, true);
+          box-shadow: none;
+        }
+      }
+
+      .media-library-menu {
+
+        li {
+
+          a {
+            border-style: theme-val($theme, tab-border-style);
+            border-width: theme-val($theme, tab-border-width);
+            border-color: theme-val($theme, tab-border-color, true);
+            border-right-width: 0;
+            border-bottom-width: 0;
+            background-color: theme-val($theme, tab-menu-bg-color, true);
+            color: theme-val($theme, tab-menu-color, true);
+          }
+
+          // &:first-child {
+
+          //   a {
+          //     border-radius: theme-val($theme, form-border-radius) 0 0 0;
+          //   }
+          // }
+
+          &:hover {
+
+            a {
+              background-color: theme-val($theme, tab-menu-hover-bg-color, true);
+              color: theme-val($theme, tab-menu-hover-color, true);
+            }
+          }
+
+          &.active {
+            margin-right: -1px;
+
+            a {
+              background-color: theme-val($theme, tab-pane-bg-color, true);
+              color: theme-val($theme, tab-menu-active-color, true);
+              border-right-width: 0;
+            }
+
+            &:after {
+              background-size: 100% 2px, 100% 1px;
+            }
+          }
+
+          &:after {
+            background-image: linear-gradient(theme-val($theme, input-border-focus-color, true), theme-val($theme, input-border-focus-color, true)), linear-gradient(theme-val($theme, input-border-color, true), theme-val($theme, input-border-color, true));
+          }
+        }
+
+        + .media-library-content {
+          background-color: theme-val($theme, tab-pane-bg-color, true);
+          border-style: theme-val($theme, tab-border-style);
+          border-width: theme-val($theme, tab-border-width);
+          border-color: theme-val($theme, tab-border-color, true);
+        }
+      }
+
+      .media-library-add-form__input-wrapper,
+      .media-library-content > .views-element-container {
+        background-color: theme-val($theme, tab-menu-bg-color, true);
+        border-style: theme-val($theme, tab-border-style);
+        border-width: theme-val($theme, tab-border-width);
+        border-color: theme-val($theme, tab-border-color, true);
+        padding: $global-padding;
+        margin-top: 0;
+      }
+
+      .media-library-content .exo-form-managed-file {
+        background: none;
+        border: 0;
+        padding: 0;
+        margin: 0;
+      }
+
+      .media-library-item--grid {
+
+        .exo-media-preview {
+          // border-radius: theme-val($theme, form-border-radius) !important;
+          background-color: theme-val($theme, tab-menu-bg-color, true);
+          color: theme-val($theme, tab-menu-color, true);
+        }
+
+        &:before {
+          // border-radius: theme-val($theme, form-border-radius) !important;
+        }
+      }
+
+      &.has-media-library-menu {
+
+        .media-library-content {
+          background-color: theme-val($theme, tab-pane-bg-color, true);
+          border-style: theme-val($theme, tab-border-style);
+          border-width: theme-val($theme, tab-border-width);
+          border-color: theme-val($theme, tab-border-color, true);
+          border-radius: 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius) 0;
+        }
+      }
+
+      .js-media-library-widget {
+
+        .exo-media-preview {
+          border-style: theme-val($theme, tab-border-style);
+          border-width: theme-val($theme, tab-border-width);
+          border-color: theme-val($theme, tab-border-color, true);
+          border-radius: theme-val($theme, form-border-radius);
+          background-color: theme-val($theme, tab-menu-bg-color, true);
+          color: theme-val($theme, tab-menu-color, true);
+
+          img {
+            width: 100%;
+          }
+
+          > div:not(.js-media-library-item-preview) {
+            padding: rem-calc(5);
+          }
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////
+      /// Inline Entity Form
+      ////////////////////////////////////////////////////////////////////////////
+
+      .paragraph-type-label {
+
+        .exo-icon {
+          background-color: theme-val($theme, inline-entity-form-paragraph-label-icon-bg, true);
+          color: theme-val($theme, inline-entity-form-paragraph-label-icon-color, true);
+          border-color: theme-val($theme, inline-entity-form-paragraph-label-icon-bg, true);
+          border-style: theme-val($theme, border-style);
+          border-width: theme-val($theme, border-width);
+        }
+
+        .exo-icon-label {
+          background-color: theme-val($theme, inline-entity-form-paragraph-label-bg, true);
+          color: theme-val($theme, inline-entity-form-paragraph-label-color, true);
+          border-color: theme-val($theme, inline-entity-form-paragraph-label-border-color, true);
+          border-style: theme-val($theme, border-style);
+          border-width: theme-val($theme, border-width);
+          border-left: 0;
+        }
+      }
+
+      .paragraph--view-mode--preview,
+      .paragraph.preview {
+
+        .paragraph--view-mode--preview,
+        .paragraph.preview {
+          border-color: theme-val($theme, border-color, true);
+        }
+      }
+
+      .paragraph-cardinality-1 {
+        border-color: theme-val($theme, border-color, true);
+        border-style: theme-val($theme, border-style);
+        border-width: theme-val($theme, border-width);
+        border-radius: theme-val($theme, form-border-radius);
+      }
+
+      .paragraph-type-icon {
+        border: 1px solid theme-val($theme, border-color, true);
+      }
+
+      .paragraph-has-subform {
+        background: theme-val($theme, inline-entity-form-open-bg-color, true);
+        border-color: theme-val($theme, button-border-color, true);
+        border-style: theme-val($theme, border-style);
+        border-width: 0;
+        border-left-color: theme-val($theme, inline-entity-form-paragraph-border-color, true);
+        border-left-width: rem-calc(5);
+        box-shadow: inset 0 2px 5px theme-val($theme, inline-entity-form-paragraph-box-shadow-color, true);
+
+        .paragraph-type-label.active {
+
+          .exo-icon {
+            border-color: color-scale-direct(theme-val($theme, inline-entity-form-paragraph-label-icon-bg, true), 5%);
+          }
+
+          .exo-icon-label {
+            background-color: theme-val($theme, inline-entity-form-paragraph-label-active-bg, true);
+            // box-shadow: 0 2px 5px theme-val($theme, inline-entity-form-paragraph-label-shadow-color, true);
+          }
+        }
+
+        .paragraphs-description {
+
+          .paragraphs-content-wrapper {
+
+            &:after {
+              background-image: linear-gradient(to right, alpha(theme-val($theme, inline-entity-form-open-bg-color), 0), theme-val($theme, inline-entity-form-open-bg-color, true));
+            }
+          }
+        }
+
+        .paragraphs-subform {
+          background: theme-val($theme, inline-entity-form-subform-bg-color, true);
+          border-color: theme-val($theme, button-border-color, true);
+          border-style: theme-val($theme, border-style);
+          border-width: theme-val($theme, border-width);
+        }
+
+        .paragraph-has-subform {
+          border-left-color: theme-val($theme, inline-entity-form-paragraph-border-nested-color, true);
+
+          .paragraph-type-label.active {
+
+            .exo-icon {
+              background-color: theme-val($theme, inline-entity-form-paragraph-label-icon-nested-bg, true);
+              color: theme-val($theme, inline-entity-form-paragraph-label-icon-nested-color, true);
+              border-color: color-scale-direct(theme-val($theme, inline-entity-form-paragraph-label-icon-nested-bg, true), 5%);
+            }
+
+            .exo-icon-label {
+              border-color: theme-val($theme, inline-entity-form-paragraph-label-border-active-color, true);
+            }
+          }
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////
+      /// Entity Meta
+      ////////////////////////////////////////////////////////////////////////////
+      .entity-meta {
+
+        .exo-body:not(.theme-gin) & {
+          background-color: theme-val($theme, entity-meta-bg-color, true);
+          border-color: theme-val($theme, button-border-color, true);
+          border-style: theme-val($theme, border-style);
+          border-width: theme-val($theme, border-width);
+          border-radius: theme-val($theme, form-border-radius);
+          border-bottom: 0;
+
+          .entity-meta__header {
+
+            > h3,
+            > div {
+              border-top-color: theme-val($theme, entity-meta-separator-top-color, true);
+              border-bottom-color: theme-val($theme, entity-meta-separator-bottom-color, true);
+            }
+
+            .exo-form-input-item {
+              background: theme-val($theme, form-bg-color, true);
+            }
+          }
+
+          > .form-wrapper,
+          > details {
+            border-style: theme-val($theme, border-style);
+            border-top-color: theme-val($theme, entity-meta-border-top-color, true);
+            border-bottom-color: theme-val($theme, entity-meta-border-bottom-color, true);
+            border-left-width: 0;
+            border-right-width: 0;
+            border-top-width: theme-val($theme, border-width);
+            border-bottom-width: theme-val($theme, border-width);
+
+            > summary {
+              background-color: theme-val($theme, entity-meta-detail-bg-color, true);
+
+              &:hover {
+                background-color: theme-val($theme, entity-meta-detail-hover-bg-color, true);
+              }
+
+              &::marker {
+                content: '';
+              }
+
+              &:after {
+                @include exo-triangle(right, rem-calc(5), rem-calc(5), theme-val($theme, entity-meta-detail-triangle-color, true)) {
+                  margin: rem-calc(-3 0 0 5);
+                  transition: transform $global-speed;
+                };
+              }
+            }
+
+            &[open] {
+              background-color: theme-val($theme, entity-meta-detail-open-bg-color, true);
+
+              > summary {
+
+                &:after {
+                  transform: rotate(90deg);
+                }
+              }
+
+              > .details-wrapper {
+                box-shadow: inset 0 2px 5px theme-val($theme, entity-meta-detail-open-box-shadow-color, true);
+              }
+            }
+          }
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////
+      /// Entity Reference Tree
+      ////////////////////////////////////////////////////////////////////////////
+      .field--widget-entity-reference-tree {
+
+        > a {
+          color: theme-val($theme, entity-reference-tree-color, true);
+          background-color: theme-val($theme, entity-reference-tree-bg-color, true);
+          font-size: theme-val($theme, entity-reference-tree-font-size);
+          border-width: theme-val($theme, entity-reference-tree-border-width);
+          border-style: theme-val($theme, entity-reference-tree-border-style);
+          border-color: theme-val($theme, entity-reference-tree-border-color, true);
+          border-top: 0;
+          border-radius: 0 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius);
+          padding: theme-val($theme, entity-reference-tree-bg-padding);
+          transition: color $global-speed, background-color $global-speed;
+
+          &:hover {
+            color: theme-val($theme, entity-reference-tree-hover-color, true);
+            background-color: theme-val($theme, entity-reference-tree-hover-bg-color, true);
+          }
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////
+      /// Views Admin
+      ////////////////////////////////////////////////////////////////////////////
+      .views-admin & {
+
+        .unit-title {
+          color: theme-val($theme, form-color, true);
+        }
+
+        > .exo-form-element-type-actions {
+          margin-top: 0 !important;
+
+          .form-actions {
+            border-width: theme-val($theme, views-border-width);
+            border-top-width: 0;
+            border-style: theme-val($theme, views-border-style);
+            border-color: theme-val($theme, views-border-color, true);
+            border-radius: 0 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius);
+            padding: $global-padding;
+          }
+        }
+      }
+
+      .views-displays {
+        border-width: theme-val($theme, views-border-width);
+        border-style: theme-val($theme, views-border-style);
+        border-color: theme-val($theme, views-border-color, true);
+        border-radius: theme-val($theme, form-border-radius) theme-val($theme, form-border-radius) 0 0;
+        margin-bottom: 0 !important;
+        padding: 0;
+
+        .views-display-top {
+          border-bottom-width: theme-val($theme, views-border-width);
+          border-bottom-style: theme-val($theme, views-border-style);
+          border-bottom-color: theme-val($theme, views-border-color, true);
+        }
+
+        .edit-display-settings-top.views-ui-display-tab-bucket {
+          border-color: theme-val($theme, views-border-color, true);
+          border-radius: theme-val($theme, views-border-radius);
+        }
+
+        .views-display-columns {
+          display: flex;
+
+          > * {
+            flex: 1 1 auto;
+            float: none;
+            margin: 0 0 0 $global-margin;
+            border-width: theme-val($theme, views-border-width);
+            border-style: theme-val($theme, views-border-style);
+            border-color: theme-val($theme, views-border-alt-color, true);
+            border-radius: theme-val($theme, form-border-radius);
+
+            > .exo-form-element-inner {
+              border: 0;
+              padding: 0;
+
+              summary {
+                padding: $global-padding / 2 $global-padding / 2 0;
+                margin-bottom: 0;
+              }
+            }
+
+            &:first-child {
+              margin-left: 0;
+            }
+          }
+        }
+
+        .views-ui-display-tab-bucket {
+          border-color: theme-val($theme, views-border-alt-color, true);
+        }
+
+        .tabs.secondary {
+
+          li {
+
+            a {
+              border-width: theme-val($theme, dropbutton-border-width);
+              border-style: theme-val($theme, dropbutton-border-style);
+              border-color: theme-val($theme, dropbutton-border-color, true);
+              border-right-width: 0;
+              background-color: theme-val($theme, dropbutton-bg-color, true);
+              color: theme-val($theme, dropbutton-color, true);
+              transition: color $global-speed, background-color $global-speed;
+
+              &:hover {
+                background-color: theme-val($theme, dropbutton-hover-bg-color, true);
+                color: theme-val($theme, dropbutton-hover-color, true);
+              }
+            }
+
+            &.is-active {
+
+              a {
+                background-color: theme-val($theme, dropbutton-hover-bg-color, true);
+                color: theme-val($theme, dropbutton-hover-color, true);
+              }
+            }
+
+            &:first-child {
+
+              a {
+                border-radius: theme-val($theme, form-border-radius) 0 0 theme-val($theme, form-border-radius);
+              }
+            }
+
+            &:last-child {
+
+              a {
+                border-right-width: theme-val($theme, dropbutton-border-width);
+                border-radius: 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius) 0;
+              }
+            }
+          }
+        }
+
+        .action-list {
+          box-shadow: theme-val($theme, dropbutton-shadow);
+          border-radius: 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius) theme-val($theme, form-border-radius);
+          background-color: transparent;
+
+          li {
+            border-width: theme-val($theme, dropbutton-border-width);
+            border-style: theme-val($theme, dropbutton-border-style);
+            border-color: theme-val($theme, dropbutton-border-color, true);
+            border-bottom-width: 0;
+
+            &:first-child {
+              border-radius: 0 theme-val($theme, form-border-radius) 0 0;
+            }
+
+            &:last-child {
+              border-top-width: theme-val($theme, dropbutton-border-width);
+              border-bottom-width: theme-val($theme, dropbutton-border-width);
+              border-radius: 0 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius);
+            }
+          }
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////
+      /// Table
+      ////////////////////////////////////////////////////////////////////////////
+      table {
+        background: theme-val($theme, table-bg-color, true);
+        border: 1px solid theme-val($theme, table-border-color, true);
+      }
+
+      tr {
+        border-bottom-color: theme-val($theme, table-border-color, true);
+      }
+
+      thead {
+        background: theme-val($theme, table-thead-bg-color, true);
+        color: theme-val($theme, table-thead-color, true);
+
+        tr {
+
+          th {
+            background: theme-val($theme, table-thead-bg-color, true);
+            color: theme-val($theme, table-thead-color, true);
+            text-shadow: 0 1px 1px darken(theme-val($theme, table-thead-bg-color, true), 10%);
+            padding: theme-val($theme, table-thead-padding);
+            border-color: theme-val($theme, table-border-color, true);
+            font-size: theme-val($theme, table-thead-font-size);
+          }
+        }
+      }
+
+      tbody {
+        background: theme-val($theme, table-tbody-bg-color, true);
+
+        tr {
+          transition: background-color $global-speed;
+          font-size: theme-val($theme, table-tbody-font-size);
+
+          &:hover {
+            background: color-scale-direct(theme-val($theme, table-tbody-bg-color, true), 3%);
+          }
+
+          &:nth-child(2n) {
+            background: theme-val($theme, table-tbody-odd-bg-color, true);
+
+            &:hover {
+              background: color-scale-direct(theme-val($theme, table-tbody-odd-bg-color, true), 3%);
+            }
+          }
+        }
+
+        td {
+          padding: theme-val($theme, table-padding);
+          border-bottom-color: theme-val($theme, table-border-color, true);
+          color: theme-val($theme, table-tbody-color, true);
+
+          &:first-child {
+            padding-left: theme-val($theme, table-padding);
+          }
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////
+      /// Dropbuttons
+      ////////////////////////////////////////////////////////////////////////////
+      .js & {
+
+        .dropbutton {
+          font-size: theme-val($theme, dropbutton-font-size);
+
+          .dropbutton-action > {
+
+            input,
+            a,
+            button {
+              color: theme-val($theme, dropbutton-color, true);
+            }
+          }
+
+          .secondary-action {
+            border-top-width: theme-val($theme, dropbutton-border-width);
+            border-top-style: theme-val($theme, dropbutton-border-style);
+            border-top-color: theme-val($theme, dropbutton-border-color, true);
+          }
+        }
+
+        .dropbutton-multiple {
+
+          .dropbutton-widget {
+            border-width: theme-val($theme, dropbutton-border-width);
+            border-style: theme-val($theme, dropbutton-border-style);
+            border-color: theme-val($theme, dropbutton-border-color, true);
+            border-radius: theme-val($theme, form-border-radius);
+            background-color: theme-val($theme, dropbutton-bg-color, true);
+          }
+
+          &.open {
+
+            .dropbutton-arrow {
+              border-bottom-width: theme-val($theme, dropbutton-arrow-open-width);
+              border-bottom-style: theme-val($theme, dropbutton-border-style);
+              border-bottom-color: theme-val($theme, primary, true);
+              border-radius: theme-val($theme, form-border-radius);
+              border-top-width: 0;
+            }
+          }
+        }
+
+        .dropbutton-wrapper {
+
+          &.open {
+
+            .dropbutton-widget {
+              box-shadow: theme-val($theme, dropbutton-shadow);
+            }
+          }
+
+          .dropbutton-widget {
+
+            .dropbutton-action {
+
+              a:hover,
+              button:hover,
+              input:hover,
+              a:focus,
+              button:focus,
+              input:focus {
+                background-color: theme-val($theme, dropbutton-hover-bg-color, true);
+                color: theme-val($theme, dropbutton-hover-color, true);
+              }
+
+              a:active,
+              input:active,
+              button:active {
+                background-color: theme-val($theme, dropbutton-bg-color, true);
+              }
+            }
+
+            // The dropdown trigger.
+            .dropbutton-toggle {
+
+              button {
+                border-left-width: theme-val($theme, dropbutton-border-width);
+                border-left-style: theme-val($theme, dropbutton-border-style);
+                border-left-color: theme-val($theme, dropbutton-border-color, true);
+                border-radius: 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius) 0;
+                color: theme-val($theme, dropbutton-color, true);
+
+                .dropbutton-arrow {
+                  border-top-color: theme-val($theme, primary, true);
+                }
+
+                &:before {
+                  color: theme-val($theme, dropbutton-color, true);
+                }
+
+                &:hover,
+                &:focus,
+                &:active {
+                  background-color: theme-val($theme, dropbutton-hover-bg-color, true);
+                  color: theme-val($theme, dropbutton-hover-color, true);
+                  box-shadow: 0 1px 2px alpha(theme-val($theme, base, true), 0.15);
+
+                  &:before {
+                    color: theme-val($theme, dropbutton-hover-color, true);
+                  }
+
+                  .dropbutton-arrow {
+                    border-top-color: theme-val($theme, offset, true);
+                    border-bottom-color: theme-val($theme, offset, true);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        .dropbutton-single {
+
+          .dropbutton-action a {
+            border-width: theme-val($theme, dropbutton-border-width) !important;
+            border-style: theme-val($theme, dropbutton-border-style) !important;
+            border-color: theme-val($theme, dropbutton-border-color, true) !important;
+            // Important added thanks to adminimal.
+            border-radius: theme-val($theme, form-border-radius) !important;
+            background-color: theme-val($theme, dropbutton-bg-color, true);
+            color: theme-val($theme, primary, true);
+
+            &:active {
+              background-color: theme-val($theme, dropbutton-hover-bg-color, true);
+            }
+          }
+        }
+
+        // Form Actions
+        .form-actions {
+
+          .dropbutton .dropbutton-action > * {
+            color: theme-val($theme, offset, true);
+            text-shadow: 0 1px alpha(theme-val($theme, base, true), 0.5);
+          }
+
+          .dropbutton-widget {
+            border-color: theme-val($theme, dropbutton-border-color, true);
+            background-color: theme-val($theme, dropbutton-bg-color, true);
+            text-shadow: 0 1px alpha(theme-val($theme, base, true), 0.5);
+          }
+
+          .dropbutton-wrapper .dropbutton-widget {
+
+            .dropbutton-action .button {
+
+              &:hover,
+              &:focus {
+                background-color: theme-val($theme, dropbutton-bg-color, true);
+                box-shadow: 0 1px 2px alpha(theme-val($theme, base, true), 0.25);
+                color: theme-val($theme, dropbutton-hover-color, true);
+              }
+
+              &:active {
+                border-color: theme-val($theme, dropbutton-border-color, true);
+                box-shadow: inset 0 1px 3px alpha(theme-val($theme, base, true), 0.25);
+              }
+            }
+
+            .dropbutton-toggle button {
+              border-color: theme-val($theme, dropbutton-border-color, true);
+            }
+          }
+
+          .dropbutton .secondary-action {
+            border-color: theme-val($theme, dropbutton-border-color, true);
+
+            &:hover,
+            &:focus {
+              background-color: theme-val($theme, dropbutton-bg-color, true);
+            }
+
+            &:active {
+              border-color: theme-val($theme, dropbutton-border-color, true);
+              box-shadow: inset 0 1px 3px alpha(theme-val($theme, base, true), 0.25);
+            }
+          }
+
+          .dropbutton-arrow {
+            border-top-color: theme-val($theme, dropbutton-border-color, true);
+          }
+
+          .dropbutton-multiple.open {
+            box-shadow: 0 1px 20px alpha(theme-val($theme, base, true), 0.15);
+
+            .dropbutton-arrow {
+              border-bottom-width: theme-val($theme, dropbutton-arrow-open-width);
+              border-bottom-style: theme-val($theme, dropbutton-border-style);
+              border-bottom-color: theme-val($theme, dropbutton-border-color, true);
+              border-radius: 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius) 0;
+            }
+          }
+        }
+      }
+    }
+  }
+}

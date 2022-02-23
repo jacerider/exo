@@ -1,0 +1,15 @@
+exo_alchemist.local_tasks:
+  deriver: 'Drupal\exo_alchemist\Plugin\Derivative\ExoAlchemistLocalTasks'
+  weight: 100
+exo_alchemist.component.preview:
+  route_name: exo_alchemist.component.preview
+  base_route: exo_alchemist.component.preview
+  title: 'Preview'
+exo_alchemist.component.update:
+  route_name: exo_alchemist.component.update
+  base_route: exo_alchemist.component.preview
+  title: 'Update'
+exo_alchemist.component.uninstall:
+  route_name: exo_alchemist.component.uninstall
+  base_route: exo_alchemist.component.preview
+  title: 'Uninstall'

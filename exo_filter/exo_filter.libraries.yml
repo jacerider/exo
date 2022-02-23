@@ -1,0 +1,44 @@
+summary:
+  version: VERSION
+  js:
+    js/exo.filter.summary.js: { minified: true }
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/drupal
+    - exo_filter/theme
+
+litepicker:
+  js:
+    js/exo.filter.litepicker.js: {}
+  dependencies:
+    - core/drupal
+    - exo_filter/lib.litepicker
+    - exo_filter/lib.litepicker.keyboardnav
+
+
+################################################################################
+## eXo Theme Provider
+################################################################################
+
+theme:
+  version: VERSION
+  css:
+    component:
+      css/exo-filter.css: { minified: true }
+  dependencies:
+    - exo/exo
+
+################################################################################
+## Libraries
+################################################################################
+
+lib.litepicker:
+  version: VERSION
+  js:
+    lib/litepicker/main.js: {minified: true}
+
+lib.litepicker.keyboardnav:
+  version: VERSION
+  js:
+    lib/litepicker/keyboardnav.js: {minified: true}

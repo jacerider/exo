@@ -1,0 +1,29 @@
+.field--type-field-signature {
+
+  .exo-form-input {
+
+    .field-input {
+      position: static;
+    }
+  }
+
+  .field-label {
+
+    .exo-form-style-intersect & {
+      top: -5px !important;
+    }
+  }
+
+  .description {
+    padding: 0 !important;
+  }
+
+  > .align-right {
+    display: none;
+  }
+
+  .signature {
+    border-radius: $global-radius;
+    background: transparent;
+  }
+}

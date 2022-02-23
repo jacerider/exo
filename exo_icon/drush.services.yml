@@ -1,0 +1,6 @@
+services:
+  exo_icon.commands:
+    class: Drupal\exo_icon\Command\ExoIconDrushCommands
+    arguments: ['@exo_icon.repository', '@file_system']
+    tags:
+      - { name: drush.command }

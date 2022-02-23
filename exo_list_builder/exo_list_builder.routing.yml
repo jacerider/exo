@@ -1,0 +1,15 @@
+route_callbacks:
+  - '\Drupal\exo_list_builder\Routing\ExoListRoutes::routes'
+exo_list_builder.action.export.download:
+  path: '/admin/exo/list/{exo_entity_list}/export'
+  defaults:
+    _controller: \Drupal\exo_list_builder\Controller\ExoListActionExport::download
+  requirements:
+    _entity_access: 'exo_entity_list.view'
+exo_list_builder.autocomplete:
+  path: '/admin/exo/list/{exo_entity_list}/{field_name}/autocomplete'
+  defaults:
+    _controller: '\Drupal\exo_list_builder\Controller\ExoListAutocomplete::results'
+    _format: json
+  requirements:
+    _entity_access: 'exo_entity_list.view'

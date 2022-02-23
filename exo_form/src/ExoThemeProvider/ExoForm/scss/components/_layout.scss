@@ -1,0 +1,37 @@
+.exo-form {
+
+  .layout-region-node-main,
+  .layout-region-node-footer,
+  .layout-region-order-main,
+  .layout-region-product-main,
+  .layout-region-product-footer {
+    padding-right: $global-padding;
+    margin: 0;
+
+    > .exo-form-element-type-horizontal-tabs {
+      margin: 0;
+    }
+  }
+
+  .layout-region-node-footer__content,
+  .layout-region-product-footer__content,
+  .layout-region-order-footer {
+    border: none;
+    margin: $global-margin 0 0;
+    padding: 0;
+  }
+
+  .layout-region-node-main {
+
+    > .exo-form-element-type-horizontal-tabs {
+      margin-top: 0;
+    }
+
+    > .exo-form-element {
+
+      &:first-of-type {
+        margin-top: 0;
+      }
+    }
+  }
+}

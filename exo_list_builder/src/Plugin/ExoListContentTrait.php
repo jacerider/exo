@@ -1,0 +1,130 @@
+<?php
+
+namespace Drupal\exo_list_builder\Plugin;
+
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\Sql\SqlEntityStorageInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\TypedData\DataDefinitionInterface;
+use Drupal\exo_list_builder\EntityListInterface;
+
+/**
+ * Provides a trait for handling content entities.
+ */
+trait ExoListContentTrait {
+
+  /**
+   * Get item from entity.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   The entity.
+   * @param array $field
+   *   The field definition.
+   *
+   * @return \Drupal\Core\Field\FieldItemListInterface|null
+   *   The field item list.
+   */
+  protected function getItems(ContentEntityInterface $entity, array $field) {
+    $field_name = $field['id'];
+    if (!$entity->hasField($field_name)) {
+      return NULL;
+    }
+    $field_items = $entity->get($field_name);
+    if ($field_items->isEmpty()) {
+      return NULL;
+    }
+    return $field_items;
+  }
+
+  /**
+   * Get item from entity.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   The entity.
+   * @param array $field
+   *   The field definition.
+   *
+   * @return \Drupal\Core\Field\FieldItemInterface|null
+   *   The field item.
+   */
+  protected function getItem(ContentEntityInterface $entity, array $field) {
+    $items = $this->getItems($entity, $field);
+    if (!$items) {
+      return NULL;
+    }
+    return $items->first();
+  }
+
+  /**
+   * Get the property options to export.
+   *
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   The field definition.
+   *
+   * @return array
+   *   An array of property.
+   */
+  protected function getPropertyOptions(FieldDefinitionInterface $field_definition) {
+    $property = $this->getFieldProperties($field_definition);
+    $options = [];
+    foreach ($property as $property_name => $property) {
+      $options[$property_name] = $property->getLabel();
+    }
+    return $options;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFieldProperties(FieldDefinitionInterface $definition) {
+    $key = $definition->getTargetEntityTypeId() . '.' . $definition->getName();
+    if (empty($this->property[$key])) {
+      $storage = $definition->getFieldStorageDefinition();
+      $property = $storage->getPropertyDefinitions();
+      // Filter out all computed property, these cannot be set.
+      $property = array_filter($property, function (DataDefinitionInterface $definition) {
+        return !$definition->isComputed();
+      });
+
+      if ($definition->getType() === 'image') {
+        unset($property['width'], $property['height']);
+      }
+      $this->property[$key] = $property;
+    }
+    return $this->property[$key];
+  }
+
+  /**
+   * Get available field values.
+   */
+  public function getAvailableFieldValues(EntityListInterface $entity_list, $field_name, $property, $condition = NULL) {
+    return $this->getAvailableFieldValuesQuery($entity_list, $field_name, $property, $condition)->execute()->fetchCol();
+  }
+
+  /**
+   * Get available field values query.
+   */
+  protected function getAvailableFieldValuesQuery(EntityListInterface $entity_list, $field_name, $property, $condition = NULL) {
+    /** @var \Drupal\Core\Entity\Sql\TableMappingInterface $table_mapping*/
+    $storage = $this->entityTypeManager()->getStorage($entity_list->getTargetEntityTypeId());
+    if ($storage instanceof SqlEntityStorageInterface) {
+      $table_mapping = $storage->getTableMapping();
+      $field_table = $table_mapping->getFieldTableName($field_name);
+      $field_storage_definitions = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions($entity_list->getTargetEntityTypeId())[$field_name];
+      $field_column = $table_mapping->getFieldColumnName($field_storage_definitions, $property);
+      $connection = \Drupal::database();
+      $query = $connection->select($field_table, 'f')
+        ->fields('f', [$field_column])
+        ->distinct(TRUE);
+      if (!empty($condition)) {
+        $query->condition($field_column, '%' . $connection->escapeLike($condition) . '%', 'LIKE');
+      }
+      if ($bundle_key = $entity_list->getTargetEntityType()->getKey('bundle')) {
+        $query->condition($bundle_key, $entity_list->getTargetBundleIds(), 'IN');
+      }
+      return $query;
+    }
+    return NULL;
+  }
+
+}

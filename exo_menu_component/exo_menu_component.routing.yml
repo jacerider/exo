@@ -1,0 +1,15 @@
+exo_menu_component.add_link_type:
+  path: '/admin/structure/menu/manage/{menu}/component/add'
+  defaults:
+    _controller: '\Drupal\exo_menu_component\Controller\ExoMenuComponentController::addComponentList'
+    _title: 'Add Component'
+  requirements:
+    _permission: 'access content'
+
+exo_menu_component.add_component:
+  path: '/admin/structure/menu/manage/{menu}/component/{exo_menu_component_type}'
+  defaults:
+    _controller: '\Drupal\exo_menu_component\Controller\ExoMenuComponentController::addComponent'
+    _title: 'Add menu component'
+  requirements:
+    _entity_create_access: 'exo_menu_component'

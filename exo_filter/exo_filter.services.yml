@@ -1,0 +1,7 @@
+services:
+  plugin.manager.exo_filter:
+    class: Drupal\exo_filter\Plugin\ExoFilterManager
+    arguments: [filter, '@container.namespaces', '@cache.discovery', '@module_handler']
+  plugin.manager.exo_sort:
+    class: Drupal\exo_filter\Plugin\ExoFilterManager
+    arguments: [sort, '@container.namespaces', '@cache.discovery', '@module_handler']

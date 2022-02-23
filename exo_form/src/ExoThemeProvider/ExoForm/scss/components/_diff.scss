@@ -1,0 +1,40 @@
+.diff-controls,
+.diff-header {
+  margin: 0;
+  padding-top: $global-margin;
+  padding-bottom: $global-margin;
+
+  .exo-form-element {
+    margin: 0 $global-margin 0 0;
+  }
+}
+
+.diff-header {
+
+  > div {
+    width: 50%;
+  }
+}
+
+.diff-revision {
+
+  .field-input {
+    white-space: nowrap;
+  }
+}
+
+.entity-moderation-form {
+
+  .entity-moderation-form__item {
+    padding: $global-padding 0 $global-padding $global-padding;
+    margin: 0;
+
+    .exo-form-select-wrapper {
+      margin: 0;
+    }
+
+    .form-item {
+      margin: 0;
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{#
+/**
+ * @file exo-menu-component.html.twig
+ * Default theme implementation to present Rug border data.
+ *
+ * This template is used when viewing Rug border pages.
+ *
+ *
+ * Available variables:
+ * - content: A list of content items. Use 'content' to print all content, or
+ * - attributes: HTML attributes for the container element.
+ *
+ * @see template_preprocess_exo_menu_component()
+ *
+ * @ingroup themeable
+ */
+#}
+<{{ tag }}{{ attributes.addClass('exo-menu-component') }}>
+  {% if content %}
+    {{- content -}}
+  {% endif %}
+</{{ tag }}>

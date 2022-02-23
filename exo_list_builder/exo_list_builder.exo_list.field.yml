@@ -1,0 +1,9 @@
+_label:
+  label: Entity Label
+  display_label: Name
+_view:
+  label: Entity View
+  display_label: View
+_icon:
+  label: Entity Type Icon
+  display_label: Icon

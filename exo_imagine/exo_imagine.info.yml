@@ -1,0 +1,8 @@
+name: 'eXo Imagine'
+type: module
+description: 'Improved responsive image handler along with other image enhancements.'
+package: 'eXo'
+version: 1.0.0
+core_version_requirement: ^8.8 || ^9
+dependencies:
+  - drupal:breakpoint

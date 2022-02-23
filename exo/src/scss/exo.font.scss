@@ -1,0 +1,19 @@
+@import 'exo-common';
+
+$font-family: Ubuntu;
+$font-type: sans-serif;
+$font: $font-family, $font-type;
+
+@include font-face($font-family, '../fonts/Ubuntu-Light', 300, normal, 'ttf');
+@include font-face($font-family, '../fonts/Ubuntu-LightItalic', 300, italic, 'ttf');
+@include font-face($font-family, '../fonts/Ubuntu-Regular', 400, normal, 'ttf');
+@include font-face($font-family, '../fonts/Ubuntu-Italic', 400, italic, 'ttf');
+@include font-face($font-family, '../fonts/Ubuntu-Bold', 700, normal, 'ttf');
+@include font-face($font-family, '../fonts/Ubuntu-BoldItalic', 700, italic, 'ttf');
+
+.exo-font {
+  font: normal 13px/1em $font;
+  font-smooth: subpixel-antialiased; // sass-lint:disable-line no-misspelled-properties
+  font-smoothing: subpixel-antialiased; // sass-lint:disable-line no-misspelled-properties
+  -moz-osx-font-smoothing: grayscale; // sass-lint:disable-line no-misspelled-properties no-vendor-prefixes
+}

@@ -1,0 +1,94 @@
+$sizes: 10, 20, 30, 60, 90, 120, 150, 180;
+
+@each $size in $sizes {
+
+  .exo-modifier--padding-#{$size} {
+    padding: $global-padding;
+
+    @include breakpoint(medium) {
+      padding: max($global-padding, rem-calc($size));
+    }
+
+    @include breakpoint(large) {
+      padding: rem-calc($size);
+    }
+  }
+
+  .exo-modifier--padding-v {
+
+    &-#{$size} {
+      padding-top: max($global-padding, rem-calc($size * 0.6));
+      padding-bottom: max($global-padding, rem-calc($size * 0.6));
+    }
+
+    &-top-#{$size} {
+      padding-top: max($global-padding, rem-calc($size * 0.6));
+    }
+
+    &-bottom-#{$size} {
+      padding-bottom: max($global-padding, rem-calc($size * 0.6));
+    }
+
+    @include breakpoint(medium) {
+
+      &-#{$size} {
+        padding-top: max($global-padding, rem-calc($size * 0.8));
+        padding-bottom: max($global-padding, rem-calc($size * 0.8));
+      }
+
+      &-top-#{$size} {
+        padding-top: max($global-padding, rem-calc($size * 0.8));
+      }
+
+      &-bottom-#{$size} {
+        padding-bottom: max($global-padding, rem-calc($size * 0.8));
+      }
+    }
+
+    @include breakpoint(large) {
+
+      &-#{$size} {
+        padding-top: rem-calc($size);
+        padding-bottom: rem-calc($size);
+      }
+
+      &-top-#{$size} {
+        padding-top: rem-calc($size);
+      }
+
+      &-bottom-#{$size} {
+        padding-bottom: rem-calc($size);
+      }
+    }
+  }
+
+  .exo-modifier--padding-v-content-#{$size} .exo-component-content {
+    padding-top: max($global-padding, rem-calc($size * 0.6));
+    padding-bottom: max($global-padding, rem-calc($size * 0.6));
+
+    @include breakpoint(medium) {
+      padding-top: max($global-padding, rem-calc($size * 0.8));
+      padding-bottom: max($global-padding, rem-calc($size * 0.8));
+    }
+
+    @include breakpoint(large) {
+      padding-top: rem-calc($size);
+      padding-bottom: rem-calc($size);
+    }
+  }
+
+  .exo-modifier--padding-h-#{$size} {
+    padding-left: $global-padding;
+    padding-right: $global-padding;
+
+    @include breakpoint(medium) {
+      padding-left: max($global-padding, rem-calc($size));
+      padding-right: max($global-padding, rem-calc($size));
+    }
+
+    @include breakpoint(large) {
+      padding-left: rem-calc($size);
+      padding-right: rem-calc($size);
+    }
+  }
+}

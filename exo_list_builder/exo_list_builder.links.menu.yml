@@ -1,0 +1,6 @@
+entity.exo_entity_list.collection:
+  title: 'Entity Lists'
+  route_name: entity.exo_entity_list.collection
+  description: 'Manage entity list builders.'
+  parent: system.admin_config_exo
+  weight: 99

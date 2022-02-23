@@ -1,0 +1,128 @@
+.exo-form .exo-form-button,
+.exo-form .form-actions .button,
+.exo-form > .button,
+.is-admin .exo-form .form-actions .exo-modal-trigger,
+.is-admin .sortableviews-ajax-trigger,
+.is-admin .action-link--icon-trash.action-link--danger {
+  display: inline-block;
+  @include flex-align(center, middle);
+  display: inline-flex;
+  height: auto;
+  margin: 0;
+  padding-left: $button-padding;
+  padding-right: $button-padding;
+  padding-top: 0;
+  padding-bottom: 0;
+  box-sizing: border-box;
+  line-height: 1;
+  font-size: $button-font-size;
+  cursor: pointer;
+
+  &.js-hide {
+    display: none;
+  }
+}
+
+.is-admin .exo-form .exo-form-button,
+.is-admin .exo-form .form-actions .button,
+.is-admin .exo-form > .button,
+.is-admin .exo-form .exo-modal-trigger,
+.is-admin .sortableviews-ajax-trigger,
+.is-admin .action-link--icon-trash.action-link--danger {
+  height: $button-height;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  box-shadow: none;
+  min-height: 0;
+}
+
+// .is-admin .exo-form a.button,
+// .is-admin .action-link--icon-trash.action-link--danger {
+//   line-height: $button-height;
+// }
+
+.exo-form-style-float-inside .exo-form-button,
+.exo-form-style-float-inside .form-actions .button,
+.exo-form-style-float-inside > .button,
+.is-admin .exo-form-style-float-inside .form-actions .exo-modal-trigger,
+.is-admin .exo-form-style-float-inside .form-actions .button,
+.is-admin .sortableviews-ajax-trigger,
+.is-admin .exo-form-style-float-inside .action-link--icon-trash.action-link--danger {
+  height: $button-height + $label-font-size;
+}
+
+.is-admin td > .button,
+.is-admin td > .exo-form-button,
+.is-admin td > .exo-modal-trigger,
+.is-admin td > .ief-entity-operations .button {
+  display: inline-block;
+  margin: 0;
+  line-height: $button-height / 1.5 !important;
+  height: auto !important;
+  padding: 0 $button-padding / 2 !important;
+  box-sizing: border-box !important;
+}
+
+.exo-form .exo-form-button,
+.exo-form .button,
+.exo-form .exo-modal-trigger {
+
+  &.is-disabled {
+    opacity: 0.4;
+    cursor: default;
+    pointer-events: none;
+  }
+}
+
+.exo-form button {
+
+  &:focus {
+    outline:0;
+  }
+}
+
+.exo-form-element-type-actions {
+
+  .form-actions {
+    @include flex-align(left);
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .exo-form-element {
+
+    &:first-child {
+      margin-left: 0;
+    }
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+// .exo-form-container-button {
+
+//   .ajax-progress {
+//     position: absolute;
+//     top: 0;
+//     left: 0;
+//     right: 0;
+//     bottom: 0;
+//     background: alpha(theme-white, 0.8);
+//     font-size: 12px;
+//     padding: 0 10px 0 20px;
+//     border-radius: 3px;
+//     height: $input-height;
+//     line-height: $input-height;
+//     text-align: center;
+
+//     .throbber {
+//       padding: 0 16px 0 0;
+//     }
+
+//     .message {
+//       display: none;
+//     }
+//   }
+// }

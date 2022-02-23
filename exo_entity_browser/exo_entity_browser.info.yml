@@ -1,0 +1,12 @@
+name: 'eXo Entity Browser'
+type: module
+description: 'Provides entity browser enhancements.'
+core_version_requirement: ^8.8 || ^9
+package: 'eXo'
+version: 1.0.0
+dependencies:
+  - exo_modal
+  - entity_browser
+  - entity_browser_entity_form
+  - inline_entity_form
+  - dropzonejs_eb_widget

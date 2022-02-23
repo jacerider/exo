@@ -1,0 +1,13 @@
+$values: small, medium, large, xlarge;
+
+@each $value in $values {
+  .exo-modifier--breakpoint-hide-#{$value} {
+
+    &:not(.exo-component-wrapper-preview) {
+
+      @include breakpoint($value only) {
+        display: none;
+      }
+    }
+  }
+}

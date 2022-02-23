@@ -1,0 +1,83 @@
+exo_list_builder.exo_entity_list.*:
+  type: config_entity
+  label: 'eXo Entity List config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    target_entity_type:
+      type: string
+      label: 'Entity Type'
+    target_bundles_include:
+      type: sequence
+      label: Include Bundles
+      sequence:
+        type: string
+    target_bundles_exclude:
+      type: sequence
+      label: Exclude Bundles
+      sequence:
+        type: string
+    override:
+      type: boolean
+      label: Override List Builder
+    url:
+      type: string
+      label: URL
+    limit:
+      type: integer
+      label: 'Limit'
+    actions:
+      type: sequence
+      label: Actions
+      sequence:
+        type: mapping
+        mapping:
+          settings:
+            type: mapping
+    sort:
+      type: string
+      label: Default sort field
+    fields:
+      type: sequence
+      label: Fields
+      sequence:
+        type: mapping
+        mapping:
+          display_label:
+            type: string
+            label: 'Display Label'
+          view:
+            type: mapping
+            mapping:
+              type:
+                type: string
+                label: 'Element Type'
+              settings:
+                type: mapping
+              toggle:
+                type: boolean
+                label: 'Toggleable'
+              show:
+                type: boolean
+                label: 'Show by default'
+              wrapper:
+                type: string
+                label: 'Wrapper'
+          filter:
+            type: mapping
+            mapping:
+              type:
+                type: string
+                label: 'Filter Type'
+              settings:
+                type: mapping
+          weight:
+            type: integer
+            label: 'Weight'
+    weight:
+      type: integer
+      label: 'Weight'

@@ -1,0 +1,4 @@
+services:
+  exo_menu_component.manager:
+    class: Drupal\exo_menu_component\MenuComponentManager
+    arguments: ['@entity_type.manager']

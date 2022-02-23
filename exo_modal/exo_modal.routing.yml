@@ -1,0 +1,124 @@
+exo_modal.settings:
+  path: '/admin/config/exo/modal'
+  defaults:
+    _form: '\Drupal\exo_modal\Form\ExoModalSettingsForm'
+    _title: 'Modal Settings'
+  requirements:
+    _permission: 'administer exo modal'
+  options:
+    _admin_route: TRUE
+
+exo_modal.demo:
+  path: '/admin/config/exo/modal/demo'
+  defaults:
+    _controller: '\Drupal\exo_modal\Controller\ExoModalDemoController::demo'
+    _title: 'Modal Demo'
+  requirements:
+    _permission: 'administer exo modal'
+
+exo_modal.demo_form:
+  path: '/admin/config/exo/modal/demo-form'
+  defaults:
+    _form: '\Drupal\exo_modal\Form\ExoModalDemoForm'
+    _title: 'Modal Form Demo'
+  requirements:
+    _permission: 'administer exo modal'
+
+exo_modal.api.entity.view:
+  path: '/api/exo/entity/view/{entity_type}/{entity}/{display_id}/{revision_id}'
+  defaults:
+    _controller: '\Drupal\exo_modal\Controller\ExoModalEntityController::view'
+    _title: 'View entity content'
+    display_id: 'default'
+    revision_id: NULL
+  requirements:
+    _entity_access: 'entity.view'
+  options:
+    parameters:
+      entity:
+        type: entity:{entity_type}
+
+exo_modal.api.entity.edit:
+  path: '/api/exo/entity/edit/{entity_type}/{entity}/{display_id}/{revision_id}'
+  defaults:
+    _controller: '\Drupal\exo_modal\Controller\ExoModalEntityController::editForm'
+    _title: 'Edit entity content'
+    display_id: 'default'
+    revision_id: NULL
+  requirements:
+    _entity_access: 'entity.update'
+  options:
+    parameters:
+      entity:
+        type: entity:{entity_type}
+
+exo_modal.api.entity.delete:
+  path: '/api/exo/entity/delete/{entity_type}/{entity}/{revision_id}'
+  defaults:
+    _controller: '\Drupal\exo_modal\Controller\ExoModalEntityController::deleteForm'
+    _title: 'Delete entity content'
+    revision_id: NULL
+  requirements:
+    _entity_access: 'entity.delete'
+  options:
+    parameters:
+      entity:
+        type: entity:{entity_type}
+
+exo_modal.api.entity.create:
+  path: '/api/exo/entity/create/{entity_type}/{display_id}/{bundle}'
+  defaults:
+    _controller: '\Drupal\exo_modal\Controller\ExoModalEntityController::createForm'
+    _title: 'Create entity content'
+    display_id: 'add'
+    bundle: NULL
+  requirements:
+    _permission: 'access content'
+
+exo_modal.api.views.view:
+  path: '/api/exo/modal/view/{view}/{display_id}/{argument1}/{argument2}'
+  defaults:
+    _controller: '\Drupal\exo_modal\Controller\ExoModalViewsController::view'
+    _title: 'View views content'
+    display_id: 'default'
+    argument1: 'na'
+    argument2: 'na'
+  requirements:
+    _permission: 'access content'
+  options:
+    parameters:
+      entity:
+        type: entity:{entity_type}
+
+exo_modal.api.views.field:
+  path: '/api/exo/modal/view/{view}/{view_display_id}/{field}/{entity_type}/{entity}/{revision_id}'
+  defaults:
+    _controller: '\Drupal\exo_modal\Controller\ExoModalViewsController::viewField'
+    _title: 'View views field content'
+  requirements:
+    _entity_access: 'entity.view'
+  options:
+    parameters:
+      entity:
+        type: entity:{entity_type}
+
+exo_modal.api.block.view:
+  path: '/api/exo/modal/block/{block}'
+  defaults:
+    _controller: '\Drupal\exo_modal\Controller\ExoModalBlockController::view'
+    _title: 'View block content'
+  requirements:
+    _entity_access: 'block.view'
+
+exo_modal.api.field.view:
+  path: '/api/exo/modal/field/{entity_type}/{entity}/{revision_id}/{field_name}/{delta}/{display_id}/{langcode}/{display_settings}'
+  defaults:
+    _controller: '\Drupal\exo_modal\Controller\ExoModalFieldFormatterController::view'
+    _title: 'View field formatter content'
+    display_settings: null
+  requirements:
+    _entity_access: 'entity.view'
+  options:
+    parameters:
+      entity:
+        type: entity:{entity_type}

@@ -1,0 +1,83 @@
+.exo-form-element-type-exo-autocomplete,
+.exo-form-element-type-autocomplete-deluxe {
+  position: relative;
+
+  .exo-form-pseudo {
+    height: auto;
+    width: 100%;
+    margin-bottom: 1px;
+
+    > label {
+      padding: 0 $global-padding 0 0;
+    }
+
+    input {
+      height: inherit !important;
+      width: 100% !important;
+      padding: inherit !important;
+      border: none !important;
+    }
+  }
+
+  .exo-autocomplete-container,
+  .autocomplete-deluxe-container {
+    @include flex;
+    @include flex-align(left, middle);
+    flex-wrap: wrap;
+    flex: 1 1 auto;
+    background: none;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    width: auto;
+    padding-right: 15px;
+
+    .exo-autocomplete-form,
+    .autocomplete-deluxe-form {
+      background: inherit;
+      color: inherit;
+      font-size: inherit;
+      padding: 0;
+      flex: 1 1 auto;
+      float: none;
+      // order: 1;
+    }
+
+    .exo-autocomplete-throbber,
+    .autocomplete-deluxe-throbber {
+      position: absolute;
+      top: 50%;
+      right: 0;
+      margin: -7.5px 0 0 0;
+      // flex: 0 0 auto;
+      height: 15px;
+      width: 15px;
+      background-position: 100% 0px;
+      float: none;
+
+      &.exo-autocomplete-open,
+      &.autocomplete-deluxe-open {
+        background-position: 100% -20px;
+      }
+    }
+
+    .exo-form-input-line {
+      display: none;
+    }
+  }
+
+  .exo-autocomplete-item,
+  .autocomplete-deluxe-item {
+    margin: rem-calc(5);
+    margin-left: 0;
+    white-space: nowrap;
+    // order: 2;
+  }
+
+  .exo-autocomplete-value-container,
+  .autocomplete-deluxe-value-container {
+    // visibility: hidden;
+    flex: 0 0 0%;
+  }
+}
