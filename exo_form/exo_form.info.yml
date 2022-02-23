@@ -2,7 +2,7 @@ name: 'eXo Form'
 type: module
 description: 'Beautiful forms.'
 package: 'eXo'
-version: 1.0.1
+version: 1.0.2
 core_version_requirement: ^8.8 || ^9
 dependencies:
   - exo:exo
