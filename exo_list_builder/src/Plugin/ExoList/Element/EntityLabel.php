@@ -32,9 +32,9 @@ class EntityLabel extends ExoListElementBase {
    */
   public function defaultConfiguration() {
     return [
-      'entity_icon' => FALSE,
+      'entity_icon' => TRUE,
       'entity_id' => TRUE,
-      'link_label' => FALSE,
+      'link_label' => TRUE,
     ] + parent::defaultConfiguration();
   }
 

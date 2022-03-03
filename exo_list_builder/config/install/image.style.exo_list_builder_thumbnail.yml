@@ -1,0 +1,17 @@
+uuid: 6b7cc0b7-704a-407a-869a-cb580da2bdda
+langcode: en
+status: true
+dependencies:
+  module:
+    - exo_list_builder
+name: exo_list_builder_thumbnail
+label: 'eXo List Builder | Thumbnail'
+effects:
+  93c580b0-6915-4bb7-8f43-05e26452cc76:
+    uuid: 93c580b0-6915-4bb7-8f43-05e26452cc76
+    id: image_scale
+    weight: 1
+    data:
+      width: 50
+      height: 50
+      upscale: true

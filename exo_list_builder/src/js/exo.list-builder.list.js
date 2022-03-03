@@ -9,7 +9,7 @@
         var show = function () {
           $('.js-hide', self).removeClass('js-hide');
           $('.exo-form-container-js-hide', self).removeClass('exo-form-container-js-hide');
-        }
+        };
         $(':input', self).on('change', function (e) {
           show();
         }).on('keyup', function (e) {

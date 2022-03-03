@@ -10,6 +10,42 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
 interface EntityListInterface extends ConfigEntityInterface {
 
   /**
+   * Return a filtered url.
+   *
+   * @param array $filters
+   *   The filters.
+   * @param array $options
+   *   See \Drupal\Core\Routing\UrlGeneratorInterface::generateFromRoute() for
+   *   the available options.
+   *
+   * @return \Drupal\Core\Url
+   *   The URL object.
+   */
+  public function toFilteredUrl(array $filters = [], array $options = []);
+
+  /**
+   * Encode options.
+   *
+   * @parar array $options
+   *   The options.
+   *
+   * @return string
+   *   The encoded options.
+   */
+  public function optionsEncode(array $options);
+
+  /**
+   * Decode options.
+   *
+   * @parar string $options
+   *   The options.
+   *
+   * @return array
+   *   The decoded options.
+   */
+  public function optionsDecode($options);
+
+  /**
    * Get the target entity type id.
    *
    * @return string

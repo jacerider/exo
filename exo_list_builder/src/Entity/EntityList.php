@@ -5,6 +5,7 @@ namespace Drupal\exo_list_builder\Entity;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Url;
 use Drupal\exo_list_builder\EntityListInterface;
 
 /**
@@ -177,7 +178,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       'settings' => [],
       'toggle' => FALSE,
       'show' => FALSE,
-      'wrapper' => NULL,
+      'wrapper' => 'small',
       'sort' => NULL,
     ],
     'filter' => [
@@ -217,6 +218,43 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   public function postSave(EntityStorageInterface $storage, $update = TRUE) {
     parent::postSave($storage, $update);
     \Drupal::service('router.builder')->rebuild();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function toUrl($rel = 'canonical', array $options = []) {
+    if ($rel === 'canonical' && $this->getUrl()) {
+      if (!empty($options['query']['exo'])) {
+        $options['query']['exo'] = $this->optionsEncode($options['query']['exo']);
+      }
+      return Url::fromRoute('exo_list_builder.' . $this->id(), [], $options);
+    }
+    return parent::toUrl($rel, $options);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function toFilteredUrl(array $filters = [], array $options = []) {
+    if (!empty($filters)) {
+      $options['query']['exo']['filter'] = $filters;
+    }
+    return $this->toUrl('canonical', $options);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function optionsEncode($options) {
+    return base64_encode(json_encode($options));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function optionsDecode($options) {
+    return json_decode(base64_decode($options), TRUE);
   }
 
   /**
@@ -388,7 +426,6 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   public function getAvailableFields() {
     if (!isset($this->fieldDefinitions)) {
       $fields = $this->getHandler()->loadFields();
-      // $sort = $this->getSort();
       foreach ($fields as $field_id => &$field) {
         $field = NestedArray::mergeDeep($this->fieldDefaults, $field);
         $field['id'] = $field_id;

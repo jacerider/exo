@@ -34,6 +34,8 @@ class EntityReferenceLabel extends ExoListElementContentBase {
    */
   public function defaultConfiguration() {
     return [
+      'entity_icon' => FALSE,
+      'entity_id' => TRUE,
       'link_reference' => FALSE,
     ] + parent::defaultConfiguration();
   }
@@ -43,6 +45,16 @@ class EntityReferenceLabel extends ExoListElementContentBase {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state, EntityListInterface $entity_list, array $field) {
     $configuration = $this->getConfiguration();
+    $form['entity_icon'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Show entity icon'),
+      '#default_value' => $configuration['entity_icon'],
+    ];
+    $form['entity_id'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Show entity ID'),
+      '#default_value' => $configuration['entity_id'],
+    ];
     $form['link_reference'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Link to the referenced entity'),
@@ -58,11 +70,31 @@ class EntityReferenceLabel extends ExoListElementContentBase {
    */
   protected function viewItem(EntityInterface $entity, FieldItemInterface $field_item, array $field) {
     /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $field_item */
-    $label = $field_item->entity->label();
-    if ($this->getConfiguration()['link_reference']) {
-      $label = Link::fromTextAndUrl($label, $field_item->entity->toUrl())->toString();
+    $reference_entity = $field_item->entity;
+    $label = $reference_entity->label();
+    $icon = '';
+    $configuration = $this->getConfiguration();
+    if ($configuration['link_reference'] && $reference_entity->getEntityType()->hasLinkTemplate('canonical')) {
+      $label = Link::fromTextAndUrl($label, $reference_entity->toUrl('canonical'))->toString();
     }
-    return $label;
+    if ($configuration['entity_icon']) {
+      $as_icon = $this->getIcon($reference_entity);
+      if ($as_icon->hasIcon()) {
+        $icon = $as_icon->setIconOnly();
+      }
+    }
+    $string = $icon . $label;
+    if ($configuration['entity_id']) {
+      $string .= ' <em>(' . $reference_entity->id() . ')</em>';
+    }
+    return $string;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function viewPlain(EntityInterface $entity, array $field) {
+    return $entity->label() . ' (' . $entity->id() . ')';
   }
 
 }

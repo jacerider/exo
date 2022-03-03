@@ -39,6 +39,7 @@ class ExoListBuilderContent extends ExoListBuilderBase {
    * Allow builder to modify field list.
    */
   protected function alterFields(&$fields) {
+    parent::alterFields($fields);
     $label_key = $this->entityList->getTargetEntityType()->getKey('label');
     if ($label_key && isset($fields[$label_key]['definition']) && !$fields[$label_key]['definition']->isComputed()) {
       $fields['_label']['sort_field'] = $label_key;

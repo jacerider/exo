@@ -98,7 +98,10 @@ trait ExoListContentTrait {
    * Get available field values.
    */
   public function getAvailableFieldValues(EntityListInterface $entity_list, $field_name, $property, $condition = NULL) {
-    return $this->getAvailableFieldValuesQuery($entity_list, $field_name, $property, $condition)->execute()->fetchCol();
+    if ($query = $this->getAvailableFieldValuesQuery($entity_list, $field_name, $property, $condition)) {
+      return $query->execute()->fetchCol();
+    }
+    return [];
   }
 
   /**
@@ -112,6 +115,7 @@ trait ExoListContentTrait {
       $field_table = $table_mapping->getFieldTableName($field_name);
       $field_storage_definitions = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions($entity_list->getTargetEntityTypeId())[$field_name];
       $field_column = $table_mapping->getFieldColumnName($field_storage_definitions, $property);
+      kint($field_name, $field_table, $field_storage_definitions, $property, $field_column, $table_mapping);
       $connection = \Drupal::database();
       $query = $connection->select($field_table, 'f')
         ->fields('f', [$field_column])

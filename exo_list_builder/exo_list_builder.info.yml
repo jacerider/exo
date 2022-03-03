@@ -3,3 +3,5 @@ type: module
 description: 'Provides an enhanced entity list builder.'
 package: 'eXo'
 core_version_requirement: ^8.8 || ^9
+dependencies:
+  - drupal:image

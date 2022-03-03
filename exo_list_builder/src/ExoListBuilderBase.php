@@ -186,6 +186,18 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * Allow builder to modify field list.
    */
   protected function alterFields(&$fields) {
+    if (isset($fields['_label'])) {
+      // Label field should not wrap in small tag by default.
+      $fields['_label']['view']['wrapper'] = '';
+      $fields['_label']['filter']['settings']['position'] = 'header';
+      $fields['_label']['filter']['settings']['match_operator'] = 'CONTAINS';
+    }
+    foreach ($fields as &$field) {
+      if (in_array($field['type'], ['boolean', 'image'])) {
+        // Fields of this type should not wrap in small tag by default.
+        $field['view']['wrapper'] = '';
+      }
+    }
   }
 
   /**
@@ -242,7 +254,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected function buildOptions() {
     $query = \Drupal::request()->query->all();
     if (!empty($query['exo'])) {
-      $query += json_decode(base64_decode($query['exo']), TRUE);
+      $query += $this->getEntityList()->optionsDecode($query['exo']);
     }
     $this->setOptions($query);
   }
@@ -330,7 +342,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
     $url = Url::fromRoute('<current>');
     if (!empty($query['exo'])) {
-      $query['exo'] = base64_encode(json_encode($query['exo']));
+      $query['exo'] = $this->getEntityList()->optionsEncode($query['exo']);
     }
     $url->setOption('query', $query);
     return $url;
@@ -366,6 +378,10 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
     $header = $this->buildHeader();
     $query->tableSort($header);
+
+    if ($entity_list->getTargetEntityType()->hasKey('bundle')) {
+      $query->condition($entity_list->getTargetEntityType()->getKey('bundle'), $entity_list->getTargetBundleIds(), 'IN');
+    }
 
     // Use an set query conditions.
     foreach ($this->queryConditions as $condition) {
@@ -528,12 +544,16 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           $form[$this->entitiesKey][$target_entity->id()] = $row;
         }
       }
+    }
 
+    if ($entities || $this->isFiltered()) {
       // Filter.
       if ($subform = $this->buildFormFilters($form, $form_state)) {
         $form['header']['first']['filters'] = $subform;
       }
+    }
 
+    if ($entities) {
       // Columns.
       if ($subform = $this->buildFormColumns($form, $form_state)) {
         $form['header']['first']['columns'] = $subform;
@@ -1153,15 +1173,16 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   public function buildHeader() {
     foreach ($this->getShownFields() as $field_id => $field) {
-      $row[$field_id] = $field['display_label'];
+      $row[$field_id]['data'] = $field['display_label'];
       if (!empty($field['view']['sort']) && !empty($field['sort_field'])) {
-        $row[$field_id] = [
-          'data' => $row[$field_id],
+        $row[$field_id] += [
           'specifier' => $field['sort_field'],
           'field' => $field['sort_field'],
           'sort' => $field['view']['sort'],
         ];
       }
+      $row[$field_id]['class'][] = Html::getClass('exo-list-builder-field-id--' . $field_id);
+      $row[$field_id]['class'][] = Html::getClass('exo-list-builder-field-type--' . $field['view']['type']);
     }
     $row['operations'] = $this->t('Operations');
 

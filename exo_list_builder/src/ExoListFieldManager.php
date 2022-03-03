@@ -93,6 +93,7 @@ class ExoListFieldManager extends DefaultPluginManager implements ExoListFieldMa
         'label' => $definition['label'],
         'display_label' => $definition['display_label'],
         'sort_field' => $definition['sort_field'],
+        'type' => 'custom',
       ];
     }
 

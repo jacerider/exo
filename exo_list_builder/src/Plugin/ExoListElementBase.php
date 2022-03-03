@@ -5,6 +5,7 @@ namespace Drupal\exo_list_builder\Plugin;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Markup;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\exo_icon\ExoIconTranslatableMarkup;
 use Drupal\exo_list_builder\EntityListInterface;
@@ -75,7 +76,7 @@ abstract class ExoListElementBase extends PluginBase implements ExoListElementIn
       $view = [
         '#type' => 'link',
         '#url' => $entity->toUrl('canonical'),
-        '#title' => $view,
+        '#title' => Markup::create($view),
       ];
     }
     return $view;
