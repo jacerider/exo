@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\exo_icon\ExoIconTranslatableMarkup;
 
 /**
  * Implements hook_help().
@@ -47,7 +48,9 @@ function exo_icon_admin_preprocess_page_title(&$variables) {
     if (is_array($variables['title'])) {
       $variables['title'] = \Drupal::service('renderer')->render($variables['title']);
     }
-    $variables['title'] = exo_icon($variables['title'])->match(['admin', 'local_task']);
+    if (!$variables['title'] instanceof ExoIconTranslatableMarkup) {
+      $variables['title'] = exo_icon($variables['title'])->match(['admin', 'local_task']);
+    }
   }
 }
 
