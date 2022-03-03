@@ -29,6 +29,7 @@ const babel = require('gulp-babel');
 const fileinclude = require('gulp-file-include');
 // Typescript
 var tsProject = ts.createProject('./tsconfig.json');
+var root = gutil.env.root;
 
 /**
  * Config init.
@@ -52,8 +53,16 @@ gulp.task('clean', function () {
  */
 let drupal;
 gulp.task('drupal', function() {
-  execSync('drush exo-scss');
-  drupal = JSON.parse(execSync('drush status --format=json').toString());
+  var command = 'drush exo-scss';
+  if (root) {
+    command += ' --root=' + root;
+  }
+  execSync(command);
+  command = 'drush status --format=json';
+  if (root) {
+    command += ' --root=' + root;
+  }
+  drupal = JSON.parse(execSync(command).toString());
   config.scss.includePaths.push(drupal['root'] + '/' + drupal['site'] + '/files/exo');
 });
 
@@ -61,6 +70,7 @@ gulp.task('drupal', function() {
  * SASS compiling.
  */
 gulp.task('scss', function () {
+  console.log(config.scss.includePaths);
   return gulp.src(config.scss.src)
     .pipe(plumber({
       errorHandler: function (error) {
