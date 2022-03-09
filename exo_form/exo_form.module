@@ -9,6 +9,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Entity\ContentEntityFormInterface;
 use Drupal\Core\Form\FormHelper;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Template\Attribute;
@@ -95,6 +96,19 @@ function exo_form_form_alter(&$form, FormStateInterface $form_state, $form_id) {
         $form['meta']['published']['#attributes']['class'][] = 'entity-meta__status';
         if ((string) $form['meta']['published']['#value'] == (string) t('Published')) {
           $form['meta']['published']['#attributes']['class'][] = 'entity-meta__is_published';
+        }
+      }
+    }
+
+    // Remove empty elements from multi-value widgets.
+    $form_object = $form_state->getFormObject();
+    if ($form_object instanceof ContentEntityFormInterface) {
+      foreach (Element::children($form) as $field_name) {
+        $element = &$form[$field_name];
+        if (!empty($element['widget']['#theme']) && $element['widget']['#theme'] === 'field_multiple_value_form' && $element['widget']['#cardinality'] === -1) {
+          $max_delta = $element['widget']['#max_delta'];
+          unset($element['widget'][$max_delta]);
+          $element['widget']['#max_delta'] = $max_delta - 1;
         }
       }
     }
