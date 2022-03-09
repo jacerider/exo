@@ -48,7 +48,12 @@ class ExoAutocompleteController extends EntityAutocompleteController {
       throw new AccessDeniedHttpException();
     }
 
-    $matches = $this->matcher->getMatches($target_type, $selection_handler, $selection_settings, $typed_string);
+    if (!empty($selection_settings['callback']) && function_exists($selection_settings['callback'])) {
+      $matches = $selection_settings['callback']($target_type, $selection_handler, $selection_settings, $typed_string);
+    }
+    else {
+      $matches = $this->matcher->getMatches($target_type, $selection_handler, $selection_settings, $typed_string);
+    }
 
     $items = [];
     foreach ($matches as $item) {
