@@ -3,6 +3,7 @@
 namespace Drupal\exo\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\Crypt;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
@@ -179,6 +180,10 @@ class ExoAutocompleteWidget extends WidgetBase implements ContainerFactoryPlugin
     $referenced_entities = $items->referencedEntities();
 
     $selection_settings = $this->getFieldSetting('handler_settings') + ['match_operator' => $this->getSetting('match_operator')];
+    if (!empty($element['#selection_settings'])) {
+      $selection_settings = NestedArray::mergeDeep($selection_settings, $element['#selection_settings']);
+      unset($element['#selection_settings']);
+    }
 
     $new_terms = isset($settings['new_terms']) ? $settings['new_terms'] : FALSE;
     $allow_message = isset($settings['not_found_message_allow']) ? $settings['not_found_message_allow'] : FALSE;
@@ -314,7 +319,7 @@ class ExoAutocompleteWidget extends WidgetBase implements ContainerFactoryPlugin
   public static function validateInteger(&$element, FormStateInterface $form_state, &$complete_form) {
     $value = $element['#value'];
     if ($value !== '' && (!is_numeric($value) || intval($value) != $value)) {
-      $form_state->setError($element, $this->t('%name must be an integer.', ['%name' => $element['#title']]));
+      $form_state->setError($element, t('%name must be an integer.', ['%name' => $element['#title']]));
     }
   }
 
@@ -324,7 +329,7 @@ class ExoAutocompleteWidget extends WidgetBase implements ContainerFactoryPlugin
   public static function validateIntegerPositive(&$element, FormStateInterface $form_state, &$complete_form) {
     $value = $element['#value'];
     if ($value !== '' && (!is_numeric($value) || intval($value) != $value || $value <= 0)) {
-      $form_state->setError($element, $this->t('%name must be a positive integer.', ['%name' => $element['#title']]));
+      $form_state->setError($element, t('%name must be a positive integer.', ['%name' => $element['#title']]));
     }
   }
 
