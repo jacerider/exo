@@ -12,6 +12,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RedirectDestinationTrait;
 use Drupal\Core\Url;
@@ -310,16 +311,19 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    *   An array of query options to exclude.
    * @param array $exclude_filters
    *   An array of query filters to exclude.
+   * @param array $query
+   *   Additional query parameters.
    *
    * @return \Drupal\Core\Url
    *   The url.
    */
-  protected function getOptionsUrl(array $exclude_options = [], array $exclude_filters = []) {
+  protected function getOptionsUrl(array $exclude_options = [], array $exclude_filters = [], array $query = []) {
     $entity_list = $this->getEntityList();
     $options = $this->getOptions();
     $defaults = $this->getOptionDefaults();
-    $query = \Drupal::request()->query->all();
-    $query = array_diff_key($query, $defaults);
+    $options_query = \Drupal::request()->query->all();
+    $options_query = array_diff_key($options_query, $defaults);
+    $query = NestedArray::mergeDeep($options_query, $query);
     unset($query['exo']);
     $query['m'] = 1;
     unset($options['order']);
@@ -377,7 +381,12 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $query = $this->getStorage()->getQuery()->accessCheck(TRUE);
 
     $header = $this->buildHeader();
-    $query->tableSort($header);
+    foreach ($header as $field => $info) {
+      if (is_array($info) && !empty($info['sort'])) {
+        $query->tableSort($header);
+        break;
+      }
+    }
 
     if ($entity_list->getTargetEntityType()->hasKey('bundle')) {
       $query->condition($entity_list->getTargetEntityType()->getKey('bundle'), $entity_list->getTargetBundleIds(), 'IN');
@@ -416,7 +425,28 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
       $instance = $field['filter']['instance'];
       if (!is_null($filter_value)) {
-        $instance->queryAlter($query, $filter_value, $entity_list, $field);
+        if (is_array($filter_value)) {
+          $group = NULL;
+          switch ($instance->getMultipleJoin($field)) {
+            case 'and':
+              $group = $query->andConditionGroup();
+              break;
+
+            default:
+              $group = $query->orConditionGroup();
+              break;
+          }
+          if ($group) {
+            foreach ($filter_value as $filter_val) {
+              // asdf
+              $instance->queryAlter($group, $filter_val, $entity_list, $field);
+            }
+            $query->condition($group);
+          }
+        }
+        else {
+          $instance->queryAlter($query, $filter_value, $entity_list, $field);
+        }
       }
     }
     return $query;
@@ -463,6 +493,11 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    *   Returns TRUE if filtered.
    */
   protected function isFiltered() {
+    foreach ($this->getFilters() as $field_id => $field) {
+      if (!empty($field['filter']['settings']['default'])) {
+        return TRUE;
+      }
+    }
     return !empty($this->getOption('filter'));
   }
 
@@ -559,18 +594,27 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         $form['header']['first']['columns'] = $subform;
       }
 
-      // Ensure a consistent container for filters/operations in the view header.
+      // Ensure a consistent container for filters/operations in the view
+      // header.
       if ($subform = $this->buildFormBatch($form, $form_state)) {
         $form['header']['second']['batch'] = $subform;
         $form['header']['second']['batch']['#attached']['library'][] = 'exo_list_builder/download';
       }
 
-      $form['header']['second']['pager'] = $this->buildFormPager($form, $form_state);
-      $form['footer']['pager'] = $form['header']['second']['pager'];
+      if ($subform = $this->buildFormSort($form, $form_state)) {
+        $form['header']['second']['sort'] = $subform;
+      }
+
+      $pager = $this->buildFormPager($form, $form_state);
+      $form['header']['second']['pager'] = $pager;
       // Remove pages from header.
       unset($form['header']['second']['pager']['pages']);
+      unset($form['header']['second']['pager']['pager_footer']);
+
+      $form['footer']['pager'] = $pager;
       // Remove limit from footer.
       unset($form['footer']['pager']['limit']);
+      unset($form['footer']['pager']['pager_header']);
     }
     else {
       $form[$this->entitiesKey] = $this->buildEmpty($form, $form_state);
@@ -600,6 +644,10 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       foreach ($entity_keys as $id) {
         unset($form['entities'][$id]['operations']);
       }
+    }
+
+    if (!Element::children($form['footer'])) {
+      $form['footer']['#access'] = FALSE;
     }
 
     return $form;
@@ -643,7 +691,91 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    *   The message.
    */
   protected function getEmptyFilterMessage() {
-    return $this->t('There are no filtered results matching the provided conditions.');
+    return $this->t('There are no @label matching the provided conditions.', ['@label' => $this->entityType->getPluralLabel()]);
+  }
+
+  /**
+   * Build form pager.
+   */
+  protected function buildFormSort(array $form, FormStateInterface $form_state) {
+    $form = [];
+
+    $links = [];
+    $order = $this->getOption('order');
+    $sort = $this->getOption('sort');
+    $has_active = FALSE;
+    $shown = $this->getShownFields();
+    foreach ($shown as $field_id => $field) {
+      if (!empty($field['view']['sort'])) {
+        $asc_url = $this->getOptionsUrl([], [], [
+          'order' => $field['display_label'],
+          'sort' => 'asc',
+        ]);
+        $desc_url = $this->getOptionsUrl([], [], [
+          'order' => $field['display_label'],
+          'sort' => 'desc',
+        ]);
+        $links[$field['id'] . '_asc'] = [
+          'title' => $this->icon('@label: Up', [
+            '@label' => $field['display_label'],
+          ])->setIcon('regular-sort-amount-up')->toString(),
+          'url' => $asc_url,
+        ];
+        $links[$field['id'] . '_desc'] = [
+          'title' => $this->icon('@label: Down', [
+            '@label' => $field['display_label'],
+          ])->setIcon('regular-sort-amount-down')->toString(),
+          'url' => $desc_url,
+        ];
+        if ($order === $field['display_label'] && $sort === 'asc') {
+          $has_active = TRUE;
+          $links = [
+            [
+              'title' => $this->icon('Sorted by @label', [
+                '@label' => $field['display_label'],
+              ])->setIcon('regular-sort-amount-up')->toString(),
+              'url' => $asc_url,
+            ],
+          ] + $links;
+        }
+        elseif ($order === $field['display_label'] && $sort === 'desc') {
+          $has_active = TRUE;
+          $links = [
+            [
+              'title' => $this->icon('Sorted by @label', [
+                '@label' => $field['display_label'],
+              ])->setIcon('regular-sort-amount-down')->toString(),
+              'url' => $desc_url,
+            ],
+          ] + $links;
+        }
+      }
+    }
+    if (!empty($links)) {
+      if (!$has_active) {
+        $order = NULL;
+        $sort = NULL;
+        if ($default = $this->entityList->getSort()) {
+          $order = $shown[$default]['display_label'];
+          $sort = $shown[$default]['view']['sort'];
+        }
+        else {
+          $field = reset($shown);
+          $order = $field['display_label'];
+          $sort = $field['view']['sort'];
+        }
+      }
+      $form = [
+        '#type' => 'container',
+        '#attributes' => ['class' => ['exo-list-sort']],
+      ];
+      $form['list'] = [
+        '#type' => 'dropbutton',
+        '#links' => $links,
+      ];
+    }
+
+    return $form;
   }
 
   /**
@@ -767,10 +899,32 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     ]) . '</div>';
 
     if ($limit) {
-      $form['pager'] = [
+      $form['pager_header'] = $form['pager_footer'] = [
         '#type' => 'pager',
         '#quantity' => 3,
       ];
+      $pagerer_header = $this->getEntityList()->getSetting('pagerer_header');
+      $pagerer_footer = $this->getEntityList()->getSetting('pagerer_footer');
+      if (($pagerer_header || $pagerer_footer) && $this->moduleHandler()->moduleExists('pagerer')) {
+        if ($pagerer_header) {
+          $form['pager_header'] = [
+            '#type' => 'pager',
+            '#theme' => 'pagerer',
+            '#config' => [
+              'preset' => $pagerer_header,
+            ],
+          ];
+        }
+        if ($pagerer_footer) {
+          $form['pager_footer'] = [
+            '#type' => 'pager',
+            '#theme' => 'pagerer',
+            '#config' => [
+              'preset' => $pagerer_footer,
+            ],
+          ];
+        }
+      }
     }
 
     return $form;
@@ -850,6 +1004,10 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
 
     $form['actions']['#type'] = 'actions';
+    $form['actions']['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Update'),
+    ];
     if ($this->getOption('show', FALSE)) {
       $form['actions']['reset'] = [
         '#type' => 'link',
@@ -857,11 +1015,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         '#url' => $this->getOptionsUrl(['show']),
       ];
     }
-
-    $form['actions']['submit'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Save Changes'),
-    ];
 
     return [
       '#type' => 'exo_modal',
@@ -939,6 +1092,11 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
 
     $modal['actions']['#type'] = 'actions';
+    $modal['actions']['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Filter'),
+    ];
+
     if ($this->getOption('filter', FALSE)) {
       $modal['actions']['reset'] = [
         '#type' => 'link',
@@ -946,11 +1104,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         '#url' => $this->getOptionsUrl(['filter']),
       ];
     }
-
-    $modal['actions']['submit'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Save Changes'),
-    ];
 
     $form = [];
     if ($show_inline) {
@@ -1052,7 +1205,16 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       if ($field['filter']['instance']) {
         /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
         $instance = $field['filter']['instance'];
-        $value = $instance->toPreview($filter_value, $entity_list, $field);
+        if (is_array($filter_value)) {
+          $value = [];
+          foreach ($filter_value as $filter_val) {
+            $value[] = $instance->toPreview($filter_val, $entity_list, $field);
+          }
+          $value = implode(', ', $value);
+        }
+        else {
+          $value = $instance->toPreview($filter_value, $entity_list, $field);
+        }
         $url = $this->getOptionsUrl([], [$filter_id]);
       }
     }

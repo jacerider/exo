@@ -238,4 +238,26 @@ interface EntityListInterface extends ConfigEntityInterface {
    */
   public function getHandler();
 
+  /**
+   * Gets the settings.
+   *
+   * @return array
+   *   The array of settings.
+   */
+  public function getSettings();
+
+  /**
+   * Gets data from this settings object.
+   *
+   * @param string $key
+   *   A string that maps to a key within the configuration data.
+   *   If no key is specified, then the entire data array is returned.
+   * @param mixed $default
+   *   The default value to return if the key is not found.
+   *
+   * @return mixed
+   *   The data that was requested.
+   */
+  public function getSetting($key = '', $default = NULL);
+
 }

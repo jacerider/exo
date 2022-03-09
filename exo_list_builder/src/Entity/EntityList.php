@@ -50,6 +50,7 @@ use Drupal\exo_list_builder\EntityListInterface;
  *     "actions",
  *     "sort",
  *     "fields",
+ *     "settings",
  *     "weight",
  *   },
  *   lookup_keys = {
@@ -143,6 +144,13 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * @var string
    */
   protected $sort = '';
+
+  /**
+   * Various settings.
+   *
+   * @var array
+   */
+  protected $settings = [];
 
   /**
    * The field definitions.
@@ -313,6 +321,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * {@inheritdoc}
    */
   public function allowOverride() {
+    $entity_type_id = $this->getTargetEntityTypeId();
     $bundle_includes = $this->getTargetBundleIncludeIds();
     $bundle_excludes = $this->getTargetBundleExcludeIds();
     $bundles = $this->getTargetBundleIds();
@@ -320,7 +329,8 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       // An entity type without bundles.
       (count($bundles) === 1 && key($bundles) === $this->getTargetEntityTypeId()) ||
       // An entity type with all bundles.
-      (empty($bundle_includes) && empty($bundle_excludes))
+      (empty($bundle_includes) && empty($bundle_excludes)) ||
+      $entity_type_id === 'taxonomy_term' && count($bundles) === 1
     ) {
       return TRUE;
     }
@@ -493,6 +503,23 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       $this->entityHandler->setEntityList($this);
     }
     return $this->entityHandler;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSettings() {
+    return $this->settings;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSetting($key = '', $default = NULL) {
+    $settings = $this->getSettings();
+    $key_exists = NULL;
+    $value = &NestedArray::getValue($settings, (array) $key, $key_exists);
+    return $key_exists ? $value : $default;
   }
 
   /**

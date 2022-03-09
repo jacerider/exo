@@ -30,15 +30,15 @@ abstract class ExoListElementContentBase extends ExoListElementBase {
    *   A renderable array or string.
    */
   protected function view(EntityInterface $entity, array $field) {
+    $configuration = $this->getConfiguration();
     $field_items = $this->getItems($entity, $field);
     if (!$field_items) {
-      return NULL;
+      return $configuration['empty'];
     }
-    $configuration = $this->getConfiguration();
     $values = [];
     foreach ($field_items as $field_item) {
       if ($field_item->isEmpty()) {
-        return NULL;
+        return $configuration['empty'];
       }
       $value = $this->viewItem($entity, $field_item, $field);
       if (is_array($value)) {

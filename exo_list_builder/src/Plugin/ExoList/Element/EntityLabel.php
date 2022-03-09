@@ -70,7 +70,7 @@ class EntityLabel extends ExoListElementBase {
     $label = $entity->label();
     $icon = '';
     $configuration = $this->getConfiguration();
-    if ($configuration['link_label'] && $entity->getEntityType()->hasLinkTemplate('canonical')) {
+    if ($configuration['link_label'] && $entity->getEntityType()->hasLinkTemplate('canonical') && $entity->access('view')) {
       $label = Link::fromTextAndUrl($label, $entity->toUrl('canonical'))->toString();
     }
     if ($configuration['entity_icon']) {

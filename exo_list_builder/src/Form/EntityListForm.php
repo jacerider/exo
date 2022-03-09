@@ -197,6 +197,36 @@ class EntityListForm extends EntityForm {
       '#default_value' => $exo_entity_list->getLimit(),
     ];
 
+    $form['settings'] = [
+      '#type' => 'container',
+      '#tree' => TRUE,
+    ];
+
+    if ($this->moduleHandler->moduleExists('pagerer')) {
+      /** @var \Drupal\pagerer\PagererPresetListBuilder $pagerer_preset_list */
+      $pagerer_preset_list = $this->entityTypeManager->getListBuilder('pagerer_preset');
+      $default_label = (string) $this->t('Default:');
+      $replace_label = (string) $this->t('Replace with:');
+      $options = [
+        $default_label => ['' => $this->t('No - use Drupal core pager')],
+        $replace_label => $pagerer_preset_list->listOptions(),
+      ];
+      $form['settings']['pagerer_header'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Header pager'),
+        '#description' => $this->t("Core pager theme requests can be overridden. Select whether they need to be fulfilled by Drupal core pager, or the Pagerer pager to use."),
+        '#options' => $options,
+        '#default_value' => $exo_entity_list->getSetting('pagerer_header'),
+      ];
+      $form['settings']['pagerer_footer'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Footer pager'),
+        '#description' => $this->t("Core pager theme requests can be overridden. Select whether they need to be fulfilled by Drupal core pager, or the Pagerer pager to use."),
+        '#options' => $options,
+        '#default_value' => $exo_entity_list->getSetting('pagerer_footer'),
+      ];
+    }
+
     $this->buildFormActions($form, $form_state);
 
     $form['fields_container'] = [
@@ -578,6 +608,9 @@ class EntityListForm extends EntityForm {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
+
+    // Clean settings.
+    $form_state->setValue('settings', array_filter($form_state->getValue('settings', [])));
 
     // Url validation.
     $url = $form_state->getValue('url');

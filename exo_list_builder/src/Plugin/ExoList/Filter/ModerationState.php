@@ -127,7 +127,7 @@ class ModerationState extends ExoListFilterBase implements ContainerFactoryPlugi
   /**
    * {@inheritdoc}
    */
-  public function queryAlter(QueryInterface $query, $value, EntityListInterface $entity_list, array $field) {
+  public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
     $query->addTag('exo_entity_list_moderation_state');
     // @see exo_list_builder_query_exo_entity_list_moderation_state_alter().
     $query->addMetaData('exo_entity_list_moderation_state', $value);

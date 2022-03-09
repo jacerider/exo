@@ -3,6 +3,7 @@
 namespace Drupal\exo_list_builder\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
@@ -14,6 +15,13 @@ use Drupal\exo_list_builder\EntityListInterface;
  */
 abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInterface {
   use ExoIconTranslationTrait;
+
+  /**
+   * Flag indicating if field supports multiple values.
+   *
+   * @var bool
+   */
+  protected $supportsMultiple = FALSE;
 
   /**
    * {@inheritdoc}
@@ -31,6 +39,8 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       'default' => NULL,
       'position' => NULL,
       'expose' => TRUE,
+      'multiple' => FALSE,
+      'multiple_join' => 'or',
     ];
   }
 
@@ -74,16 +84,60 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       '#title' => $this->t('Expose'),
       '#default_value' => $configuration['expose'] ?: 'modal',
     ];
+    if ($this->supportsMultiple) {
+      $form['multiple'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Allow multiple values'),
+        '#id' => $form['#id'] . '--multiple',
+        '#default_value' => $configuration['multiple'],
+        '#ajax' => [
+          'method' => 'replace',
+          'wrapper' => $form['#id'] . '--default',
+          'callback' => [__CLASS__, 'ajaxReplaceFilterCallback'],
+        ],
+      ];
+      $form['multiple_join'] = [
+        '#type' => 'radios',
+        '#title' => $this->t('Join'),
+        '#options' => ['or' => $this->t('OR'), 'and' => $this->t('AND')],
+        '#default_value' => $configuration['multiple_join'],
+        '#states' => [
+          'visible' => [
+            '#' . $form['#id'] . '--multiple' => ['checked' => TRUE],
+          ]
+        ],
+      ];
+    }
     $form['default'] = [
       '#type' => 'details',
       '#open' => !empty($configuration['default']),
       '#title' => $this->t('Default value'),
       '#exo_list_field' => $field,
+      '#prefix' => '<div id="' . $form['#id'] . '--default">',
+      '#suffix' => '</div>',
     ];
     $subform_state = SubformState::createForSubform($form['default'], $form, $form_state);
     $default = $configuration['default'] ?: $this->defaultValue();
     $form['default'] = $this->buildForm($form['default'], $subform_state, $default, $entity_list, $field);
     return $form;
+  }
+
+  /**
+   * Ajax replace callback.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return array
+   *   The fields form.
+   */
+  public static function ajaxReplaceFilterCallback(array $form, FormStateInterface $form_state) {
+    $parents = $form_state->getTriggeringElement()['#array_parents'];
+    array_pop($parents);
+    $element = NestedArray::getValue($form, $parents);
+    return $element['default'];
   }
 
   /**
@@ -101,6 +155,10 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       else {
         $form_state->unsetValue('default');
       }
+    }
+    $multiple = $form_state->getValue('multiple');
+    if (empty($multiple)) {
+      $form_state->unsetValue('multiple_join');
     }
     $position = $form_state->getValue('position');
     if ($position === 'modal') {
@@ -141,7 +199,7 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
   /**
    * {@inheritdoc}
    */
-  public function queryAlter(QueryInterface $query, $value, EntityListInterface $entity_list, array $field) {
+  public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
   }
 
   /**
@@ -149,6 +207,20 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
    */
   public function isEmpty($raw_value) {
     return empty($raw_value);
+  }
+
+  /**
+   * Check if field allows multiple.
+   */
+  public function allowsMultiple(array $field) {
+    return !empty($field['filter']['settings']['multiple']);
+  }
+
+  /**
+   * Check if field allows multiple.
+   */
+  public function getMultipleJoin(array $field) {
+    return $field['filter']['settings']['multiple_join'] ?: 'or';
   }
 
   /**

@@ -78,6 +78,8 @@ exo_list_builder.exo_entity_list.*:
           weight:
             type: integer
             label: 'Weight'
+    settings:
+      type: mapping
     weight:
       type: integer
       label: 'Weight'

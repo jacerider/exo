@@ -148,8 +148,7 @@ class DatetimeRange extends ExoListFilterBase implements ContainerFactoryPluginI
   /**
    * {@inheritdoc}
    */
-  public function queryAlter(QueryInterface $query, $value, EntityListInterface $entity_list, array $field) {
-    ksm($value);
+  public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
     if (!empty($value['s'])) {
       $date = new DrupalDateTime($value['s']);
       $date->setTimezone(new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE));

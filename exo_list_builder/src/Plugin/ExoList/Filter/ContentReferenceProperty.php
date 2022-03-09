@@ -58,7 +58,7 @@ class ContentReferenceProperty extends ContentProperty {
   /**
    * {@inheritdoc}
    */
-  public function queryAlter(QueryInterface $query, $value, EntityListInterface $entity_list, array $field) {
+  public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
     $this->queryAlterByField($field['id'] . '.entity.' . $this->getConfiguration()['property'], $query, $value, $entity_list, $field);
   }
 
@@ -86,7 +86,7 @@ class ContentReferenceProperty extends ContentProperty {
       $reference_field_table = $reference_table_mapping->getFieldTableName($reference_field_name);
       $reference_field_column = $reference_table_mapping->getFieldColumnName($reference_field_storage_definition, $reference_property);
       $connection = \Drupal::database();
-      if ($reference_data_table !== $reference_field_table) {
+      if ($reference_data_table && $reference_data_table !== $reference_field_table) {
         $query = $connection->select($reference_data_table, 'd');
         $query->join($reference_field_table, 'f', 'd.' . $reference_id_key . ' = f.entity_id');
       }

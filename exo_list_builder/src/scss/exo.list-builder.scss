@@ -2,6 +2,10 @@
 
 .exo-list {
 
+  > .messages {
+    margin: 0;
+  }
+
   thead {
 
     th {
@@ -11,7 +15,7 @@
   }
 
   .exo-list-header {
-    margin: 0;
+    margin: 0 0 $global-margin;
     font-size: rem-calc(12);
 
     .button {
@@ -24,6 +28,16 @@
     .exo-form-inline > .exo-form-element {
       margin-top: 0;
       margin-bottom: 0;
+    }
+
+    .exo-list-sort {
+      padding-left: $global-padding;
+      margin-left: auto;
+      margin-right: 0 !important;
+
+      + .exo-list-pager {
+        margin-left: 0;
+      }
     }
 
     .exo-list-pager {
@@ -140,22 +154,30 @@
   }
 
   .exo-list-total {
-    // margin-right: $global-margin;
     padding-left: $global-padding;
     margin-left: auto;
   }
 
   .exo-list-footer {
-    // @include flex;
-    // @include flex-align(right, middle);
+    @include clearfix;
     margin-top: $global-margin;
     font-size: rem-calc(12);
 
     .exo-list-footer-first {
+      @include flex;
 
       @include breakpoint(large) {
         float: left;
         margin-right: $global-margin;
+      }
+
+      > * {
+        display: block;
+        margin-right: $global-margin / 2;
+
+        &:last-child {
+          margin-right: 0;
+        }
       }
     }
 
@@ -169,7 +191,31 @@
 
     .exo-list-pager {
       @include flex-align(right, middle);
-      // margin-left: 0;
+    }
+  }
+
+  .exo-list-sort {
+
+    .dropbutton-wrapper {
+      height: rem-calc(20) !important;
+    }
+
+    .dropbutton-action {
+
+      a {
+        color: inherit !important;
+        font-size: rem-calc(11) !important;
+        font-weight: 400 !important;
+      }
+
+      &:first-child {
+
+        a {
+          font-weight: 400 !important;
+          height: rem-calc(20) !important;
+          line-height: rem-calc(20) !important;
+        }
+      }
     }
   }
 
@@ -178,7 +224,7 @@
 
     .pagerer-container {
       width: auto;
-      font-size: rem-calc(18);
+      font-size: rem-calc(12);
       margin: 0 0 0 $global-margin;
 
       .pagerer-panes,
@@ -188,18 +234,22 @@
         @include flex-align(left, middle);
       }
 
+      .pager__item {
+
+        a {
+          font-size: rem-calc(12);
+          line-height: 1;
+        }
+      }
+
       .pagerer-pager-mini {
 
         .pagerer-widget {
           margin-left: rem-calc(12);
         }
-      }
-
-      .pager__item {
 
         a {
           font-size: rem-calc(30);
-          line-height: 1;
         }
       }
     }
@@ -236,14 +286,14 @@
 
     &,
     h3 {
-      font-size: rem-calc(14);
       padding: 0;
       line-height: 1.1;
     }
 
     h3 {
-      margin: 0 $global-margin 0 0;
-      font-weight: 400;
+      margin: 0 $global-margin rem-calc(5) 0;
+      font-weight: 700;
+      font-size: rem-calc(13);
     }
 
     ul {
@@ -254,8 +304,10 @@
       padding: 0;
 
       li {
-        margin-right: $global-margin;
+        margin: 0 $global-margin 0 0;
         font-weight: 700;
+        list-style-type: none;
+        font-size: rem-calc(12);
 
         a {
           color: inherit;

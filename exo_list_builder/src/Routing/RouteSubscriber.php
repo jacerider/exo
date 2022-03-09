@@ -19,7 +19,11 @@ class RouteSubscriber extends RouteSubscriberBase {
 
     foreach ($exo_entity_lists as $exo_entity_list) {
       if ($exo_entity_list->isOverride()) {
-        if ($route = $collection->get('entity.' . $exo_entity_list->getTargetEntityTypeId() . '.collection')) {
+        if ($exo_entity_list->getTargetEntityTypeId() === 'taxonomy_term') {
+          continue;
+        }
+        $route = $collection->get('entity.' . $exo_entity_list->getTargetEntityTypeId() . '.collection');
+        if ($route) {
           if ($url = $exo_entity_list->getUrl()) {
             $route->setPath($url);
           }

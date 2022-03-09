@@ -68,18 +68,21 @@ class StatusIcon extends ExoListElementBase {
    * {@inheritdoc}
    */
   public function applies(array $field) {
-    /** @var \Drupal\Core\Field\FieldDefinitionInterface $field_definition */
-    $field_definition = $field['definition'];
-    $entity_type_id = $field_definition->getTargetEntityTypeId();
-    $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
+    if (isset($field['definition'])) {
+      /** @var \Drupal\Core\Field\FieldDefinitionInterface $field_definition */
+      $field_definition = $field['definition'];
+      $entity_type_id = $field_definition->getTargetEntityTypeId();
+      $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
 
-    if (!is_subclass_of($entity_type->getClass(), EntityPublishedInterface::class)) {
-      return FALSE;
+      if (!is_subclass_of($entity_type->getClass(), EntityPublishedInterface::class)) {
+        return FALSE;
+      }
+      if (!$entity_type->hasKey('published')) {
+        return FALSE;
+      }
+      return $entity_type->getKey('published') === $field['id'];
     }
-    if (!$entity_type->hasKey('published')) {
-      return FALSE;
-    }
-    return $entity_type->getKey('published') === $field['id'];
+    return $field['id'] === 'status';
   }
 
 }

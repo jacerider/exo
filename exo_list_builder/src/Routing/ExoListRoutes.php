@@ -20,16 +20,24 @@ class ExoListRoutes {
     $exo_entity_lists = $entity_type_manager->getStorage('exo_entity_list')->loadMultiple();
 
     foreach ($exo_entity_lists as $exo_entity_list) {
-      if (!$exo_entity_list->isOverride() && ($url = $exo_entity_list->getUrl())) {
-        $routes['exo_list_builder.' . $exo_entity_list->id()] = new Route(
-          $url, [
-            '_controller' => '\Drupal\exo_list_builder\Controller\ExoListController::listing',
-            '_title_callback' => '\Drupal\exo_list_builder\Controller\ExoListController::listingTitle',
-            'exo_entity_list' => $exo_entity_list->id(),
-          ], [
-            '_entity_access'  => 'exo_entity_list.view',
-          ]
-        );
+      $override = $exo_entity_list->isOverride();
+      $defaults = [
+        '_controller' => '\Drupal\exo_list_builder\Controller\ExoListController::listing',
+        '_title_callback' => '\Drupal\exo_list_builder\Controller\ExoListController::listingTitle',
+        'exo_entity_list' => $exo_entity_list->id(),
+      ];
+      $requirements = [
+        '_entity_access'  => 'exo_entity_list.view',
+      ];
+      if ($override && $exo_entity_list->getTargetEntityTypeId() === 'taxonomy_term') {
+        // Special condition allowing for override of taxonomy management page.
+        foreach ($exo_entity_list->getTargetBundleIds() as $bundle) {
+          $routes['exo_list_builder.' . $exo_entity_list->id() . '.taxonomy_vocabulary.overview_form'] = new Route('/admin/structure/taxonomy/manage/' . $bundle . '/overview', $defaults, $requirements);
+        }
+        $override = FALSE;
+      }
+      if (!$override && ($url = $exo_entity_list->getUrl())) {
+        $routes['exo_list_builder.' . $exo_entity_list->id()] = new Route($url, $defaults, $requirements);
       }
     }
 

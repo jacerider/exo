@@ -113,7 +113,7 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
   /**
    * {@inheritdoc}
    */
-  public function queryAlter(QueryInterface $query, $value, EntityListInterface $entity_list, array $field) {
+  public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
     $this->queryAlterByField($field['id'] . '.' . $this->getConfiguration()['property'], $query, $value, $entity_list, $field);
   }
 
