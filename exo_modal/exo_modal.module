@@ -102,7 +102,7 @@ function exo_modal_exo_modal_setting_presets($config_id) {
     ],
   ];
   $presets['alert'] = [
-    'label' => 'Aside Top',
+    'label' => 'Alert',
     'modal' => [
       'top' => 0,
       'radius' => 0,
