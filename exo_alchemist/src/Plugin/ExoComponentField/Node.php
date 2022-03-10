@@ -23,27 +23,4 @@ class Node extends EntityReference implements ContainerFactoryPluginInterface {
    */
   protected $entityType = 'node';
 
-  /**
-   * {@inheritdoc}
-   */
-  public function propertyInfo() {
-    return [
-      'render' => $this->t('The rendered entity.'),
-    ] + parent::propertyInfo();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function viewValue(FieldItemInterface $item, $delta, array $contexts) {
-    $value = parent::viewValue($item, $delta, $contexts);
-    $entity = $this->getReferencedEntity($item, $contexts);
-    if ($entity) {
-      $value['render'] = [
-        '#markup' => $this->entityTypeManager->getViewBuilder($this->getEntityType())->view($entity, $this->getViewMode()),
-      ];
-    }
-    return $value;
-  }
-
 }
