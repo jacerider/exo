@@ -368,6 +368,12 @@ class EntityReferenceBase extends ExoComponentFieldFieldableBase implements Cont
     $entity = $this->getReferencedEntity($item, $contexts);
     $value = [];
     if ($entity) {
+      if ($entity->getEntityTypeId() !== ExoComponentManager::ENTITY_TYPE) {
+        // When not acting on a component entity, we need the most recent
+        // version of the entity.
+        $entity = $this->entityTypeManager()->getStorage($entity->getEntityTypeId())->load($entity->id());
+      }
+      $contexts['cacheable_metadata']->addCacheableDependency($entity);
       // Check view access when not a component entity.
       if ($entity->getEntityTypeId() !== ExoComponentManager::ENTITY_TYPE && (!$entity->access('view') && !$this->getFieldDefinition()->getAdditionalValue('skip_access_check'))) {
         return $value;
