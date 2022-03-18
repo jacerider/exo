@@ -39,25 +39,25 @@ exo_modal.api.entity.view:
         type: entity:{entity_type}
 
 exo_modal.api.entity.edit:
-  path: '/api/exo/entity/edit/{entity_type}/{entity}/{display_id}/{revision_id}'
+  path: '/api/exo/entity/edit/{entity_type}/{entity}/{display_id}/{access_id}'
   defaults:
     _controller: '\Drupal\exo_modal\Controller\ExoModalEntityController::editForm'
     _title: 'Edit entity content'
     display_id: 'default'
-    revision_id: NULL
+    access_id: 'update'
   requirements:
-    _entity_access: 'entity.update'
+    _custom_access: '\Drupal\exo_modal\Controller\ExoModalEntityController::editFormAccess'
   options:
     parameters:
       entity:
         type: entity:{entity_type}
 
 exo_modal.api.entity.delete:
-  path: '/api/exo/entity/delete/{entity_type}/{entity}/{revision_id}'
+  path: '/api/exo/entity/delete/{entity_type}/{entity}/{access_id}'
   defaults:
     _controller: '\Drupal\exo_modal\Controller\ExoModalEntityController::deleteForm'
     _title: 'Delete entity content'
-    revision_id: NULL
+    access_id: 'delete'
   requirements:
     _entity_access: 'entity.delete'
   options:
@@ -73,7 +73,7 @@ exo_modal.api.entity.create:
     display_id: 'add'
     bundle: NULL
   requirements:
-    _permission: 'access content'
+    _custom_access: '\Drupal\exo_modal\Controller\ExoModalEntityController::createFormAccess'
 
 exo_modal.api.views.view:
   path: '/api/exo/modal/view/{view}/{display_id}/{argument1}/{argument2}'

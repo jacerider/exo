@@ -17,6 +17,10 @@
 
       .exo-modal-header {
         background: color($base);
+
+        .exo-modal-button {
+          color: color-fix($base, $offset);
+        }
       }
 
       .exo-modal-header-icon,

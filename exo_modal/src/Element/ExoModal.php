@@ -13,6 +13,7 @@ use Drupal\Core\Url;
  * @RenderElement("exo_modal")
  */
 class ExoModal extends RenderElement {
+  use ExoModalUrlTrait;
 
   /**
    * {@inheritdoc}
@@ -47,6 +48,12 @@ class ExoModal extends RenderElement {
         'argument2' => NULL,
       ],
       '#entity' => [
+        'entity_type' => NULL,
+        'id' => NULL,
+        'rid' => NULL,
+        'display_id' => NULL,
+      ],
+      '#entity_edit' => [
         'entity_type' => NULL,
         'id' => NULL,
         'display_id' => NULL,
@@ -91,6 +98,160 @@ class ExoModal extends RenderElement {
       'trigger' => [],
       'modal' => [],
     ];
+
+    // Views.
+    if (!empty($element['#view']['name'])) {
+      $element['#view'] += [
+        'name' => NULL,
+        'display_id' => NULL,
+        'argument1' => NULL,
+        'argument2' => NULL,
+      ];
+      $element['#use_close'] = FALSE;
+      $display_id = !empty($element['#view']['display_id']) ? $element['#view']['display_id'] : 'default';
+      $url = static::toModalUrl(Url::fromRoute('exo_modal.api.views.view', [
+        'view' => $element['#view']['name'],
+        'display_id' => $display_id,
+        'argument1' => $element['#view']['argument1'],
+        'argument2' => $element['#view']['argument2'],
+      ]))->toString();
+      $element['#modal_settings']['modal']['contentAjax'] = $url;
+    }
+
+    // Entity view.
+    if (!empty($element['#entity']['id']) && !empty($element['#entity']['entity_type'])) {
+      $element['#entity'] += [
+        'entity_type' => NULL,
+        'id' => NULL,
+        'rid' => NULL,
+        'display_id' => NULL,
+      ];
+      $query = $element['#entity']['query'] ?? [];
+      if (empty($element['#entity']['no_destination'])) {
+        $query = $query + \Drupal::destination()->getAsArray();
+      }
+      $element['#use_close'] = FALSE;
+      $entity = \Drupal::entityTypeManager()->getStorage($element['#entity']['entity_type'])->load($element['#entity']['id']);
+      if (!$entity->access('view')) {
+        return [];
+      }
+      if ($entity->hasLinkTemplate('canonical')) {
+        $element['#trigger_attributes']['href'] = $entity->toUrl()->toString();
+      }
+      $element['#modal_settings']['modal'] += [
+        'title' => $entity->label(),
+      ];
+      $display_id = !empty($element['#entity']['display_id']) ? $element['#entity']['display_id'] : 'default';
+      $url = static::toModalUrl(Url::fromRoute('exo_modal.api.entity.view', [
+        'entity_type' => $element['#entity']['entity_type'],
+        'entity' => $element['#entity']['id'],
+        'revision_id' => !empty($element['#entity']['rid']) ? $element['#entity']['rid'] : NULL,
+        'display_id' => $display_id,
+      ], [
+        'query' => $query,
+      ]));
+      $element['#modal_settings']['modal']['contentAjax'] = $url;
+    }
+
+    // Entity edit.
+    if (!empty($element['#entity_edit']['id']) && !empty($element['#entity_edit']['entity_type'])) {
+      $entity_type_id = $element['#entity_edit']['entity_type'] ?? NULL;
+      $entity_id = $element['#entity_edit']['id'] ?? NULL;
+      $display_id = $element['#entity_edit']['display_id'] ?? 'default';
+      $access = $element['#entity_edit']['access_operation'] ?? 'update';
+      $link = $element['#entity_edit']['link_id'] ?? $display_id . '-form';
+      $query = $element['#entity_edit']['query'] ?? [];
+      if (empty($element['#entity_edit']['no_destination'])) {
+        $query = $query + \Drupal::destination()->getAsArray();
+      }
+      $element['#use_close'] = FALSE;
+      $entity = \Drupal::entityTypeManager()->getStorage($entity_type_id)->load($entity_id);
+      if ($access && !$entity->access($access)) {
+        return [];
+      }
+      $url = Url::fromRoute('exo_modal.api.entity.edit', [
+        'entity_type' => $entity_type_id,
+        'entity' => $entity_id,
+        'display_id' => $display_id,
+        'access_id' => $access,
+      ], [
+        'query' => $query,
+      ]);
+      $element['#trigger_attributes']['href'] = $url->toString();
+      $element['#modal_settings']['modal']['contentAjax'] = $url;
+      $element['#modal_settings']['modal']['contentAjaxCache'] = FALSE;
+      if ($link && $entity->hasLinkTemplate($link)) {
+        $element['#trigger_attributes']['href'] = $entity->toUrl($link)->setOption('query', $query)->toString();
+      }
+    }
+
+    // Entity delete.
+    if (!empty($element['#entity_delete']['id']) && !empty($element['#entity_delete']['entity_type'])) {
+      $entity_type_id = $element['#entity_delete']['entity_type'] ?? NULL;
+      $entity_id = $element['#entity_delete']['id'] ?? NULL;
+      $display_id = $element['#entity_delete']['display_id'] ?? 'default';
+      $access = $element['#entity_delete']['access_operation'] ?? 'delete';
+      $link = $element['#entity_delete']['link_id'] ?? $display_id . '-form';
+      $query = $element['#entity_delete']['query'] ?? [];
+      if (empty($element['#entity_delete']['no_destination'])) {
+        $query = $query + \Drupal::destination()->getAsArray();
+      }
+      $element['#use_close'] = FALSE;
+      $entity = \Drupal::entityTypeManager()->getStorage($entity_type_id)->load($entity_id);
+      if ($access && !$entity->access($access)) {
+        return [];
+      }
+      $url = Url::fromRoute('exo_modal.api.entity.delete', [
+        'entity_type' => $entity_type_id,
+        'entity' => $entity_id,
+        'display_id' => $display_id,
+        'access_id' => $access,
+      ], [
+        'query' => $query,
+      ]);
+      $element['#trigger_attributes']['href'] = $url->toString();
+      $element['#modal_settings']['modal']['contentAjax'] = $url;
+      $element['#modal_settings']['modal']['contentAjaxCache'] = FALSE;
+      if ($link && $entity->hasLinkTemplate($link)) {
+        $element['#trigger_attributes']['href'] = $entity->toUrl($link)->setOption('query', $query)->toString();
+      }
+    }
+
+    // Entity add.
+    if (!empty($element['#entity_create']['entity_type'])) {
+      $entity_type_id = $element['#entity_create']['entity_type'] ?? NULL;
+      $entity_type_manager = \Drupal::entityTypeManager();
+      $entity_type = $entity_type_manager->getDefinition($entity_type_id);
+      $bundle = $element['#entity_create']['bundle'] ?? NULL;
+      $display_id = $element['#entity_create']['display_id'] ?? 'add';
+      $link = $element['#entity_create']['link'] ?? $display_id . '-form';
+      $query = $element['#entity_create']['query'] ?? [];
+      if (empty($element['#entity_create']['no_destination'])) {
+        $query = $query + \Drupal::destination()->getAsArray();
+      }
+      if (!empty($element['#entity_create']['data'])) {
+        $query['data'] = $element['#entity_create']['data'];
+      }
+      $element['#use_close'] = FALSE;
+      if (!$entity_type_manager->getAccessControlHandler($entity_type_id)->createAccess($bundle)) {
+        return [];
+      }
+      $url = Url::fromRoute('exo_modal.api.entity.create', [
+        'entity_type' => $entity_type_id,
+        'bundle' => $bundle,
+        'display_id' => $display_id,
+      ], [
+        'query' => $query,
+      ]);
+      $element['#trigger_attributes']['href'] = $url->toString();
+      $element['#modal_settings']['modal']['contentAjax'] = $url;
+      $element['#modal_settings']['modal']['contentAjaxCache'] = FALSE;
+      if ($link && $entity_type->hasLinkTemplate($link)) {
+        $route_id = str_replace(['-', 'drupal:'], ['_', ''], $link);
+        $element['#trigger_attributes']['href'] = Url::fromRoute('entity.' . $entity_type_id . '.' . $route_id)->setOption('query', $query)->toString();
+      }
+    }
+
     $element['#modal_settings']['modal'] += [
       'title' => $element['#trigger_text'],
       'subtitle' => $element['#description'],
@@ -109,62 +270,11 @@ class ExoModal extends RenderElement {
       ];
     }
 
-    $element['#view'] += [
-      'name' => NULL,
-      'display_id' => NULL,
-      'argument1' => NULL,
-      'argument2' => NULL,
-    ];
-    if (!empty($element['#view']['name'])) {
-      $display_id = !empty($element['#view']['display_id']) ? $element['#view']['display_id'] : 'default';
-      $url = Url::fromRoute('exo_modal.api.views.view', [
-        'view' => $element['#view']['name'],
-        'display_id' => $display_id,
-        'argument1' => $element['#view']['argument1'],
-        'argument2' => $element['#view']['argument2'],
-      ])->getInternalPath();
-      $element['#modal_settings']['modal']['contentAjax'] = $url;
-    }
-
-    $element['#entity'] += [
-      'entity_type' => NULL,
-      'id' => NULL,
-      'rid' => NULL,
-      'display_id' => NULL,
-    ];
-    if (!empty($element['#entity']['id']) && !empty($element['#entity']['entity_type'])) {
-      $entity = \Drupal::entityTypeManager()->getStorage($element['#entity']['entity_type'])->load($element['#entity']['id']);
-      if (!$entity->access('view')) {
-        return [];
+    if (!empty($element['#modal_settings']['modal']['contentAjax'])) {
+      if ($element['#modal_settings']['modal']['contentAjax'] instanceof Url) {
+        $element['#modal_settings']['modal']['contentAjax'] = static::toModalUrl($element['#modal_settings']['modal']['contentAjax'])->toString();
       }
-      if ($entity->hasLinkTemplate('canonical')) {
-        $element['#trigger_attributes']['href'] = $entity->toUrl()->toString();
-      }
-      $display_id = !empty($element['#entity']['display_id']) ? $element['#entity']['display_id'] : 'default';
-      $url = Url::fromRoute('exo_modal.api.entity.view', [
-        'entity_type' => $element['#entity']['entity_type'],
-        'entity' => $element['#entity']['id'],
-        'revision_id' => !empty($element['#entity']['rid']) ? $element['#entity']['rid'] : NULL,
-        'display_id' => $display_id,
-      ])->getInternalPath();
-      $element['#modal_settings']['modal']['contentAjax'] = $url;
-    }
-
-    if (!empty($element['#entity_create']['entity_type'])) {
-      $element['#entity_create'] += [
-        'bundle' => NULL,
-        'display_id' => NULL,
-      ];
-      $entity_type = $element['#entity_create']['entity_type'];
-      if (\Drupal::entityTypeManager()->getAccessControlHandler($entity_type)->createAccess($element['#entity_create']['bundle'])) {
-        $url = Url::fromRoute('exo_modal.api.entity.create', $element['#entity_create'], [
-          'query' => \Drupal::destination()->getAsArray() + ['from_modal' => 1],
-        ])->toString();
-        $element['#trigger_attributes']['href'] = $url;
-        $element['#modal_settings']['modal']['contentAjax'] = ltrim($url, '/');
-        $element['#modal_settings']['modal']['contentAjaxCache'] = FALSE;
-      }
-
+      $element['#modal_settings']['modal']['contentAjax'] = ltrim($element['#modal_settings']['modal']['contentAjax'], '/');
     }
 
     return $element;
@@ -185,6 +295,10 @@ class ExoModal extends RenderElement {
    *   The processed element.
    */
   public static function processModal(array &$element, FormStateInterface $form_state, array &$complete_form) {
+    $element['#attributes']['class'][] = 'js-form-item';
+    $element['#attributes']['class'][] = 'form-item';
+    $element['#attributes']['class'][] = 'js-form-wrapper';
+    $element['#attributes']['class'][] = 'form-wrapper';
     $element['#modal_settings'] += [
       'trigger' => [],
       'modal' => [],

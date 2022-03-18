@@ -3,6 +3,7 @@
 namespace Drupal\exo_modal\Controller;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Ajax\AjaxHelperTrait;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\exo_modal\Ajax\ExoModalContentCommand;
 use Drupal\exo_modal\Ajax\ExoModalInsertCommand;
@@ -14,6 +15,15 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 trait ExoModalResponseTrait {
+
+  use AjaxHelperTrait;
+
+  /**
+   * The eXo modal generator.
+   *
+   * @var \Drupal\exo_modal\ExoModalGeneratorInterface
+   */
+  protected $exoModalGenerator;
 
   /**
    * Build a modal.
@@ -27,7 +37,7 @@ trait ExoModalResponseTrait {
       return $response;
     }
     $settings = NestedArray::mergeDeep($settings, $request->query->get('modal') ?: []);
-    $modal = $this->exoModalGenerator->generate('exo_modal_' . time(), NestedArray::mergeDeep([
+    $modal = $this->exoModalGenerator()->generate('exo_modal_' . time(), NestedArray::mergeDeep([
       'modal' => [
         'autoOpen' => TRUE,
         'destroyOnClose' => TRUE,
@@ -37,6 +47,19 @@ trait ExoModalResponseTrait {
     $modal->setContent($build);
     $response->addCommand(new ExoModalInsertCommand('body', $modal->toRenderableModal()));
     return $response;
+  }
+
+  /**
+   * Retrieves eXo modal generator.
+   *
+   * @return \Drupal\exo_modal\ExoModalGeneratorInterface
+   *   The eXo modal generator.
+   */
+  protected function exoModalGenerator() {
+    if (!isset($this->exoModalGenerator)) {
+      $this->exoModalGenerator = \Drupal::service('exo_modal.generator');
+    }
+    return $this->exoModalGenerator;
   }
 
 }

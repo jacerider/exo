@@ -53,7 +53,7 @@ class ExoModals extends ExoDataManager<ExoModal> {
         const $element = $(e.target);
         if (modal.getElement().find(e.target).length) {
           if (e.which === 13 && modal.getElement().find('form').length) {
-            if ($element.has('[data-autocomplete-path]').length || $element.hasClass('ui-autocomplete-input')) {
+            if ($element.has('[data-autocomplete-path]').length || $element.hasClass('ui-autocomplete-input') || $element.is('textarea')) {
               return;
             }
             // This may cause issues as it is just clicking the first button it

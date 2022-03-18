@@ -362,20 +362,20 @@ class ExoModal extends ExoData {
 
     this.$header = $('<div class="' + this.name + '-header"><h2 class="' + this.name + '-header-title">' + this.get('title') + '</h2><p class="' + this.name + '-header-subtitle"><span>' + this.get('subtitle') + '</span></p><div class="' + this.name + '-header-buttons"></div></div>');
 
-    if (this.get('closeButton') === true) {
-      this.$header.find('.' + this.name + '-header-buttons').append('<a href="javascript:void(0)" class="' + this.name + '-button ' + this.name + '-button-close" data-' + this.name + '-close></a>');
+    if (this.get('subtitle') === '') {
+      this.$header.addClass(this.name + '-no-subtitle');
     }
 
     if (this.get('fullscreen') === true) {
       this.$header.find('.' + this.name + '-header-buttons').append('<a href="javascript:void(0)" class="' + this.name + '-button ' + this.name + '-button-fullscreen" data-' + this.name + '-fullscreen></a>');
     }
 
-    if (this.get('timeoutProgressbar') === true) {
-      this.$header.prepend('<div class="' + this.name + '-progressbar"><div></div></div>');
+    if (this.get('closeButton') === true) {
+      this.$header.find('.' + this.name + '-header-buttons').append('<a href="javascript:void(0)" class="' + this.name + '-button ' + this.name + '-button-close" data-' + this.name + '-close></a>');
     }
 
-    if (this.get('subtitle') === '') {
-      this.$header.addClass(this.name + '-no-subtitle');
+    if (this.get('timeoutProgressbar') === true) {
+      this.$header.prepend('<div class="' + this.name + '-progressbar"><div></div></div>');
     }
 
     this.$element.css('border-bottom-width', '');
