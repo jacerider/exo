@@ -9,7 +9,21 @@ use Drupal\Core\Url;
 /**
  * Provides a list builder the will allow confirmation of empty records.
  */
-class ExoListBuilderContentStates extends ExoListBuilderContent {
+class ExoListBuilderContentStates extends ExoListBuilderContent implements ExoListBuilderContentStatesInterface {
+
+  /**
+   * The default state label.
+   *
+   * @var string
+   */
+  protected $stateDefaultLabel = 'List';
+
+  /**
+   * The default state icon.
+   *
+   * @var string
+   */
+  protected $stateDefaultIcon = 'regular-list-alt';
 
   /**
    * The message shown when no archived records exist.
@@ -19,9 +33,30 @@ class ExoListBuilderContentStates extends ExoListBuilderContent {
   protected $stateEmptyMessage = 'No @state @label exist.';
 
   /**
-   * Get state definitions.
+   * Flag indicating if filter should be down in overview.
+   *
+   * @var string
    */
-  protected function getStates() {
+  protected $showInFilterOverview = FALSE;
+
+  /**
+   * {@inheritDoc}
+   */
+  public function getDefaultStateLabel() {
+    return $this->stateDefaultLabel;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function getDefaultStateIcon() {
+    return $this->stateDefaultIcon;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function getStates() {
     return [
       'archive' => [
         'label' => $this->t('Archive'),
@@ -65,7 +100,7 @@ class ExoListBuilderContentStates extends ExoListBuilderContent {
   }
 
   /**
-   * Alter the query when not in archive mode.
+   * Alter the query when not in state mode.
    *
    * @param \Drupal\Core\Entity\Query\QueryInterface $query
    *   The query.
@@ -74,7 +109,7 @@ class ExoListBuilderContentStates extends ExoListBuilderContent {
   }
 
   /**
-   * Alter the query when in archive mode.
+   * Alter the query when in state mode.
    *
    * @param array $state
    *   The state.
@@ -89,27 +124,57 @@ class ExoListBuilderContentStates extends ExoListBuilderContent {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $build = parent::buildForm($form, $form_state);
+    $current_state = $this->getState();
 
-    $build['footer']['first'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'div',
-      '#weight' => -10,
-      '#attributes' => [
-        'class' => 'exo-list-footer-first',
-      ],
+    $links = [
+      'state_default' => [
+        '#type' => 'link',
+        '#title' => $this->icon($this->getDefaultStateLabel())->setIcon($this->getDefaultStateIcon()),
+        '#url' => Url::fromRoute('<current>'),
+        '#attributes' => [
+          'class' => [
+            'exo-list-states--state',
+            'exo-list-states--default',
+            (empty($current_state) ? 'exo-list-states--active' : ''),
+          ],
+        ],
+      ]
     ];
-    if (!$this->getState()) {
-      foreach ($this->getStates() as $id => $state) {
-        $build['footer']['first']['state_' . $id] = [
-          '#type' => 'link',
-          '#title' => $this->icon($state['label'])->setIcon($state['icon']),
-          '#url' => Url::fromRoute('<current>', [], [
-            'query' => [
-              'state' => $id,
-            ],
-          ]),
-        ];
-      }
+    foreach ($this->getStates() as $state_id => $state) {
+      $links['state_' . $state_id] = [
+        '#type' => 'link',
+        '#title' => $this->icon($state['label'])->setIcon($state['icon']),
+        '#url' => Url::fromRoute('<current>', [], [
+          'query' => [
+            'state' => $state_id,
+          ],
+        ]),
+        '#attributes' => [
+          'class' => [
+            'exo-list-states--state',
+            ($current_state && $current_state['id'] === $state_id) ? 'exo-list-states--active' : '',
+          ],
+        ],
+      ];
+    }
+
+    if (!empty($links)) {
+      $build['top']['links'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => [
+          'class' => 'exo-list-states--links',
+        ],
+      ] + $links;
+
+      $build['footer']['first'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#weight' => -10,
+        '#attributes' => [
+          'class' => 'exo-list-footer-first',
+        ],
+      ] + $links;
     }
 
     return $build;
@@ -120,7 +185,7 @@ class ExoListBuilderContentStates extends ExoListBuilderContent {
    */
   protected function getFormFilterOverviewValues(array $form, FormStateInterface $form_state) {
     $values = parent::getFormFilterOverviewValues($form, $form_state);
-    if ($state = $this->getState()) {
+    if ($this->showInFilterOverview && ($state = $this->getState())) {
       $values['state'] = $state['label'];
     }
     return $values;

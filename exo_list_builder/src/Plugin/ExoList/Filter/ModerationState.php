@@ -4,7 +4,6 @@ namespace Drupal\exo_list_builder\Plugin\ExoList\Filter;
 
 use Drupal\content_moderation\ModerationInformationInterface;
 use Drupal\content_moderation\Plugin\WorkflowType\ContentModerationInterface;
-use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\exo_list_builder\EntityListInterface;

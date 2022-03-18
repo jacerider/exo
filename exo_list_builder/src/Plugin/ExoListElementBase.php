@@ -3,6 +3,7 @@
 namespace Drupal\exo_list_builder\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Component\Render\HtmlEscapedText;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Markup;
@@ -137,13 +138,20 @@ abstract class ExoListElementBase extends PluginBase implements ExoListElementIn
    *   The icon.
    */
   protected function getIcon(EntityInterface $entity) {
-    $icon = new ExoIconTranslatableMarkup($entity->label());
-    $entity_icon = exo_icon_entity_icon($entity);
-    if ($entity_icon) {
-      $icon->setIcon($entity_icon);
-    }
-    else {
-      $icon->match([], (string) $entity->getEntityType()->getLabel());
+    $icon = NULL;
+    $label = $entity->label();
+    if ($label) {
+      if ($label instanceof HtmlEscapedText) {
+        $label = $label->__toString();
+      }
+      $icon = new ExoIconTranslatableMarkup($label);
+      $entity_icon = exo_icon_entity_icon($entity);
+      if ($entity_icon) {
+        $icon->setIcon($entity_icon);
+      }
+      else {
+        $icon->match([], (string) $entity->getEntityType()->getLabel());
+      }
     }
     return $icon;
   }

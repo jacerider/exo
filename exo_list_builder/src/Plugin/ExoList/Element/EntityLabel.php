@@ -67,7 +67,7 @@ class EntityLabel extends ExoListElementBase {
    * {@inheritdoc}
    */
   protected function view(EntityInterface $entity, array $field) {
-    $label = $entity->label();
+    $label = $entity->label() ?: $entity->id();
     $icon = '';
     $configuration = $this->getConfiguration();
     if ($configuration['link_label'] && $entity->getEntityType()->hasLinkTemplate('canonical') && $entity->access('view')) {
@@ -75,7 +75,7 @@ class EntityLabel extends ExoListElementBase {
     }
     if ($configuration['entity_icon']) {
       $as_icon = $this->getIcon($entity);
-      if ($as_icon->hasIcon()) {
+      if ($as_icon && $as_icon->hasIcon()) {
         $icon = $as_icon->setIconOnly();
       }
     }
