@@ -12,6 +12,10 @@
       // Container inline has been replaced with exo-form-inline.
       $('.exo-form').once('exo.form.init').each((index, element) => {
         const $form = $(element);
+        if (!$('> *:visible', $form).length) {
+          // Add empty div so that we have correct margin
+          $form.append('<div></div>');
+        }
         $form.find('.container-inline').removeClass('container-inline');
         $form.find('.form--inline').removeClass('form--inline').addClass('exo-form-inline');
         $form.find('.form-items-inline').removeClass('form-items-inline');
