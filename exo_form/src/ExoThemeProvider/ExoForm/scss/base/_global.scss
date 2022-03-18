@@ -1,4 +1,10 @@
 .exo-form {
+  margin-bottom: -$global-margin;
+
+  > *:last-child {
+    // Works with .exo-form which has a negative bottom margin.
+    margin-bottom: $global-margin;
+  }
 
   @include breakpoint(small only) {
 
@@ -50,6 +56,10 @@
   .messages {
     margin-top: $global-margin;
     margin-bottom: $global-margin;
+
+    .theme-seven & {
+      margin-left: 8px;
+    }
   }
 
   .exo-form-container-js-hide {
