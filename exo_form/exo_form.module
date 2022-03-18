@@ -103,12 +103,17 @@ function exo_form_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     // Remove empty elements from multi-value widgets.
     $form_object = $form_state->getFormObject();
     if ($form_object instanceof ContentEntityFormInterface) {
-      foreach (Element::children($form) as $field_name) {
-        $element = &$form[$field_name];
-        if (!empty($element['widget']['#theme']) && $element['widget']['#theme'] === 'field_multiple_value_form' && $element['widget']['#cardinality'] === -1) {
-          $max_delta = $element['widget']['#max_delta'];
-          unset($element['widget'][$max_delta]);
-          $element['widget']['#max_delta'] = $max_delta - 1;
+      $entity = $form_object->GetEntity();
+      if (!$entity->isNew()) {
+        foreach (Element::children($form) as $field_name) {
+          $element = &$form[$field_name];
+          if (!empty($element['widget']['#theme']) && $element['widget']['#theme'] === 'field_multiple_value_form' && $element['widget']['#cardinality'] === -1) {
+            $max_delta = $element['widget']['#max_delta'];
+            if ($max_delta > 0) {
+              unset($element['widget'][$max_delta]);
+              $element['widget']['#max_delta'] = $max_delta - 1;
+            }
+          }
         }
       }
     }
