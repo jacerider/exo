@@ -322,8 +322,10 @@ class ExoImagineFormatter extends ImageFormatter {
         $file = $files[$delta];
         $item = $element['#item'];
         $cache = $element['#cache'] + ['tags' => [], 'contexts' => []];
+
         $element = [
           '#theme' => 'exo_imagine',
+          '#url' => $this->getLinkUrl($file, $items->getEntity()),
           '#attributes' => [
             'class' => ['exo-imagine'],
             'data-exo-imagine' => Json::encode($settings),

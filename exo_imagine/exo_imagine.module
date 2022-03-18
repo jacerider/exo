@@ -33,6 +33,7 @@ function exo_imagine_theme() {
         'item' => NULL,
         'attributes' => [],
         'tag' => 'div',
+        'url' => NULL,
         'image_picture_attributes' => [],
         'image_attributes' => [],
         'image_sources' => [],
@@ -42,4 +43,14 @@ function exo_imagine_theme() {
       ],
     ],
   ];
+}
+
+/**
+ * Implements hook_theme().
+ */
+function template_preprocess_exo_imagine(&$variables) {
+  if (!empty($variables['url'])) {
+    $variables['tag'] = 'a';
+    $variables['attributes']['href'] = $variables['url']->toString();
+  }
 }
