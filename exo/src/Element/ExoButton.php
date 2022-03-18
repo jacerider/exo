@@ -65,4 +65,33 @@ class ExoButton extends Submit {
     return $element;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public static function preRenderAjaxForm($element) {
+    // Skip already processed elements.
+    if (isset($element['#ajax_processed'])) {
+      return $element;
+    }
+
+    // Nothing to do if there are no Ajax settings.
+    if (empty($element['#ajax'])) {
+      return $element;
+    }
+
+    // Add a reasonable default event handler if none was specified.
+    if (isset($element['#ajax']) && !isset($element['#ajax']['event'])) {
+      switch ($element['#type']) {
+        case 'exo_button':
+          $element['#ajax']['event'] = 'mousedown';
+          $element['#ajax']['keypress'] = TRUE;
+          if (!isset($element['#ajax']['prevent'])) {
+            $element['#ajax']['prevent'] = 'click';
+          }
+          break;
+      }
+    }
+    return parent::preRenderAjaxForm($element);
+  }
+
 }
