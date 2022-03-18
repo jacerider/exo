@@ -29,6 +29,8 @@ class ExoStringFormatter extends StringFormatter {
   public static function defaultSettings() {
     return [
       'delimiter' => '',
+      'prefix' => '',
+      'suffix' => '',
     ] + parent::defaultSettings();
   }
 
@@ -43,6 +45,16 @@ class ExoStringFormatter extends StringFormatter {
       '#default_value' => $this->getSetting('delimiter'),
       '#size' => 1,
     ];
+    $element['prefix'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Prefix'),
+      '#default_value' => $this->getSetting('prefix'),
+    ];
+    $element['suffix'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Suffix'),
+      '#default_value' => $this->getSetting('suffix'),
+    ];
     return $element;
   }
 
@@ -54,6 +66,12 @@ class ExoStringFormatter extends StringFormatter {
     if ($this->getSetting('delimiter')) {
       $summary[] = $this->t('Delimiter: @delimiter', ['@delimiter' => $this->getSetting('delimiter')]);
     }
+    if ($this->getSetting('prefix')) {
+      $summary[] = $this->t('Prefix: @prefix', ['@prefix' => $this->getSetting('prefix')]);
+    }
+    if ($this->getSetting('suffix')) {
+      $summary[] = $this->t('Suffix: @suffix', ['@suffix' => $this->getSetting('suffix')]);
+    }
     return $summary;
   }
 
@@ -63,11 +81,12 @@ class ExoStringFormatter extends StringFormatter {
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $elements = parent::viewElements($items, $langcode);
     foreach ($elements as $delta => &$element) {
-      $element['#prefix'] = '<span class="field-item">';
+      $element['#prefix'] = '<span class="field-item">' . $this->getSetting('prefix');
       $element['#suffix'] = '</span>';
       if (!empty($this->getSetting('delimiter')) && count($elements) !== $delta + 1) {
         $element['#suffix'] = $this->getSetting('delimiter') . $element['#suffix'];
       }
+      $element['#suffix'] = $this->getSetting('suffix') . $element['#suffix'];
     }
 
     return $elements;
