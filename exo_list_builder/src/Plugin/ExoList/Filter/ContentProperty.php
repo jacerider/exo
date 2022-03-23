@@ -2,7 +2,6 @@
 
 namespace Drupal\exo_list_builder\Plugin\ExoList\Filter;
 
-use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\exo_list_builder\EntityListInterface;
 use Drupal\exo_list_builder\Plugin\ExoListContentTrait;
@@ -102,7 +101,7 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
         '#autocomplete_route_name' => 'exo_list_builder.autocomplete',
         '#autocomplete_route_parameters' => [
           'exo_entity_list' => $entity_list->id(),
-          'field_name' => $field['id'],
+          'field_id' => $field['id'],
         ],
       ];
     }
@@ -114,7 +113,7 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
    * {@inheritdoc}
    */
   public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
-    $this->queryAlterByField($field['id'] . '.' . $this->getConfiguration()['property'], $query, $value, $entity_list, $field);
+    $this->queryAlterByField($field['field_name'] . '.' . $this->getConfiguration()['property'], $query, $value, $entity_list, $field);
   }
 
   /**

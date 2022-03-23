@@ -1,13 +1,20 @@
-.field--type-field-signature {
+.exo-form .field--type-field-signature {
 
   .exo-form-input {
 
     .field-input {
+      display: block !important;
       position: static;
+    }
+
+    .field-prefix {
+      border: 0 !important;
+      height: auto !important;
     }
   }
 
   .field-label {
+    left: 0 !important;
 
     .exo-form-style-intersect & {
       top: -5px !important;
@@ -22,8 +29,28 @@
     display: none;
   }
 
+  .signature-inner {
+    border: 0;
+    line-height: 1;
+    // padding-bottom: 0;
+
+    canvas {
+      display: inline-block;
+      margin: 0;
+      padding: 0;
+    }
+  }
+
   .signature {
     border-radius: $global-radius;
     background: transparent;
+  }
+
+  .exo-form-container-signature-data {
+    display: block !important;
+
+    .signature-data.hidden {
+      display: none !important;
+    }
   }
 }

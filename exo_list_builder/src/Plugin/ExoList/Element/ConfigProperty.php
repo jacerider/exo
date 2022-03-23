@@ -30,7 +30,7 @@ class ConfigProperty extends ExoListElementBase {
   protected function view(EntityInterface $entity, array $field) {
     /** @var \Drupal\Core\Config\Entity\ConfigEntityInterface $entity */
     $configuration = $this->getConfiguration();
-    $value = $entity->get($field['id']);
+    $value = $entity->get($field['field_name']);
     if (!is_array($value)) {
       $value = [$value];
     }

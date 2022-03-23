@@ -83,10 +83,10 @@ class OptionsSelect extends ExoListFilterBase implements ExoListFieldValuesInter
     $form = parent::buildForm($form, $form_state, $value, $entity_list, $field);
     $configuration = $this->getConfiguration();
     $options = $this->getValueOptions($entity_list, $field);
-    if (!empty($configuration['include'])) {
+    if (!empty(array_filter($configuration['include']))) {
       $options = array_intersect_key($options, array_flip($configuration['include']));
     }
-    if (!empty($configuration['exclude'])) {
+    if (!empty(array_filter($configuration['exclude']))) {
       $options = array_diff_key($options, array_flip($configuration['exclude']));
     }
 
@@ -144,7 +144,7 @@ class OptionsSelect extends ExoListFilterBase implements ExoListFieldValuesInter
    * {@inheritdoc}
    */
   public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
-    $query->condition($field['id'], $value, '=');
+    $query->condition($field['field_name'], $value, '=');
   }
 
   /**

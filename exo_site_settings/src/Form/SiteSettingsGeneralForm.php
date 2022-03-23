@@ -163,6 +163,9 @@ class SiteSettingsGeneralForm extends FormBase {
         }
         unset($form[$key]['form']['actions']);
       }
+      if (function_exists('field_group_form_alter')) {
+        field_group_form_alter($form[$key]['form'], $inner_form_state);
+      }
     }
 
     // Handle copyright.

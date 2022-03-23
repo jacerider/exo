@@ -14,7 +14,7 @@ use Drupal\exo_list_builder\ExoListManagerInterface;
 use Psr\Container\ContainerInterface;
 
 /**
- * Class EntityListForm.
+ * Class entity list form.
  */
 class EntityListForm extends EntityForm {
 

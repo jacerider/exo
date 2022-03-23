@@ -5,6 +5,7 @@ namespace Drupal\exo\Plugin\Field\FieldWidget;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\OptionsButtonsWidget;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\field_ui\Form\FieldConfigEditForm;
 
 /**
  * Plugin implementation of the 'options_buttons' widget.
@@ -32,6 +33,7 @@ class ExoOptionsButtonsWidget extends OptionsButtonsWidget {
       'style' => 'inline',
       'empty_label' => 'Auto',
       'reverse' => FALSE,
+      'hide_empty' => FALSE,
     ] + parent::defaultSettings();
   }
 
@@ -58,6 +60,12 @@ class ExoOptionsButtonsWidget extends OptionsButtonsWidget {
       '#description' => $this->t('Reverse the order of the options.'),
       '#default_value' => $this->getSetting('reverse'),
     ];
+    $form['hide_empty'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Hide empty option'),
+      '#description' => $this->t('Hide empty option'),
+      '#default_value' => $this->getSetting('hide_empty'),
+    ];
     return $form;
   }
 
@@ -73,6 +81,9 @@ class ExoOptionsButtonsWidget extends OptionsButtonsWidget {
     ]);
     if ($this->getSetting('reverse')) {
       $summary[] = $this->t('Reverse option order');
+    }
+    if ($this->getSetting('hide_empty')) {
+      $summary[] = $this->t('Hide empty option');
     }
     return $summary;
   }
@@ -95,6 +106,10 @@ class ExoOptionsButtonsWidget extends OptionsButtonsWidget {
 
     if ($this->getSetting('reverse')) {
       $element['#options'] = array_reverse($element['#options'], TRUE);
+    }
+
+    if ($this->getSetting('hide_empty') && !$form_state->getFormObject() instanceof FieldConfigEditForm) {
+      unset($element['#options']['_none']);
     }
 
     return $element;

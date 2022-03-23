@@ -1,9 +1,13 @@
 .exo-form {
   margin-bottom: -$global-margin;
 
-  > *:last-child {
-    // Works with .exo-form which has a negative bottom margin.
-    margin-bottom: $global-margin;
+  > *,
+  > div.exo-form-element {
+
+    &:last-child {
+      // Works with .exo-form which has a negative bottom margin.
+      margin-bottom: $global-margin;
+    }
   }
 
   @include breakpoint(small only) {
@@ -170,17 +174,6 @@
     &:last-child {
       margin-bottom: 0;
     }
-
-    // > .exo-form-element {
-
-    //   &:first-child {
-    //     margin-top: 0;
-    //   }
-
-    //   &:last-child {
-    //     margin-bottom: 0;
-    //   }
-    // }
   }
 
   > .exo-form-inline {
@@ -271,6 +264,16 @@
 
   .exo-ripple {
     @include exo-ripple;
+  }
+
+  &.exo-form-style-float-inside {
+
+    .fieldgroup.form-composite.has-legend {
+
+      > .fieldset-wrapper {
+        margin-top: $global-margin / 2;
+      }
+    }
   }
 
   ::-webkit-input-placeholder {

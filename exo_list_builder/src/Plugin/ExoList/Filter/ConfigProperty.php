@@ -87,7 +87,7 @@ class ConfigProperty extends ExoListFilterMatchBase implements ExoListFieldValue
         '#autocomplete_route_name' => 'exo_list_builder.autocomplete',
         '#autocomplete_route_parameters' => [
           'exo_entity_list' => $entity_list->id(),
-          'field_name' => $field['id'],
+          'field_id' => $field['id'],
         ],
       ];
     }
@@ -99,7 +99,7 @@ class ConfigProperty extends ExoListFilterMatchBase implements ExoListFieldValue
    * {@inheritdoc}
    */
   public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
-    $this->queryAlterByField($field['id'], $query, $value, $entity_list, $field);
+    $this->queryAlterByField($field['field_name'], $query, $value, $entity_list, $field);
   }
 
   /**

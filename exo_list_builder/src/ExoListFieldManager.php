@@ -3,11 +3,13 @@
 namespace Drupal\exo_list_builder;
 
 use Drupal\Component\Plugin\Exception\PluginException;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Plugin\Discovery\ContainerDerivativeDiscoveryDecorator;
 use Drupal\Core\Plugin\Discovery\YamlDiscovery;
+use Drupal\exo_list_builder\Entity\EntityList;
 
 /**
  * Provides the default exo_list_field manager.
@@ -24,6 +26,7 @@ class ExoListFieldManager extends DefaultPluginManager implements ExoListFieldMa
     'id' => '',
     'label' => '',
     'display_label' => '',
+    'alias_field' => '',
     'sort_field' => '',
     'entity_type' => [],
     'bundle' => [],
@@ -92,6 +95,7 @@ class ExoListFieldManager extends DefaultPluginManager implements ExoListFieldMa
       $definitions[$plugin_id] = [
         'label' => $definition['label'],
         'display_label' => $definition['display_label'],
+        'alias_field' => $definition['alias_field'],
         'sort_field' => $definition['sort_field'],
         'type' => 'custom',
       ];

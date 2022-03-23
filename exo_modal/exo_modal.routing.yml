@@ -122,3 +122,23 @@ exo_modal.api.field.view:
     parameters:
       entity:
         type: entity:{entity_type}
+
+exo_modal.api.account.password:
+  path: '/api/exo/modal/account/password'
+  defaults:
+    _controller: '\Drupal\exo_modal\Controller\ExoModalAccountController::password'
+    _title: 'Log in'
+  requirements:
+    _access: 'TRUE'
+  options:
+    _maintenance_access: TRUE
+
+exo_modal.api.account.register:
+  path: '/api/exo/modal/account/register'
+  defaults:
+    _controller: '\Drupal\exo_modal\Controller\ExoModalAccountController::register'
+    _title: 'Create an account'
+  requirements:
+    _access_user_register: 'TRUE'
+  options:
+    _maintenance_access: TRUE

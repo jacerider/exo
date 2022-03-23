@@ -24,7 +24,6 @@ div.exo-element-options { // sass-lint:disable-line no-qualifying-elements force
   .exo-form-checkbox .option, // sass-lint:disable-line no-qualifying-elements force-element-nesting
   .option > .exo-form-radio-label {
     font-size: rem-calc(10);
-    text-transform: uppercase;
   }
 
   .form-item {

@@ -650,8 +650,6 @@ class ExoModal implements ExoModalInterface {
     if (($theme = $this->exoSettings->getSetting(['theme_content'])) && $theme != '_custom') {
       $this->addModalClass('exo-modal-theme-content-' . $theme);
       $this->modalAttributes->offsetSet('data-exo-theme', $theme);
-      $this->addModalClass('exo-form');
-      $this->addModalClass('exo-form-theme-' . $theme);
     }
     $render = [
       '#theme' => 'exo_modal',

@@ -1,0 +1,45 @@
+.exo-form .field--widget-term-reference-tree {
+
+  > .form-item {
+    display: block;
+  }
+
+  .term-reference-tree {
+    font-size: rem-calc(15);
+
+    > .term-reference-tree-level {
+
+      @include breakpoint(medium) {
+        @include exo-grid;
+        @include exo-gutters($negative: true);
+
+        > li {
+          @include exo-cell(4);
+          white-space: nowrap;
+        }
+      }
+
+      @include breakpoint(large) {
+        @include exo-grid;
+        @include exo-gutters($negative: true);
+
+        > li {
+          @include exo-cell(20%);
+        }
+      }
+
+      .term-reference-tree-level {
+        margin: 0;
+
+        li {
+          @include flex;
+          @include flex-align(left, middle);
+        }
+      }
+
+      .exo-form-element {
+        margin: 0;
+      }
+    }
+  }
+}

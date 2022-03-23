@@ -41,16 +41,9 @@ class ExoCheckboxes extends Checkboxes {
     }
     $element['#theme_wrappers'][] = 'container';
     $element['#attributes']['class'][] = 'exo-element-options';
+    $element['#exo_style'] = $element['#exo_style'] ?? 'stacked';
     if ($element['#exo_style'] != 'custom') {
-      if ($element['#exo_style'] == 'inline') {
-        $element['#attributes']['class'][] = 'exo-inline';
-      }
-      elseif ($element['#exo_style'] == 'grid') {
-        $element['#attributes']['class'][] = 'exo-grid';
-      }
-      else {
-        $element['#attributes']['class'][] = 'exo-stacked';
-      }
+      $element['#attributes']['class'][] = 'exo-' . $element['#exo_style'];
     }
     $element['#attached']['library'][] = 'exo/element.options';
     return parent::processCheckboxes($element, $form_state, $complete_form);

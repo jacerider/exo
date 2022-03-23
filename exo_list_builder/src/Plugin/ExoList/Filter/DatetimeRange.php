@@ -153,13 +153,13 @@ class DatetimeRange extends ExoListFilterBase implements ContainerFactoryPluginI
       $date = new DrupalDateTime($value['s']);
       $date->setTimezone(new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE));
       $date = $date->format(DateTimeItemInterface::DATETIME_STORAGE_FORMAT);
-      $query->condition($field['id'], $date, '>=');
+      $query->condition($field['field_name'], $date, '>=');
     }
     if (!empty($value['e'])) {
       $date = new DrupalDateTime($value['e']);
       $date->setTimezone(new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE));
       $date = $date->format(DateTimeItemInterface::DATETIME_STORAGE_FORMAT);
-      $query->condition($field['id'], $date, '<=');
+      $query->condition($field['field_name'], $date, '<=');
     }
   }
 

@@ -140,8 +140,14 @@ abstract class ExoMenuBlockBase extends BlockBase implements ContainerFactoryPlu
    */
   public function build() {
     $build = [];
+    $id = implode('_', array_merge([
+      'exo_menu',
+      $this->configuration['menu']['plugin'],
+    ], $this->configuration['menus'], [
+      serialize($this->configuration['menu']['plugin_settings']),
+    ]));
     $menu = $this->exoMenuGenerator->generate(
-      \Drupal::service('uuid')->generate(),
+      substr(hash('sha256', $id), 0, 22),
       $this->configuration['menu']['plugin'],
       $this->configuration['menus'],
       $this->configuration['menu']['plugin_settings']

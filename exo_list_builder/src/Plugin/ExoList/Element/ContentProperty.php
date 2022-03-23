@@ -3,10 +3,8 @@
 namespace Drupal\exo_list_builder\Plugin\ExoList\Element;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\TypedData\DataDefinitionInterface;
 use Drupal\exo_list_builder\EntityListInterface;
 use Drupal\exo_list_builder\Plugin\ExoListElementContentBase;
 
@@ -49,7 +47,7 @@ class ContentProperty extends ExoListElementContentBase {
     }
     $form['property'] = [
       '#type' => 'radios',
-      '#title' => $this->t('Properties'),
+      '#title' => $this->t('Property'),
       '#options' => $property,
       '#default_value' => $configuration['property'],
       '#required' => TRUE,

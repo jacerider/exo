@@ -3,6 +3,7 @@
 namespace Drupal\exo_list_builder\Plugin;
 
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Sql\SqlEntityStorageInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\TypedData\DataDefinitionInterface;
@@ -25,7 +26,7 @@ trait ExoListContentTrait {
    *   The field item list.
    */
   protected function getItems(ContentEntityInterface $entity, array $field) {
-    $field_name = $field['id'];
+    $field_name = $field['field_name'];
     if (!$entity->hasField($field_name)) {
       return NULL;
     }
@@ -56,6 +57,28 @@ trait ExoListContentTrait {
   }
 
   /**
+   * Get the entity type bundles from the definition.
+   *
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   The field definition.
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   *   The entity type.
+   *
+   * @return array
+   *   An array of bundles.
+   */
+  protected function getFieldBundles(FieldDefinitionInterface $field_definition, EntityTypeInterface $entity_type) {
+    $handler = $field_definition->getSetting('handler_settings');
+    if ($entity_type->hasKey('bundle')) {
+      $bundles = $handler['target_bundles'] ?? array_keys(\Drupal::service('entity_type.bundle.info')->getBundleInfo($entity_type->id()));
+    }
+    else {
+      $bundles = $handler['target_bundles'] ?? [$entity_type->id()];
+    }
+    return $bundles;
+  }
+
+  /**
    * Get the property options to export.
    *
    * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
@@ -69,6 +92,34 @@ trait ExoListContentTrait {
     $options = [];
     foreach ($property as $property_name => $property) {
       $options[$property_name] = $property->getLabel();
+    }
+    return $options;
+  }
+
+  /**
+   * Get the property options to export.
+   *
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   The field definition.
+   *
+   * @return array
+   *   An array of property.
+   */
+  protected function getPropertyReferenceOptions(FieldDefinitionInterface $field_definition) {
+    $entity_field_manager = \Drupal::service('entity_field.manager');
+    $entity_type_id = $field_definition->getSetting('target_type');
+    $entity_type = \Drupal::entityTypeManager()->getDefinition($entity_type_id);
+    $bundles = $this->getFieldBundles($field_definition, $entity_type);
+    $fields = [];
+    foreach ($bundles as $bundle) {
+      $fields += $entity_field_manager->getFieldDefinitions($entity_type_id, $bundle);
+    }
+    $options = [];
+    foreach ($fields as $field_name => $referenced_field_definition) {
+      $property = $this->getFieldProperties($referenced_field_definition);
+      foreach ($property as $property_name => $property) {
+        $options[$field_name . '.' . $property_name] = $referenced_field_definition->getLabel() . ': ' . $property->getLabel();
+      }
     }
     return $options;
   }
@@ -97,8 +148,8 @@ trait ExoListContentTrait {
   /**
    * Get available field values.
    */
-  public function getAvailableFieldValues(EntityListInterface $entity_list, $field_name, $property, $condition = NULL) {
-    if ($query = $this->getAvailableFieldValuesQuery($entity_list, $field_name, $property, $condition)) {
+  public function getAvailableFieldValues(EntityListInterface $entity_list, $field_id, $property, $condition = NULL) {
+    if ($query = $this->getAvailableFieldValuesQuery($entity_list, $field_id, $property, $condition)) {
       return $query->execute()->fetchCol();
     }
     return [];
@@ -107,10 +158,12 @@ trait ExoListContentTrait {
   /**
    * Get available field values query.
    */
-  protected function getAvailableFieldValuesQuery(EntityListInterface $entity_list, $field_name, $property, $condition = NULL) {
+  protected function getAvailableFieldValuesQuery(EntityListInterface $entity_list, $field_id, $property, $condition = NULL) {
     /** @var \Drupal\Core\Entity\Sql\TableMappingInterface $table_mapping*/
     $storage = $this->entityTypeManager()->getStorage($entity_list->getTargetEntityTypeId());
     if ($storage instanceof SqlEntityStorageInterface) {
+      $field = $entity_list->getField($field_id);
+      $field_name = $field['field_name'];
       $table_mapping = $storage->getTableMapping();
       $field_table = $table_mapping->getFieldTableName($field_name);
       $field_storage_definitions = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions($entity_list->getTargetEntityTypeId())[$field_name];

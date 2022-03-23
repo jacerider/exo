@@ -202,6 +202,7 @@ function exo_element_style_types() {
     'inline' => t('Inline'),
     'stacked' => t('Stacked'),
     'grid' => t('Grid'),
+    'grid-compact' => t('Grid Compact'),
   ];
 }
 

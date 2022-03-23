@@ -14,6 +14,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Cache\CacheableResponseTrait;
 use Drupal\exo_modal\ExoModalInterface;
 use Drupal\exo_icon\ExoIconTranslationTrait;
+use Drupal\exo_modal\Element\ExoModalUrlTrait;
 
 /**
  * Provides a base for eXo modal blocks.
@@ -21,6 +22,7 @@ use Drupal\exo_icon\ExoIconTranslationTrait;
 abstract class ExoModalBlockBase extends BlockBase implements ExoModalBlockPluginInterface, ContainerFactoryPluginInterface {
   use CacheableResponseTrait;
   use ExoIconTranslationTrait;
+  use ExoModalUrlTrait;
 
   /**
    * The entity manager.
@@ -42,6 +44,13 @@ abstract class ExoModalBlockBase extends BlockBase implements ExoModalBlockPlugi
    * @var \Drupal\exo_modal\ExoModalGeneratorInterface
    */
   protected $exoModalGenerator;
+
+  /**
+   * The modal.
+   *
+   * @var \Drupal\exo_modal\ExoModalInterface
+   */
+  protected $modal;
 
   /**
    * Creates a LocalActionsBlock instance.
@@ -270,10 +279,12 @@ abstract class ExoModalBlockBase extends BlockBase implements ExoModalBlockPlugi
     $build = [];
     if ($use_ajax) {
       $modal = $this->generateModal(FALSE);
-      $url = Url::fromRoute('exo_modal.api.block.view', [
+      $url = static::toModalUrl(Url::fromRoute('exo_modal.api.block.view', [
         'block' => $this->configuration['block_id'],
-      ])->getInternalPath();
-      $modal->setSetting(['modal', 'ajax'], $url);
+      ], [
+        'query' => \Drupal::destination()->getAsArray(),
+      ]));
+      $modal->setSetting(['modal', 'ajax'], $url->getInternalPath());
       $build['modal'] = $modal->toRenderableTrigger();
     }
     else {
@@ -290,17 +301,17 @@ abstract class ExoModalBlockBase extends BlockBase implements ExoModalBlockPlugi
    *   The modal.
    */
   protected function generateModal($with_content = TRUE) {
-    $modal = $this->exoModalGenerator->generate(
+    $this->modal = $this->exoModalGenerator->generate(
       'exo_modal_block_' . $this->configuration['block_id'],
       $this->configuration['modal']
     );
     if ($with_content) {
-      $modal->setContent([$this->buildModalContent()]);
-      $this->buildModalBlockContent('header', $modal);
-      $this->buildModalBlockContent('footer', $modal);
-      $modal->addCacheableDependency($this->getCacheableMetadata());
+      $this->buildModalBlockContent('header', $this->modal);
+      $this->buildModalBlockContent('footer', $this->modal);
+      $this->modal->addCacheableDependency($this->getCacheableMetadata());
+      $this->modal->setContent([$this->buildModalContent()]);
     }
-    return $modal;
+    return $this->modal;
   }
 
   /**

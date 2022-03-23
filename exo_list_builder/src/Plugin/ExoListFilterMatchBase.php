@@ -96,7 +96,7 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase {
    * {@inheritdoc}
    */
   public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
-    $this->queryAlterByField($field['id'], $query, $value, $entity_list, $field);
+    $this->queryAlterByField($field['field_name'], $query, $value, $entity_list, $field);
   }
 
   /**

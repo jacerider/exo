@@ -192,13 +192,19 @@ class ExoListBuilderContentStates extends ExoListBuilderContent implements ExoLi
   }
 
   /**
-   * {@inheritdoc}
+   * Get the empty message.
+   *
+   * @return string
+   *   The message.
    */
   protected function getEmptyMessage() {
     if ($state = $this->getState()) {
       return $this->getEmptyMessageState($state);
     }
-    return parent::getEmptyMessage();
+    return $this->t('No @state @label exist.', [
+      '@state' => strtolower($this->stateDefaultLabel),
+      '@label' => strtolower($this->entityType->getCollectionLabel()),
+    ]);
   }
 
   /**

@@ -41,6 +41,8 @@ class ExoModal extends RenderElement {
       '#trigger_attributes' => [],
       '#modal_settings' => [],
       '#modal_attributes' => [],
+      '#form_element' => TRUE,
+      '#ajax_url' => NULL,
       '#view' => [
         'name' => NULL,
         'display_id' => NULL,
@@ -98,6 +100,10 @@ class ExoModal extends RenderElement {
       'trigger' => [],
       'modal' => [],
     ];
+
+    if (!empty($element['#ajax_url']) && $element['#ajax_url'] instanceof Url) {
+      $element['#modal_settings']['modal']['contentAjax'] = static::toModalUrl($element['#ajax_url']);
+    }
 
     // Views.
     if (!empty($element['#view']['name'])) {
@@ -295,21 +301,25 @@ class ExoModal extends RenderElement {
    *   The processed element.
    */
   public static function processModal(array &$element, FormStateInterface $form_state, array &$complete_form) {
-    $element['#attributes']['class'][] = 'js-form-item';
-    $element['#attributes']['class'][] = 'form-item';
-    $element['#attributes']['class'][] = 'js-form-wrapper';
-    $element['#attributes']['class'][] = 'form-wrapper';
-    $element['#modal_settings'] += [
-      'trigger' => [],
-      'modal' => [],
-    ];
-    $element['#modal_settings']['modal'] += [
-      'nest' => TRUE,
-      'appendTo' => 'form',
-      'appendToOverlay' => 'form',
-      'appendToNavigate' => 'form',
-      'appendToClosest' => TRUE,
-    ];
+    if (!empty($element['#form_element'])) {
+      $element['#attributes']['class'][] = 'js-form-item';
+      $element['#attributes']['class'][] = 'form-item';
+      $element['#attributes']['class'][] = 'js-form-wrapper';
+      $element['#attributes']['class'][] = 'form-wrapper';
+      $element['#modal_settings'] += [
+        'trigger' => [],
+        'modal' => [],
+      ];
+      if (empty($element['#modal_settings']['modal']['contentAjax'])) {
+        $element['#modal_settings']['modal'] += [
+          'nest' => TRUE,
+          'appendTo' => 'form',
+          'appendToOverlay' => 'form',
+          'appendToNavigate' => 'form',
+          'appendToClosest' => TRUE,
+        ];
+      }
+    }
     return $element;
   }
 

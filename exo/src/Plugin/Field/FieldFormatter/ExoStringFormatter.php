@@ -15,6 +15,9 @@ use Drupal\Core\Form\FormStateInterface;
  *   field_types = {
  *     "string",
  *     "uri",
+ *     "list_integer",
+ *     "list_float",
+ *     "list_string",
  *   },
  *   quickedit = {
  *     "editor" = "plain_text"

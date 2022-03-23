@@ -72,6 +72,7 @@ class ExoAddressWidget extends AddressDefaultWidget {
       'fieldset' => $this->t('Fieldset'),
       'details' => $this->t('Details'),
       'container' => $this->t('Container'),
+      'item' => $this->t('Item'),
     ];
   }
 

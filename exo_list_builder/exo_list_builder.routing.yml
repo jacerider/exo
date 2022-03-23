@@ -7,7 +7,7 @@ exo_list_builder.action.export.download:
   requirements:
     _entity_access: 'exo_entity_list.view'
 exo_list_builder.autocomplete:
-  path: '/admin/exo/list/{exo_entity_list}/{field_name}/autocomplete'
+  path: '/admin/exo/list/{exo_entity_list}/{field_id}/autocomplete'
   defaults:
     _controller: '\Drupal\exo_list_builder\Controller\ExoListAutocomplete::results'
     _format: json

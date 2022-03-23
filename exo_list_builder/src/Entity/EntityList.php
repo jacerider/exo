@@ -178,7 +178,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    *
    * @var array
    */
-  protected $fieldDefaults = [
+  protected static $fieldDefaults = [
     'label' => 'Unnamed',
     'type' => 'custom',
     'view' => [
@@ -193,6 +193,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       'type' => '',
       'settings' => [],
     ],
+    'alias_field' => NULL,
     'sort_field' => NULL,
     'weight' => 0,
   ];
@@ -219,6 +220,16 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * @var \Drupal\exo_list_builder\EntityListInterface
    */
   protected $entityHandler;
+
+  /**
+   * The default field values.
+   *
+   * @return array
+   *   The default field values.
+   */
+  public static function getFieldDefaults() {
+    return static::$fieldDefaults;
+  }
 
   /**
    * {@inheritdoc}
@@ -437,10 +448,24 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
     if (!isset($this->fieldDefinitions)) {
       $fields = $this->getHandler()->loadFields();
       foreach ($fields as $field_id => &$field) {
-        $field = NestedArray::mergeDeep($this->fieldDefaults, $field);
+        $field = NestedArray::mergeDeep(static::getFieldDefaults(), $field);
         $field['id'] = $field_id;
+        $field['field_name'] = $field_id;
         if (empty($field['display_label'])) {
           $field['display_label'] = $field['label'];
+        }
+      }
+      foreach ($fields as $field_id => &$field) {
+        if (!empty($field['alias_field']) && isset($fields[$field['alias_field']])) {
+          // Alias the field as if it were another field.
+          $alias = $fields[$field['alias_field']];
+          $field['type'] = $alias['type'];
+          $field['field_name'] = $alias['field_name'];
+          $field['sort_field'] = $alias['sort_field'];
+          if (isset($alias['definition'])) {
+            $field['definition'] = $alias['definition'];
+          }
+          $field['sort_field'] = $alias['sort_field'];
         }
       }
       $this->fieldDefinitions = $fields;
@@ -467,7 +492,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * {@inheritDoc}
    */
   public function getFieldValue($field_name, $key) {
-    $default = $this->fieldDefaults;
+    $default = static::getFieldDefaults();
     $field = $this->getField($field_name);
     return isset($field[$key]) ? $field[$key] : (isset($default[$key]) ? $default[$key] : NULL);
   }

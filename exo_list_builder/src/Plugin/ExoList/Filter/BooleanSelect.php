@@ -174,7 +174,7 @@ class BooleanSelect extends ExoListFilterBase implements ExoListFieldValuesInter
    * {@inheritdoc}
    */
   public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
-    $query->condition($field['id'], $value, '=');
+    $query->condition($field['field_name'], $value, '=');
   }
 
   /**

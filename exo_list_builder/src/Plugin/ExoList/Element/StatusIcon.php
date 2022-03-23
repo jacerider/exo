@@ -33,7 +33,7 @@ class StatusIcon extends ExoListElementBase {
    */
   protected function view(EntityInterface $entity, array $field) {
     if ($entity instanceof ContentEntityInterface) {
-      $published = !empty($entity->get($field['id'])->value);
+      $published = !empty($entity->get($field['field_name'])->value);
       if ($entity instanceof EntityPublishedInterface) {
         $published = $entity->isPublished();
       }
@@ -53,7 +53,7 @@ class StatusIcon extends ExoListElementBase {
    */
   protected function viewPlain(EntityInterface $entity, array $field) {
     if ($entity instanceof ContentEntityInterface) {
-      $published = !empty($entity->get($field['id'])->value);
+      $published = !empty($entity->get($field['field_name'])->value);
       if ($entity instanceof EntityPublishedInterface) {
         $published = $entity->isPublished();
       }
@@ -80,9 +80,9 @@ class StatusIcon extends ExoListElementBase {
       if (!$entity_type->hasKey('published')) {
         return FALSE;
       }
-      return $entity_type->getKey('published') === $field['id'];
+      return $entity_type->getKey('published') === $field['field_name'];
     }
-    return $field['id'] === 'status';
+    return $field['field_name'] === 'status';
   }
 
 }

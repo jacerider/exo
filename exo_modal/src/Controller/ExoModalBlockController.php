@@ -6,6 +6,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\block\BlockInterface;
+use Drupal\Core\Ajax\AjaxHelperTrait;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\exo_modal\Plugin\ExoModalBlockPluginInterface;
 use Drupal\Core\Ajax\AppendCommand;
@@ -15,6 +16,7 @@ use Drupal\exo_modal\Ajax\ExoModalContentCommand;
  * Class ExoModalBlockController.
  */
 class ExoModalBlockController extends ControllerBase {
+  use AjaxHelperTrait;
 
   /**
    * Drupal\Core\Entity\EntityTypeManagerInterface definition.
@@ -49,11 +51,16 @@ class ExoModalBlockController extends ControllerBase {
    *   The ajax response.
    */
   public function view(BlockInterface $block) {
-    $response = new AjaxResponse();
+    $build = [];
     if ($block->access('view')) {
       $plugin = $block->getPlugin();
       if ($plugin instanceof ExoModalBlockPluginInterface) {
-        $response->addCommand(new AppendCommand('body', $plugin->buildModal()));
+        $build = $plugin->buildModal();
+        if ($this->isAjax()) {
+          $response = new AjaxResponse();
+          $response->addCommand(new AppendCommand('body', $plugin->buildModal()));
+          return $response;
+        }
       }
       else {
         $build = [
@@ -63,10 +70,14 @@ class ExoModalBlockController extends ControllerBase {
           'block' => $this->entityTypeManager->getViewBuilder('block')->view($block),
         ];
 
-        $response->addCommand(new ExoModalContentCommand($build));
+        if ($this->isAjax()) {
+          $response = new AjaxResponse();
+          $response->addCommand(new ExoModalContentCommand($build));
+          return $response;
+        }
       }
     }
-    return $response;
+    return $build;
   }
 
 }

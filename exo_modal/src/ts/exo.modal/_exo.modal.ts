@@ -79,13 +79,17 @@ class ExoModal extends ExoData {
     onClosed: function () {},
     afterRender: function () {}
   };
-  protected inherit:Array<string> = [
-    'top',
-    'right',
-    'bottom',
-    'left',
-    'openTall',
-    'openFullscreen'
+  protected inheritExclude:Array<string> = [
+    'id',
+    'inherit',
+    'title',
+    'subtitle',
+    'icon',
+    'iconText',
+    'ajax',
+    'contentAjax',
+    'iframeUrl',
+    '_exoTime',
   ];
   protected readonly events = {
     opening: new ExoEvent<ExoModal>(),
@@ -225,12 +229,24 @@ class ExoModal extends ExoData {
         // Inherit will use some settings from currently active modal.
         const focusedModal = Drupal.ExoModal.getVisibleFocus();
         if (focusedModal) {
-          _.each(this.inherit, name => {
-            this.set(name, focusedModal.get(name));
+          for (let i = this.$element[0].classList.length - 1; i >= 0; i--) {
+            const className = this.$element[0].classList[i];
+            if (className.startsWith('exo-modal-theme-')) {
+              this.$element[0].classList.remove(className);
+            }
+          }
+          for (let i = focusedModal.$element[0].classList.length - 1; i >= 0; i--) {
+            const className = focusedModal.$element[0].classList[i];
+            if (className.startsWith('exo-modal-theme-')) {
+              this.$element.addClass(className);
+            }
+          }
+          jQuery.each(focusedModal.getData(), (index, val) => {
+            if (this.inheritExclude.indexOf(String(index)) === -1) {
+              this.data[index] = val;
+            }
           });
           this.set('zindex', focusedModal.get('zindex') + 1);
-          this.set('overlayColor', 'transparent');
-          this.set('nest', true);
         }
       }
       if (this.$element.hasClass(this.name + '-hidden')) {
@@ -238,6 +254,15 @@ class ExoModal extends ExoData {
       }
       if (this.get('class') !== '') {
         this.$element.addClass(this.get('class'));
+      }
+      const $form = this.$element.closest('.exo-form');
+      if ($form.length) {
+        for (let i = $form[0].classList.length - 1; i >= 0; i--) {
+          const className = $form[0].classList[i];
+          if (className.startsWith('exo-form')) {
+            this.$element.addClass(className);
+          }
+        }
       }
       this.class = (this.$element.attr('class') !== undefined) ? this.$element.attr('class') : '';
       this.content = this.$element.html();
@@ -411,6 +436,7 @@ class ExoModal extends ExoData {
       else {
         this.$element.find('.exo-form-container-button--primary').addClass('exo-modal-actions');
       }
+      $actions.removeClass('exo-form-element');
 
       this.$footer = $('<div class="' + this.name + '-footer"></div>');
       $('.exo-modal-views-view .exo-form-container-form-actions').addClass('exo-modal-actions');
@@ -1127,7 +1153,9 @@ class ExoModal extends ExoData {
     }
 
     if (this.get('bodyOverflow') || Drupal.Exo.isMobile()) {
-      Drupal.Exo.unlockOverflow(this.$wrap);
+      if (Drupal.ExoModal.getVisible().count() === 0) {
+        Drupal.Exo.unlockOverflow(this.$wrap);
+      }
     }
 
     this.event('closed').trigger(this);

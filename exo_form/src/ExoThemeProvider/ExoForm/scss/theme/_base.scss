@@ -1061,7 +1061,7 @@
           &.option {
             color: theme-val($theme, label-option-color, true);
             font-size: theme-val($theme, label-font-option-size);
-            font-size: theme-val($theme, label-font-option-weight);
+            font-weight: theme-val($theme, label-font-option-weight);
 
             &:before {
               background: theme-val($theme, checkbox-bg-color, true);
@@ -1130,6 +1130,8 @@
 
         label.option {
           border-color: theme-val($theme, border-color, true);
+          // font-size: rem-calc(10);
+          font-size: theme-val($theme, label-font-option-size) * 0.8;
         }
 
         &.active {

@@ -355,6 +355,12 @@ function exo_modal_form_alter(&$form, FormStateInterface $form_state, $form_id) 
       $form['#action'] = \Drupal::request()->getRequestUri();
     }
   }
+
+  if ($form_id === 'user_register_form') {
+    $resolver = \Drupal::service('class_resolver');
+    $controller = $resolver->getInstanceFromDefinition('\Drupal\exo_modal\Controller\ExoModalAccountController');
+    $controller->registerFormAlter($form, $form_state);
+  }
 }
 
 /**

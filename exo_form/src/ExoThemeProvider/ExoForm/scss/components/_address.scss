@@ -1,6 +1,11 @@
 .exo-form-address {
+  // margin-bottom: -$global-margin !important;
 
   .exo-form-inline {
     margin-top: $global-margin;
+  }
+
+  .exo-form-element-type-address-country {
+    margin-bottom: 0;
   }
 }
