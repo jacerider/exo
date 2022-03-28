@@ -32,6 +32,8 @@
     }
 
     .exo-list-sort {
+      @include flex;
+      @include flex-align(left, middle);
       padding-left: $global-padding;
       margin-left: auto;
       margin-right: 0 !important;
