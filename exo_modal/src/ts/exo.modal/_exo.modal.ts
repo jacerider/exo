@@ -144,7 +144,7 @@ class ExoModal extends ExoData {
   public build(data):Promise<ExoSettingsGroupInterface> {
     return new Promise((resolve, reject) => {
       if (data.preset && typeof drupalSettings.exoModal.presets === 'object' && drupalSettings.exoModal.presets[data.preset]) {
-        data = jQuery.extend(true, {}, drupalSettings.exoModal.presets[data.preset], data);
+        data = jQuery.extend(true, {}, data, drupalSettings.exoModal.presets[data.preset]);
       }
       data = jQuery.extend(true, {}, Drupal.ExoModal.getSettingsGroup('defaults'), data);
       super.build(data, false).then(data => {
@@ -1580,13 +1580,20 @@ class ExoModal extends ExoData {
   }
 
   public addDestination(url:string):string {
-    let key = 'destination';
-    let value = window.location.pathname;
-    key = encodeURI(key);
-    value = encodeURI(value);
-    var isQuestionMarkPresent = url && url.indexOf('?') !== -1,
-      separator = isQuestionMarkPresent ? '&' : '?';
-    url += separator + key + '=' + value;
+    const parts = url.split('?');
+    let currentDestination = null;
+    if (parts[1]) {
+      currentDestination = new URLSearchParams('?' + parts[1]).get('destination');
+    }
+    if (!currentDestination) {
+      let key = 'destination';
+      let value = window.location.pathname;
+      key = encodeURI(key);
+      value = encodeURI(value);
+      var isQuestionMarkPresent = url && url.indexOf('?') !== -1,
+        separator = isQuestionMarkPresent ? '&' : '?';
+      url += separator + key + '=' + value;
+    }
     return url;
   }
 
