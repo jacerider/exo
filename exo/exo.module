@@ -166,6 +166,7 @@ function exo_animate_in_options() {
     'fadeInLeft' => t('Fade In Left'),
     'fadeInRight' => t('Fade In Right'),
     'flipInX' => t('Flip In X'),
+    'expandInY' => t('Expand In Y'),
   ];
 }
 
@@ -186,6 +187,7 @@ function exo_animate_out_options() {
     'fadeOutLeft' => t('Fade Out Left'),
     'fadeOutRight' => t('Fade Out Right'),
     'flipOutX' => t('Flip Out X'),
+    'expandOutY' => t('Expand Out Y'),
   ];
 }
 
