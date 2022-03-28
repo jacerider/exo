@@ -84,7 +84,10 @@ class ExoLinkFormatter extends LinkFormatter {
       $summary[] = $this->t('Title only (no link)');
     }
     if ($position = $this->getSetting('position')) {
-      $positions = ['before' => $this->t('Before'), 'after' => $this->t('After')];
+      $positions = [
+        'before' => $this->t('Before'),
+        'after' => $this->t('After'),
+      ];
       $summary[] = $this->t('Icon position: %position', [
         '%position' => $positions[$position],
       ]);
@@ -113,7 +116,10 @@ class ExoLinkFormatter extends LinkFormatter {
       '#type' => 'select',
       '#title' => $this->t('Icon position'),
       '#description' => $this->t('Will be used as the link icon position even if one has been set on the field.'),
-      '#options' => ['before' => $this->t('Before'), 'after' => $this->t('After')],
+      '#options' => [
+        'before' => $this->t('Before'),
+        'after' => $this->t('After'),
+      ],
       '#empty_option' => $this->t('Use field defined position'),
       '#default_value' => $this->getSetting('position'),
     ];
