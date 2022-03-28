@@ -249,20 +249,33 @@ class ExoModal extends RenderElement {
       ], [
         'query' => $query,
       ]);
-      $element['#trigger_attributes']['href'] = $url->toString();
       $element['#modal_settings']['modal']['contentAjax'] = $url;
       $element['#modal_settings']['modal']['contentAjaxCache'] = FALSE;
-      if ($link && $entity_type->hasLinkTemplate($link)) {
-        $route_id = str_replace(['-', 'drupal:'], ['_', ''], $link);
-        $element['#trigger_attributes']['href'] = Url::fromRoute('entity.' . $entity_type_id . '.' . $route_id)->setOption('query', $query)->toString();
+      if (empty($element['#trigger_attributes']['href'])) {
+        $element['#trigger_attributes']['href'] = $url->toString();
+        if ($link && $entity_type->hasLinkTemplate($link)) {
+          $entity = \Drupal::entityTypeManager()->getStorage($entity_type_id)->create();
+          $route_id = str_replace(['-', 'drupal:'], ['_', ''], $link);
+          $element['#trigger_attributes']['href'] = Url::fromRoute('entity.' . $entity_type_id . '.' . $route_id)->setOption('query', $query)->toString();
+        }
       }
     }
 
     $element['#modal_settings']['modal'] += [
       'title' => $element['#trigger_text'],
       'subtitle' => $element['#description'],
-      'padding' => '30px',
     ];
+
+    if (!empty($element['#modal_settings']['exo_preset'])) {
+      $presets = exo_presets('exo_modal');
+      $preset = $presets[$element['#modal_settings']['exo_preset']] ?? NULL;
+      if (!empty($preset['modal']['padding'])) {
+        $element['#modal_settings']['modal']['padding'] = $preset['modal']['padding'];
+      }
+    }
+    if (!isset($element['#modal_settings']['modal']['padding'])) {
+      $element['#modal_settings']['modal']['padding'] = '30px';
+    }
 
     if (!empty($element['#use_close'])) {
       $element['_actions'] = [
