@@ -7,6 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\link\LinkItemInterface;
 use Drupal\Core\Entity\Element\EntityAutocomplete;
 use Drupal\Core\Url;
+use Drupal\exo_icon\ExoIconTranslationTrait;
 
 /**
  * Provides a block to display a single link.
@@ -17,6 +18,7 @@ use Drupal\Core\Url;
  * )
  */
 class LinkBlock extends BlockBase {
+  use ExoIconTranslationTrait;
 
   /**
    * {@inheritdoc}
@@ -25,6 +27,7 @@ class LinkBlock extends BlockBase {
     return [
       'uri' => '',
       'title' => '',
+      'icon' => '',
     ] + parent::defaultConfiguration();
   }
 
@@ -85,6 +88,12 @@ class LinkBlock extends BlockBase {
       $form['uri']['#description'] = $this->t('This must be an external URL such as %url.', ['%url' => 'http://example.com']);
     }
 
+    $form['icon'] = [
+      '#type' => 'exo_icon',
+      '#title' => $this->t('Icon'),
+      '#default_value' => $this->configuration['icon'],
+    ];
+
     return $form;
   }
 
@@ -95,6 +104,7 @@ class LinkBlock extends BlockBase {
     parent::blockSubmit($form, $form_state);
     $this->configuration['uri'] = $form_state->getValue('uri');
     $this->configuration['title'] = $form_state->getValue('title');
+    $this->configuration['icon'] = $form_state->getValue('icon');
   }
 
   /**
@@ -102,8 +112,12 @@ class LinkBlock extends BlockBase {
    */
   public function build() {
     $build = [];
+    $title = $this->configuration['title'];
+    if ($icon = $this->configuration['icon']) {
+      $title = $this->icon($title)->setIcon($icon);
+    }
     $build['link'] = [
-      '#title' => $this->configuration['title'],
+      '#title' => $title,
       '#type' => 'link',
       '#url' => Url::fromUri($this->configuration['uri']),
     ];
