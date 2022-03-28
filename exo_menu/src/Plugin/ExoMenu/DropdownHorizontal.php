@@ -22,6 +22,8 @@ class DropdownHorizontal extends ExoMenuDropdownBase {
     return parent::defaultConfiguration() + [
       'expandable' => TRUE,
       'unbindFirst' => FALSE,
+      'transitionIn' => 'expandInY',
+      'transitionOut' => 'expandOutY',
     ];
   }
 
@@ -39,6 +41,22 @@ class DropdownHorizontal extends ExoMenuDropdownBase {
       '#type' => 'checkbox',
       '#title' => $this->t('Unbind events from first item when expanded'),
       '#default_value' => $this->configuration['unbindFirst'],
+    ];
+
+    $form['transitionIn'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Transition In'),
+      '#description' => $this->t('Modal opening default transition.'),
+      '#options' => ['' => $this->t('- None -')] + exo_animate_in_options(),
+      '#default_value' => $this->configuration['transitionIn'],
+    ];
+
+    $form['transitionOut'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Transition Out'),
+      '#description' => $this->t('Modal opening default transition.'),
+      '#options' => ['' => $this->t('- None -')] + exo_animate_out_options(),
+      '#default_value' => $this->configuration['transitionOut'],
     ];
     return $form;
   }
