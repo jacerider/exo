@@ -750,13 +750,13 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         $links[$field['id'] . '_asc'] = [
           'title' => $this->icon('@label: Up', [
             '@label' => $field['display_label'],
-          ])->setIcon('regular-sort-amount-up')->toString(),
+          ])->setIcon('regular-sort-amount-up')->toMarkup(),
           'url' => $asc_url,
         ];
         $links[$field['id'] . '_desc'] = [
           'title' => $this->icon('@label: Down', [
             '@label' => $field['display_label'],
-          ])->setIcon('regular-sort-amount-down')->toString(),
+          ])->setIcon('regular-sort-amount-down')->toMarkup(),
           'url' => $desc_url,
         ];
         if ($order === $field['display_label'] && $sort === 'asc') {
@@ -765,7 +765,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
             [
               'title' => $this->icon('Sorted by @label', [
                 '@label' => $field['display_label'],
-              ])->setIcon('regular-sort-amount-up')->toString(),
+              ])->setIcon('regular-sort-amount-up')->toMarkup(),
               'url' => $asc_url,
             ],
           ] + $links;
@@ -776,7 +776,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
             [
               'title' => $this->icon('Sorted by @label', [
                 '@label' => $field['display_label'],
-              ])->setIcon('regular-sort-amount-down')->toString(),
+              ])->setIcon('regular-sort-amount-down')->toMarkup(),
               'url' => $desc_url,
             ],
           ] + $links;
