@@ -6,6 +6,7 @@ use Drupal\Core\Render\Element\RenderElement;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Url;
+use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
 
 /**
  * Provides a render element that wraps child elements in an modal.
@@ -256,7 +257,12 @@ class ExoModal extends RenderElement {
         if ($link && $entity_type->hasLinkTemplate($link)) {
           $entity = \Drupal::entityTypeManager()->getStorage($entity_type_id)->create();
           $route_id = str_replace(['-', 'drupal:'], ['_', ''], $link);
-          $element['#trigger_attributes']['href'] = Url::fromRoute('entity.' . $entity_type_id . '.' . $route_id)->setOption('query', $query)->toString();
+          try {
+            $element['#trigger_attributes']['href'] = Url::fromRoute('entity.' . $entity_type_id . '.' . $route_id)->setOption('query', $query)->toString();
+          }
+          catch (MissingMandatoryParametersException $e) {
+            // Fail silently.
+          }
         }
       }
     }
