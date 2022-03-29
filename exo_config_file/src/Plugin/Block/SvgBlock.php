@@ -35,6 +35,7 @@ class SvgBlock extends LinkBlock {
 
     $form['title']['#title'] = $this->t('Alt text');
     $form['uri']['#required'] = FALSE;
+    $form['icon']['#access'] = FALSE;
 
     $form['svg'] = [
       '#type' => 'exo_config_file',
