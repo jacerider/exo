@@ -16,6 +16,23 @@ div.exo-element-options { // sass-lint:disable-line no-qualifying-elements force
     }
   }
 
+  &.hide-empty {
+
+    .exo-form-radio {
+
+      &:first-child {
+        display: none !important;
+      }
+
+      &:nth-child(2) {
+
+        label {
+          border-radius: 5px 0 0 5px;
+        }
+      }
+    }
+  }
+
   .exo-icon {
     vertical-align: middle;
   }
