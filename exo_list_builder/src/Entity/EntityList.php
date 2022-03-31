@@ -45,8 +45,10 @@ use Drupal\exo_list_builder\EntityListInterface;
  *     "target_bundles_include",
  *     "target_bundles_exclude",
  *     "override",
+ *     "format",
  *     "url",
  *     "limit",
+ *     "limit_options",
  *     "actions",
  *     "sort",
  *     "fields",
@@ -111,6 +113,13 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   protected $override = FALSE;
 
   /**
+   * The entity list format.
+   *
+   * @var string
+   */
+  protected $format = 'table';
+
+  /**
    * The entity list URL.
    *
    * @var string
@@ -123,6 +132,13 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * @var int
    */
   protected $limit = 10;
+
+  /**
+   * The limit options.
+   *
+   * @var array
+   */
+  protected $limit_options = [10, 20, 50, 100];
 
   /**
    * The action definitions.
@@ -188,6 +204,8 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       'show' => FALSE,
       'wrapper' => 'small',
       'sort' => NULL,
+      'sort_asc_label' => '',
+      'sort_desc_label' => '',
     ],
     'filter' => [
       'type' => '',
@@ -205,6 +223,15 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    */
   protected $actionDefaults = [
     'settings' => [],
+  ];
+
+  /**
+   * The setting defaults.
+   *
+   * @var array
+   */
+  protected $settingDefaults = [
+    'operations_status' => TRUE,
   ];
 
   /**
@@ -358,6 +385,13 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   /**
    * {@inheritdoc}
    */
+  public function getFormat() {
+    return $this->format;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getUrl() {
     return $this->url;
   }
@@ -367,6 +401,20 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    */
   public function getLimit() {
     return $this->limit ?? 0;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLimitOptions() {
+    return array_combine($this->limit_options, $this->limit_options);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function showOperations() {
+    return !empty($this->getSetting('operations_status'));
   }
 
   /**
@@ -448,7 +496,10 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
     if (!isset($this->fieldDefinitions)) {
       $fields = $this->getHandler()->loadFields();
       foreach ($fields as $field_id => &$field) {
-        $field = NestedArray::mergeDeep(static::getFieldDefaults(), $field);
+        $defaults = static::getFieldDefaults();
+        $defaults['view']['sort_asc_label'] = '@label: Up';
+        $defaults['view']['sort_desc_label'] = '@label: Down';
+        $field = NestedArray::mergeDeep($defaults, $field);
         $field['id'] = $field_id;
         $field['field_name'] = $field_id;
         if (empty($field['display_label'])) {
@@ -534,7 +585,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * {@inheritdoc}
    */
   public function getSettings() {
-    return $this->settings;
+    return NestedArray::mergeDeep($this->settingDefaults, $this->settings);
   }
 
   /**

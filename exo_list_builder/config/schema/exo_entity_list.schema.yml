@@ -24,12 +24,18 @@ exo_list_builder.exo_entity_list.*:
     override:
       type: boolean
       label: Override List Builder
+    format:
+      type: string
+      label: Format
     url:
       type: string
       label: URL
     limit:
       type: integer
       label: 'Limit'
+    limit_options:
+      type: sequence
+      label: 'Limit Options'
     actions:
       type: sequence
       label: Actions

@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
+use Drupal\Core\Render\Element;
 use Drupal\exo_list_builder\ExoListActionManagerInterface;
 use Drupal\exo_list_builder\ExoListManagerInterface;
 use Psr\Container\ContainerInterface;
@@ -177,6 +178,16 @@ class EntityListForm extends EntityForm {
       ];
     }
 
+    $form['format'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Format'),
+      '#options' => [
+        'table' => $this->t('Table'),
+        'list' => $this->t('Unformatted List'),
+      ],
+      '#default_value' => $exo_entity_list->getFormat(),
+    ];
+
     $form['url'] = [
       '#type' => 'textfield',
       '#title' => $this->t('URL'),
@@ -184,23 +195,49 @@ class EntityListForm extends EntityForm {
       '#default_value' => $exo_entity_list->getUrl(),
     ];
 
-    $form['limit'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Items per page'),
-      '#options' => [
-        0 => $this->t('Show All'),
-        10 => 10,
-        20 => 20,
-        50 => 50,
-        100 => 100,
-      ],
-      '#default_value' => $exo_entity_list->getLimit(),
+    $form['pager'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Pager'),
+      '#open' => FALSE,
     ];
 
-    $form['settings'] = [
-      '#type' => 'container',
-      '#tree' => TRUE,
+    $form['pager']['limit_all'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Show All'),
+      '#description' => $this->t('If checked, the list will show all results and not use a pager.'),
+      '#default_value' => $exo_entity_list->getLimit() == 0,
     ];
+
+    $states = [
+      'invisible' => [
+        ':input[name="limit_all"]' => ['checked' => TRUE],
+      ],
+    ];
+    $form['pager']['limit_options'] = [
+      '#type' => 'table',
+      '#header' => [
+        'default' => $this->t('Default'),
+        'amount' => $this->t('Amount'),
+      ],
+      '#states' => $states,
+    ];
+    $delta = 0;
+    foreach ($exo_entity_list->getLimitOptions() as $int) {
+      $row = [];
+      $row['default'] = [
+        '#type' => 'radio',
+        '#default_value' => $exo_entity_list->getLimit() == $int ? $delta : NULL,
+        '#parents' => ['limit'],
+        '#return_value' => $delta,
+      ];
+      $row['amount'] = [
+        '#type' => 'number',
+        '#default_value' => $int,
+        '#parents' => ['limit_options', $delta],
+      ];
+      $form['pager']['limit_options'][$delta] = $row;
+      $delta++;
+    }
 
     if ($this->moduleHandler->moduleExists('pagerer')) {
       /** @var \Drupal\pagerer\PagererPresetListBuilder $pagerer_preset_list */
@@ -211,23 +248,40 @@ class EntityListForm extends EntityForm {
         $default_label => ['' => $this->t('No - use Drupal core pager')],
         $replace_label => $pagerer_preset_list->listOptions(),
       ];
-      $form['settings']['pagerer_header'] = [
+      $form['pager']['pagerer_header'] = [
         '#type' => 'select',
         '#title' => $this->t('Header pager'),
         '#description' => $this->t("Core pager theme requests can be overridden. Select whether they need to be fulfilled by Drupal core pager, or the Pagerer pager to use."),
         '#options' => $options,
+        '#parents' => ['settings', 'pagerer_header'],
         '#default_value' => $exo_entity_list->getSetting('pagerer_header'),
+        '#states' => $states,
       ];
-      $form['settings']['pagerer_footer'] = [
+      $form['pager']['pagerer_footer'] = [
         '#type' => 'select',
         '#title' => $this->t('Footer pager'),
         '#description' => $this->t("Core pager theme requests can be overridden. Select whether they need to be fulfilled by Drupal core pager, or the Pagerer pager to use."),
         '#options' => $options,
+        '#parents' => ['settings', 'pagerer_footer'],
         '#default_value' => $exo_entity_list->getSetting('pagerer_footer'),
+        '#states' => $states,
       ];
     }
 
     $this->buildFormActions($form, $form_state);
+
+    $form['settings'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Advanced Settings'),
+      '#tree' => TRUE,
+    ];
+
+    $form['settings']['operations_status'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Show Operations'),
+      '#description' => $this->t('If checked, the entity operations will be shown.'),
+      '#default_value' => $exo_entity_list->showOperations(),
+    ];
 
     $form['fields_container'] = [
       '#type' => 'details',
@@ -318,7 +372,7 @@ class EntityListForm extends EntityForm {
       ], $form_state, $field['view']['type']);
       $row['view']['type'] = [
         '#type' => 'select',
-        '#options' => ['' => $this->t('- Hidden -')] + $elements,
+        '#options' => ['' => $this->t('- None -')] + $elements,
         '#default_value' => $view_type,
         '#ajax' => [
           'event' => 'change',
@@ -375,15 +429,39 @@ class EntityListForm extends EntityForm {
           '#empty_option' => $this->t('- None -'),
           '#default_value' => $field['view']['sort'],
         ];
-        $radio_id = Html::getUniqueId('edit-default-' . $field_id);
+        $row['view']['options']['sort']['sort_asc_label'] = [
+          '#type' => 'textfield',
+          '#title' => $this->t('Ascending label'),
+          '#parents' => [
+            'fields',
+            $field_id,
+            'view',
+            'options',
+            'sort_asc_label',
+          ],
+          '#default_value' => $field['view']['sort_asc_label'],
+        ];
+        $row['view']['options']['sort']['sort_desc_label'] = [
+          '#type' => 'textfield',
+          '#title' => $this->t('Descending label'),
+          '#parents' => [
+            'fields',
+            $field_id,
+            'view',
+            'options',
+            'sort_desc_label',
+          ],
+          '#default_value' => $field['view']['sort_desc_label'],
+        ];
         $row['view']['options']['sort']['sort_default'] = [
           '#type' => 'radio',
           '#title' => $this->t('Sort default'),
           '#default_value' => $exo_entity_list->getSort() === $field_id ? $field_id : NULL,
           '#return_value' => $field_id,
-          '#parents' => ['sort'],
-          '#id' => $radio_id,
-          '#attributes' => ['id' => $radio_id],
+          '#parents' => [
+            'sort',
+            $field_id,
+          ],
         ];
       }
       $row['view']['options']['wrapper'] = [
@@ -409,10 +487,24 @@ class EntityListForm extends EntityForm {
         ],
       ];
       if (!empty($view_type) && $this->elementManager->hasDefinition($view_type)) {
-        /** @var \Drupal\exo_list_builder\Plugin\ExoListElementInterface $instance */
-        $instance = $this->elementManager->createInstance($view_type, $field['view']['settings']);
-        $subform_state = SubformState::createForSubform($row['view']['settings'], $form, $form_state);
-        $row['view']['settings'] = $instance->buildConfigurationForm($row['view']['settings'], $subform_state, $exo_entity_list, $field);
+        $element_definition = $this->elementManager->getDefinition($view_type);
+        if (!empty($element_definition['sort_only'])) {
+          $row['view']['options']['#type'] = 'container';
+          foreach (Element::children($row['view']['options']) as $child) {
+            if ($child !== 'sort') {
+              $row['view']['options'][$child]['#access'] = FALSE;
+            }
+          }
+        }
+        else {
+          /** @var \Drupal\exo_list_builder\Plugin\ExoListElementInterface $instance */
+          $instance = $this->elementManager->createInstance($view_type, $field['view']['settings']);
+          $subform_state = SubformState::createForSubform($row['view']['settings'], $form, $form_state);
+          $row['view']['settings'] = $instance->buildConfigurationForm($row['view']['settings'], $subform_state, $exo_entity_list, $field);
+        }
+      }
+      if (!Element::children($row['view']['settings'])) {
+        $row['view']['settings']['#access'] = FALSE;
       }
 
       $filter_id = Html::getId('fields-wrapper-filter-' . $field_id);
@@ -487,8 +579,8 @@ class EntityListForm extends EntityForm {
     $form['actions_container'] = [
       '#type' => 'details',
       '#title' => $this->t('Actions'),
-      '#open' => FALSE,
-      '#prefix' => '<div id="actions-wrapper">',
+      '#open' => !empty($actions),
+      '#prefix' => '<div id="actions-wrapper" class="exo-form-element">',
       '#suffix' => '</div>',
     ];
     $form['actions_container']['actions'] = [
@@ -609,8 +701,23 @@ class EntityListForm extends EntityForm {
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
 
-    // Clean settings.
-    $form_state->setValue('settings', array_filter($form_state->getValue('settings', [])));
+    if ($form_state->getValue('limit_all')) {
+      $form_state->setValue('limit', 0);
+    }
+    else {
+      $limit = (int) $form_state->getValue('limit');
+      $limit_options = array_map(function ($int) {
+        return (int) $int;
+      }, $form_state->getValue('limit_options'));
+      if (isset($limit_options[$limit])) {
+        $form_state->setValue('limit', $limit_options[$limit]);
+        $form_state->setValue('limit_options', $limit_options);
+      }
+      else {
+        $form_state->unsetValue('limit');
+        $form_state->unsetValue('limit_options');
+      }
+    }
 
     // Url validation.
     $url = $form_state->getValue('url');
@@ -633,11 +740,14 @@ class EntityListForm extends EntityForm {
           $field['view']['show'] = TRUE;
         }
         if (!empty($field['view']['type']) && $this->elementManager->hasDefinition($field['view']['type'])) {
-          /** @var \Drupal\exo_list_builder\Plugin\ExoListElementInterface $instance */
-          $instance = $this->elementManager->createInstance($field['view']['type'], $field['view']['settings'] ?? []);
-          $subform_state = SubformState::createForSubform($form['fields_container']['fields'][$field_id]['view']['settings'], $form, $form_state);
-          $instance->validateConfigurationForm($form['fields_container']['fields'][$field_id]['view']['settings'], $subform_state);
-          $field['view']['settings'] = $subform_state->getValues();
+          $element_definition = $this->elementManager->getDefinition($field['view']['type']);
+          if (empty($element_definition['sort_only'])) {
+            /** @var \Drupal\exo_list_builder\Plugin\ExoListElementInterface $instance */
+            $instance = $this->elementManager->createInstance($field['view']['type'], $field['view']['settings'] ?? []);
+            $subform_state = SubformState::createForSubform($form['fields_container']['fields'][$field_id]['view']['settings'], $form, $form_state);
+            $instance->validateConfigurationForm($form['fields_container']['fields'][$field_id]['view']['settings'], $subform_state);
+            $field['view']['settings'] = $subform_state->getValues();
+          }
         }
         if (!empty($field['filter']['type']) && $this->filterManager->hasDefinition($field['filter']['type'])) {
           /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
@@ -649,6 +759,13 @@ class EntityListForm extends EntityForm {
       }
     }
     $form_state->setValue('fields', $fields);
+
+    $sort = array_filter($form_state->getValue('sort', []));
+    $sort = !empty($sort) ? reset($sort) : '';
+    if ($sort && !isset($fields[$sort])) {
+      $sort = '';
+    }
+    $form_state->setValue('sort', $sort);
 
     $actions = $form_state->getValue('actions');
     foreach ($actions as $action_id => &$action) {

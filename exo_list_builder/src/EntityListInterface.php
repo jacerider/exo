@@ -110,9 +110,17 @@ interface EntityListInterface extends ConfigEntityInterface {
   public function isOverride();
 
   /**
+   * Return the entity list format.
+   *
+   * @returns string
+   *   The entity list format.
+   */
+  public function getFormat();
+
+  /**
    * Return the entity list url.
    *
-   * @returns tring
+   * @returns string
    *   The entity list url.
    */
   public function getUrl();
@@ -124,6 +132,22 @@ interface EntityListInterface extends ConfigEntityInterface {
    *   The number of items per page.
    */
   public function getLimit();
+
+  /**
+   * Get the limit options.
+   *
+   * @return array
+   *   The limit options as [int => int].
+   */
+  public function getLimitOptions();
+
+  /**
+   * Returns operations status.
+   *
+   * @return bool
+   *   Returns TRUE if operations should be shown.
+   */
+  public function showOperations();
 
   /**
    * Get enabled action definitions.

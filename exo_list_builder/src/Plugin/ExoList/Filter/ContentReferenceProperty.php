@@ -59,26 +59,31 @@ class ContentReferenceProperty extends ContentProperty {
       [$reference_field_name, $reference_property] = explode('.', $property);
       $reference_field_storage_definition = $entity_field_manager->getFieldStorageDefinitions($reference_entity_type_id)[$reference_field_name];
       $reference_id_key = $reference_entity_type->getKey('id');
-      $reference_data_table = $reference_table_mapping->getDataTable();
+      $reference_data_table = $reference_table_mapping->getDataTable() ?: $reference_table_mapping->getBaseTable();
       $reference_field_table = $reference_table_mapping->getFieldTableName($reference_field_name);
       $reference_field_column = $reference_table_mapping->getFieldColumnName($reference_field_storage_definition, $reference_property);
+      $reference_bundle_key = $reference_entity_type->getKey('bundle');
       $connection = \Drupal::database();
+      // We are searching against a field's table.
       if ($reference_data_table && $reference_data_table !== $reference_field_table) {
         $query = $connection->select($reference_data_table, 'd');
         $query->join($reference_field_table, 'f', 'd.' . $reference_id_key . ' = f.entity_id');
+        if (!empty($reference_bundles)) {
+          $query->condition('bundle', $reference_bundles, 'IN');
+        }
       }
       else {
         $query = $connection->select($reference_field_table, 'f');
+        if (!empty($reference_bundles) && $reference_bundle_key) {
+          $query->condition($reference_bundle_key, $reference_bundles, 'IN');
+        }
       }
       $query->fields('f', [$reference_field_column])
         ->distinct(TRUE);
       if (!empty($condition)) {
         $query->condition($reference_field_column, '%' . $connection->escapeLike($condition) . '%', 'LIKE');
       }
-      if (!empty($bundles)) {
-        $bundle_key = $reference_entity_type->getKey('bundle');
-        $query->condition($bundle_key, $reference_bundles, 'IN');
-      }
+
       return $query;
     }
     return NULL;
