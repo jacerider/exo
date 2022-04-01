@@ -78,9 +78,8 @@ class ConfigProperty extends ExoListFilterMatchBase implements ExoListFieldValue
 
     $configuration = $this->getConfiguration();
     if (!empty($configuration['select'])) {
-      $options = $this->getValueOptions($entity_list, $field);
       $form['q']['#type'] = 'select';
-      $form['q']['#options'] = ['' => $this->t('- Select -')] + array_combine($options, $options);
+      $form['q']['#options'] = ['' => $this->t('- Select -')] + $this->getValueOptions($entity_list, $field);
     }
     elseif (!empty($configuration['autocomplete'])) {
       $form['q'] += [
@@ -122,7 +121,7 @@ class ConfigProperty extends ExoListFilterMatchBase implements ExoListFieldValue
         }
       }
     }
-    return $options;
+    return array_combine($options, $options);
   }
 
 }

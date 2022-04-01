@@ -462,10 +462,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   }
 
   /**
-   * Get the sort query.
-   *
-   * @return \Drupal\Core\Entity\Query\QueryInterface
-   *   The query.
+   * Add the sort query.
    */
   protected function addQuerySort(QueryInterface $query) {
     $entity_list = $this->entityList;
