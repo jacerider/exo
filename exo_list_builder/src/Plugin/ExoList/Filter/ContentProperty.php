@@ -2,6 +2,7 @@
 
 namespace Drupal\exo_list_builder\Plugin\ExoList\Filter;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\exo_list_builder\EntityListInterface;
 use Drupal\exo_list_builder\Plugin\ExoListContentTrait;
@@ -119,9 +120,16 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
    * {@inheritdoc}
    */
   public function getValueOptions(EntityListInterface $entity_list, array $field, $input = NULL) {
-    $configuration = $this->getConfiguration();
-    $options = $this->getAvailableFieldValues($entity_list, $field['id'], $configuration['property'], $input);
-    return array_combine($options, $options);
+    $cid = 'exo_list_buider:filter:' . $entity_list->id() . ':' . $field['id'] . ':' . $field['filter']['type'];
+    if ($cache = \Drupal::cache()->get($cid)) {
+      $values = $cache->data;
+    }
+    else {
+      $configuration = $this->getConfiguration();
+      $values = $this->getAvailableFieldValues($entity_list, $field['id'], $configuration['property'], $input);
+      \Drupal::cache()->set($cid, $values, Cache::PERMANENT, $entity_list->getCacheTags());
+    }
+    return array_combine($values, $values);
   }
 
 }

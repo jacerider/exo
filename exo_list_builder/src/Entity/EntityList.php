@@ -3,6 +3,7 @@
 namespace Drupal\exo_list_builder\Entity;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Url;
@@ -596,6 +597,13 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
     $key_exists = NULL;
     $value = &NestedArray::getValue($settings, (array) $key, $key_exists);
     return $key_exists ? $value : $default;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheTags() {
+    return Cache::mergeTags(parent::getCacheTags(), $this->getTargetEntityType()->getListCacheTags());
   }
 
   /**
