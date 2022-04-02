@@ -9,6 +9,7 @@ use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\State\StateInterface;
 use Drupal\exo\ExoSettingsInterface;
 use Drupal\exo_imagine\Entity\ExoImagineStyle;
+use Drupal\exo_imagine\EventSubscriber\ExoImagineSubscriber;
 use Drupal\file\FileInterface;
 use Drupal\image\ImageEffectManager;
 
@@ -94,8 +95,10 @@ class ExoImagineManager {
    *   The image definition.
    */
   public function getImageDefinition(FileInterface $file, $width = NULL, $height = NULL, $unique = '', $record_usage = FALSE) {
+    /** @var \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator */
+    $file_url_generator = \Drupal::service('file_url_generator');
     $image_uri = $file->getFileUri();
-    $image_url = file_url_transform_relative(file_create_url($image_uri));
+    $image_url = $file_url_generator->generate($image_uri)->toString();
     $definition = [
       'uri' => $image_uri,
       'src' => $image_url,
@@ -112,29 +115,29 @@ class ExoImagineManager {
       }
       $image_style = $imagine_style->getStyle();
       $image_style_uri = $image_style->buildUri($image_uri);
-      if (!file_exists($image_style_uri)) {
-        $image_style->createDerivative($image_uri, $image_style_uri);
+      $info = getimagesize($image_uri);
+      $ratio = $info[0] / $info[1];
+      if ($width && !$height) {
+        $height = $width * $ratio;
       }
-      if (file_exists($image_style_uri)) {
-        $info = getimagesize($image_style_uri);
-        $width = $info[0];
-        $height = $info[1];
-        $mime = $info['mime'];
-        $definition['uri'] = $image_style_uri;
-        $definition['src'] = file_url_transform_relative(file_create_url($image_style_uri));
-        $definition['webp'] = $webp ? file_url_transform_relative(file_create_url($this->getWebp($image_style_uri))) : NULL;
-        if (!empty($definition['webp'])) {
-          // Support alterations done to the main image url.
-          $parts = explode('?', $definition['src']);
-          if (isset($parts[1])) {
-            $definition['webp'] .= '?' . $parts[1];
-          }
+      if ($height && !$width) {
+        $width = $height * $ratio;
+      }
+      $mime = $info['mime'];
+      $definition['uri'] = $image_style_uri;
+      $definition['src'] = $file_url_generator->transformRelative($image_style->buildUrl($image_uri));
+      $definition['webp'] = $webp ? $this->getWebp($definition['src']) : NULL;
+      if (!empty($definition['webp'])) {
+        // Support alterations done to the main image url.
+        $parts = explode('?', $definition['src']);
+        if (isset($parts[1])) {
+          $definition['webp'] .= '?' . $parts[1];
         }
-        $definition['width'] = $width;
-        $definition['height'] = $height;
-        $definition['mime'] = $mime;
-        $definition['cache_tags'] = $image_style->getCacheTags();
       }
+      $definition['width'] = $width;
+      $definition['height'] = $height;
+      $definition['mime'] = $mime;
+      $definition['cache_tags'] = $image_style->getCacheTags();
     }
     return $definition;
   }
@@ -159,6 +162,8 @@ class ExoImagineManager {
    *   The image preview definition.
    */
   public function getImagePreviewDefinition(FileInterface $file, $width = NULL, $height = NULL, $unique = '', $blur = FALSE, $record_usage = FALSE) {
+    /** @var \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator */
+    $file_url_generator = \Drupal::service('file_url_generator');
     $image_definition = $this->getImageDefinition($file, $width, $height, $unique, FALSE);
     $definition = [
       'src' => '',
@@ -178,29 +183,29 @@ class ExoImagineManager {
         }
         $image_style = $imagine_style->getStyle();
         $image_style_uri = $image_style->buildUri($image_uri);
-        if (!file_exists($image_style_uri)) {
-          $image_style->createDerivative($image_uri, $image_style_uri);
+        $info = getimagesize($image_uri);
+        $ratio = $info[0] / $info[1];
+        if ($width && !$height) {
+          $height = $width * $ratio;
         }
-        if (file_exists($image_style_uri)) {
-          $info = getimagesize($image_style_uri);
-          $width = isset($info[0]) ? $info[0] : '';
-          $height = isset($info[1]) ? $info[1] : '';
-          $mime = $info['mime'];
-          $definition['uri'] = $image_style_uri;
-          $definition['src'] = file_url_transform_relative(file_create_url($image_style_uri));
-          $definition['webp'] = $webp ? file_url_transform_relative(file_create_url($this->getWebp($image_style_uri))) : NULL;
-          if (!empty($definition['webp'])) {
-            // Support alterations done to the main image url.
-            $parts = explode('?', $definition['src']);
-            if (isset($parts[1])) {
-              $definition['webp'] .= '?' . $parts[1];
-            }
+        if ($height && !$width) {
+          $width = $height * $ratio;
+        }
+        $mime = $info['mime'];
+        $definition['uri'] = $image_style_uri;
+        $definition['src'] = $file_url_generator->transformRelative($image_style->buildUrl($image_uri));
+        $definition['webp'] = $webp ? $this->getWebp($definition['src']) : NULL;
+        if (!empty($definition['webp'])) {
+          // Support alterations done to the main image url.
+          $parts = explode('?', $definition['src']);
+          if (isset($parts[1])) {
+            $definition['webp'] .= '?' . $parts[1];
           }
-          $definition['width'] = $image_definition['width'];
-          $definition['height'] = $image_definition['height'];
-          $definition['mime'] = $mime;
-          $definition['cache_tags'] = $image_style->getCacheTags();
         }
+        $definition['width'] = $width;
+        $definition['height'] = $height;
+        $definition['mime'] = $mime;
+        $definition['cache_tags'] = $image_style->getCacheTags();
       }
       else {
         $definition['src'] = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
@@ -495,59 +500,18 @@ class ExoImagineManager {
   }
 
   /**
-   * Creates a WebP copy of a source image URI.
+   * Gets a WebP uri.
    *
    * @param string $uri
    *   Image URI.
-   * @param int $quality
-   *   Image quality factor.
    *
    * @return bool|string
    *   The location of the WebP image if successful, FALSE if not successful.
    */
-  public function getWebp($uri, $quality = NULL) {
-    $webp = FALSE;
+  public function getWebp($uri) {
     $pathInfo = pathinfo($uri);
-    $destination = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '.webp';
-    if (!$quality) {
-      $quality = $this->exoImagineSettings->getSetting('webp_quality');
-    }
-    if (file_exists($destination) && filemtime($uri) <= filemtime($destination)) {
-      $webp = $destination;
-    }
-    else {
-      // Generate a GD resource from the source image. You can't pass GD
-      // resources created by the $imageFactory as a parameter to another
-      // function, so we have to do everything in one function.
-      $sourceImage = $this->imageFactory->get($uri, 'gd');
-      /** @var \Drupal\system\Plugin\ImageToolkit\GDToolkit $toolkit */
-      $toolkit = $sourceImage->getToolkit();
-      $sourceImage = $toolkit->getResource();
-
-      // If we can generate a GD resource from the source image, generate the
-      // URI of the WebP copy and try to create it.
-      if ($sourceImage !== NULL) {
-        if (function_exists('imagewebp') && @imagewebp($sourceImage, $destination, $quality)) {
-          @imagedestroy($sourceImage);
-          $webp = $destination;
-        }
-        elseif (extension_loaded('imagick')) {
-          // phpcs:disable
-          $image = new \Imagick($uri);
-          $image->setImageFormat('webp');
-          $image->setImageCompressionQuality($quality);
-          $image->setImageAlphaChannel(\Imagick::ALPHACHANNEL_ACTIVATE);
-          $image->setBackgroundColor(new \ImagickPixel('transparent'));
-          // phpcs:enable
-          $image->writeImage(\Drupal::service('file_system')->realpath($destination));
-          $webp = $destination;
-        }
-        else {
-          $this->logger->error('Could not generate WebP image.');
-        }
-      }
-    }
-    return $webp;
+    $destination = substr($uri, 0, strlen($pathInfo['extension']) * -1) . 'webp';
+    return str_replace('/styles/exoimg', '/exowebp/styles/exoimg', $destination);
   }
 
   /**

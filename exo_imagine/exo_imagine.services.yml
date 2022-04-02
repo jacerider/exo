@@ -5,6 +5,11 @@ services:
   exo_imagine.settings:
     class: Drupal\exo_imagine\ExoImagineSettings
     arguments: ['@config.factory']
+  path_processor.webp_image_styles:
+    class: Drupal\exo_imagine\PathProcessor\PathProcessorWebpImageStyles
+    arguments: ['@stream_wrapper_manager']
+    tags:
+      - { name: path_processor_inbound, priority: 300 }
   logger.channel.exo_imagine:
     parent: logger.channel_base
     arguments: ['exo_imagine']
