@@ -2,9 +2,7 @@
 
 namespace Drupal\exo_list_builder\Plugin\ExoList\Filter;
 
-use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
-use Drupal\Core\Entity\Sql\DefaultTableMapping;
 use Drupal\Core\Entity\Sql\SqlEntityStorageInterface;
 use Drupal\Core\Field\FieldConfigInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
@@ -142,28 +140,21 @@ class ContentReferenceProperty extends ContentProperty {
    * {@inheritdoc}
    */
   public function getValueOptions(EntityListInterface $entity_list, array $field, $input = NULL) {
-    $cid = 'exo_list_buider:filter:' . $entity_list->id() . ':' . $field['id'] . ':' . $field['filter']['type'];
-    if ($cache = \Drupal::cache()->get($cid)) {
-      $values = $cache->data;
-    }
-    else {
-      $configuration = $this->getConfiguration();
-      [$field_name, $property] = explode('.', $configuration['property']);
-      $values = $this->getAvailableFieldValues($entity_list, $field['id'], $configuration['property'], $input);
-      $values = array_combine($values, $values);
+    $configuration = $this->getConfiguration();
+    [$field_name, $property] = explode('.', $configuration['property']);
+    $values = $this->getAvailableFieldValues($entity_list, $field['id'], $configuration['property'], $input);
+    $values = array_combine($values, $values);
 
-      // When referencing a target entity, we will fetch the entity labels.
-      if ($property === 'target_id') {
-        $field_definition = $field['definition'];
-        if ($reference_field_definition = $this->getReferenceFieldDefinition($field_definition)) {
-          $nested_reference_entity_type_id = $reference_field_definition->getSetting('target_type');
-          $entities = $this->entityTypeManager()->getStorage($nested_reference_entity_type_id)->loadMultiple($values);
-          foreach ($values as $target_id => $value) {
-            $values[$target_id] = $entities[$target_id]->label();
-          }
+    // When referencing a target entity, we will fetch the entity labels.
+    if ($property === 'target_id') {
+      $field_definition = $field['definition'];
+      if ($reference_field_definition = $this->getReferenceFieldDefinition($field_definition)) {
+        $nested_reference_entity_type_id = $reference_field_definition->getSetting('target_type');
+        $entities = $this->entityTypeManager()->getStorage($nested_reference_entity_type_id)->loadMultiple($values);
+        foreach ($values as $target_id => $value) {
+          $values[$target_id] = $entities[$target_id]->label();
         }
       }
-      \Drupal::cache()->set($cid, $values, Cache::PERMANENT, $entity_list->getCacheTags());
     }
 
     return $values;

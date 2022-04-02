@@ -94,7 +94,16 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
     $configuration = $this->getConfiguration();
     if (!empty($configuration['select'])) {
       $form['q']['#type'] = 'select';
-      $form['q']['#options'] = ['' => $this->t('- Select -')] + $this->getValueOptions($entity_list, $field);
+
+      $cid = 'exo_list_buider:filter:' . $entity_list->id() . ':' . $field['id'] . ':' . $field['filter']['type'];
+      if ($cache = \Drupal::cache()->get($cid)) {
+        $options = $cache->data;
+      }
+      else {
+        $options = $this->getValueOptions($entity_list, $field);
+        \Drupal::cache()->set($cid, $options, Cache::PERMANENT, $entity_list->getCacheTags());
+      }
+      $form['q']['#options'] = ['' => $this->t('- Select -')] + $options;
     }
     elseif (!empty($configuration['autocomplete'])) {
       $form['q'] += [
@@ -120,15 +129,8 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
    * {@inheritdoc}
    */
   public function getValueOptions(EntityListInterface $entity_list, array $field, $input = NULL) {
-    $cid = 'exo_list_buider:filter:' . $entity_list->id() . ':' . $field['id'] . ':' . $field['filter']['type'];
-    if ($cache = \Drupal::cache()->get($cid)) {
-      $values = $cache->data;
-    }
-    else {
-      $configuration = $this->getConfiguration();
-      $values = $this->getAvailableFieldValues($entity_list, $field['id'], $configuration['property'], $input);
-      \Drupal::cache()->set($cid, $values, Cache::PERMANENT, $entity_list->getCacheTags());
-    }
+    $configuration = $this->getConfiguration();
+    $values = $this->getAvailableFieldValues($entity_list, $field['id'], $configuration['property'], $input);
     return array_combine($values, $values);
   }
 
