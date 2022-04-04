@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\file\FileInterface;
 
 /**
  * Implements hook_help().
@@ -52,5 +53,36 @@ function template_preprocess_exo_imagine(&$variables) {
   if (!empty($variables['url'])) {
     $variables['tag'] = 'a';
     $variables['attributes']['href'] = $variables['url']->toString();
+  }
+}
+
+/**
+ * Implements hook_file_move().
+ */
+function exo_imagine_file_move(FileInterface $file, FileInterface $source) {
+  // Delete any image derivatives at the original image path.
+  exo_imagine_path_flush($source->getFileUri());
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_predelete() for file entities.
+ */
+function exo_imagine_file_predelete(FileInterface $file) {
+  // Delete any image derivatives of this image.
+  exo_imagine_path_flush($file->getFileUri());
+}
+
+/**
+ * Clears cached versions of a specific file in all styles.
+ *
+ * @param $path
+ *   The Drupal file path to the original image.
+ */
+function exo_imagine_path_flush($path) {
+  /** @var \Drupal\exo_imagine\ExoImagineManager $manager */
+  $manager = \Drupal::service('exo_imagine.manager');
+  $styles = $manager->getImagineStyles();
+  foreach ($styles as $style) {
+    $style->getStyle()->flush($manager->getWebp($path));
   }
 }

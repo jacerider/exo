@@ -7,6 +7,3 @@ exo_imagine.settings:
     _permission: 'administer exo image'
   options:
     _admin_route: TRUE
-
-route_callbacks:
-  - '\Drupal\exo_imagine\Routing\WebpImageStyleRoutes::routes'

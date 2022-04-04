@@ -511,7 +511,7 @@ class ExoImagineManager {
   public function getWebp($uri) {
     $pathInfo = pathinfo($uri);
     $destination = substr($uri, 0, strlen($pathInfo['extension']) * -1) . 'webp';
-    return str_replace('/styles/exoimg', '/exowebp/styles/exoimg', $destination);
+    return $destination;
   }
 
   /**

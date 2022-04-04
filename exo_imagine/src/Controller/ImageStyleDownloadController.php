@@ -4,8 +4,7 @@ namespace Drupal\exo_imagine\Controller;
 
 use Drupal\Component\Utility\Crypt;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\Core\StreamWrapper\StreamWrapperManager;
-use Drupal\image\Controller\ImageStyleDownloadController;
+use Drupal\image\Controller\ImageStyleDownloadController as CoreImageStyleDownloadController;
 use Drupal\image\ImageStyleInterface;
 use Drupal\system\Plugin\ImageToolkit\GDToolkit;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -18,7 +17,7 @@ use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 /**
  * Defines a controller to serve image styles.
  */
-class WebpImageStyleDownloadController extends ImageStyleDownloadController {
+class ImageStyleDownloadController extends CoreImageStyleDownloadController {
 
   /**
    * Generates a derivative, given a style and image path.
@@ -44,6 +43,12 @@ class WebpImageStyleDownloadController extends ImageStyleDownloadController {
    */
   public function deliver(Request $request, $scheme, ImageStyleInterface $image_style) {
     $original_target = $request->query->get('file');
+
+    // Only act on .webp images.
+    if (substr($original_target, -5) !== '.webp') {
+      return parent::deliver($request, $scheme, $image_style);
+    }
+
     $original_uri = $scheme . '://' . $original_target;
     $target_sans_extension = rtrim($original_target, 'webp');
     $uri_sans_extension = rtrim($original_uri, 'webp');
@@ -79,7 +84,7 @@ class WebpImageStyleDownloadController extends ImageStyleDownloadController {
     // styles/<style_name>/... as structure, so we check if the $target variable
     // starts with styles/.
     $valid = !empty($image_style) && $this->streamWrapperManager->isValidScheme($scheme);
-    if (!$this->config('image.settings')->get('allow_insecure_derivatives') || strpos(ltrim($target, '\/'), 'exowebp/styles/') === 0) {
+    if (!$this->config('image.settings')->get('allow_insecure_derivatives') || strpos(ltrim($target, '\/'), 'styles/') === 0) {
       $valid &= hash_equals($image_style->getPathToken($image_uri), $request->query->get(IMAGE_DERIVATIVE_TOKEN, ''));
     }
     if (!$valid) {
@@ -187,14 +192,11 @@ class WebpImageStyleDownloadController extends ImageStyleDownloadController {
     //   $image->setImageAlphaChannel(\Imagick::ALPHACHANNEL_ACTIVATE);
     //   $image->setBackgroundColor(new \ImagickPixel('transparent'));
     //   // phpcs:enable
-    //   $image->writeImage(\Drupal::service('file_system')->realpath($derivative_uri));
+    // $image->writeImage(\Drupal::service('file_system')->realpath($derivative_uri));
     // }
-    // kint($image->getToolkit());
-    // die;
     // if (function_exists('imagewebp')) {
     //   @imagewebp($image, NULL, 2);
     // }
-
     if (!$success) {
       if (file_exists($derivative_uri)) {
         \Drupal::logger('image')->error('Cached image file %destination already exists. There may be an issue with your rewrite configuration.', ['%destination' => $derivative_uri]);
