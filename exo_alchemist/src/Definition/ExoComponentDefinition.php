@@ -7,7 +7,6 @@ use Drupal\Component\Plugin\Definition\ContextAwarePluginDefinitionTrait;
 use Drupal\Component\Plugin\Definition\PluginDefinition;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\exo\Shared\ExoArrayAccessDefinitionTrait;
 
 /**
@@ -17,7 +16,9 @@ use Drupal\exo\Shared\ExoArrayAccessDefinitionTrait;
  */
 class ExoComponentDefinition extends PluginDefinition implements ContextAwarePluginDefinitionInterface, \ArrayAccess {
 
-  use DependencySerializationTrait;
+  // We removed serialization trait as it caused issues on preview and may
+  // not be needed.
+  // use DependencySerializationTrait;
   use ContextAwarePluginDefinitionTrait;
   use ExoArrayAccessDefinitionTrait;
 
