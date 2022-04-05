@@ -8,17 +8,17 @@
 $palette: map-merge($global-colors, $colors);
 
 .exo-component-wrapper {
-  color: color(theme-black);
+  color: color($component-black);
 
   &.exo-modifier--text-shadow {
-    text-shadow: 0px 2px 5px alpha(theme-white, 0.5);
+    text-shadow: 0px 2px 5px alpha($component-white, 0.5);
   }
 
   &.exo-modifier--invert {
-    color: color(theme-white);
+    color: color($component-white);
 
     &.exo-modifier--text-shadow {
-      text-shadow: 0px 2px 5px alpha(theme-black, 0.5);
+      text-shadow: 0px 2px 5px alpha($component-black, 0.5);
     }
   }
 
@@ -28,33 +28,33 @@ $palette: map-merge($global-colors, $colors);
 
   // Can be assigned to children elements.
   .exo-modifier--color-bg {
-    background-color: color(theme-white);
+    background-color: color($component-white);
   }
 
   .exo-modifier--color-bg-invert {
-    background-color: color(theme-black);
+    background-color: color($component-black);
   }
 
   .exo-modifier--color {
-    color: color(theme-black);
+    color: color($component-black);
   }
 
   .exo-modifier--color-invert {
-    color: color(theme-white);
+    color: color($component-white);
   }
 
   // .exo-modifier--color-border {
-  //   border-color: color(theme-black);
+  //   border-color: color($component-black);
   // }
 
   // .exo-modifier--color-border-invert {
-  //   border-color: color(theme-white);
+  //   border-color: color($component-white);
   // }
 }
 
 @each $name, $color in $palette {
-  $base: theme-white;
-  $offset: theme-black;
+  $base: $component-white;
+  $offset: $component-black;
   $dark: lightness(color($name)) < 60%;
   $contrast: color-contrast(color($name), color($offset));
 
@@ -69,8 +69,8 @@ $palette: map-merge($global-colors, $colors);
   .exo-modifier--color-bg-content-#{$name} .exo-component-content,
   .exo-modifier--color-bg-content-#{$name} .exo-modifier--content-color-bg {
     @if $dark {
-      $base: theme-black;
-      $offset: theme-white;
+      $base: $component-black;
+      $offset: $component-white;
     }
 
     &,
