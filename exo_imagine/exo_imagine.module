@@ -83,6 +83,6 @@ function exo_imagine_path_flush($path) {
   $manager = \Drupal::service('exo_imagine.manager');
   $styles = $manager->getImagineStyles();
   foreach ($styles as $style) {
-    $style->getStyle()->flush($manager->getWebp($path));
+    $style->getStyle()->flush($manager->toWebpUri($path));
   }
 }

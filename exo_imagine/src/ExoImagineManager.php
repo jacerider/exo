@@ -5,16 +5,17 @@ namespace Drupal\exo_imagine;
 use Drupal\breakpoint\BreakpointManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Image\ImageFactory;
-use Drupal\Core\State\StateInterface;
 use Drupal\exo\ExoSettingsInterface;
 use Drupal\exo_imagine\Entity\ExoImagineStyle;
-use Drupal\exo_imagine\EventSubscriber\ExoImagineSubscriber;
 use Drupal\file\FileInterface;
 use Drupal\image\ImageEffectManager;
+use Drupal\image\ImageStyleInterface;
+use Drupal\system\Plugin\ImageToolkit\GDToolkit;
 
 /**
- * Class ExoImagineManager.
+ * The eXo imagine manager.
  */
 class ExoImagineManager {
 
@@ -126,7 +127,7 @@ class ExoImagineManager {
       $mime = $info['mime'];
       $definition['uri'] = $image_style_uri;
       $definition['src'] = $file_url_generator->transformRelative($image_style->buildUrl($image_uri));
-      $definition['webp'] = $webp ? $this->getWebp($definition['src']) : NULL;
+      $definition['webp'] = $webp ? $this->toWebpUri($definition['src']) : NULL;
       if (!empty($definition['webp'])) {
         // Support alterations done to the main image url.
         $parts = explode('?', $definition['src']);
@@ -194,7 +195,7 @@ class ExoImagineManager {
         $mime = $info['mime'];
         $definition['uri'] = $image_style_uri;
         $definition['src'] = $file_url_generator->transformRelative($image_style->buildUrl($image_uri));
-        $definition['webp'] = $webp ? $this->getWebp($definition['src']) : NULL;
+        $definition['webp'] = $webp ? $this->toWebpUri($definition['src']) : NULL;
         if (!empty($definition['webp'])) {
           // Support alterations done to the main image url.
           $parts = explode('?', $definition['src']);
@@ -508,10 +509,76 @@ class ExoImagineManager {
    * @return bool|string
    *   The location of the WebP image if successful, FALSE if not successful.
    */
-  public function getWebp($uri) {
+  public function toWebpUri($uri) {
     $pathInfo = pathinfo($uri);
     $destination = substr($uri, 0, strlen($pathInfo['extension']) * -1) . 'webp';
     return $destination;
+  }
+
+  /**
+   * Generate webp image.
+   *
+   * @param \Drupal\image\ImageStyleInterface $image_style
+   *   The image style.
+   * @param string $original_uri
+   *   The original uri.
+   * @param string $derivative_uri
+   *   The new uri.
+   */
+  public function generateWebp(ImageStyleInterface $image_style, $original_uri, $derivative_uri) {
+    // If the source file doesn't exist, return FALSE without creating folders.
+    $image = \Drupal::service('image.factory')->get($original_uri);
+    if (!$image->isValid()) {
+      return FALSE;
+    }
+
+    // Get the folder for the final location of this style.
+    $directory = \Drupal::service('file_system')->dirname($derivative_uri);
+
+    // Build the destination folder tree if it doesn't already exist.
+    if (!\Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS)) {
+      \Drupal::logger('image')->error('Failed to create style directory: %directory', ['%directory' => $directory]);
+      return FALSE;
+    }
+
+    foreach ($image_style->getEffects() as $effect) {
+      $effect->applyEffect($image);
+    }
+
+    // Generate a GD resource from the source image. You can't pass GD
+    // resources created by the $imageFactory as a parameter to another
+    // function, so we have to do everything in one function.
+    $sourceImage = \Drupal::service('image.factory')->get($derivative_uri, 'gd');
+    /** @var \Drupal\system\Plugin\ImageToolkit\GDToolkit $toolkit */
+    $toolkit = $sourceImage->getToolkit();
+    $sourceImage = $toolkit->getResource();
+    $quality = \Drupal::service('exo_imagine.settings')->getSetting('webp_quality');
+    $toolkit = $image->getToolkit();
+    if ($toolkit instanceof GDToolkit) {
+      $success = @imagewebp($toolkit->getResource(), $derivative_uri, $quality);
+    }
+    // Support imagick when needed.
+    // elseif (extension_loaded('imagick')) {
+    //   // phpcs:disable
+    //   $image = new \Imagick($derivative_uri);
+    //   $image->setImageFormat('webp');
+    //   $image->setImageCompressionQuality($quality);
+    //   $image->setImageAlphaChannel(\Imagick::ALPHACHANNEL_ACTIVATE);
+    //   $image->setBackgroundColor(new \ImagickPixel('transparent'));
+    //   // phpcs:enable
+    // $image->writeImage(\Drupal::service('file_system')->realpath($derivative_uri));
+    // }
+    // if (function_exists('imagewebp')) {
+    //   @imagewebp($image, NULL, 2);
+    // }
+    if (!$success) {
+      if (file_exists($derivative_uri)) {
+        \Drupal::logger('exo_imagine')->error('Cached image file %destination already exists. There may be an issue with your rewrite configuration.', ['%destination' => $derivative_uri]);
+      }
+      return FALSE;
+    }
+
+    return TRUE;
   }
 
   /**

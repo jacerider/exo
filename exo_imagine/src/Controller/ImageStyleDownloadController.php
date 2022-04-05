@@ -123,7 +123,12 @@ class ImageStyleDownloadController extends CoreImageStyleDownloadController {
 
     // Try to generate the image, unless another thread just did it while we
     // were acquiring the lock.
-    $success = file_exists($derivative_uri) || $this->createDerivative($image_style, $image_uri, $derivative_uri);
+    $success = file_exists($derivative_uri);
+    if (!$success) {
+      /** @var \Drupal\exo_imagine\ExoImagineManager $imagine_manager */
+      $imagine_manager = \Drupal::service('exo_imagine.manager');
+      $success = $imagine_manager->generateWebp($image_style, $image_uri, $derivative_uri);
+    }
 
     if (!empty($lock_acquired)) {
       $this->lock->release($lock_name);
@@ -146,65 +151,6 @@ class ImageStyleDownloadController extends CoreImageStyleDownloadController {
       $this->logger->notice('Unable to generate the derived image located at %path.', ['%path' => $derivative_uri]);
       return new Response($this->t('Error generating image.'), 500);
     }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function createDerivative(ImageStyleInterface $image_style, $original_uri, $derivative_uri) {
-    // If the source file doesn't exist, return FALSE without creating folders.
-    $image = \Drupal::service('image.factory')->get($original_uri);
-    if (!$image->isValid()) {
-      return FALSE;
-    }
-
-    // Get the folder for the final location of this style.
-    $directory = \Drupal::service('file_system')->dirname($derivative_uri);
-
-    // Build the destination folder tree if it doesn't already exist.
-    if (!\Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS)) {
-      \Drupal::logger('image')->error('Failed to create style directory: %directory', ['%directory' => $directory]);
-      return FALSE;
-    }
-
-    foreach ($image_style->getEffects() as $effect) {
-      $effect->applyEffect($image);
-    }
-
-    // Generate a GD resource from the source image. You can't pass GD
-    // resources created by the $imageFactory as a parameter to another
-    // function, so we have to do everything in one function.
-    $sourceImage = \Drupal::service('image.factory')->get($derivative_uri, 'gd');
-    /** @var \Drupal\system\Plugin\ImageToolkit\GDToolkit $toolkit */
-    $toolkit = $sourceImage->getToolkit();
-    $sourceImage = $toolkit->getResource();
-    $quality = \Drupal::service('exo_imagine.settings')->getSetting('webp_quality');
-    $toolkit = $image->getToolkit();
-    if ($toolkit instanceof GDToolkit) {
-      $success = @imagewebp($toolkit->getResource(), $derivative_uri, $quality);
-    }
-    // Support imagick when needed.
-    // elseif (extension_loaded('imagick')) {
-    //   // phpcs:disable
-    //   $image = new \Imagick($derivative_uri);
-    //   $image->setImageFormat('webp');
-    //   $image->setImageCompressionQuality($quality);
-    //   $image->setImageAlphaChannel(\Imagick::ALPHACHANNEL_ACTIVATE);
-    //   $image->setBackgroundColor(new \ImagickPixel('transparent'));
-    //   // phpcs:enable
-    // $image->writeImage(\Drupal::service('file_system')->realpath($derivative_uri));
-    // }
-    // if (function_exists('imagewebp')) {
-    //   @imagewebp($image, NULL, 2);
-    // }
-    if (!$success) {
-      if (file_exists($derivative_uri)) {
-        \Drupal::logger('image')->error('Cached image file %destination already exists. There may be an issue with your rewrite configuration.', ['%destination' => $derivative_uri]);
-      }
-      return FALSE;
-    }
-
-    return TRUE;
   }
 
 }
