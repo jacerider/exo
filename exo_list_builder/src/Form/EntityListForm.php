@@ -283,6 +283,13 @@ class EntityListForm extends EntityForm {
       '#default_value' => $exo_entity_list->showOperations(),
     ];
 
+    $form['settings']['block_status'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Expose filters in block'),
+      '#description' => $this->t('If checked, a block will be made available that will show the list filters.'),
+      '#default_value' => $exo_entity_list->getSetting('block_status'),
+    ];
+
     $form['fields_container'] = [
       '#type' => 'details',
       '#title' => $this->t('Fields'),

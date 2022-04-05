@@ -284,7 +284,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected function getOption($key, $default_value = NULL) {
     $exists = NULL;
     $options = $this->getOptions();
-    $option = NestedArray::getValue($options, (array) $key, $exists);
+    if (!empty($options)) {
+      $option = NestedArray::getValue($options, (array) $key, $exists);
+    }
     return $exists ? $option : $default_value;
   }
 
@@ -1143,9 +1145,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   /**
    * Build modal columns.
    */
-  protected function buildFormFilters(array $form, FormStateInterface $form_state) {
-    $entity_list = $this->getEntityList();
-    $filters = $this->getExposedFilters();
+  protected function buildFormFilters(array $form, FormStateInterface $form_state, array $filters = NULL) {
+    $filters = $filters ?: $this->getFilters();
     $inline = [
       '#type' => 'html_tag',
       '#tag' => 'div',
@@ -1170,27 +1171,27 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
     $show_modal = FALSE;
     $show_inline = FALSE;
-    foreach ($filters as $field_id => $field) {
-      if ($field['filter']['instance']) {
-        /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
-        $settings = $field['filter']['settings'];
-        $instance = $field['filter']['instance'];
-        $value = $this->getOption([
-          'filter',
-          $field_id,
-        ], ($this->isModified() ? NULL : $field['filter']['settings']['default'] ?? $instance->defaultValue()));
-        $filter_form = [];
-        $filter_form = $instance->buildForm($filter_form, $form_state, $value, $entity_list, $field);
-        if (!empty($settings['position'])) {
-          if ($settings['position'] === 'header') {
+    foreach ($this->buildFormFilterFields($filters, $form_state) as $field_id => $filter_form) {
+      $settings = $filters[$field_id]['filter']['settings'];
+      if (empty($settings['expose'])) {
+        $filter_form['#access'] = FALSE;
+      }
+      if (!empty($settings['position'])) {
+        switch ($settings['position']) {
+          case 'header':
             $show_inline = TRUE;
             $inline[$field_id] = $filter_form;
-          }
+            break;
+
+          default:
+            $show_modal = TRUE;
+            $modal[$field_id] = $filter_form;
+            break;
         }
-        else {
-          $show_modal = TRUE;
-          $modal[$field_id] = $filter_form;
-        }
+      }
+      else {
+        $show_modal = TRUE;
+        $modal[$field_id] = $filter_form;
       }
     }
 
@@ -1253,6 +1254,26 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   /**
    * Build modal columns.
    */
+  public function buildFormFilterFields(array $filters, FormStateInterface $form_state) {
+    $form = [];
+    foreach ($filters as $field_id => $field) {
+      if ($field['filter']['instance']) {
+        /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
+        $instance = $field['filter']['instance'];
+        $value = $this->getOption([
+          'filter',
+          $field_id,
+        ], ($this->isModified() ? NULL : $field['filter']['settings']['default'] ?? $instance->defaultValue()));
+        $form[$field_id] = [];
+        $form[$field_id] = $instance->buildForm($form[$field_id], $form_state, $value, $this->entityList, $field);
+      }
+    }
+    return $form;
+  }
+
+  /**
+   * Build modal columns.
+   */
   protected function getFormFilterOverviewValues(array $form, FormStateInterface $form_state) {
     $filter_values = $this->getOption('filter');
     $filters = $this->getFilters();
@@ -1307,9 +1328,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     if (isset($filters[$filter_id])) {
       $field = $filters[$filter_id];
       $title = $field['display_label'];
-      if (empty($field['filter']['settings']['expose'])) {
-        return;
-      }
       if ($field['filter']['instance']) {
         /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
         $instance = $field['filter']['instance'];
@@ -1586,12 +1604,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   }
 
   /**
-   * Get filters.
-   *
-   * @return array
-   *   The fields.
+   * {@inheritDoc}
    */
-  protected function getFilters() {
+  public function getFilters() {
     if (!isset($this->filters)) {
       $this->filters = $this->getEntityList()->getFields();
       $this->filters = array_filter($this->filters, function ($field) {
@@ -1605,20 +1620,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
     }
     return $this->filters;
-  }
-
-  /**
-   * Get filters.
-   *
-   * @return array
-   *   The fields.
-   */
-  protected function getExposedFilters() {
-    $fields = $this->getFilters();
-    $fields = array_filter($fields, function ($field) {
-      return !empty($field['filter']['settings']['expose']);
-    });
-    return $fields;
   }
 
 }

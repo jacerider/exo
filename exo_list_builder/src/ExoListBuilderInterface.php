@@ -4,6 +4,7 @@ namespace Drupal\exo_list_builder;
 
 use Drupal\Core\Entity\EntityListBuilderInterface;
 use Drupal\Core\Form\FormInterface;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Defines an interface to build entity listings.
@@ -62,5 +63,18 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
    * @return $this
    */
   public function addQueryCondition($field, $value = NULL, $operator = NULL, $langcode = NULL);
+
+  /**
+   * Build filter form fields.
+   */
+  public function buildFormFilterFields(array $filters, FormStateInterface $form_state);
+
+  /**
+   * Get filters.
+   *
+   * @return array
+   *   The fields.
+   */
+  public function getFilters();
 
 }

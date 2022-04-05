@@ -41,12 +41,22 @@
       + .exo-list-pager {
         margin-left: 0;
       }
+
+      @include breakpoint(small only) {
+        padding-top: $global-margin / 2;
+        padding-left: 0;
+      }
     }
 
     .exo-list-pager {
       @include flex-align(left, middle);
       padding-left: $global-padding;
       margin-left: auto;
+
+      @include breakpoint(small only) {
+        padding-left: 0;
+        margin-top: $global-margin / 2;
+      }
     }
   }
 
@@ -79,6 +89,10 @@
 
         &:last-child {
           margin-bottom: 0;
+
+          @include breakpoint(small only) {
+            margin-bottom: $global-margin / 2;
+          }
         }
       }
 
@@ -91,17 +105,40 @@
       @include flex-align(right, stretch);
     }
 
+    .exo-form-element {
+      margin-left: $global-margin / 2;
+      margin-right: 0;
+
+      &:first-child {
+        margin-left: 0;
+      }
+
+      @include breakpoint(small only) {
+        margin-left: 0;
+      }
+    }
+
     .exo-list-filters-inline {
       @include flex;
       @include flex-align(left, stretch);
       flex-wrap: wrap;
+      margin-left: 0;
+      margin-right: 0;
 
-      .exo-form-container-form-actions {
-        margin-left: 0;
+      @include breakpoint(small only) {
+        margin-bottom: 0;
       }
 
       > div {
         flex: 1 1 100%;
+      }
+
+      .exo-form-container-form-actions {
+        flex: 0 0 auto;
+
+        @include breakpoint(small only) {
+          flex: 1 1 auto;
+        }
       }
 
       button {
@@ -112,10 +149,6 @@
 
         > .exo-form-element {
           margin: 0 0 $global-margin / 2;
-
-          &:last-child {
-            margin-bottom: 0;
-          }
         }
       }
 
@@ -123,7 +156,8 @@
         flex-wrap: nowrap;
         margin-right: auto;
         margin-bottom: 0;
-        padding-right: $global-padding;
+        flex: 1 1 auto;
+        // padding-right: $global-padding;
       }
     }
 
@@ -140,6 +174,11 @@
   .exo-list-header-second {
     margin-top: $global-margin;
     margin-left: auto;
+    flex-wrap: wrap;
+
+    @include breakpoint(small only) {
+      margin-top: $global-margin / 2;
+    }
 
     .button {
       margin-left: $global-margin / 2;
@@ -164,6 +203,7 @@
   .exo-list-footer {
     @include clearfix;
     margin-top: $global-margin;
+    margin-bottom: 0;
     font-size: rem-calc(12);
 
     .exo-list-footer-first {
@@ -194,6 +234,7 @@
 
     .exo-list-pager {
       @include flex-align(right, middle);
+      flex-wrap: wrap;
     }
   }
 
@@ -224,17 +265,41 @@
 
   .exo-list-pager {
     @include flex;
+    flex-wrap: wrap;
 
     .pagerer-container {
       width: auto;
       font-size: rem-calc(12);
       margin: 0 0 0 $global-margin;
 
+      @include breakpoint(small only) {
+        @include flex;
+        @include flex-align(center, middle);
+        width: 100%;
+        margin: $global-margin / 2 0 0;
+      }
+
+      .pager__item {
+        white-space: nowrap;
+      }
+
       .pagerer-panes,
       .pagerer-page-widget,
       .pager__items {
         @include flex;
         @include flex-align(left, middle);
+      }
+
+      .pagerer-panes {
+        flex: 1 1 auto;
+      }
+
+      .pagerer-center-pane {
+        flex: 1 1 auto;
+      }
+
+      .pager__items {
+        @include flex-align(center, middle);
       }
 
       .pager__item {
@@ -253,6 +318,47 @@
 
         a {
           font-size: rem-calc(30);
+        }
+      }
+
+      .pagerer-pager-standard {
+
+        .pager__items {
+          @include flex-align(left, middle);
+
+          @include breakpoint(small only) {
+            @include flex-align(spaced, middle);
+          }
+        }
+
+        .pager__item {
+          font-size: rem-calc(12);
+
+          a {
+            padding: rem-calc(0 10);
+            font-size: rem-calc(12);
+
+            @include breakpoint(small only) {
+              padding: 0;
+            }
+          }
+
+          &.pager__item--ellipsis {
+            padding: rem-calc(0 10);
+
+            @include breakpoint(small only) {
+              padding: 0;
+            }
+          }
+
+          &.pager__item--previous,
+          &.pager__item--next {
+
+            a {
+              font-size: rem-calc(30);
+              line-height: rem-calc(12);
+            }
+          }
         }
       }
     }
@@ -274,12 +380,26 @@
           }
         }
       }
+
+      .button {
+        height: rem-calc(24);
+        line-height: rem-calc(24);
+        padding-top: 0;
+        padding-bottom: 0;
+      }
     }
   }
 
   .exo-list-batch {
     @include flex;
     @include flex-align(left, middle);
+
+    @include breakpoint(small only) {
+
+      * {
+        width: 100%;
+      }
+    }
   }
 
   .exo-list-filter-overview {

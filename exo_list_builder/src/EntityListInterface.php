@@ -112,7 +112,7 @@ interface EntityListInterface extends ConfigEntityInterface {
   /**
    * Return the entity list format.
    *
-   * @returns string
+   * @return string
    *   The entity list format.
    */
   public function getFormat();
@@ -120,10 +120,18 @@ interface EntityListInterface extends ConfigEntityInterface {
   /**
    * Return the entity list url.
    *
-   * @returns string
+   * @return string
    *   The entity list url.
    */
   public function getUrl();
+
+  /**
+   * Returns the route name.
+   *
+   * @return string
+   *   The route name.
+   */
+  public function getRouteName();
 
   /**
    * Get items per page.

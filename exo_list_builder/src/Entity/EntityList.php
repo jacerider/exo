@@ -25,7 +25,8 @@ use Drupal\exo_list_builder\EntityListInterface;
  *     "form" = {
  *       "add" = "Drupal\exo_list_builder\Form\EntityListAddForm",
  *       "edit" = "Drupal\exo_list_builder\Form\EntityListForm",
- *       "delete" = "Drupal\exo_list_builder\Form\EntityListDeleteForm"
+ *       "delete" = "Drupal\exo_list_builder\Form\EntityListDeleteForm",
+ *       "filter" = "Drupal\exo_list_builder\Form\EntityListFilterForm",
  *     },
  *     "route_provider" = {
  *       "html" = "Drupal\exo_list_builder\EntityListHtmlRouteProvider",
@@ -233,6 +234,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    */
   protected $settingDefaults = [
     'operations_status' => TRUE,
+    'block_status' => FALSE,
   ];
 
   /**
@@ -395,6 +397,24 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    */
   public function getUrl() {
     return $this->url;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRouteName() {
+    $route_name = 'entity.exo_entity_list.canonical';
+    $override = $this->isOverride();
+    if ($override) {
+      $route_name = 'entity.' . $this->getTargetEntityTypeId() . '.collection';
+      if ($this->getTargetEntityTypeId() === 'taxonomy_term') {
+        $route_name = 'exo_list_builder.' . $this->id() . '.taxonomy_vocabulary.overview_form';
+      }
+    }
+    elseif ($this->getUrl()) {
+      $route_name = 'exo_list_builder.' . $this->id();
+    }
+    return $route_name;
   }
 
   /**

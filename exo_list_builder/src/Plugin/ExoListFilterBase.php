@@ -4,7 +4,6 @@ namespace Drupal\exo_list_builder\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
 use Drupal\exo_icon\ExoIconTranslationTrait;
@@ -39,6 +38,7 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       'default' => NULL,
       'position' => NULL,
       'expose' => TRUE,
+      'expose_block' => FALSE,
       'multiple' => FALSE,
       'multiple_join' => 'or',
     ];
@@ -81,8 +81,18 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
     ];
     $form['expose'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Expose'),
-      '#default_value' => $configuration['expose'] ?: 'modal',
+      '#title' => $this->t('Expose in List'),
+      '#default_value' => !empty($configuration['expose']),
+    ];
+    $form['expose_block'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Expose in Block'),
+      '#default_value' => !empty($configuration['expose_block']),
+      '#states' => [
+        'visible' => [
+          ':input[name="settings[block_status]"]' => ['checked' => TRUE],
+        ]
+      ],
     ];
     if ($this->supportsMultiple) {
       $form['multiple'] = [
@@ -104,7 +114,7 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
         '#states' => [
           'visible' => [
             '#' . $form['#id'] . '--multiple' => ['checked' => TRUE],
-          ]
+          ],
         ],
       ];
     }
