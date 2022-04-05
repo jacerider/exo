@@ -49,6 +49,16 @@
     //   margin-bottom: $global-margin * -1;
     // }
 
+    &.exo-modal {
+      margin-bottom: 0;
+      padding: 0 !important;
+      border: 0 !important;
+
+      .exo-modal-container {
+        margin-bottom: 0;
+      }
+    }
+
     .exo-modal & {
       border: 0;
       box-shadow: none;
