@@ -7,7 +7,9 @@ use Drupal\Component\Plugin\Definition\ContextAwarePluginDefinitionTrait;
 use Drupal\Component\Plugin\Definition\PluginDefinition;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\exo\Shared\ExoArrayAccessDefinitionTrait;
+use Psr\Container\ContainerInterface;
 
 /**
  * Class ExoComponentDefinition.
@@ -16,9 +18,6 @@ use Drupal\exo\Shared\ExoArrayAccessDefinitionTrait;
  */
 class ExoComponentDefinition extends PluginDefinition implements ContextAwarePluginDefinitionInterface, \ArrayAccess {
 
-  // We removed serialization trait as it caused issues on preview and may
-  // not be needed.
-  // use DependencySerializationTrait;
   use ContextAwarePluginDefinitionTrait;
   use ExoArrayAccessDefinitionTrait;
 
@@ -289,16 +288,30 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
    *   Property value.
    */
   public function getHandler() {
-    if (!isset($this->handler)) {
+    if (!isset($this->handler) || !is_object($this->handler)) {
       $this->handler = NULL;
       $camel = str_replace('_', '', ucwords($this->getName(), '_'));
       $filepath = ltrim($this->getPath(), '/') . '/' . $camel . '.php';
-      if (file_exists($filepath)) {
-        include $filepath;
+      if (!class_exists($camel)) {
+        if (file_exists($filepath)) {
+          include $filepath;
+        }
+      }
+      if (class_exists($camel)) {
         $this->handler = new $camel();
+        $this->handler->_serviceIds = TRUE;
       }
     }
     return $this->handler;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __sleep() {
+    $vars = get_object_vars($this);
+    unset($vars['handler']);
+    return array_keys($vars);
   }
 
   /**
