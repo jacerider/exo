@@ -455,7 +455,7 @@ class ExoComponentPreviewForm extends FormBase {
   protected function successfulAjaxSubmit(array $form, FormStateInterface $form_state) {
     $entity = $form_state->get('entity');
     $definition = $this->exoComponentManager->getEntityBundleComponentDefinition($entity->type->entity);
-    $attributes = $this->exoComponentPropertyManager->getModifierAttributes($definition, $entity, $this->contexts);
+    $attributes = $this->exoComponentPropertyManager->getModifierAttributes($definition, $entity, $this->contexts, FALSE);
     $response = new AjaxResponse();
     $response->addCommand(new ExoComponentModifierAttributesCommand($attributes));
     return $response;

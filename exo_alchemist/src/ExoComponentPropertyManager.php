@@ -293,14 +293,16 @@ class ExoComponentPropertyManager extends DefaultPluginManager implements ExoCom
    *   The content entity.
    * @param \Drupal\Core\Plugin\Context\Context[] $contexts
    *   An array of current contexts.
+   * @param bool $cache
+   *   Whether to cache the values.
    *
    * @return array
    *   An array of attributes.
    */
-  public function getModifierAttributes(ExoComponentDefinition $definition, ContentEntityInterface $entity, array $contexts) {
+  public function getModifierAttributes(ExoComponentDefinition $definition, ContentEntityInterface $entity, array $contexts, $cache = TRUE) {
     $modifier_attributes = [];
     if (($modifiers = $definition->getModifiers()) && $entity->hasField(self::MODIFIERS_FIELD_NAME)) {
-      $values = self::getEntityModifierValues($entity, NULL, $definition);
+      $values = self::getEntityModifierValues($entity, NULL, $definition, $cache);
       foreach ($modifiers as $modifier) {
         $modifier_name = $modifier->getName();
         $modifier_attributes[$modifier_name] = [];
@@ -355,12 +357,14 @@ class ExoComponentPropertyManager extends DefaultPluginManager implements ExoCom
    *   An optional modifier name.
    * @param \Drupal\exo_alchemist\Definition\ExoComponentDefinition $definition
    *   The component definition.
+   * @param bool $cache
+   *   Whether to cache the values.
    *
    * @return array
    *   The modifier values.
    */
-  public static function getEntityModifierValues(ContentEntityInterface $entity, $modifier_name = NULL, ExoComponentDefinition $definition = NULL) {
-    if (!isset(static::$entityModifierValues[$entity->uuid()])) {
+  public static function getEntityModifierValues(ContentEntityInterface $entity, $modifier_name = NULL, ExoComponentDefinition $definition = NULL, $cache = TRUE) {
+    if (!isset(static::$entityModifierValues[$entity->uuid()]) || $cache === FALSE) {
       $values = !$entity->get(self::MODIFIERS_FIELD_NAME)->isEmpty() ? $entity->get(self::MODIFIERS_FIELD_NAME)->first()->value : [];
       if (!$definition) {
         $definition = \Drupal::service('plugin.manager.exo_component')->getEntityComponentDefinition($entity);
