@@ -81,3 +81,10 @@
     flex: 0 0 0%;
   }
 }
+
+.ui-widget-content.ui-autocomplete {
+
+  .ui-menu-item-wrapper {
+    display: block;
+  }
+}
