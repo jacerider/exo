@@ -143,7 +143,8 @@ class EntityField extends ExoComponentFieldFieldableBase implements ContextAware
    * {@inheritdoc}
    */
   public function getFormatterSettings() {
-    return [
+    $field = $this->getFieldDefinition();
+    return ($field->getAdditionalValue('formatter_settings') ?: []) + [
       'label' => 'hidden',
       'type' => $this->pluginDefinition['default_formatter'],
       'settings' => [],
