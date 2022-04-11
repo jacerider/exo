@@ -683,7 +683,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     ];
 
     $entities = $this->load();
-    $build[$this->entitiesKey]['#entities'] = $entities;
     if ($entities) {
       foreach ($entities as $target_entity) {
         if ($row = $this->buildRow($target_entity)) {
@@ -716,6 +715,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     else {
       $build[$this->entitiesKey] = $this->buildEmpty($build);
     }
+    $build[$this->entitiesKey]['#entities'] = $entities;
 
     $pager = $this->buildFormPager($build);
     $build['header']['second']['pager'] = $pager;
