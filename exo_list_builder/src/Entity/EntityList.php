@@ -451,9 +451,9 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   public function getActions() {
     $actions = [];
     $definitions = $this->getAvailableActions();
-    foreach ($this->actions as $action_id => $action) {
-      if (isset($definitions[$action_id])) {
-        $actions[$action_id] = NestedArray::mergeDeep($action + $definitions[$action_id]);
+    foreach ($definitions as $action_id => $definition) {
+      if (isset($this->actions[$action_id])) {
+        $actions[$action_id] = NestedArray::mergeDeep($this->actions[$action_id] + $definition);
       }
     }
     return $actions;
@@ -467,9 +467,13 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    */
   public function getAvailableActions() {
     if (!isset($this->actionDefinitions)) {
+      $this->actionDefinitions = [];
       /** @var \Drupal\exo_list_builder\ExoListActionManagerInterface $manager */
       $manager = \Drupal::service('plugin.manager.exo_list_action');
-      $actions = $manager->getFieldOptions($this->getTargetEntityTypeId(), $this->getTargetBundleIds());
+      $actions = [];
+      foreach ($this->getTargetBundleIds() as $bundle_id) {
+        $actions += $manager->getFieldOptions($this->getTargetEntityTypeId(), $bundle_id);
+      }
       foreach ($actions as $action_id => $label) {
         $this->actionDefinitions[$action_id] = [
           'id' => $action_id,
