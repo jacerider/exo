@@ -166,7 +166,6 @@ class StateMachine extends ExoListFilterBase implements ContainerFactoryPluginIn
    */
   public function toPreview($value, EntityListInterface $entity_list, array $field) {
     $options = $this->getStateOptions($entity_list);
-    ksm($options);
     return $options[$value] ?? '';
   }
 

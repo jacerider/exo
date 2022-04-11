@@ -31,7 +31,7 @@ class BooleanIconSquare extends ExoListElementContentBase {
    * {@inheritdoc}
    */
   protected function viewItem(EntityInterface $entity, FieldItemInterface $field_item, array $field) {
-    $settings = $field['definition']->getFieldStorageDefinition()->getSettings();
+    $settings = $field['definition']->getSettings();
     return !empty($field_item->value) ?
       $this->icon($settings['on_label'])->setIcon('regular-check-square')->setIconOnly() :
       $this->icon($settings['off_label'])->setIcon('regular-square')->setIconOnly();

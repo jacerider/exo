@@ -3,20 +3,22 @@
 namespace Drupal\exo_list_builder\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\exo_list_builder\EntityListInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Url;
+use Drupal\exo_list_builder\ExoListBuilderInterface;
 
 /**
  * Base class for eXo list actions.
  */
 abstract class ExoListActionBase extends PluginBase implements ExoListActionInterface, ContainerFactoryPluginInterface {
+
   use StringTranslationTrait;
+  use DependencySerializationTrait;
 
   /**
    * The entity type manager.
@@ -92,7 +94,18 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
   /**
    * {@inheritdoc}
    */
-  public function execute($entity_id, EntityListInterface $entity_list, array &$context) {
+  public function getEntityIds(array $selected_ids, ExoListBuilderInterface $exo_list_builder) {
+    if (empty($selected_ids)) {
+      // If none are selected, process all.
+      $selected_ids = $exo_list_builder->getQuery()->execute();
+    }
+    return $selected_ids;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function execute($entity_id, EntityListInterface $entity_list, $selected, array &$context) {
   }
 
   /**

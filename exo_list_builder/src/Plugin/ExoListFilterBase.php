@@ -4,6 +4,7 @@ namespace Drupal\exo_list_builder\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
 use Drupal\exo_icon\ExoIconTranslationTrait;
@@ -14,6 +15,7 @@ use Drupal\exo_list_builder\EntityListInterface;
  */
 abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInterface {
   use ExoIconTranslationTrait;
+  use DependencySerializationTrait;
 
   /**
    * Flag indicating if field supports multiple values.

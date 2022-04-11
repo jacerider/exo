@@ -70,6 +70,14 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
   public function buildFormFilterFields(array $filters, FormStateInterface $form_state);
 
   /**
+   * Get the query.
+   *
+   * @return \Drupal\Core\Entity\Query\QueryInterface
+   *   The query.
+   */
+  public function getQuery();
+
+  /**
    * Get filters.
    *
    * @return array

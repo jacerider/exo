@@ -2,7 +2,6 @@
 
 namespace Drupal\exo_list_builder\Plugin\ExoList\Filter;
 
-use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\exo_list_builder\EntityListInterface;
 use Drupal\exo_list_builder\Plugin\ExoListFieldValuesInterface;
@@ -127,7 +126,7 @@ class BooleanSelect extends ExoListFilterBase implements ExoListFieldValuesInter
    *   array, but this is just the case for the custom format.
    */
   protected function getOutputFormats(array $field) {
-    $settings = $field['definition']->getFieldStorageDefinition()->getSettings();
+    $settings = $field['definition']->getSettings();
     $formats = [
       'default' => [$settings['on_label'], $settings['off_label']],
       'yes-no' => [$this->t('Yes'), $this->t('No')],

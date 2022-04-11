@@ -94,7 +94,7 @@ class ExportCsv extends ExoListActionBase {
   /**
    * {@inheritdoc}
    */
-  public function execute($entity_id, EntityListInterface $entity_list, array &$context) {
+  public function execute($entity_id, EntityListInterface $entity_list, $selected, array &$context) {
     $fields = $entity_list->getFields();
     if (!isset($context['results']['file_path'])) {
       $file_path = $this->prepareExportFile($entity_list, $context);

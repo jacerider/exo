@@ -33,7 +33,6 @@ class ExoListActionManager extends DefaultPluginManager implements ExoListAction
     $interface = 'Drupal\exo_list_builder\Plugin\ExoListActionInterface';
     $annotation = 'Drupal\exo_list_builder\Annotation\ExoListAction';
     parent::__construct('Plugin/ExoList/Action', $namespaces, $module_handler, $interface, $annotation);
-
     $this->alterInfo('exo_list_builder_action_info');
     $this->setCacheBackend($cache_backend, 'exo_list_builder_action_plugins');
   }
@@ -71,7 +70,6 @@ class ExoListActionManager extends DefaultPluginManager implements ExoListAction
       }
       $options[$plugin_id] = $definition['label'];
     }
-
     return $options;
   }
 
@@ -115,10 +113,12 @@ class ExoListActionManager extends DefaultPluginManager implements ExoListAction
    *   The entity list id.
    * @param array $field_ids
    *   The shown field ids.
+   * @param bool $selected
+   *   Will be true if entity was selected.
    * @param array $context
    *   The context.
    */
-  public static function batch(array $action, $entity_id, $entity_list_id, array $field_ids, array &$context) {
+  public static function batch(array $action, $entity_id, $entity_list_id, array $field_ids, $selected, array &$context) {
     /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
     $instance = \Drupal::service('plugin.manager.exo_list_action')->createInstance($action['id'], $action['settings']);
     /** @var \Drupal\exo_list_builder\EntityListInterface $entity_list */
@@ -126,7 +126,7 @@ class ExoListActionManager extends DefaultPluginManager implements ExoListAction
     // Override the entity fields.
     $fields = array_intersect_key($entity_list->getFields(), array_flip($field_ids));
     $entity_list->setFields($fields);
-    $instance->execute($entity_id, $entity_list, $context);
+    $instance->execute($entity_id, $entity_list, $selected, $context);
     if (!isset($context['results']['entity_list_id'])) {
       $context['results']['entity_list_id'] = $entity_list_id;
       $context['results']['entity_list_action'] = $action;
@@ -166,7 +166,10 @@ class ExoListActionManager extends DefaultPluginManager implements ExoListAction
     }
     else {
       $error_operation = reset($operations);
-      $message = t('An error occurred while processing %error_operation with arguments: @arguments', array('%error_operation' => $error_operation[0], '@arguments' => print_r($error_operation[1], TRUE)));
+      $message = t('An error occurred while processing %error_operation with arguments: @arguments', [
+        '%error_operation' => $error_operation[0],
+        '@arguments' => print_r($error_operation[1], TRUE),
+      ]);
       \Drupal::messenger()->addError($message);
     }
   }

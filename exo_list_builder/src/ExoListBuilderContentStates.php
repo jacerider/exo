@@ -86,7 +86,7 @@ class ExoListBuilderContentStates extends ExoListBuilderContent implements ExoLi
    * @return \Drupal\Core\Entity\Query\QueryInterface
    *   The query.
    */
-  protected function getQuery() {
+  public function getQuery() {
     $query = parent::getQuery();
 
     if ($state = $this->getState()) {
