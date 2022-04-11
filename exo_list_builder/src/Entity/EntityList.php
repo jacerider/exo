@@ -277,7 +277,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       if (!empty($options['query']['exo'])) {
         $options['query']['exo'] = $this->optionsEncode($options['query']['exo']);
       }
-      return Url::fromRoute('exo_list_builder.' . $this->id(), [], $options);
+      return Url::fromRoute($this->getRouteName(), [], $options);
     }
     return parent::toUrl($rel, $options);
   }
