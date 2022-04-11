@@ -1316,9 +1316,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   protected function buildFormFilterOverview(array $form, FormStateInterface $form_state) {
     $form = [];
-    if (empty($this->getExposedFilters())) {
-      return $form;
-    }
     $filter_values = $this->getFormFilterOverviewValues($form, $form_state);
     if ($filter_values) {
       $items = [];
@@ -1351,8 +1348,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   protected function getFormFilterOverviewValues(array $form, FormStateInterface $form_state) {
     $filter_values = $this->getOption('filter');
-    $filters = $this->getFilters();
-
+    $filters = $this->getExposedFilters();
     if (!$this->isModified()) {
       foreach ($filters as $field_id => $field) {
         if (!isset($filter_values[$field_id]) && !empty($field['filter']['settings']['default'])) {
