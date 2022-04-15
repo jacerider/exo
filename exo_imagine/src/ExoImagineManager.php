@@ -108,6 +108,9 @@ class ExoImagineManager {
       'mime' => '',
       'cache_tags' => [],
     ];
+    if (!file_exists($image_uri)) {
+      return $definition;
+    }
     if ($width || $height) {
       $webp = $this->supportsWebP();
       $imagine_style = $this->getImagineStyle($width, $height, $unique);
@@ -178,6 +181,9 @@ class ExoImagineManager {
         $webp = $this->supportsWebP();
         $specs = $this->getPreviewSpecs($width, $height, $unique);
         $image_uri = $file->getFileUri();
+        if (!file_exists($image_uri)) {
+          return $definition;
+        }
         $imagine_style = $this->getImagineStyle($specs['width'], $specs['height'], $specs['unique'], $specs['quality']);
         if ($record_usage) {
           $imagine_style->setLastUsedTimestamp();
