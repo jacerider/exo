@@ -185,4 +185,38 @@ final class ExoInterval {
     return $this->add($this->floor($date));
   }
 
+  /**
+   * Decreases time to lower boundry.
+   *
+   * @param \Drupal\Core\Datetime\DrupalDateTime $date
+   *   The date.
+   *
+   * @return \Drupal\Core\Datetime\DrupalDateTime
+   *   The new date.
+   */
+  public function timeFloor(DrupalDateTime $date) : DrupalDateTime {
+    /** @var \Drupal\Core\Datetime\DrupalDateTime $new_date */
+    $new_date = clone $date;
+    $offset = $new_date->getOffset();
+    $new_date->setTime($offset ? $offset / 60 / 60 * -1 : 0, 0, 0);
+    return $new_date;
+  }
+
+  /**
+   * Increases time to upper boundry.
+   *
+   * @param \Drupal\Core\Datetime\DrupalDateTime $date
+   *   The date.
+   *
+   * @return \Drupal\Core\Datetime\DrupalDateTime
+   *   The new date.
+   */
+  public function timeCeil(DrupalDateTime $date) : DrupalDateTime {
+    /** @var \Drupal\Core\Datetime\DrupalDateTime $new_date */
+    $new_date = $this->timeFloor($date);
+    $new_date->modify('+1 day');
+    $new_date->modify('-1 second');
+    return $new_date;
+  }
+
 }
