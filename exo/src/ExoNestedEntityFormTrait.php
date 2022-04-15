@@ -4,6 +4,7 @@ namespace Drupal\exo;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\EntityFormInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
@@ -55,7 +56,12 @@ trait ExoNestedEntityFormTrait {
     if ($bundle_key = $entity_type->getKey('bundle')) {
       $data[$bundle_key] = $bundle_id;
     }
-    $entity = $this->getEntityTypeManager()->getStorage($entity_type_id)->create($data);
+    if ($data instanceof EntityInterface) {
+      $entity = $data;
+    }
+    else {
+      $entity = $this->getEntityTypeManager()->getStorage($entity_type_id)->create($data);
+    }
     $this->innerForms[$key] = $this->getEntityTypeManager()->getFormObject($entity->getEntityTypeId(), $form_handler)->setEntity($entity);
     $this->innerForms[$key]->innerFormKey = $key;
     $this->innerForms[$key]->innerFormParents = $parents;
@@ -81,7 +87,6 @@ trait ExoNestedEntityFormTrait {
     $inner_form_state = static::createInnerFormState($entity_form, $form_state);
     $inner_form = $entity_form->buildForm($inner_form, $inner_form_state);
     $inner_form['#type'] = 'container';
-    // $inner_form['#theme_wrappers'] = \Drupal::service('element_info')->getInfoProperty('container', '#theme_wrappers', []);
     if (!isset($complete_form['#process'])) {
       $complete_form['#process'] = [];
     }
@@ -206,6 +211,11 @@ trait ExoNestedEntityFormTrait {
       $form_submitter->doSubmitForm($form, $inner_form_state);
       $form_state->setRebuild($inner_form_state->isRebuilding());
       $inner_form_state->setSubmitHandlers([]);
+
+      // Merge in user input changes as submit handler may have altered them.
+      $user_input = $form_state->getUserInput();
+      NestedArray::setValue($user_input, $trigger['#inner_form_parents'], NestedArray::getValue($inner_form_state->getUserInput(), $trigger['#inner_form_parents']) ?? []);
+      $form_state->setUserInput($user_input);
     }
   }
 
@@ -266,8 +276,6 @@ trait ExoNestedEntityFormTrait {
     if ($complete_form = $form_state->getCompleteForm()) {
       $inner_form_state->setCompleteForm($complete_form);
     }
-    // $values = $form_state->getValue($parents, []) + $form_state->getValues();
-    // $inner_form_state->setValues($values);
     $inner_form_state->setValues($form_state->getValues() ? $form_state->getValues() : []);
     $inner_form_state->setUserInput($form_state->getUserInput() ? $form_state->getUserInput() : []);
     $inner_form_state->setRebuild($form_state->isRebuilding());
@@ -275,13 +283,10 @@ trait ExoNestedEntityFormTrait {
     $inner_form_state->setTriggeringElement($form_state->getTriggeringElement());
     $inner_form_state->setLimitValidationErrors($form_state->getLimitValidationErrors());
 
-    $storage = $form_state->getStorage();
-    $inline_storage = $inner_form_state->getStorage();
-
-    $field_storage = isset($storage['field_storage']['#parents']) ? $storage['field_storage']['#parents'] : [];
-    $inner_field_storage = isset($inline_storage['field_storage']['#parents']) ? $inline_storage['field_storage']['#parents'] : [];
-    $form_state->set('field_storage', ['#parents' => $field_storage + $inner_field_storage]);
-    $inner_form_state->set('field_storage', ['#parents' => $field_storage + $inner_field_storage]);
+    $field_storage_parents_path = ['field_storage', '#parents'];
+    $field_storage_parents = ($inner_form_state->get($field_storage_parents_path) ?? []) + ($form_state->get($field_storage_parents_path) ?? []);
+    $form_state->set($field_storage_parents_path, $field_storage_parents);
+    $inner_form_state->set($field_storage_parents_path, $field_storage_parents);
     $inner_form_state->set('inner_form_parents', $parents);
     $inner_form_state->set('inner_form_key', $key);
 
