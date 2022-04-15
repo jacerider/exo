@@ -277,6 +277,11 @@ class SiteSettingsGeneralForm extends FormBase {
       $form_submitter->doSubmitForm($form, $inner_form_state);
       $form_state->setRebuild($inner_form_state->isRebuilding());
       $inner_form_state->setSubmitHandlers([]);
+
+      // Merge in user input changes as submit handler may have altered them.
+      $user_input = $form_state->getUserInput();
+      NestedArray::setValue($user_input, [$key], $inner_form_state->getUserInput()[$key] ?? []);
+      $form_state->setUserInput($user_input);
     }
   }
 
@@ -333,25 +338,23 @@ class SiteSettingsGeneralForm extends FormBase {
     if ($complete_form = $form_state->getCompleteForm()) {
       $inner_form_state->setCompleteForm($complete_form);
     }
-    $inner_form_state->setValues($form_state->getValues() ? $form_state->getValues() : []);
-    $inner_form_state->setUserInput($form_state->getUserInput() ? $form_state->getUserInput() : []);
+
+    $inner_form_state->setValues($form_state->getValues() ?? []);
+    $inner_form_state->setUserInput($form_state->getUserInput() ?? []);
     $inner_form_state->setRebuild($form_state->isRebuilding());
     $inner_form_state->setRebuildInfo($form_state->getRebuildInfo());
     $inner_form_state->setTriggeringElement($form_state->getTriggeringElement());
+    $inner_form_state->setLimitValidationErrors($form_state->getLimitValidationErrors());
 
-    $storage = $form_state->getStorage();
-    $inline_storage = $inner_form_state->getStorage();
-
-    $field_storage = isset($storage['field_storage']['#parents']) ? $storage['field_storage']['#parents'] : [];
-    $inner_field_storage = isset($inline_storage['field_storage']['#parents']) ? $inline_storage['field_storage']['#parents'] : [];
-    $form_state->set('field_storage', ['#parents' => $field_storage + $inner_field_storage]);
-    $inner_form_state->set('field_storage', ['#parents' => $field_storage + $inner_field_storage]);
+    $field_storage_parents_path = ['field_storage', '#parents'];
+    $field_storage_parents = ($inner_form_state->get($field_storage_parents_path) ?? []) + ($form_state->get($field_storage_parents_path) ?? []);
+    $form_state->set($field_storage_parents_path, $field_storage_parents);
+    $inner_form_state->set($field_storage_parents_path, $field_storage_parents);
     $inner_form_state->set('inner_form_key', $key);
 
     // Inline entity form support.
-    if ($inner_form_state->get('inline_entity_form')) {
-      $form_state->set('inline_entity_form', NestedArray::mergeDeep($form_state->get('inline_entity_form') ?? [], $inner_form_state->get('inline_entity_form')));
-    }
+    $inner_form_state->set('inline_entity_form', NestedArray::mergeDeep($inner_form_state->get('inline_entity_form') ?? [], $form_state->get('inline_entity_form') ?? []));
+    $form_state->set('inline_entity_form', $inner_form_state->get('inline_entity_form'));
 
     return $inner_form_state;
   }
