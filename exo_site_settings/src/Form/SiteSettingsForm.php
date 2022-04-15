@@ -2,7 +2,6 @@
 
 namespace Drupal\exo_site_settings\Form;
 
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\exo_site_settings\Event\SiteSettingsConfigCloneEvent;
