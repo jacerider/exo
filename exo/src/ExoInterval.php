@@ -194,7 +194,7 @@ final class ExoInterval {
    * @return \Drupal\Core\Datetime\DrupalDateTime
    *   The new date.
    */
-  public function timeFloor(DrupalDateTime $date) : DrupalDateTime {
+  public static function timeFloor(DrupalDateTime $date) : DrupalDateTime {
     /** @var \Drupal\Core\Datetime\DrupalDateTime $new_date */
     $new_date = clone $date;
     $offset = $new_date->getOffset();
@@ -211,9 +211,9 @@ final class ExoInterval {
    * @return \Drupal\Core\Datetime\DrupalDateTime
    *   The new date.
    */
-  public function timeCeil(DrupalDateTime $date) : DrupalDateTime {
+  public static function timeCeil(DrupalDateTime $date) : DrupalDateTime {
     /** @var \Drupal\Core\Datetime\DrupalDateTime $new_date */
-    $new_date = $this->timeFloor($date);
+    $new_date = static::timeFloor($date);
     $new_date->modify('+1 day');
     $new_date->modify('-1 second');
     return $new_date;
