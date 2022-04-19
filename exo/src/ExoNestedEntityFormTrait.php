@@ -232,7 +232,10 @@ trait ExoNestedEntityFormTrait {
       // $inner_form_state->setTemporaryValue('entity_validated', FALSE);
       // Pass through both the form elements validation and the form object
       // validation.
-      $entity_form->validateForm($form, $inner_form_state);
+
+      // Build Entity.
+      $entity_form->setEntity($entity_form->buildEntity($form, $inner_form_state));
+
       $form_validator->validateForm($entity_form->getFormId(), $form, $inner_form_state);
       foreach ($inner_form_state->getErrors() as $error_element_path => $error) {
         $form_state->setErrorByName($error_element_path, $error);
@@ -261,6 +264,19 @@ trait ExoNestedEntityFormTrait {
   }
 
   /**
+   * Get inner form entity.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface|null
+   *   The entity if saved built.
+   */
+  protected function getInnerEntity(array $form, FormStateInterface $form_state) {
+    if ($entity_form = $this->getInnerForm($form['#parents'])) {
+      return $entity_form->getEntity();
+    }
+    return NULL;
+  }
+
+  /**
    * Get an inner form state.
    *
    * Before returning the innerFormState object, we need to set the
@@ -282,11 +298,7 @@ trait ExoNestedEntityFormTrait {
     $inner_form_state->setRebuildInfo($form_state->getRebuildInfo());
     $inner_form_state->setTriggeringElement($form_state->getTriggeringElement());
     $inner_form_state->setLimitValidationErrors($form_state->getLimitValidationErrors());
-
-    $field_storage_parents_path = ['field_storage', '#parents'];
-    $field_storage_parents = ($inner_form_state->get($field_storage_parents_path) ?? []) + ($form_state->get($field_storage_parents_path) ?? []);
-    $form_state->set($field_storage_parents_path, $field_storage_parents);
-    $inner_form_state->set($field_storage_parents_path, $field_storage_parents);
+    $inner_form_state->set('field_storage', $inner_form_state->get('field_storage') ?? $form_state->get('field_storage'));
     $inner_form_state->set('inner_form_parents', $parents);
     $inner_form_state->set('inner_form_key', $key);
 

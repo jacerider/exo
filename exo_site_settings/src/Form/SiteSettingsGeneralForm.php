@@ -345,11 +345,7 @@ class SiteSettingsGeneralForm extends FormBase {
     $inner_form_state->setRebuildInfo($form_state->getRebuildInfo());
     $inner_form_state->setTriggeringElement($form_state->getTriggeringElement());
     $inner_form_state->setLimitValidationErrors($form_state->getLimitValidationErrors());
-
-    $field_storage_parents_path = ['field_storage', '#parents'];
-    $field_storage_parents = ($inner_form_state->get($field_storage_parents_path) ?? []) + ($form_state->get($field_storage_parents_path) ?? []);
-    $form_state->set($field_storage_parents_path, $field_storage_parents);
-    $inner_form_state->set($field_storage_parents_path, $field_storage_parents);
+    $inner_form_state->set('field_storage', $inner_form_state->get('field_storage') ?? $form_state->get('field_storage'));
     $inner_form_state->set('inner_form_key', $key);
 
     // Inline entity form support.
