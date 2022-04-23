@@ -925,6 +925,30 @@
         }
       }
 
+      .field--type-field-signature {
+
+        .signature {
+          background-color: theme-val($theme, input-bg-color, true);
+          border-color: theme-val($theme, border-color, true);
+          border-style: theme-val($theme, border-style);
+          border-top-width: theme-val($theme, input-border-top-width);
+          border-right-width: theme-val($theme, input-border-right-width);
+          border-bottom-width: theme-val($theme, input-border-top-width);
+          border-left-width: theme-val($theme, input-border-left-width);
+          border-radius: theme-val($theme, form-border-radius);
+
+          canvas {
+            border-color: theme-val($theme, border-color, true);
+            border-style: theme-val($theme, border-style);
+            border-top-width: theme-val($theme, input-border-top-width);
+            border-right-width: theme-val($theme, input-border-right-width);
+            border-left-width: theme-val($theme, input-border-left-width);
+            border-bottom: 3px dashed theme-val($theme, border-color, true);
+            border-radius: $global-radius;
+          }
+        }
+      }
+
       ////////////////////////////////////////////////////////////////////////////
       /// Linkit Input
       ////////////////////////////////////////////////////////////////////////////

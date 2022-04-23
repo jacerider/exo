@@ -1,4 +1,5 @@
 .exo-form .field--type-field-signature {
+  min-height: 0;
 
   .exo-form-input {
 
@@ -30,20 +31,52 @@
   }
 
   .signature-inner {
-    border: 0;
+    @include flex;
+    @include flex-align(left, middle);
+    position: relative;
+    flex-direction: column;
+    border: 0 !important;
     line-height: 1;
-    // padding-bottom: 0;
+    padding: $global-padding;
+    background: none;
 
     canvas {
       display: inline-block;
       margin: 0;
       padding: 0;
     }
+
+    .clear-signature-button {
+      display: block;
+    }
+
+    &:before {
+      width: 90% !important;
+    }
+
+    .button {
+      display: block;
+    }
   }
 
   .signature {
     border-radius: $global-radius;
     background: transparent;
+    min-height: 0;
+
+    .field-input {
+
+      .field-prefix {
+        @include flex;
+        @include flex-align(center, middle);
+        position: static;
+        background-color: transparent;
+      }
+    }
+  }
+
+  .clear-signature-button {
+    margin-top: $global-margin / 2;
   }
 
   .exo-form-container-signature-data {
@@ -53,4 +86,31 @@
       display: none !important;
     }
   }
+
+  .exo-form-element-float-inside {
+    @include label-float-inside-wrapper-active;
+  }
 }
+
+// .exo-form-element-float-inside {
+
+//   &.has-label {
+//     @include placeholder-hide;
+//   }
+
+//   &.exo-form-select {
+//     @include label-float-inside-wrapper;
+
+//     > .field-label {
+//       right: $input-height - rem-calc(10);
+//     }
+
+//     &.value,
+//     &.force-active {
+
+//       > .field-label {
+//         right: calc(-40% + #{$input-height} + #{rem-calc(10)});
+//       }
+//     }
+//   }
+// }
