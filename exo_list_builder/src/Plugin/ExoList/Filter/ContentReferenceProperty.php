@@ -53,7 +53,7 @@ class ContentReferenceProperty extends ContentProperty {
   /**
    * Get referenced available field values query.
    */
-  protected function getReferencedAvailableFieldValuesQuery(FieldConfigInterface $field_definition, $property, $condition = NULL) {
+  protected function getReferencedAvailableFieldValuesQuery(FieldDefinitionInterface $field_definition, $property, $condition = NULL) {
     $query = NULL;
     /** @var \Drupal\Core\Entity\EntityFieldManager $entity_field_manager */
     $entity_field_manager = \Drupal::service('entity_field.manager');
