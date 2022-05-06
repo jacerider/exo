@@ -467,7 +467,6 @@ class EntityListForm extends EntityForm {
           '#return_value' => $field_id,
           '#parents' => [
             'sort',
-            $field_id,
           ],
         ];
       }
@@ -766,13 +765,6 @@ class EntityListForm extends EntityForm {
       }
     }
     $form_state->setValue('fields', $fields);
-
-    $sort = array_filter($form_state->getValue('sort', []));
-    $sort = !empty($sort) ? reset($sort) : '';
-    if ($sort && !isset($fields[$sort])) {
-      $sort = '';
-    }
-    $form_state->setValue('sort', $sort);
 
     $actions = $form_state->getValue('actions');
     foreach ($actions as $action_id => &$action) {
