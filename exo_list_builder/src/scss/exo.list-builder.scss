@@ -196,7 +196,6 @@
   }
 
   .exo-list-total {
-    padding-left: $global-padding;
     margin-left: auto;
   }
 
@@ -247,9 +246,12 @@
     .dropbutton-action {
 
       a {
-        color: inherit !important;
         font-size: rem-calc(11) !important;
         font-weight: 400 !important;
+
+        &:not(:hover) {
+          color: inherit !important;
+        }
       }
 
       &:first-child {

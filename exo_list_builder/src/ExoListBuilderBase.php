@@ -707,8 +707,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         }
       }
       if ($subform = $this->buildFormSort($build)) {
-        $form['header']['second']['sort'] = $subform + [
-          '#weight' => 100,
+        $build['header']['second']['sort'] = $subform + [
+          '#weight' => -10,
         ];
       }
     }
