@@ -389,6 +389,10 @@
         padding-top: 0;
         padding-bottom: 0;
       }
+
+      + .exo-list-total {
+        margin-left: $global-margin;
+      }
     }
   }
 
