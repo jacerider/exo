@@ -559,7 +559,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       ];
     }
 
-    if ($this->isForm()) {
+    if ($entity_list->getFormat() === 'table' || $this->isForm()) {
       $build = $this->formBuilder->getForm($this);
     }
     else {
