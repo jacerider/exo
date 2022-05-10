@@ -234,7 +234,10 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    */
   protected $settingDefaults = [
     'operations_status' => TRUE,
+    'limit_status' => TRUE,
+    'result_status' => TRUE,
     'block_status' => FALSE,
+    'first_page_only_status' => FALSE,
   ];
 
   /**
@@ -600,7 +603,9 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    */
   public function getHandler() {
     if (!isset($this->entityHandler)) {
-      $this->entityHandler = $this->entityTypeManager()->getHandler($this->getTargetEntityTypeId(), 'exo_list_builder');
+      $definition = $this->entityTypeManager()->getDefinition($this->getTargetEntityTypeId());
+      $class = $definition->getHandlerClass('exo_list_builder');
+      $this->entityHandler = $this->entityTypeManager()->createHandlerInstance($class, $definition);
       $this->entityHandler->setEntityList($this);
     }
     return $this->entityHandler;

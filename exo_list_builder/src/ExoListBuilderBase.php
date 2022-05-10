@@ -252,6 +252,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   public function setEntityList(EntityListInterface $entity_list) {
     $this->entityList = $entity_list;
+    $this->buildOptions();
   }
 
   /**
@@ -301,7 +302,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * @return mixed
    *   The query options.
    */
-  protected function getOption($key, $default_value = NULL) {
+  public function getOption($key, $default_value = NULL) {
     $exists = NULL;
     $options = $this->getOptions();
     if (!empty($options)) {
@@ -389,8 +390,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $query = $this->getQuery();
 
     // Only add the pager if a limit is specified.
-    $limit = $this->getOption('limit');
-    if ($limit) {
+    if ($limit = $this->getOption('limit')) {
       $query->pager($limit);
     }
 
@@ -477,6 +477,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         }
       }
     }
+
     return $query;
   }
 
@@ -547,7 +548,16 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * {@inheritdoc}
    */
   public function render() {
-    $this->buildOptions();
+    $entity_list = $this->getEntityList();
+
+    if ($entity_list->getSetting('first_page_only_status') && $this->getOption('page') > 0) {
+      return [
+        '#cache' => [
+          'contexts' => $this->getCacheContexts(),
+          'tags' => $this->getCacheTags(),
+        ],
+      ];
+    }
 
     if ($this->isForm()) {
       $build = $this->formBuilder->getForm($this);
@@ -555,6 +565,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     else {
       $build = [
         '#type' => 'container',
+        '#attributes' => [
+          'class' => ['exo-reset'],
+        ],
       ];
       $build = $this->buildList($build);
     }
@@ -662,8 +675,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         ],
       ],
       '#cache' => [
-        'contexts' => array_merge($entity_list->getEntityType()->getListCacheContexts(), $this->entityType->getListCacheContexts()),
-        'tags' => array_merge($entity_list->getEntityType()->getListCacheTags(), $this->entityType->getListCacheTags()),
+        'contexts' => $this->getCacheContexts(),
+        'tags' => $this->getCacheTags(),
       ],
     ];
     switch ($format) {
@@ -745,6 +758,26 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
 
     return $build;
+  }
+
+  /**
+   * Get cache contexts.
+   *
+   * @return array
+   *   The cache contexts.
+   */
+  protected function getCacheContexts() {
+    return array_merge($this->getEntityList()->getEntityType()->getListCacheContexts(), $this->entityType->getListCacheContexts(), ['url.query_args']);
+  }
+
+  /**
+   * Get cache tags.
+   *
+   * @return array
+   *   The cache tags.
+   */
+  protected function getCacheTags() {
+    return array_merge($this->getEntityList()->getEntityType()->getListCacheTags(), $this->entityType->getListCacheTags());
   }
 
   /**
@@ -994,6 +1027,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * Build form pager.
    */
   protected function buildFormPager(array $form) {
+    $entity_list = $this->getEntityList();
     $form = [
       '#type' => 'html_tag',
       '#tag' => 'div',
@@ -1002,7 +1036,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $limit = $this->getOption('limit');
     $total = $this->getTotal();
 
-    if ($limit) {
+    if ($limit && $entity_list->getSetting('limit_status')) {
       $form['limit'] = [
         '#type' => 'html_tag',
         '#tag' => 'div',
@@ -1036,9 +1070,11 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
     }
 
-    $form['total']['#markup'] = '<div class="exo-list-total">' . $this->t('@total items', [
-      '@total' => $total,
-    ]) . '</div>';
+    if ($entity_list->getSetting('result_status')) {
+      $form['total']['#markup'] = '<div class="exo-list-total">' . $this->t('@total items', [
+        '@total' => $total,
+      ]) . '</div>';
+    }
 
     if ($limit) {
       $form['pager_header'] = $form['pager_footer'] = [
@@ -1056,8 +1092,11 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
               'preset' => $pagerer_header,
             ],
           ];
+          if ($pagerer_header === '_hide') {
+            unset($form['pager_header']);
+          }
         }
-        if ($pagerer_footer) {
+        if ($pagerer_footer && $pagerer_footer !== '_hide') {
           $form['pager_footer'] = [
             '#type' => 'pager',
             '#theme' => 'pagerer',
@@ -1065,6 +1104,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
               'preset' => $pagerer_footer,
             ],
           ];
+          if ($pagerer_footer === '_hide') {
+            unset($form['pager_footer']);
+          }
         }
       }
     }
@@ -1644,16 +1686,17 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   public function getFilters() {
     if (!isset($this->filters)) {
-      $this->filters = $this->getEntityList()->getFields();
-      $this->filters = array_filter($this->filters, function ($field) {
+      $filters = $this->getEntityList()->getFields();
+      $filters = array_filter($filters, function ($field) {
         return !empty($field['filter']['type']);
       });
-      foreach ($this->filters as &$field) {
+      foreach ($filters as &$field) {
         $field['filter']['instance'] = NULL;
         if ($this->filterManager->hasDefinition($field['filter']['type'])) {
           $field['filter']['instance'] = $this->filterManager->createInstance($field['filter']['type'], $field['filter']['settings']);
         }
       }
+      $this->filters = $filters;
     }
     return $this->filters;
   }
@@ -1666,13 +1709,14 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   protected function getExposedFilters() {
     if (!isset($this->exposedFilters)) {
-      $this->exposedFilters = [];
+      $filters = [];
       foreach ($this->getFilters() as $field_id => $field) {
         if (empty($field['filter']['settings']['expose']) && empty($field['filter']['settings']['expose_block'])) {
           continue;
         }
-        $this->exposedFilters[$field_id] = $field;
+        $filters[$field_id] = $field;
       }
+      $this->exposedFilters = $filters;
     }
     return $this->exposedFilters;
   }

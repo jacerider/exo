@@ -209,17 +209,37 @@ class EntityListForm extends EntityForm {
     ];
 
     $states = [
-      'invisible' => [
-        ':input[name="limit_all"]' => ['checked' => TRUE],
+      'visible' => [
+        ':input[name="limit_all"]' => ['checked' => FALSE],
       ],
     ];
+
+    $form['pager']['limit_status'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Expose Limit Selection'),
+      '#description' => $this->t('If checked, the user will be able to change the number of results displayed.'),
+      '#default_value' => $exo_entity_list->getSetting('limit_status'),
+      '#states' => $states,
+      '#parents' => ['settings', 'limit_status'],
+    ];
+    $limit_range_states = $states;
+    $limit_range_states['visible'][':input[name="settings[limit_status]"]'] = ['checked' => FALSE];
+    $form['pager']['limit_range'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Limit'),
+      '#default_value' => $exo_entity_list->getLimit(),
+      '#states' => $limit_range_states,
+    ];
+
+    $limit_options_states = $states;
+    $limit_options_states['visible'][':input[name="settings[limit_status]"]'] = ['checked' => TRUE];
     $form['pager']['limit_options'] = [
       '#type' => 'table',
       '#header' => [
         'default' => $this->t('Default'),
         'amount' => $this->t('Amount'),
       ],
-      '#states' => $states,
+      '#states' => $limit_options_states,
     ];
     $delta = 0;
     foreach ($exo_entity_list->getLimitOptions() as $int) {
@@ -245,7 +265,10 @@ class EntityListForm extends EntityForm {
       $default_label = (string) $this->t('Default:');
       $replace_label = (string) $this->t('Replace with:');
       $options = [
-        $default_label => ['' => $this->t('No - use Drupal core pager')],
+        $default_label => [
+          '' => $this->t('Drupal core pager'),
+          '_hide' => $this->t('Hide pager'),
+        ],
         $replace_label => $pagerer_preset_list->listOptions(),
       ];
       $form['pager']['pagerer_header'] = [
@@ -283,11 +306,25 @@ class EntityListForm extends EntityForm {
       '#default_value' => $exo_entity_list->showOperations(),
     ];
 
+    $form['settings']['result_status'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Expose Result Information'),
+      '#description' => $this->t('If checked, the user will be able to see how many results are available.'),
+      '#default_value' => $exo_entity_list->getSetting('result_status'),
+    ];
+
     $form['settings']['block_status'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Expose filters in block'),
+      '#title' => $this->t('Expose Filters in Block'),
       '#description' => $this->t('If checked, a block will be made available that will show the list filters.'),
       '#default_value' => $exo_entity_list->getSetting('block_status'),
+    ];
+
+    $form['settings']['first_page_only_status'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Only Show on First Page'),
+      '#description' => $this->t('Useful when multiple lists are on the same page and you only want to show this list on the first page.'),
+      '#default_value' => $exo_entity_list->getSetting('first_page_only_status'),
     ];
 
     $form['fields_container'] = [
@@ -709,6 +746,9 @@ class EntityListForm extends EntityForm {
 
     if ($form_state->getValue('limit_all')) {
       $form_state->setValue('limit', 0);
+    }
+    elseif (!$form_state->getValue('limit_status')) {
+      $form_state->setValue('limit', $form_state->getValue('limit_range'));
     }
     else {
       $limit = (int) $form_state->getValue('limit');

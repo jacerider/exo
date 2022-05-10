@@ -78,6 +78,7 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
   public function propertyInfo() {
     $properties = [
       'render' => $this->t('The entity list renderable.'),
+      'page' => $this->t('The entity list page.'),
     ];
     return $properties;
   }
@@ -88,13 +89,22 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
   public function viewValue(ContentEntityInterface $entity, array $contexts) {
     $value = [];
     $field = $this->getFieldDefinition();
+    $render = [];
+    /** @var \Drupal\exo_list_builder\EntityListInterface $entity */
     $entity = $this->entityTypeManager->getStorage('exo_entity_list')->load($field->getAdditionalValue('exo_entity_list_id'));
     if ($entity) {
-      $render = $this->entityTypeManager->getViewBuilder($entity->getEntityTypeId())->view($entity);
       if ($this->isLayoutBuilder($contexts)) {
+        $render = $this->entityTypeManager->getViewBuilder($entity->getEntityTypeId())->view($entity);
         $render = $this->getFormAsPlaceholder($render);
       }
+      else {
+        $render = [
+          '#type' => 'exo_entity_list',
+          '#entity_list' => $entity,
+        ];
+      }
       $value['render'] = $render;
+      $value['page'] = $entity->getHandler()->getOption('page');
     }
     return $value;
   }

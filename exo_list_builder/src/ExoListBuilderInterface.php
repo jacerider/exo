@@ -30,6 +30,14 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
   public function setEntityList(EntityListInterface $entity_list);
 
   /**
+   * Get a query option.
+   *
+   * @return mixed
+   *   The query options.
+   */
+  public function getOption($key, $default_value = NULL);
+
+  /**
    * Load available entity fields.
    *
    * @return array

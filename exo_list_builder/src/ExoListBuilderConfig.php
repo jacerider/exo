@@ -22,32 +22,29 @@ class ExoListBuilderConfig extends ExoListBuilderBase {
    * {@inheritDoc}
    */
   protected function discoverFields() {
-    if (!isset($this->fields)) {
-      $entity_list = $this->getEntityList();
-      $fields = [];
-      $entity_type = $entity_list->getTargetEntityType();
-      if ($entity_type instanceof ConfigEntityTypeInterface) {
-        $properties = $entity_type->getPropertiesToExport();
-        foreach ($properties as $property) {
-          if (substr($property, 0, 1) === '_') {
-            continue;
-          }
-          if (in_array($property, [
-            'third_party_settings',
-            'dependencies',
-          ])) {
-            continue;
-          }
-          $fields[$property] = [
-            'label' => ucwords(str_replace('_', ' ', $property)),
-            'type' => 'config',
-            'sort_field' => $property,
-          ];
+    $entity_list = $this->getEntityList();
+    $fields = [];
+    $entity_type = $entity_list->getTargetEntityType();
+    if ($entity_type instanceof ConfigEntityTypeInterface) {
+      $properties = $entity_type->getPropertiesToExport();
+      foreach ($properties as $property) {
+        if (substr($property, 0, 1) === '_') {
+          continue;
         }
+        if (in_array($property, [
+          'third_party_settings',
+          'dependencies',
+        ])) {
+          continue;
+        }
+        $fields[$property] = [
+          'label' => ucwords(str_replace('_', ' ', $property)),
+          'type' => 'config',
+          'sort_field' => $property,
+        ];
       }
-      $this->fields = $fields;
     }
-    return $this->fields;
+    return $fields;
   }
 
   /**
