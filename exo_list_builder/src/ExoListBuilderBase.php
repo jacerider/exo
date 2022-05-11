@@ -195,35 +195,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * Allow builder to modify field list.
    */
   protected function alterFields(&$fields) {
-    if (isset($fields['_label'])) {
-      // Label field should not wrap in small tag by default.
-      $fields['_label']['view']['wrapper'] = '';
-      $fields['_label']['view']['sort_asc_label'] = '@label A-Z';
-      $fields['_label']['view']['sort_asc_label'] = '@label Z-A';
-      $fields['_label']['filter']['settings']['position'] = 'header';
-      $fields['_label']['filter']['settings']['match_operator'] = 'CONTAINS';
-    }
-    foreach ($fields as &$field) {
-      if (in_array($field['type'], ['boolean', 'image'])) {
-        // Fields of this type should not wrap in small tag by default.
-        $field['view']['wrapper'] = '';
-      }
-      if (in_array($field['type'], [
-        'created',
-        'changed',
-        'timestamp',
-        'datetime',
-      ])) {
-        // Fields of this type should not wrap in small tag by default.
-        $field['view']['sort_asc_label'] = '@label: Oldest';
-        $field['view']['sort_desc_label'] = '@label: Newest';
-      }
-      if (in_array($field['type'], ['string'])) {
-        // Fields of this type should not wrap in small tag by default.
-        $field['view']['sort_asc_label'] = '@label: A-Z';
-        $field['view']['sort_desc_label'] = '@label: Z-A';
-      }
-    }
   }
 
   /**

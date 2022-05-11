@@ -1,6 +1,9 @@
+uuid: 4abca593-fcfd-4382-a65a-a172eeb47af0
 langcode: en
 status: true
 dependencies: {  }
+_core:
+  default_config_hash: D7pUy5XnRfJvhXyru4E2fzKDG-LV6mpDqjB2f0gaUDI
 id: exo_entity_list
 label: 'eXo Entity List'
 target_entity_type: exo_entity_list
@@ -8,8 +11,14 @@ target_bundles_include:
   exo_entity_list: exo_entity_list
 target_bundles_exclude: {  }
 override: true
+format: table
 url: ''
 limit: 0
+limit_options:
+  - '10'
+  - '20'
+  - '50'
+  - '100'
 actions: {  }
 sort: _label
 fields:
@@ -19,16 +28,21 @@ fields:
       type: entity_label
       settings:
         entity_icon: '1'
+        entity_id: '1'
         link_label: '1'
       toggle: false
       show: true
       wrapper: ''
       sort: asc
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
     filter:
       type: entity_label
       settings:
         position: header
-        match_operator: STARTS_WITH
+        expose: '1'
+        match_operator: CONTAINS
+        expose_block: 0
     weight: -10
   target_entity_type:
     display_label: 'Entity Type'
@@ -40,11 +54,15 @@ fields:
       show: true
       wrapper: small
       sort: ''
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
     filter:
       type: config_property
       settings:
+        expose: '1'
         match_operator: CONTAINS
         select: '1'
+        expose_block: 0
         autocomplete: 0
     weight: -9
   target_bundles_include:
@@ -57,11 +75,15 @@ fields:
       show: true
       wrapper: small
       sort: ''
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
     filter:
       type: config_property
       settings:
+        expose: '1'
         match_operator: '='
         select: '1'
+        expose_block: 0
         autocomplete: 0
     weight: -8
   target_bundles_exclude:
@@ -74,6 +96,8 @@ fields:
       show: true
       wrapper: small
       sort: ''
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
     filter:
       type: ''
     weight: -7
@@ -87,7 +111,17 @@ fields:
       show: true
       wrapper: ''
       sort: asc
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
     filter:
       type: ''
     weight: -6
+settings:
+  limit_status: 1
+  pagerer_header: ''
+  pagerer_footer: ''
+  operations_status: 1
+  result_status: 1
+  block_status: 0
+  first_page_only_status: 0
 weight: 0

@@ -29,11 +29,7 @@ abstract class ExoListElementBase extends PluginBase implements ExoListElementIn
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
-    return [
-      'link' => FALSE,
-      'separator' => ', ',
-      'empty' => '-',
-    ];
+    return ExoListElementInterface::DEFAULTS;
   }
 
   /**

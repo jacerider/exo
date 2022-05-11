@@ -14,6 +14,15 @@ use Drupal\exo_list_builder\EntityListInterface;
 interface ExoListElementInterface extends PluginInspectionInterface, ConfigurableInterface {
 
   /**
+   * The default settings.
+   */
+  const DEFAULTS = [
+    'link' => FALSE,
+    'separator' => ', ',
+    'empty' => '-',
+  ];
+
+  /**
    * Build the configuration form.
    *
    * @param array $form

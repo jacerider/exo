@@ -4,8 +4,6 @@ namespace Drupal\exo_list_builder\Plugin;
 
 use Drupal\Component\Plugin\ConfigurableInterface;
 use Drupal\Component\Plugin\PluginInspectionInterface;
-use Drupal\Core\Condition\ConditionInterface;
-use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\exo_list_builder\EntityListInterface;
 
@@ -13,6 +11,18 @@ use Drupal\exo_list_builder\EntityListInterface;
  * Defines an interface for exo list filters.
  */
 interface ExoListFilterInterface extends PluginInspectionInterface, ConfigurableInterface {
+
+  /**
+   * The default settings.
+   */
+  const DEFAULTS = [
+    'default' => NULL,
+    'position' => NULL,
+    'expose' => TRUE,
+    'expose_block' => FALSE,
+    'multiple' => FALSE,
+    'multiple_join' => 'or',
+  ];
 
   /**
    * Gets default value for this plugin.

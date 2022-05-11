@@ -8,6 +8,9 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Url;
 use Drupal\exo_list_builder\EntityListInterface;
+use Drupal\exo_list_builder\Plugin\ExoListElementInterface;
+use Drupal\exo_list_builder\Plugin\ExoListFilterBase;
+use Drupal\exo_list_builder\Plugin\ExoListFilterInterface;
 
 /**
  * Defines the eXo Entity List entity.
@@ -206,8 +209,8 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       'show' => FALSE,
       'wrapper' => 'small',
       'sort' => NULL,
-      'sort_asc_label' => '',
-      'sort_desc_label' => '',
+      'sort_asc_label' => '@label: Up',
+      'sort_desc_label' => '@label: Down',
     ],
     'filter' => [
       'type' => '',
@@ -261,7 +264,10 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    *   The default field values.
    */
   public static function getFieldDefaults() {
-    return static::$fieldDefaults;
+    $defaults = static::$fieldDefaults;
+    $defaults['view']['settings'] += ExoListElementInterface::DEFAULTS;
+    $defaults['filter']['settings'] += ExoListFilterInterface::DEFAULTS;
+    return $defaults;
   }
 
   /**
@@ -525,8 +531,6 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       $fields = $this->getHandler()->loadFields();
       foreach ($fields as $field_id => &$field) {
         $defaults = static::getFieldDefaults();
-        $defaults['view']['sort_asc_label'] = '@label: Up';
-        $defaults['view']['sort_desc_label'] = '@label: Down';
         $field = NestedArray::mergeDeep($defaults, $field);
         $field['id'] = $field_id;
         $field['field_name'] = $field_id;
@@ -534,6 +538,8 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
           $field['display_label'] = $field['label'];
         }
       }
+      $fields = $this->alterAvailableFields($fields);
+      // Support field aliases.
       foreach ($fields as $field_id => &$field) {
         if (!empty($field['alias_field']) && isset($fields[$field['alias_field']])) {
           // Alias the field as if it were another field.
@@ -550,6 +556,46 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       $this->fieldDefinitions = $fields;
     }
     return $this->fieldDefinitions;
+  }
+
+  /**
+   * Allow builder to modify field list.
+   */
+  protected function alterAvailableFields($fields) {
+    // Set custom field default overrides.
+    if (isset($fields['_label'])) {
+      // Label field should not wrap in small tag by default.
+      $fields['_label']['view']['wrapper'] = '';
+      $fields['_label']['view']['sort_asc_label'] = '@label A-Z';
+      $fields['_label']['view']['sort_asc_label'] = '@label Z-A';
+      $fields['_label']['filter']['settings']['position'] = 'header';
+      $fields['_label']['filter']['settings']['match_operator'] = 'CONTAINS';
+    }
+    if (isset($fields['_view'])) {
+      $fields['_view']['view']['wrapper'] = '';
+    }
+    foreach ($fields as &$field) {
+      if (in_array($field['type'], ['boolean', 'image'])) {
+        // Fields of this type should not wrap in small tag by default.
+        $field['view']['wrapper'] = '';
+      }
+      if (in_array($field['type'], [
+        'created',
+        'changed',
+        'timestamp',
+        'datetime',
+      ])) {
+        // Fields of this type should not wrap in small tag by default.
+        $field['view']['sort_asc_label'] = '@label: Oldest';
+        $field['view']['sort_desc_label'] = '@label: Newest';
+      }
+      if (in_array($field['type'], ['string'])) {
+        // Fields of this type should not wrap in small tag by default.
+        $field['view']['sort_asc_label'] = '@label: A-Z';
+        $field['view']['sort_desc_label'] = '@label: Z-A';
+      }
+    }
+    return $fields;
   }
 
   /**

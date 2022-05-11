@@ -36,21 +36,14 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
-    return [
-      'default' => NULL,
-      'position' => NULL,
-      'expose' => TRUE,
-      'expose_block' => FALSE,
-      'multiple' => FALSE,
-      'multiple_join' => 'or',
-    ];
+    return ExoListFilterInterface::DEFAULTS;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getConfiguration() {
-    return $this->configuration;
+    return $this->configuration + $this->defaultConfiguration();
   }
 
   /**
