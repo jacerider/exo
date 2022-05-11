@@ -50,7 +50,7 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
    * {@inheritdoc}
    */
   public function setConfiguration(array $configuration) {
-    $this->configuration = $configuration + $this->defaultConfiguration();
+    $this->configuration = $configuration;
   }
 
   /**
@@ -160,14 +160,6 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       else {
         $form_state->unsetValue('default');
       }
-    }
-    $multiple = $form_state->getValue('multiple');
-    if (empty($multiple)) {
-      $form_state->unsetValue('multiple_join');
-    }
-    $position = $form_state->getValue('position');
-    if ($position === 'modal') {
-      $form_state->unsetValue('position');
     }
   }
 

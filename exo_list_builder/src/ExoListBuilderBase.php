@@ -562,6 +562,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     if (!Element::getVisibleChildren($build['header']['second'])) {
       $build['header']['second']['#access'] = FALSE;
     }
+    if (!Element::getVisibleChildren($build['header'])) {
+      $build['header']['#access'] = FALSE;
+    }
     if (!Element::getVisibleChildren($build['footer'])) {
       $build['footer']['#access'] = FALSE;
     }
@@ -701,30 +704,34 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
     $build[$this->entitiesKey]['#entities'] = $entities;
 
-    $pager = $this->buildFormPager($build);
-    $build['header']['second']['pager'] = $pager;
-    // Remove pages from header.
-    unset($build['header']['second']['pager']['pages']);
-    unset($build['header']['second']['pager']['pager_footer']);
+    if ($entities || $this->isFiltered()) {
+      $pager = $this->buildFormPager($build);
+      $build['header']['second']['pager'] = $pager;
+      // Remove pages from header.
+      unset($build['header']['second']['pager']['pages']);
+      unset($build['header']['second']['pager']['pager_footer']);
 
-    $build['footer']['pager'] = $pager;
-    // Remove limit from footer.
-    unset($build['footer']['pager']['limit']);
-    unset($build['footer']['pager']['pager_header']);
-
-    $found_ops = FALSE;
-    $entity_keys = Element::children($build['entities']);
-    foreach ($entity_keys as $id) {
-      if (!empty($build['entities'][$id]['operations']['data']['#links'])) {
-        $found_ops = TRUE;
-        break;
-      }
+      $build['footer']['pager'] = $pager;
+      // Remove limit from footer.
+      unset($build['footer']['pager']['limit']);
+      unset($build['footer']['pager']['pager_header']);
     }
 
-    if (!$found_ops) {
-      unset($build['entities']['#header']['operations']);
+    if ($entities) {
+      $found_ops = FALSE;
+      $entity_keys = Element::children($build[$this->entitiesKey]);
       foreach ($entity_keys as $id) {
-        unset($build['entities'][$id]['operations']);
+        if (!empty($build[$this->entitiesKey][$id]['operations']['data']['#links'])) {
+          $found_ops = TRUE;
+          break;
+        }
+      }
+
+      if (!$found_ops) {
+        unset($build[$this->entitiesKey]['#header']['operations']);
+        foreach ($entity_keys as $id) {
+          unset($build[$this->entitiesKey][$id]['operations']);
+        }
       }
     }
 
@@ -801,15 +808,17 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       $form[$this->entitiesKey] = $this->buildEmpty($form);
     }
 
-    // Filter overview.
-    $filter_overview = $this->buildFormFilterOverview($form, $form_state);
-    if (empty($form['header']['second']['batch'])) {
-      $form['header']['second']['filter_overview'] = [
-        '#weight' => -1000,
-      ] + $filter_overview;
-    }
-    else {
-      $form['header']['filter_overview'] = $filter_overview;
+    if ($entities || $this->isFiltered()) {
+      // Filter overview.
+      $filter_overview = $this->buildFormFilterOverview($form, $form_state);
+      if (empty($form['header']['second']['batch'])) {
+        $form['header']['second']['filter_overview'] = [
+          '#weight' => -1000,
+        ] + $filter_overview;
+      }
+      else {
+        $form['header']['filter_overview'] = $filter_overview;
+      }
     }
 
     return $form;
