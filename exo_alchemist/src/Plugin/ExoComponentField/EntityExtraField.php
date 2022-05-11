@@ -8,7 +8,6 @@ use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Render\Element;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldComputedBase;
@@ -64,6 +63,9 @@ class EntityExtraField extends ExoComponentFieldComputedBase implements ContextA
     $this->entityFieldManager = $entity_field_manager;
     // Get field name from the plugin ID.
     list (, , , $field_name) = explode(static::DERIVATIVE_SEPARATOR, $plugin_id, 4);
+    if (empty($field_name)) {
+      list (, , $field_name) = explode(static::DERIVATIVE_SEPARATOR, $plugin_id, 3);
+    }
     assert(!empty($field_name));
     $this->fieldName = $field_name;
 
