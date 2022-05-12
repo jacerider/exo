@@ -589,6 +589,9 @@ function exo_alchemist_entity_view(array &$build, EntityInterface $entity, Entit
         $component_ids = array_filter(Element::children($region), function ($element_id) use ($region) {
           return !empty($region[$element_id]['#exo_component']);
         });
+        if (empty($component_ids)) {
+          continue;
+        }
         uasort($region, 'Drupal\Component\Utility\SortArray::sortByWeightProperty');
         if ($position === 'first') {
           $component_id = reset($component_ids);
