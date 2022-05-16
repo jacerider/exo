@@ -548,15 +548,21 @@ class ExoLayoutBuilder extends LayoutBuilder {
   }
 
   /**
-   * {@inheritdoc}
+   * Returns all populated contexts, both global and section-storage-specific.
+   *
+   * @param \Drupal\layout_builder\SectionStorageInterface $section_storage
+   *   The section storage.
+   *
+   * @return \Drupal\Core\Plugin\Context\ContextInterface[]
+   *   The array of context objects.
    */
-  protected function getAvailableContexts(SectionStorageInterface $section_storage) {
+  protected function getPopulatedContexts(SectionStorageInterface $section_storage): array {
     $key = $section_storage->getStorageId();
     if (isset($this->delta)) {
       $key .= '.' . $this->delta;
     }
     if (!isset($this->contexts[$key])) {
-      $this->contexts[$key] = parent::getAvailableContexts($section_storage);
+      $this->contexts[$key] = parent::getPopulatedContexts($section_storage);
       if ($this->section) {
         $is_nested_storage = $this->isNestedStorage($section_storage);
         $this->contexts[$key]['default_storage'] = new Context(new ContextDefinition('boolean'), $this->isDefaultStorage($section_storage));
