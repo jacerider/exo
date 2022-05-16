@@ -70,7 +70,6 @@ gulp.task('drupal', function() {
  * SASS compiling.
  */
 gulp.task('scss', function () {
-  console.log(config.scss.includePaths);
   return gulp.src(config.scss.src)
     .pipe(plumber({
       errorHandler: function (error) {
