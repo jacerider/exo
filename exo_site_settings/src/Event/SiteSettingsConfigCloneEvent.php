@@ -2,8 +2,8 @@
 
 namespace Drupal\exo_site_settings\Event;
 
-use Drupal\Component\EventDispatcher\Event;
 use Drupal\field\FieldConfigInterface;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Event that is fired before a config value is cloned to another config object.
