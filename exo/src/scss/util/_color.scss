@@ -1,3 +1,5 @@
+@use "sass:math";
+
 // Colors
 // Retrieve color from $palette map
 @function color($color, $palette: $colors, $debug: false) {
@@ -90,7 +92,7 @@
 }
 
 @function gray($num) {
-  @return lighten(#000, percentage((100 - $num) / 100));
+  @return lighten(#000, percentage(math.div((100 - $num), 100)));
 }
 
 @function grey($num) {

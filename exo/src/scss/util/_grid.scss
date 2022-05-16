@@ -1,3 +1,5 @@
+@use "sass:math";
+
 /////////////////////
 // Exo Grid
 // ---------
@@ -107,7 +109,7 @@ $exo-block-grid-max: 8 !default;
     }
   }
   @else if (type-of($gutters) == 'number') {
-    $gutter: rem-calc($gutters) / 2;
+    $gutter: math.div(rem-calc($gutters), 2);
 
     // Loop through each gutter position
     @each $value in $gutter-position {
@@ -184,7 +186,7 @@ $exo-block-grid-max: 8 !default;
       $size: percentage($size);
     }
     @else {
-      $size: percentage($size / $grid-columns);
+      $size: percentage(math.div($size, $grid-columns));
     }
   }
 

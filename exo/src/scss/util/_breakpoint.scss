@@ -1,4 +1,4 @@
-
+@use "sass:math";
 @import './unit';
 
 ////
@@ -75,7 +75,7 @@ $breakpoint-classes: (small medium large) !default;
   // Convert any pixel, rem, or unitless value to em
   $bp: -exo-bp-to-em($bp);
   @if $bp-max {
-    $bp-max: -exo-bp-to-em($bp-max) - (1/16);
+    $bp-max: -exo-bp-to-em($bp-max) - math.div(1, 16);
   }
 
   // Conditions to skip media query creation
