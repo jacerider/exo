@@ -23,6 +23,8 @@
       this.history = typeof $wrapper.data('ee--accordion-history') !== 'undefined';
       const collapse = typeof $wrapper.data('ee--accordion-collapse') !== 'undefined';
       this.$contents.hide();
+      let $show = this.$triggers.first();
+      let forceShow = false;
 
       const hashTrigger = () => {
         const hashTab = Drupal.ExoAlchemistEnhancement.getHashForKey('ee--accordion');
@@ -30,6 +32,7 @@
           const $item = this.$triggers.filter('[data-ee--accordion-item-id="' + hashTab[this.id] + '"]');
           if ($item.length) {
             $show = $item.first();
+            forceShow = true;
           }
         }
       }
@@ -45,7 +48,6 @@
           $content.attr('id', contentId).attr('aria-labelledby', triggerId);
         }
       });
-      let $show = this.$triggers.first();
 
       //
       Drupal.Exo.$window.on('popstate.exo.alchemist.enhancement.tabs.' + this.id, e => {
@@ -107,7 +109,7 @@
             break;
         }
       });
-      if (collapse === false) {
+      if (collapse === false || forceShow) {
         Drupal.Exo.$window.on('ee--tab.open.' + this.id, (e, params) => {
           if (params.content.find(this.$wrapper).length) {
             this.show($show, true, true, false);
@@ -137,6 +139,9 @@
         if ((current && !keepOpen) || !current) {
           $shown.removeClass('show');
           $trigger.attr('aria-expanded', 'false');
+          if (doHash && typeof itemId !== 'undefined') {
+            Drupal.ExoAlchemistEnhancement.removeHashForKey('ee--accordion', itemId, this.id);
+          }
           if (animate) {
             $shownContent.slideToggle(350, 'swing');
           }

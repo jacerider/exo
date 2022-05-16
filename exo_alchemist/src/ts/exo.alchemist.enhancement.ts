@@ -6,27 +6,31 @@ class ExoAlchemistEnhancement {
     return window.location.hash;
   }
 
-  public getHashAsObject():any {
+  public getHashAsObject(key:string):any {
     let hash = this.getHash();
     const object = {};
     if (hash) {
       const array = hash.replace('#', '').split('&');
       for (let i = 0; i < array.length; i++) {
         const element = array[i];
+        if (element.substring(0, 4) !== key.substring(0, 4)) {
+          continue;
+        }
         const parts = element.split('~');
-        const elementValues = parts[1].split('|');
-        for (let ii = 0; ii < elementValues.length; ii++) {
-          const value = elementValues[ii];
-          const valueParts = value.split('--');
-          if (valueParts.length > 1) {
-            object[parts[0]] = {};
-            object[parts[0]][valueParts[0]] = valueParts[1];
-          }
-          else {
-            object[parts[0]] = valueParts[0];
+        if (typeof parts[1] !== 'undefined') {
+          const elementValues = parts[1].split('|');
+          for (let ii = 0; ii < elementValues.length; ii++) {
+            const value = elementValues[ii];
+            const valueParts = value.split('--');
+            if (valueParts.length > 1) {
+              object[parts[0]] = {};
+              object[parts[0]][valueParts[0]] = valueParts[1];
+            }
+            else {
+              object[parts[0]] = valueParts[0];
+            }
           }
         }
-
       }
     }
     return object;
@@ -74,12 +78,12 @@ class ExoAlchemistEnhancement {
   }
 
   public getHashForKey(key:string) {
-    const parts = this.getHashAsObject();
+    const parts = this.getHashAsObject(key);
     return typeof parts[key] !== 'undefined' ? parts[key] : null;
   }
 
   public setHashForKey(key:string, value:string, id?:string) {
-    const object = this.getHashAsObject();
+    const object = this.getHashAsObject(key);
     if (id) {
       if (typeof object[key] === 'undefined') {
         object[key] = {};
@@ -93,7 +97,7 @@ class ExoAlchemistEnhancement {
   }
 
   public removeHashForKey(key:string, value:string, id?:string) {
-    const object = this.getHashAsObject();
+    const object = this.getHashAsObject(key);
     if (typeof object[key] !== 'undefined') {
       if (id) {
         delete object[key][id];
