@@ -96,10 +96,8 @@ class ExoImagineManager {
    *   The image definition.
    */
   public function getImageDefinition(FileInterface $file, $width = NULL, $height = NULL, $unique = '', $record_usage = FALSE) {
-    /** @var \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator */
-    $file_url_generator = \Drupal::service('file_url_generator');
     $image_uri = $file->getFileUri();
-    $image_url = $file_url_generator->generate($image_uri)->toString();
+    $image_url = $this->generateUrl($image_uri);
     $definition = [
       'uri' => $image_uri,
       'src' => $image_url,
@@ -129,7 +127,7 @@ class ExoImagineManager {
       }
       $mime = $info['mime'];
       $definition['uri'] = $image_style_uri;
-      $definition['src'] = $file_url_generator->transformRelative($image_style->buildUrl($image_uri));
+      $definition['src'] = $this->generateUrl($image_style->buildUrl($image_uri));
       $definition['webp'] = $webp ? $this->toWebpUri($definition['src']) : NULL;
       if (!empty($definition['webp'])) {
         // Support alterations done to the main image url.
@@ -166,8 +164,6 @@ class ExoImagineManager {
    *   The image preview definition.
    */
   public function getImagePreviewDefinition(FileInterface $file, $width = NULL, $height = NULL, $unique = '', $blur = FALSE, $record_usage = FALSE) {
-    /** @var \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator */
-    $file_url_generator = \Drupal::service('file_url_generator');
     $image_definition = $this->getImageDefinition($file, $width, $height, $unique, FALSE);
     $definition = [
       'src' => '',
@@ -200,7 +196,7 @@ class ExoImagineManager {
         }
         $mime = $info['mime'];
         $definition['uri'] = $image_style_uri;
-        $definition['src'] = $file_url_generator->transformRelative($image_style->buildUrl($image_uri));
+        $definition['src'] = $this->generateUrl($image_style->buildUrl($image_uri));
         $definition['webp'] = $webp ? $this->toWebpUri($definition['src']) : NULL;
         if (!empty($definition['webp'])) {
           // Support alterations done to the main image url.
@@ -601,6 +597,26 @@ class ExoImagineManager {
       return in_array('image/webp', \Drupal::request()->getAcceptableContentTypes());
     }
     return FALSE;
+  }
+
+  /**
+   * Get full url.
+   *
+   * @param string $url
+   *   The url.
+   *
+   * @return string
+   *   The full url.
+   */
+  protected function generateUrl($url) {
+    if (\Drupal::hasService('file_url_generator')) {
+      $generator = \Drupal::service('file_url_generator');
+      $url = $generator->transformRelative($generator->generateAbsoluteString($url));
+    }
+    else {
+      $url = file_url_transform_relative(file_create_url($url));
+    }
+    return $url;
   }
 
 }
