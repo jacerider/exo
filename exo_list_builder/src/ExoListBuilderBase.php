@@ -193,6 +193,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       $fields += $this->discoverFields();
       $this->alterFields($fields);
       $this->moduleHandler->alter('exo_list_builder_fields', $fields, $this->entityTypeId);
+      $this->moduleHandler->alter('exo_list_builder_fields_' . $entity_list->id(), $fields, $this->entityTypeId);
       $this->fields = $fields;
     }
     return $this->fields;
@@ -455,7 +456,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         }
       }
     }
-    $this->moduleHandler->alter('exo_list_builder_query', $query, $this->entityList);
+    $this->moduleHandler->alter('exo_list_builder_query', $query, $entity_list);
+    $this->moduleHandler->alter('exo_list_builder_query_' . $entity_list->id(), $query, $entity_list);
 
     return $query;
   }
@@ -501,12 +503,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   }
 
   /**
-   * Get the total.
-   *
-   * @return int
-   *   The total results.
+   * {@inheritdoc}
    */
-  protected function getTotal() {
+  public function getTotal() {
     if (!isset($this->total)) {
       $this->total = $this->getQuery()->count()->execute();
     }
@@ -581,12 +580,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   }
 
   /**
-   * Check if the entity list is filtered.
-   *
-   * @return bool
-   *   Returns TRUE if filtered.
+   * {@inheritdoc}
    */
-  protected function isFiltered() {
+  public function isFiltered() {
     foreach ($this->getFilters() as $field_id => $field) {
       if (!empty($field['filter']['settings']['default'])) {
         return TRUE;
@@ -708,7 +704,12 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
     }
     else {
-      $build[$this->entitiesKey] = $this->buildEmpty($build);
+      if (!$this->isFiltered() && $this->entityList->getSetting('hide_no_results')) {
+        $build['#access'] = FALSE;
+      }
+      else {
+        $build[$this->entitiesKey] = $this->buildEmpty($build);
+      }
     }
     $build[$this->entitiesKey]['#entities'] = $entities;
 
@@ -810,9 +811,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         ];
         $form['header']['second']['batch']['#attached']['library'][] = 'exo_list_builder/download';
       }
-    }
-    else {
-      $form[$this->entitiesKey] = $this->buildEmpty($form);
     }
 
     if ($entities || $this->isFiltered()) {
