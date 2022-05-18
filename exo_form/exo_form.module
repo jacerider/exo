@@ -241,17 +241,17 @@ function exo_form_form_alter_process(&$element) {
     }
   }
   // Remove empty elements from multi-value widgets.
-  if (!empty($element['widget']['#theme']) && $element['widget']['#theme'] === 'field_multiple_value_form' && $element['widget']['#cardinality'] === -1) {
-    $max_delta = $element['widget']['#max_delta'];
-    // We seem to only be able to safely remove simple widget elements. We
-    // check for 'value' as that 'may' be a simple widget.
-    // Be very carful changing this as it may break paragraphs if it becomes
-    // too loose.
-    if ($max_delta > 0 && isset($element['widget'][$max_delta]['value']) && empty($element['widget'][$max_delta]['value']['#default_value'])) {
-      unset($element['widget'][$max_delta]);
-      $element['widget']['#max_delta'] = $max_delta - 1;
-    }
-  }
+  // if (!empty($element['widget']['#theme']) && $element['widget']['#theme'] === 'field_multiple_value_form' && $element['widget']['#cardinality'] === -1) {
+  //   $max_delta = $element['widget']['#max_delta'];
+  //   // We seem to only be able to safely remove simple widget elements. We
+  //   // check for 'value' as that 'may' be a simple widget.
+  //   // Be very carful changing this as it may break paragraphs if it becomes
+  //   // too loose.
+  //   if ($max_delta > 0 && isset($element['widget'][$max_delta]['value']) && empty($element['widget'][$max_delta]['value']['#default_value'])) {
+  //     unset($element['widget'][$max_delta]);
+  //     $element['widget']['#max_delta'] = $max_delta - 1;
+  //   }
+  // }
   return $element;
 }
 
