@@ -9,7 +9,6 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Url;
 use Drupal\exo_list_builder\EntityListInterface;
 use Drupal\exo_list_builder\Plugin\ExoListElementInterface;
-use Drupal\exo_list_builder\Plugin\ExoListFilterBase;
 use Drupal\exo_list_builder\Plugin\ExoListFilterInterface;
 
 /**
@@ -30,6 +29,7 @@ use Drupal\exo_list_builder\Plugin\ExoListFilterInterface;
  *       "edit" = "Drupal\exo_list_builder\Form\EntityListForm",
  *       "delete" = "Drupal\exo_list_builder\Form\EntityListDeleteForm",
  *       "filter" = "Drupal\exo_list_builder\Form\EntityListFilterForm",
+ *       "duplicate" = "Drupal\exo_list_builder\Form\EntityListForm",
  *     },
  *     "route_provider" = {
  *       "html" = "Drupal\exo_list_builder\EntityListHtmlRouteProvider",
@@ -68,6 +68,7 @@ use Drupal\exo_list_builder\Plugin\ExoListFilterInterface;
  *     "canonical" = "/admin/config/exo/list/{exo_entity_list}",
  *     "add-form" = "/admin/config/exo/list/add",
  *     "edit-form" = "/admin/config/exo/list/{exo_entity_list}/edit",
+ *     "duplicate-form" = "/admin/config/exo/list/{exo_entity_list}/duplicate",
  *     "delete-form" = "/admin/config/exo/list/{exo_entity_list}/delete",
  *     "collection" = "/admin/config/exo/list"
  *   }

@@ -100,6 +100,11 @@ class EntityListForm extends EntityForm {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
+    if ($this->operation == 'duplicate') {
+      $form['#title'] = $this->t('<em>Duplicate</em> @label', ['@label' => $this->entity->label()]);
+      $this->entity = $this->entity->createDuplicate();
+    }
+
     $form = parent::form($form, $form_state);
 
     /** @var \Drupal\exo_list_builder\EntityListInterface $exo_entity_list */

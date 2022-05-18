@@ -13,3 +13,11 @@ exo_list_builder.autocomplete:
     _format: json
   requirements:
     _entity_access: 'exo_entity_list.view'
+
+entity.exo_entity_list.duplicate_form:
+  path: '/admin/config/exo/list/{exo_entity_list}/duplicate'
+  defaults:
+    _entity_form: 'exo_entity_list.duplicate'
+    _title: 'Duplicate Entity List'
+  requirements:
+    _entity_create_access: 'exo_entity_list'
