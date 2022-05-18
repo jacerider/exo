@@ -31,4 +31,12 @@ interface ExoListBuilderContentStatesInterface extends ExoListBuilderInterface {
    */
   public function getStates();
 
+  /**
+   * Get the current state definition.
+   *
+   * @return array
+   *   The state definition.
+   */
+  public function getState();
+
 }

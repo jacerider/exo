@@ -68,9 +68,9 @@ class ExoListBuilderContentStates extends ExoListBuilderContent implements ExoLi
   }
 
   /**
-   * Check if we should show archived resources.
+   * {@inheritDoc}
    */
-  protected function getState() {
+  public function getState() {
     $state = \Drupal::request()->query->get('state');
     $states = $this->getStates();
     if (isset($states[$state])) {
