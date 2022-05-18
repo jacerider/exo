@@ -332,6 +332,13 @@ class EntityListForm extends EntityForm {
       '#default_value' => $exo_entity_list->getSetting('first_page_only_status'),
     ];
 
+    $form['settings']['hide_no_results'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Hide if No Results'),
+      '#description' => $this->t('If the list returns no results, do not display it.'),
+      '#default_value' => $exo_entity_list->getSetting('hide_no_results'),
+    ];
+
     $form['fields_container'] = [
       '#type' => 'details',
       '#title' => $this->t('Fields'),
