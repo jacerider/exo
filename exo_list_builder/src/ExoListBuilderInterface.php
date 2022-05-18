@@ -109,4 +109,14 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
    */
   public function isFiltered();
 
+  /**
+   * Check if the entity list has been modified by the user.
+   *
+   * This can happen any time the list is submitted.
+   *
+   * @return bool
+   *   Returns TRUE if modified.
+   */
+  public function isModified();
+
 }

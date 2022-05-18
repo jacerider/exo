@@ -592,14 +592,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   }
 
   /**
-   * Check if the entity list has been modified by the user.
-   *
-   * This can happen any time the list is submitted.
-   *
-   * @return bool
-   *   Returns TRUE if modified.
+   * {@inheritdoc}
    */
-  protected function isModified() {
+  public function isModified() {
     return !empty($this->getOption('m'));
   }
 
@@ -704,7 +699,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
     }
     else {
-      if (!$this->isFiltered() && $this->entityList->getSetting('hide_no_results')) {
+      if (!$this->isModified() && $this->entityList->getSetting('hide_no_results')) {
         $build['#access'] = FALSE;
       }
       else {
