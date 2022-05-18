@@ -60,6 +60,13 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
   /**
    * {@inheritdoc}
    */
+  public function label() {
+    return $this->getPluginDefinition()['label'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function defaultConfiguration() {
     return [];
   }
@@ -112,6 +119,13 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
    * {@inheritdoc}
    */
   public function executeFinish(EntityListInterface $entity_list, array &$results) {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function applies(ExoListBuilderInterface $exo_list) {
+    return TRUE;
   }
 
   /**

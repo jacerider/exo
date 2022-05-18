@@ -130,6 +130,13 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected $queryConditions = [];
 
   /**
+   * An array of action instances.
+   *
+   * @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface[]
+   */
+  protected $actions;
+
+  /**
    * {@inheritdoc}
    */
   public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
@@ -512,7 +519,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    *   Returns TRUE if list should be constructed as a form.
    */
   protected function isForm() {
-    return !empty($this->getExposedFilters()) || !empty($this->entityList->getActions());
+    return !empty($this->getExposedFilters()) || !empty($this->getActions());
   }
 
   /**
@@ -762,8 +769,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $entity_list = $this->getEntityList();
-    $actions = $entity_list->getActions();
+    $actions = $this->getActions();
     $form = $this->buildList($form);
 
     $form['submit'] = [
@@ -943,15 +949,14 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   protected function buildFormBatch(array $form, FormStateInterface $form_state) {
     $form = [];
-    $entity_list = $this->getEntityList();
-    if ($actions = $entity_list->getActions()) {
+    if ($actions = $this->getActions()) {
       $form = [
         '#type' => 'container',
         '#attributes' => ['class' => ['exo-list-batch']],
       ];
       $options = [];
-      foreach ($actions as $action) {
-        $options[$action['id']] = $action['label'];
+      foreach ($actions as $action_id => $action) {
+        $options[$action_id] = $action->label();
       }
       if (empty($options)) {
         return [];
@@ -1490,7 +1495,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $action = $entity_list->getAvailableActions()[$form_state->getValue('action')];
     $selected = array_filter($form_state->getValue($this->entitiesKey));
     /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
-    $instance = \Drupal::service('plugin.manager.exo_list_action')->createInstance($action['id'], $action['settings']);
+    $instance = $this->getActions()[$action['id']];
     $ids = $instance->getEntityIds($selected, $this);
     $batch_builder = (new BatchBuilder())
       ->setTitle($this->t('Processing Items'))
@@ -1607,14 +1612,21 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   protected function getDefaultOperations(EntityInterface $entity) {
     $operations = parent::getDefaultOperations($entity);
-    if ($entity->access('restore') && $entity->hasLinkTemplate('restore-form')) {
+    if ($entity->hasLinkTemplate('duplicate-form') && $entity->access('duplicate')) {
+      $operations['duplicate'] = [
+        'title' => $this->t('Duplicate'),
+        'weight' => 99,
+        'url' => $this->ensureDestination($entity->toUrl('duplicate-form')),
+      ];
+    }
+    if ($entity->hasLinkTemplate('restore-form') && $entity->access('restore')) {
       $operations['restore'] = [
         'title' => $this->t('Restore'),
         'weight' => 98,
         'url' => $this->ensureDestination($entity->toUrl('restore-form')),
       ];
     }
-    if ($entity->access('archive') && $entity->hasLinkTemplate('archive-form')) {
+    if ($entity->hasLinkTemplate('archive-form') && $entity->access('archive')) {
       $operations['archive'] = [
         'title' => $this->t('Archive'),
         'weight' => 99,
@@ -1710,6 +1722,26 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected function getExposedFilter($filter_id) {
     $filters = $this->getExposedFilters();
     return $filters[$filter_id] ?? NULL;
+  }
+
+  /**
+   * Get actions.
+   *
+   * @return \Drupal\exo_list_builder\Plugin\ExoListActionInterface[]
+   *   An array of action instances.
+   */
+  protected function getActions() {
+    if (!isset($this->actions)) {
+      $this->actions = [];
+      foreach ($this->entityList->getActions() as $action_id => $action) {
+        /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
+        $instance = \Drupal::service('plugin.manager.exo_list_action')->createInstance($action['id'], $action['settings']);
+        if ($instance->applies($this)) {
+          $this->actions[$action_id] = $instance;
+        }
+      }
+    }
+    return $this->actions;
   }
 
 }

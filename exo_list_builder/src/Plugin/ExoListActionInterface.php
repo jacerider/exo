@@ -14,6 +14,14 @@ use Drupal\exo_list_builder\ExoListBuilderInterface;
 interface ExoListActionInterface extends PluginInspectionInterface, ConfigurableInterface {
 
   /**
+   * Get label.
+   *
+   * @return string
+   *   The label.
+   */
+  public function label();
+
+  /**
    * Build the configuration form.
    *
    * @param array $form
@@ -73,5 +81,16 @@ interface ExoListActionInterface extends PluginInspectionInterface, Configurable
    *   The batch results.
    */
   public function executeFinish(EntityListInterface $entity_list, array &$results);
+
+  /**
+   * Whether this theme negotiator should be used on the current list.
+   *
+   * @param \Drupal\exo_list_builder\ExoListBuilderInterface $exo_list
+   *   The exo list builder.
+   *
+   * @return bool
+   *   TRUE if this filter should be allowed.
+   */
+  public function applies(ExoListBuilderInterface $exo_list);
 
 }
