@@ -86,11 +86,27 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
   public function getQuery();
 
   /**
+   * Get the total.
+   *
+   * @return int
+   *   The total results.
+   */
+  public function getTotal();
+
+  /**
    * Get filters.
    *
    * @return array
    *   The fields.
    */
   public function getFilters();
+
+  /**
+   * Check if the entity list is filtered.
+   *
+   * @return bool
+   *   Returns TRUE if filtered.
+   */
+  public function isFiltered();
 
 }
