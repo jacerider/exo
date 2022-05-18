@@ -1160,6 +1160,10 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
               if ($key === '#field_attributes') {
                 $field_attributes = NestedArray::mergeDeep($field_attributes, $value[$key]);
               }
+              // Allow components to control access to the component entirely.
+              if ($key === '#component_access') {
+                $values['#access'] = $values['#access'] ?? $value['#component_access'];
+              }
               unset($value[$key]);
             }
           }
