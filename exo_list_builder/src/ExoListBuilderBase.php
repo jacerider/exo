@@ -455,6 +455,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         }
       }
     }
+    $this->moduleHandler->alter('exo_list_builder_query', $query, $this->entityList);
 
     return $query;
   }
@@ -1081,7 +1082,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
             unset($form['pager_header']);
           }
         }
-        if ($pagerer_footer && $pagerer_footer !== '_hide') {
+        if ($pagerer_footer) {
           $form['pager_footer'] = [
             '#type' => 'pager',
             '#theme' => 'pagerer',
