@@ -79,6 +79,7 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
     $properties = [
       'render' => $this->t('The entity list renderable.'),
       'page' => $this->t('The entity list page.'),
+      'count' => $this->t('The entity list result count. (Requires: exo_entity_list_count: true)'),
     ];
     return $properties;
   }
@@ -93,6 +94,7 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
     /** @var \Drupal\exo_list_builder\EntityListInterface $entity */
     $entity = $this->entityTypeManager->getStorage('exo_entity_list')->load($field->getAdditionalValue('exo_entity_list_id'));
     if ($entity) {
+      $handler = $entity->getHandler();
       if ($this->isLayoutBuilder($contexts)) {
         $render = $this->entityTypeManager->getViewBuilder($entity->getEntityTypeId())->view($entity);
         $render = $this->getFormAsPlaceholder($render);
@@ -103,8 +105,14 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
           '#entity_list' => $entity,
         ];
       }
+      if ($field->hasAdditionalValue('exo_entity_list_hide_if_empty') && !$handler->isFiltered() && empty($handler->getTotal())) {
+        $value['#component_access'] = FALSE;
+      }
       $value['render'] = $render;
-      $value['page'] = $entity->getHandler()->getOption('page');
+      $value['page'] = $handler->getOption('page');
+      if ($field->hasAdditionalValue('exo_entity_list_count')) {
+        $value['count'] = $handler->getTotal();
+      }
     }
     return $value;
   }
