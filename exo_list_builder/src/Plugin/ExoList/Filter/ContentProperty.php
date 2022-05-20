@@ -105,7 +105,7 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
       }
       $form['q']['#options'] = ['' => $this->t('- Select -')] + $options;
     }
-    elseif (!empty($configuration['autocomplete'])) {
+    elseif (!empty($configuration['autocomplete']) && !$entity_list->isNew()) {
       $form['q'] += [
         '#autocomplete_route_name' => 'exo_list_builder.autocomplete',
         '#autocomplete_route_parameters' => [
