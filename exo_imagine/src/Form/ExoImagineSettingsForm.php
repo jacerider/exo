@@ -71,6 +71,7 @@ class ExoImagineSettingsForm extends ExoSettingsFormBase {
           '#header' => [
             $this->t('Name'),
             $this->t('Last Used'),
+            $this->t('Lock'),
             '',
           ],
         ],
@@ -80,6 +81,14 @@ class ExoImagineSettingsForm extends ExoSettingsFormBase {
         $row = [];
         $row[]['#markup'] = $imagine_style->label() . '<br><small>(' . $imagine_style->id() . ')</small>';
         $row[]['#markup'] = $date_formatter->format($imagine_style->getLastUsedTimestamp());
+        $row[]['lock'] = [
+          '#type' => 'checkbox',
+          '#parents' => ['global', 'lock', $imagine_style->id()],
+          '#default_value' => $this->exoSettings->getSetting([
+            'lock',
+            $imagine_style->id(),
+          ]),
+        ];
         $row[] = [
           '#type' => 'link',
           '#title' => $this->t('Delete'),
@@ -105,6 +114,13 @@ class ExoImagineSettingsForm extends ExoSettingsFormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
+    $form_state->setValue([
+      'global',
+      'lock',
+    ], array_filter($form_state->getValue([
+      'global',
+      'lock',
+    ])));
     // Move instance settings into the global setting scope so that they get
     // saved.
     foreach ($form_state->getValue('global') as $setting => $value) {
@@ -120,7 +136,10 @@ class ExoImagineSettingsForm extends ExoSettingsFormBase {
     $manager = \Drupal::service('exo_imagine.manager');
     $imagine_styles = $manager->getImagineStyles();
     foreach ($imagine_styles as $imagine_style) {
-      $imagine_style->getStyle()->delete();
+      $style = $imagine_style->getStyle();
+      if ($style->access('delete')) {
+        $style->delete();
+      }
     }
 
     // Make sure we don't have any old exo_image styles.

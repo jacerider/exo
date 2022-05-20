@@ -404,6 +404,7 @@ class ExoImagineManager {
       'data' => [
         'width' => $width,
         'height' => $height,
+        'upscale' => TRUE,
       ],
     ]);
     $style->addImageEffect($effect->getConfiguration());

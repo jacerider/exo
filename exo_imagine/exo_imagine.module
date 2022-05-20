@@ -5,7 +5,10 @@
  * Contains exo_imagine.module.
  */
 
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\file\FileInterface;
 
 /**
@@ -85,4 +88,19 @@ function exo_imagine_path_flush($path) {
   foreach ($styles as $style) {
     $style->getStyle()->flush($manager->toWebpUri($path));
   }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_access().
+ */
+function exo_imagine_image_style_access(ConfigEntityInterface $entity, $operation, AccountInterface $account) {
+  if ($operation == 'delete') {
+    if (substr($entity->id(), 0, 6) === 'exoimg') {
+      $settings = \Drupal::service('exo_imagine.settings');
+      if ($settings->getSetting(['lock', $entity->id()])) {
+        return AccessResult::forbidden('Image style is locked.');
+      }
+    }
+  }
+  return AccessResult::neutral();
 }
