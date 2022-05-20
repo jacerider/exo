@@ -757,13 +757,13 @@ function exo_form_attribute_convert(array &$attributes, array $element) {
   if (!empty($attributes['class']) && is_array($attributes['class']) && in_array('form-composite', $attributes['class'])) {
     // Componsite elements are always wrapped.
     if (isset($attributes['id'])) {
-      unset($attributes['id']);
+      $attributes['id'] = NULL;
     }
   }
   // Remove ID if element is wrapped.
   if (!empty($element['#exo_wrapper_supported'])) {
     if (isset($attributes['id'])) {
-      unset($attributes['id']);
+      $attributes['id'] = NULL;
     }
   }
   exo_form_inline_convert($attributes);
