@@ -178,6 +178,7 @@ class EntityQuery extends ExoComponentFieldComputedBase implements ContainerFact
         }
         if ($view_mode) {
           $value['entities'][$entity->id()]['render'] = $this->entityTypeManager->getViewBuilder($entity_type)->view($entity, $view_mode);
+          $value['entities'][$entity->id()]['render']['#exo_hide_title'] = TRUE;
         }
         if ($field_view_mode && $entity instanceof FieldableEntityInterface) {
           foreach ($this->getEntityFields() as $field_name => $field) {
