@@ -568,7 +568,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       // Label field should not wrap in small tag by default.
       $fields['_label']['view']['wrapper'] = '';
       $fields['_label']['view']['sort_asc_label'] = '@label A-Z';
-      $fields['_label']['view']['sort_asc_label'] = '@label Z-A';
+      $fields['_label']['view']['sort_desc_label'] = '@label Z-A';
       $fields['_label']['filter']['settings']['position'] = 'header';
       $fields['_label']['filter']['settings']['match_operator'] = 'CONTAINS';
     }
