@@ -158,6 +158,7 @@ class EntityQuery extends ExoComponentFieldComputedBase implements ContainerFact
     $results = $query->execute();
     if (!empty($results)) {
       foreach ($storage->loadMultiple($results) as $entity) {
+        $contexts['cacheable_metadata']->addCacheableDependency($entity);
         $value['entities'][$entity->id()]['attributes'] = new Attribute([
           'class' => [
             'type--' . Html::getClass($entity->getEntityTypeId()),
