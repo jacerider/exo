@@ -10,6 +10,14 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
 interface EntityListInterface extends ConfigEntityInterface {
 
   /**
+   * Get the query key.
+   *
+   * @return string
+   *   The query key.
+   */
+  public function getKey();
+
+  /**
    * Return a filtered url.
    *
    * @param array $filters

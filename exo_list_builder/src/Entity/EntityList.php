@@ -46,6 +46,7 @@ use Drupal\exo_list_builder\Plugin\ExoListFilterInterface;
  *   config_export = {
  *     "id",
  *     "label",
+ *     "key",
  *     "target_entity_type",
  *     "target_bundles_include",
  *     "target_bundles_exclude",
@@ -89,6 +90,13 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * @var string
    */
   protected $label;
+
+  /**
+   * The eXo Entity List label.
+   *
+   * @var string
+   */
+  protected $key = 'q';
 
   /**
    * The target entity type id.
@@ -240,6 +248,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
     'operations_status' => TRUE,
     'limit_status' => TRUE,
     'result_status' => TRUE,
+    'sort_status' => TRUE,
     'block_status' => FALSE,
     'first_page_only_status' => FALSE,
   ];
@@ -282,10 +291,18 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   /**
    * {@inheritdoc}
    */
+  public function getKey() {
+    return $this->key;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function toUrl($rel = 'canonical', array $options = []) {
     if ($rel === 'canonical' && $this->getUrl()) {
-      if (!empty($options['query']['exo'])) {
-        $options['query']['exo'] = $this->optionsEncode($options['query']['exo']);
+      $key = $this->getKey();
+      if (!empty($options['query'][$key])) {
+        $options['query'][$key] = $this->optionsEncode($options['query'][$key]);
       }
       return Url::fromRoute($this->getRouteName(), [], $options);
     }
@@ -297,7 +314,8 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    */
   public function toFilteredUrl(array $filters = [], array $options = []) {
     if (!empty($filters)) {
-      $options['query']['exo']['filter'] = $filters;
+      $key = $this->getKey();
+      $options['query'][$key]['filter'] = $filters;
     }
     return $this->toUrl('canonical', $options);
   }

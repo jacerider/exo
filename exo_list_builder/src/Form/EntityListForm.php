@@ -304,6 +304,19 @@ class EntityListForm extends EntityForm {
       '#tree' => TRUE,
     ];
 
+    $form['settings']['key'] = [
+      '#type' => 'machine_name',
+      '#title' => $this->t('Key'),
+      '#maxlength' => 255,
+      '#default_value' => $exo_entity_list->getKey(),
+      '#description' => $this->t("The id used as the query filter identifier in the URL."),
+      '#required' => TRUE,
+      '#machine_name' => [
+        'exists' => '\Drupal\exo_list_builder\Form\EntityListForm::keyAllowed',
+      ],
+      '#parents' => ['key'],
+    ];
+
     $form['settings']['operations_status'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Show Operations'),
@@ -313,9 +326,16 @@ class EntityListForm extends EntityForm {
 
     $form['settings']['result_status'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Expose Result Information'),
+      '#title' => $this->t('Show Result Information'),
       '#description' => $this->t('If checked, the user will be able to see how many results are available.'),
       '#default_value' => $exo_entity_list->getSetting('result_status'),
+    ];
+
+    $form['settings']['sort_status'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Show Sort Selector'),
+      '#description' => $this->t('If checked, the user will be able to change the sort order via a dropdown.'),
+      '#default_value' => $exo_entity_list->getSetting('sort_status'),
     ];
 
     $form['settings']['block_status'] = [
@@ -852,6 +872,16 @@ class EntityListForm extends EntityForm {
     }
 
     $form_state->setRedirectUrl($exo_entity_list->toUrl('edit-form'));
+  }
+
+  /**
+   * Check if the entity key is allowed.
+   *
+   * @return bool
+   *   Returns TRUE if allowed.
+   */
+  public static function keyAllowed($key) {
+    return FALSE;
   }
 
 }

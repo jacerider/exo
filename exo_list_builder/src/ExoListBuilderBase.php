@@ -259,8 +259,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   protected function buildOptions() {
     $query = \Drupal::request()->query->all();
-    if (!empty($query['exo'])) {
-      $query += $this->getEntityList()->optionsDecode($query['exo']);
+    $key = $this->getEntityList()->getKey();
+    if (!empty($query[$key])) {
+      $query += $this->getEntityList()->optionsDecode($query[$key]);
     }
     $this->setOptions($query);
   }
@@ -331,7 +332,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $options_query = \Drupal::request()->query->all();
     $options_query = array_diff_key($options_query, $defaults);
     $query = NestedArray::mergeDeep($options_query, $query);
-    unset($query['exo']);
+    $key = $entity_list->getKey();
+    unset($query[$key]);
     $query['m'] = 1;
     unset($options['order']);
     unset($options['sort']);
@@ -340,20 +342,20 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       $query['limit'] = $options['limit'];
     }
     unset($options['limit']);
-    foreach ($options as $key => $value) {
-      if (!empty($value) && isset($defaults[$key]) && !in_array($key, $exclude_options)) {
-        if ($key === 'filter') {
+    foreach ($options as $id => $value) {
+      if (!empty($value) && isset($defaults[$id]) && !in_array($key, $exclude_options)) {
+        if ($id === 'filter') {
           $value = array_diff_key($value, array_flip($exclude_filters));
           if (empty($value)) {
             continue;
           }
         }
-        $query['exo'][$key] = $value;
+        $query[$key][$id] = $value;
       }
     }
     $url = Url::fromRoute('<current>');
-    if (!empty($query['exo'])) {
-      $query['exo'] = $this->getEntityList()->optionsEncode($query['exo']);
+    if (!empty($query[$key])) {
+      $query[$key] = $this->getEntityList()->optionsEncode($query[$key]);
     }
     $url->setOption('query', $query);
     return $url;
@@ -871,68 +873,70 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected function buildFormSort(array $form) {
     $form = [];
     $entity_list = $this->entityList;
-    $links = [];
-    $order = $this->getOption('order');
-    $sort = $this->getOption('sort');
-    $sort_fields = $this->getSortFields();
-    $default = $this->entityList->getSort();
-    if (!$order && !$sort && $default && isset($sort_fields[$default])) {
-      $order = $sort_fields[$default]['display_label'];
-      $sort = $sort_fields[$default]['view']['sort'];
-    }
-    foreach ($sort_fields as $field_id => $field) {
-      if (!empty($field['view']['sort'])) {
-        $asc_url = $this->getOptionsUrl([], [], [
-          'order' => $entity_list->getFormat() === 'table' ? $field['display_label'] : $field['id'],
-          'sort' => 'asc',
-        ]);
-        $desc_url = $this->getOptionsUrl([], [], [
-          'order' => $entity_list->getFormat() === 'table' ? $field['display_label'] : $field['id'],
-          'sort' => 'desc',
-        ]);
-        $links[$field['id'] . '_asc'] = [
-          'title' => $this->icon($field['view']['sort_asc_label'], [
-            '@label' => $field['display_label'],
-          ])->setIcon('regular-sort-amount-up')->toMarkup(),
-          'url' => $asc_url,
-        ];
-        $links[$field['id'] . '_desc'] = [
-          'title' => $this->icon($field['view']['sort_desc_label'], [
-            '@label' => $field['display_label'],
-          ])->setIcon('regular-sort-amount-down')->toMarkup(),
-          'url' => $desc_url,
-        ];
-        if (($order === $field['display_label'] || $order === $field['id']) && $sort === 'asc') {
-          $links = [
-            [
-              'title' => $this->icon('Sorted by ' . $field['view']['sort_asc_label'], [
-                '@label' => $field['display_label'],
-              ])->setIcon('regular-sort-amount-up')->toMarkup(),
-              'url' => $asc_url,
-            ],
-          ] + $links;
-        }
-        elseif (($order === $field['display_label'] || $order === $field['id']) && $sort === 'desc') {
-          $links = [
-            [
-              'title' => $this->icon('Sorted by ' . $field['view']['sort_desc_label'], [
-                '@label' => $field['display_label'],
-              ])->setIcon('regular-sort-amount-down')->toMarkup(),
-              'url' => $desc_url,
-            ],
-          ] + $links;
+    if ($entity_list->getSetting('sort_status')) {
+      $links = [];
+      $order = $this->getOption('order');
+      $sort = $this->getOption('sort');
+      $sort_fields = $this->getSortFields();
+      $default = $this->entityList->getSort();
+      if (!$order && !$sort && $default && isset($sort_fields[$default])) {
+        $order = $sort_fields[$default]['display_label'];
+        $sort = $sort_fields[$default]['view']['sort'];
+      }
+      foreach ($sort_fields as $field_id => $field) {
+        if (!empty($field['view']['sort'])) {
+          $asc_url = $this->getOptionsUrl([], [], [
+            'order' => $entity_list->getFormat() === 'table' ? $field['display_label'] : $field['id'],
+            'sort' => 'asc',
+          ]);
+          $desc_url = $this->getOptionsUrl([], [], [
+            'order' => $entity_list->getFormat() === 'table' ? $field['display_label'] : $field['id'],
+            'sort' => 'desc',
+          ]);
+          $links[$field['id'] . '_asc'] = [
+            'title' => $this->icon($field['view']['sort_asc_label'], [
+              '@label' => $field['display_label'],
+            ])->setIcon('regular-sort-amount-up')->toMarkup(),
+            'url' => $asc_url,
+          ];
+          $links[$field['id'] . '_desc'] = [
+            'title' => $this->icon($field['view']['sort_desc_label'], [
+              '@label' => $field['display_label'],
+            ])->setIcon('regular-sort-amount-down')->toMarkup(),
+            'url' => $desc_url,
+          ];
+          if (($order === $field['display_label'] || $order === $field['id']) && $sort === 'asc') {
+            $links = [
+              [
+                'title' => $this->icon('Sorted by ' . $field['view']['sort_asc_label'], [
+                  '@label' => $field['display_label'],
+                ])->setIcon('regular-sort-amount-up')->toMarkup(),
+                'url' => $asc_url,
+              ],
+            ] + $links;
+          }
+          elseif (($order === $field['display_label'] || $order === $field['id']) && $sort === 'desc') {
+            $links = [
+              [
+                'title' => $this->icon('Sorted by ' . $field['view']['sort_desc_label'], [
+                  '@label' => $field['display_label'],
+                ])->setIcon('regular-sort-amount-down')->toMarkup(),
+                'url' => $desc_url,
+              ],
+            ] + $links;
+          }
         }
       }
-    }
-    if (!empty($links)) {
-      $form = [
-        '#type' => 'container',
-        '#attributes' => ['class' => ['exo-list-sort']],
-      ];
-      $form['list'] = [
-        '#type' => 'dropbutton',
-        '#links' => $links,
-      ];
+      if (!empty($links)) {
+        $form = [
+          '#type' => 'container',
+          '#attributes' => ['class' => ['exo-list-sort']],
+        ];
+        $form['list'] = [
+          '#type' => 'dropbutton',
+          '#links' => $links,
+        ];
+      }
     }
 
     return $form;

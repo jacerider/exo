@@ -8,6 +8,9 @@ exo_list_builder.exo_entity_list.*:
     label:
       type: label
       label: 'Label'
+    key:
+      type: string
+      label: 'Query Key'
     target_entity_type:
       type: string
       label: 'Entity Type'
