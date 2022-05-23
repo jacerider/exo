@@ -5,6 +5,8 @@ namespace Drupal\exo_list_builder;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Batch\BatchBuilder;
+use Drupal\Core\Config\Entity\ConfigEntityInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
 use Drupal\Core\Entity\EntityPublishedInterface;
@@ -671,12 +673,14 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     ];
 
     $entities = $this->load();
+    $build['#draggable'] = FALSE;
     if ($entities) {
       foreach ($entities as $target_entity) {
         if ($row = $this->buildRow($target_entity)) {
           switch ($format) {
             case 'table';
               $build[$this->entitiesKey][$target_entity->id()] = $row;
+              $build['#draggable'] = !empty($row['#draggable']);
               break;
 
             default:
@@ -745,26 +749,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   }
 
   /**
-   * Get cache contexts.
-   *
-   * @return array
-   *   The cache contexts.
-   */
-  protected function getCacheContexts() {
-    return array_merge($this->getEntityList()->getEntityType()->getListCacheContexts(), $this->entityType->getListCacheContexts(), ['url.query_args']);
-  }
-
-  /**
-   * Get cache tags.
-   *
-   * @return array
-   *   The cache tags.
-   */
-  protected function getCacheTags() {
-    return array_merge($this->getEntityList()->getEntityType()->getListCacheTags(), $this->entityType->getListCacheTags());
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
@@ -823,7 +807,49 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
     }
 
+    if (!empty($form['#draggable']) && $form[$this->entitiesKey]['#type'] === 'table') {
+      $form[$this->entitiesKey]['#tabledrag'] = [
+        [
+          'action' => 'order',
+          'relationship' => 'sibling',
+          'group' => 'list-weight',
+        ],
+      ];
+      $form['draggable'] = [
+        '#type' => 'submit',
+        '#value' => $this->t('Save Order'),
+        '#exo_form_default' => TRUE,
+        '#op' => 'action',
+        '#submit' => ['::submitDraggable'],
+        '#attributes' => [
+          'style' => 'display:none',
+          'class' => ['exo-list-draggable-submit'],
+        ],
+      ];
+    }
+    // ksm($form);
+
     return $form;
+  }
+
+  /**
+   * Get cache contexts.
+   *
+   * @return array
+   *   The cache contexts.
+   */
+  protected function getCacheContexts() {
+    return array_merge($this->getEntityList()->getEntityType()->getListCacheContexts(), $this->entityType->getListCacheContexts(), ['url.query_args']);
+  }
+
+  /**
+   * Get cache tags.
+   *
+   * @return array
+   *   The cache tags.
+   */
+  protected function getCacheTags() {
+    return array_merge($this->getEntityList()->getEntityType()->getListCacheTags(), $this->entityType->getListCacheTags());
   }
 
   /**
@@ -1518,6 +1544,30 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function submitDraggable(array &$form, FormStateInterface $form_state) {
+    if ($weights = $form_state->getValue(['weight'])) {
+      $weight_field = NULL;
+      foreach ($this->getShownFields() as $field_id => $field) {
+        if ($field['view']['type'] === 'weight') {
+          $weight_field = $field;
+          break;
+        }
+      }
+      if ($weight_field) {
+        foreach ($this->load() as $entity) {
+          $weight = $weights[$entity->id()];
+          if ($entity instanceof ContentEntityInterface || $entity instanceof ConfigEntityInterface) {
+            $entity->set($weight_field['field_name'], $weight);
+            $entity->save();
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * {@inheritDoc}
    */
   public function buildHeader() {
@@ -1559,6 +1609,12 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       $row[$field_id]['data'] = $this->renderField($entity, $field);
       $row[$field_id]['#wrapper_attributes']['class'][] = Html::getClass('exo-list-builder-field-id--' . $field_id);
       $row[$field_id]['#wrapper_attributes']['class'][] = Html::getClass('exo-list-builder-field-type--' . $field['view']['type']);
+      if (isset($row[$field_id]['data']['#list_weight'])) {
+        $row[$field_id]['data']['#parents'] = ['weight', $entity->id()];
+        $row['#attributes']['class'][] = 'draggable';
+        // $row['#weight'] = $row[$field_id]['data']['#list_weight'];
+        $row['#draggable'] = TRUE;
+      }
     }
     if ($this->entityList->showOperations()) {
       $row['operations']['data'] = $this->buildOperations($entity);

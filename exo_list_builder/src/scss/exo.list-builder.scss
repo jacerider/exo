@@ -469,6 +469,10 @@
     }
   }
 
+  &.exo-list-dragged .exo-list-draggable-submit {
+    display: block !important;
+  }
+
   table {
 
     tr {
@@ -483,8 +487,23 @@
     }
   }
 
+  .tabledrag-toggle-weight {
+    display: none;
+  }
+
   .table-select {
+    @include flex;
+    @include flex-align(left, middle);
+    flex-wrap: nowrap;
     width: 1%;
+    min-width: rem-calc(10);
+
+    .tabledrag-handle {
+      display: block !important;
+      margin-right: rem-calc(5) !important;
+      overflow: visible;
+      order: 2;
+    }
   }
 
   .exo-list-builder-field-type--entity-label {
