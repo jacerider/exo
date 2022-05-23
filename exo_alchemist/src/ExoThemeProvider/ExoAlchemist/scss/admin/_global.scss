@@ -2,8 +2,8 @@
 
   .exo-section {
     border: 1px solid gray(10);
-    margin: $global-margin / 2 !important;
-    padding: $global-padding / 2;
+    margin: $global-margin * 0.5 !important;
+    padding: $global-padding * 0.5;
 
     &.exo-section-edit {
       border: 1px dashed gray(20);
@@ -36,7 +36,7 @@
     .exo-component-wrapper {
       padding: 0 !important;
       background: transparent !important;
-      margin: -($global-margin / 2) 0 !important;
+      margin: -($global-margin * 0.5) 0 !important;
       min-height: 0 !important;
     }
 
@@ -51,7 +51,7 @@
       font-size: rem-calc(16) !important;
       flex: 1 1 auto;
       padding: $global-padding;
-      margin: $global-margin / 2 0;
+      margin: $global-margin * 0.5 0;
       box-sizing: border-box;
     }
   }
@@ -71,7 +71,7 @@
 
       > .exo-form-element {
         flex: 0 0 auto;
-        margin: $global-margin / 2;
+        margin: $global-margin * 0.5;
         text-align: center;
 
         label {

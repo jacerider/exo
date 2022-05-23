@@ -39,7 +39,7 @@
     }
 
     .seven-details__description {
-      margin-top: $global-margin / 2 * -1;
+      margin-top: $global-margin * 0.5 * -1;
       margin-bottom: $global-margin;
     }
 
@@ -110,7 +110,7 @@
   > .exo-form-element-inner > fieldset > .fieldset-wrapper {
 
     > .description {
-      margin-top: $global-margin / 2 * -1 !important;
+      margin-top: $global-margin * 0.5 * -1 !important;
       padding: 0;
     }
 

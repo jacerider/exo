@@ -47,9 +47,8 @@
       // elements.
       this.$element.closest('.exo-form-radios, .form-wrapper').find('.exo-form-radio.active').removeClass('active');
       if (this.$field.prop('checked')) {
+        this.$element.closest('form').find('input[name="' + this.$field.attr('name') + '"]').closest('.exo-form-radio-js').removeClass('active');
         this.$element.addClass('active');
-        // Find all other radios with the same name and uncheck them.
-        this.$element.closest('form').find('input[name="' + this.$field.attr('name') + '"]').not(this.$field).closest('.exo-form-radio-js').removeClass('active');
       }
     }
   }

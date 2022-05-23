@@ -28,7 +28,7 @@
 
   @each $key, $theme in $themes {
 
-    .exo-form-theme-#{$key} {
+    .exo-form-theme-#{'' + $key} {
 
       .views-form {
         box-shadow: theme-val($theme, form-box-shadow);
@@ -41,7 +41,7 @@
 
   @each $key, $theme in $themes {
 
-    &.exo-form-theme-#{$key} {
+    &.exo-form-theme-#{'' + $key} {
       color: theme-val($theme, form-color, true);
 
       // .messages {
@@ -70,7 +70,7 @@
 
         .exo-tooltip-inner {
           background: theme-val($theme, form-tooltip-content-bg-color, true);
-          border-radius: theme-val($theme, form-border-radius) / 2;
+          border-radius: theme-val($theme, form-border-radius) * 0.5;
 
           &,
           .exo-form-element-wrapper-description {
@@ -121,7 +121,7 @@
           right: 0;
           bottom: 0;
           border: 1px solid theme-val($theme, table-border-color, true);
-          box-shadow: 0 0 0 (theme-val($theme, form-border-radius) / 2) theme-val($theme, form-bg-color, true);
+          box-shadow: 0 0 0 (theme-val($theme, form-border-radius) * 0.5) theme-val($theme, form-bg-color, true);
           border-radius: theme-val($theme, form-border-radius);
           pointer-events: none;
         }
@@ -373,8 +373,8 @@
         .exo-form-input-item.form-textarea {
           height: (theme-val($theme, input-height) * 3);
           min-height: (theme-val($theme, input-height) * 3);
-          padding-top: $global-padding / 2;
-          padding-bottom: $global-padding / 2;
+          padding-top: $global-padding * 0.5;
+          padding-bottom: $global-padding * 0.5;
           line-height: 1.5;
         }
 
@@ -643,7 +643,7 @@
 
         .fieldset-legend {
           margin: -2px 0 0;
-          padding-left: ($global-padding / 2);
+          padding-left: ($global-padding * 0.5);
           font-size: theme-val($theme, label-font-size) * 0.8;
           font-weight: theme-val($theme, label-font-weight);
           letter-spacing: theme-val($theme, label-letter-spacing);
@@ -651,11 +651,11 @@
         }
 
         &:not(.has-description) .fieldset-wrapper {
-          margin-top: -($global-padding / 2);
+          margin-top: -($global-padding * 0.5);
         }
 
         .has-legend .fieldset-wrapper {
-          margin-top: ($global-padding / 2);
+          margin-top: ($global-padding * 0.5);
         }
 
         .exo-form-input {
@@ -1456,7 +1456,7 @@
           .password-strength__title {
             position: absolute;
             top: theme-val($theme, password-strength-padding);
-            left: theme-val($theme, password-strength-padding) + ($global-padding / 2);
+            left: theme-val($theme, password-strength-padding) + ($global-padding * 0.5);
             line-height: theme-val($theme, password-strength-height);
             color: theme-val($theme, password-strength-color, true);
             text-shadow: theme-val($theme, password-strength-text-shadow);
@@ -2154,7 +2154,7 @@
               padding: 0;
 
               summary {
-                padding: $global-padding / 2 $global-padding / 2 0;
+                padding: $global-padding * 0.5 $global-padding * 0.5 0;
                 margin-bottom: 0;
               }
             }

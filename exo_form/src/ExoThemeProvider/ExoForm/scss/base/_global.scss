@@ -97,7 +97,7 @@
       .description {
         position: relative;
         padding: 0;
-        margin: 0 0 0 $global-margin / 2;
+        margin: 0 0 0 $global-margin * 0.5;
         width: rem-calc(30) !important;
       }
 
@@ -232,7 +232,7 @@
       font-weight: 300;
       white-space: nowrap;
       padding: 0;
-      margin: 0 0 $global-margin / 2;
+      margin: 0 0 $global-margin * 0.5;
       overflow: hidden;
       width: 13px;
 
@@ -281,7 +281,7 @@
     .fieldgroup.form-composite.has-legend {
 
       > .fieldset-wrapper {
-        margin-top: $global-margin / 2;
+        margin-top: $global-margin * 0.5;
       }
     }
   }
@@ -317,12 +317,12 @@
     // align-items: flex-end;
     // min-width: 100%;
     box-sizing: border-box;
-    margin-left: $global-margin / 2 * -1;
-    margin-right: $global-margin / 2 * -1;
+    margin-left: $global-margin * 0.5 * -1;
+    margin-right: $global-margin * 0.5 * -1;
 
     > label {
-      margin-left: $global-margin / 2 !important;
-      margin-right: $global-margin / 2 !important;
+      margin-left: $global-margin * 0.5 !important;
+      margin-right: $global-margin * 0.5 !important;
     }
 
     > a {
@@ -337,8 +337,8 @@
     }
 
     > .fieldset-wrapper {
-      margin-left: $global-margin / 2 * -1;
-      margin-right: $global-margin / 2 * -1;
+      margin-left: $global-margin * 0.5 * -1;
+      margin-right: $global-margin * 0.5 * -1;
     }
 
     &,
@@ -350,8 +350,8 @@
       > .button {
         flex: 1 1 100%;
         padding: 0;
-        margin-left: $global-margin / 2;
-        margin-right: $global-margin / 2;
+        margin-left: $global-margin * 0.5;
+        margin-right: $global-margin * 0.5;
         // Needed for IE but ignored.
         width: 100%;
 
@@ -387,8 +387,8 @@
       }
 
       .exo-form-inline {
-        margin-left: $global-margin / 2 * -1;
-        margin-right: $global-margin / 2 * -1;
+        margin-left: $global-margin * 0.5 * -1;
+        margin-right: $global-margin * 0.5 * -1;
       }
     }
 
@@ -509,7 +509,7 @@
 .theme-gin {
 
   .page-title {
-    padding-right: $global-padding / 2;
+    padding-right: $global-padding * 0.5;
   }
 
   [data-drupal-selector*="-bulk-form"] .form-item,

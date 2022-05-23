@@ -6,7 +6,7 @@
     $offset: map-get($theme, offset);
     $primary: map-get($theme, primary);
 
-    &.exo-splash-theme-#{$key} {
+    &.exo-splash-theme-#{'' + $key} {
       background: color($base);
     }
   }

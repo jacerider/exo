@@ -1,3 +1,5 @@
+@use "sass:math";
+
 .exo-form-select {
   position: relative;
   min-width: rem-calc(150);
@@ -200,8 +202,8 @@
 
       > span {
         display: block;
-        padding-left: $global-padding / 2;
-        padding-right: $global-padding / 2;
+        padding-left: $global-padding * 0.5;
+        padding-right: $global-padding * 0.5;
 
         > label {
           font-size: $select-font-size;
@@ -233,8 +235,8 @@
 
     input {
       cursor: text;
-      padding-left: $global-padding / 2;
-      padding-right: $global-padding / 2;
+      padding-left: $global-padding * 0.5;
+      padding-right: $global-padding * 0.5;
       width: 100%;
       font-size: $select-font-size;
     }
@@ -264,11 +266,11 @@
 
     > span {
       cursor: pointer;
-      line-height: $select-item-height / 2;
+      line-height: $select-item-height * 0.5;
       // Offset just a little so that it doesn't align perfectly which provides
       // more visual separation when open.
-      padding-top: $select-item-height / 4.2;
-      padding-bottom: $select-item-height / 4.2;
+      padding-top: math.div($select-item-height, 4.2);
+      padding-bottom: math.div($select-item-height, 4.2);
     }
 
     &.hide {

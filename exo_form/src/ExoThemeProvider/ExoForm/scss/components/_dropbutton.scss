@@ -1,5 +1,7 @@
 // Dropbuttons
 
+@use "sass:math";
+
 .js .exo-form td {
 
   &:last-child {
@@ -14,8 +16,8 @@
   }
 
   .dropbutton-wrapper {
-    height: $button-height / 1.5;
-    line-height: $button-height / 1.5;
+    height: math.div($button-height, 1.5);
+    line-height: math.div($button-height, 1.5);
 
     .dropbutton-widget {
       position: inherit;
@@ -23,8 +25,8 @@
       .dropbutton-action {
 
         &:first-child a {
-          height: $button-height / 1.5;
-          line-height: $button-height / 1.5;
+          height: math.div($button-height, 1.5);
+          line-height: math.div($button-height, 1.5);
           box-shadow: none !important;
         }
       }
@@ -73,7 +75,7 @@
         a,
         input,
         button {
-          padding: ($global-padding / 4) $global-padding;
+          padding: ($global-padding * 0.25) $global-padding;
           display: block;
           width: 100%;
           text-align: left;

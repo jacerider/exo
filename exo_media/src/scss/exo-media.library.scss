@@ -27,7 +27,7 @@
     padding: 0;
 
     > li {
-      margin: 0 0 $global-margin / 2;
+      margin: 0 0 $global-margin * 0.5;
       padding: 0;
 
       &:before {
@@ -43,7 +43,7 @@
       display: block;
       font-size: rem-calc(14);
       text-transform: uppercase;
-      padding: $global-padding / 2 $global-padding;
+      padding: $global-padding * 0.5 $global-padding;
       background: alpha(theme-white, 0.1);
       margin: 0;
       // border: 1px solid gray(60);
@@ -94,7 +94,7 @@
           padding-right: rem-calc(5);
           mask-image: none;
         }
-        margin-right: $global-margin / 2 !important;
+        margin-right: $global-margin * 0.5 !important;
         background: none !important;
         // padding: 0 !important;
 
@@ -177,7 +177,7 @@
     > .view-header {
       flex: 0 0 auto;
       order: 2;
-      margin: ($global-margin / 2) 0 0 $global-margin !important;
+      margin: ($global-margin * 0.5) 0 0 $global-margin !important;
       padding: 0;
       align-self: flex-start !important;
       box-shadow: none;
@@ -205,7 +205,7 @@
     > .view-content {
       flex: 0 0 100%;
       order: 3;
-      margin-top: $global-margin / 2;
+      margin-top: $global-margin * 0.5;
 
       .views-table {
         width: 100%;

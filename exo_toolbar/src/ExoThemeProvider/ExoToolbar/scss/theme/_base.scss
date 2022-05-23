@@ -13,7 +13,7 @@
     $primary: map-get($theme, primary);
     $secondary: map-get($theme, secondary);
 
-    .badge-theme-#{$key} {
+    .badge-theme-#{'' + $key} {
 
       .exo-toolbar-element-badge {
         background: color($base);
@@ -21,7 +21,7 @@
       }
     }
 
-    &.exo-toolbar-region-theme-#{$key} {
+    &.exo-toolbar-region-theme-#{'' + $key} {
 
       .exo-toolbar-region-inner {
         background: color($base);

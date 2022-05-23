@@ -34,7 +34,7 @@
       > ul > li {
 
         > a {
-          padding: size(padding) / 2;
+          padding: size(padding) * 0.5;
           font-weight: 600;
         }
       }
@@ -45,7 +45,7 @@
       > ul > li {
 
         > a {
-          padding: size(padding) / 4 size(padding) / 2;
+          padding: size(padding) * 0.25 size(padding) * 0.5;
         }
       }
     }
@@ -53,7 +53,7 @@
     .level-2 {
 
       a {
-        padding: size(padding) / 8 size(padding) / 2;
+        padding: size(padding) * 0.125 size(padding) * 0.5;
       }
     }
 

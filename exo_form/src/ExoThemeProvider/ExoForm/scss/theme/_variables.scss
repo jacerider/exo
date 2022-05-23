@@ -4,6 +4,8 @@
 /// Place all base variables here.
 ////////////////////////////////////////////////////////////////////////////////
 
+@use "sass:math";
+
 $themes: (
   default: (
   ),
@@ -65,7 +67,7 @@ $themes-global: (
   success: theme-success,
   warning: theme-warning,
   error: theme-alert,
-  padding: 0 $global-padding / 2,
+  padding: 0 $global-padding * 0.5,
   label-color: base (color-scale-inverse: 30%),
   label-option-color: base,
   label-focus-color: primary,
@@ -113,10 +115,10 @@ $themes-global: (
   wrapper-title-weight: 700,
   wrapper-description-color: description-color,
   // Table
-  table-padding: $global-padding / 2,
+  table-padding: $global-padding * 0.5,
   table-bg-color: offset,
   table-border-color: offset (darken: 8%),
-  table-thead-padding: $global-padding / 2,
+  table-thead-padding: $global-padding * 0.5,
   table-thead-font-size: rem-calc(12),
   table-thead-bg-color: offset (darken: 6%),
   table-thead-color: offset (color-b-or-w: ''),
@@ -178,7 +180,7 @@ $themes-global: (
   password-strength-text-shadow: 0 1px 0px shadow(10),
   password-strength-border-width: 0,
   // Password Strength
-  password-suggestions-padding: $global-padding / 2,
+  password-suggestions-padding: $global-padding * 0.5,
   password-suggestions-bg-color: base (color-scale-inverse: 40%),
   password-suggestions-color: base (color-b-or-w: ''),
   password-suggestions-text-shadow: 0 1px 0px shadow(10),
@@ -243,7 +245,7 @@ $themes-global: (
   entity-reference-tree-font-size: rem-calc(11),
   entity-reference-tree-color: primary,
   entity-reference-tree-bg-color: offset,
-  entity-reference-tree-bg-padding: $global-padding / 3 $global-padding / 2,
+  entity-reference-tree-bg-padding: math.div($global-padding, 3) $global-padding * 0.5,
   entity-reference-tree-hover-bg-color: primary,
   entity-reference-tree-hover-color: offset,
   entity-reference-tree-border-color: input-border-color,

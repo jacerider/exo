@@ -1,3 +1,5 @@
+@use "sass:math";
+
 .exo-modal.exo-paragraphs-widget {
 
   .exo-modal-content {
@@ -25,7 +27,7 @@
       display: block;
       font-size: rem-calc(30);
       padding-bottom: rem-calc(15);
-      transition: color $global-speed, scale $global-speed / 3;
+      transition: color $global-speed, scale math.div($global-speed, 3);
     }
 
     .exo-icon-label {

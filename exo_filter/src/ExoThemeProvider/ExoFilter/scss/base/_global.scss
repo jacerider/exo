@@ -8,7 +8,7 @@
     font-weight: normal;
     text-transform: none;
     padding: 0 0 3px;
-    margin: 0 0 ($label-height / 2);
+    margin: 0 0 ($label-height * 0.5);
   }
 
   > .field-input {

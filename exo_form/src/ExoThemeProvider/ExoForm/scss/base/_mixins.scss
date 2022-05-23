@@ -12,8 +12,8 @@
   position: absolute;
   z-index: 10;
   top: ($global-margin * .5);
-  left: $global-padding / 2;
-  transform: translateX(($global-padding / 2) * -1) translateY($label-height * -.9);
+  left: $global-padding * 0.5;
+  transform: translateX(($global-padding * 0.5) * -1) translateY($label-height * -.9);
   font-size: $label-float-font-size;
 }
 
@@ -144,7 +144,7 @@
   text-rendering: optimizeLegibility;
   text-shadow: none;
   z-index: 10;
-  margin: $global-margin / 2 0;
+  margin: $global-margin * 0.5 0;
 }
 
 @mixin description() {

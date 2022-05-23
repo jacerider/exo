@@ -10,7 +10,7 @@
   .office-hours-copy-link,
   .office-hours-delete-link {
     font-size: rem-calc(10);
-    padding-left: $global-padding / 2;
+    padding-left: $global-padding * 0.5;
   }
 
   .office-hours-add-link {

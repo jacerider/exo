@@ -7,7 +7,7 @@
     $primary: map-get($theme, primary);
     $link-color: color-fix($base, $offset);
 
-    &.exo-menu-theme-#{$key} {
+    &.exo-menu-theme-#{'' + $key} {
       background: color($base);
 
       .exo-menu-link {

@@ -31,7 +31,7 @@
     text-rendering: optimizeLegibility;
     font-size: rem-calc(11);
     opacity: 0.8;
-    margin: (size(margin) / 10) auto;
+    margin: (size(margin) * 0.1) auto;
     transition: opacity $global-speed, color $global-speed;
 
     &:hover {

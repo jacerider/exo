@@ -124,8 +124,8 @@ div.exo-form-input {
 
       &,
       &:focus {
-        padding-top: $input-line-height / 2;
-        padding-bottom: $input-line-height / 2;
+        padding-top: $input-line-height * 0.5;
+        padding-bottom: $input-line-height * 0.5;
         line-height: $input-line-height;
         height: auto;
         min-height: $input-height;

@@ -1,3 +1,5 @@
+@use "sass:math";
+
 .exo-form .exo-form-button,
 .exo-form .form-actions .button,
 .exo-form > .button,
@@ -57,9 +59,9 @@
 .is-admin td > .ief-entity-operations .button {
   display: inline-block;
   margin: 0;
-  line-height: $button-height / 1.5 !important;
+  line-height: math.div($button-height, 1.5) !important;
   height: auto !important;
-  padding: 0 $button-padding / 2 !important;
+  padding: 0 $button-padding * 0.5 !important;
   box-sizing: border-box !important;
 }
 

@@ -43,7 +43,7 @@
       }
 
       @include breakpoint(small only) {
-        padding-top: $global-margin / 2;
+        padding-top: $global-margin * 0.5;
         padding-left: 0;
       }
     }
@@ -55,7 +55,7 @@
 
       @include breakpoint(small only) {
         padding-left: 0;
-        margin-top: $global-margin / 2;
+        margin-top: $global-margin * 0.5;
       }
     }
   }
@@ -85,13 +85,13 @@
 
       > div,
       > .exo-form-element {
-        margin: 0 0 $global-margin / 2;
+        margin: 0 0 $global-margin * 0.5;
 
         &:last-child {
           margin-bottom: 0;
 
           @include breakpoint(small only) {
-            margin-bottom: $global-margin / 2;
+            margin-bottom: $global-margin * 0.5;
           }
         }
       }
@@ -106,7 +106,7 @@
     }
 
     .exo-form-element {
-      margin-left: $global-margin / 2;
+      margin-left: $global-margin * 0.5;
       margin-right: 0;
 
       &:first-child {
@@ -148,7 +148,7 @@
       @include breakpoint(small only) {
 
         > .exo-form-element {
-          margin: 0 0 $global-margin / 2;
+          margin: 0 0 $global-margin * 0.5;
         }
       }
 
@@ -177,11 +177,11 @@
     flex-wrap: wrap;
 
     @include breakpoint(small only) {
-      margin-top: $global-margin / 2;
+      margin-top: $global-margin * 0.5;
     }
 
     .button {
-      margin-left: $global-margin / 2;
+      margin-left: $global-margin * 0.5;
 
       .is-admin & {
         height: rem-calc(24) !important;
@@ -215,7 +215,7 @@
 
       > * {
         display: block;
-        margin-right: $global-margin / 2;
+        margin-right: $global-margin * 0.5;
 
         &:last-child {
           margin-right: 0;
@@ -278,7 +278,7 @@
         @include flex;
         @include flex-align(center, middle);
         width: 100%;
-        margin: $global-margin / 2 0 0;
+        margin: $global-margin * 0.5 0 0;
       }
 
       .pager__item {
@@ -375,7 +375,7 @@
         // margin-right: $global-margin;
 
         .field-label {
-          margin-right: $global-margin / 2;
+          margin-right: $global-margin * 0.5;
 
           label {
             font-size: rem-calc(12);

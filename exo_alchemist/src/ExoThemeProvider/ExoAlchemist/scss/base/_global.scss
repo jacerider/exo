@@ -1,3 +1,5 @@
+@use "sass:math";
+
 .component-enabled {
 
   // On alchemist enabled pages, we want to make sure our main content area is
@@ -23,7 +25,7 @@
   border: 1px solid gray(50);
   background: alpha(gray(100), 0.8);
   color: color(theme-white);
-  padding: $global-padding / 1.5;
+  padding: math.div($global-padding, 1.5);
   border-radius: $global-radius;
   text-shadow: 0 0 2px gray(90);
 

@@ -6,7 +6,7 @@
 
     .button {
       margin-bottom: $global-margin;
-      padding: ($global-padding / 2) $global-padding;
+      padding: ($global-padding * 0.5) $global-padding;
     }
   }
 }

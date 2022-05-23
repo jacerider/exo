@@ -45,7 +45,7 @@ $sizes: 10, 20, 30, 40, 50, 60, 70, 80, 90;
     .exo-component {
 
       &:before {
-        opacity: $size / 100;
+        opacity: $size * 0.01;
       }
     }
   }
@@ -55,7 +55,7 @@ $sizes: 10, 20, 30, 40, 50, 60, 70, 80, 90;
   .exo-modifier--overlay-#{$size} .exo-modifier--overlay {
 
     &:before {
-      opacity: $size / 100;
+      opacity: $size * 0.01;
     }
   }
 }

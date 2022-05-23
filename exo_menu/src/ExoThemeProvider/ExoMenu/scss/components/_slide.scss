@@ -155,11 +155,11 @@
 
     .exo-menu-breadcrumbs,
     .exo-menu-back {
-      padding: size('padding') / 2;
+      padding: size('padding') * 0.5;
     }
 
     .exo-menu-link {
-      padding: size(padding) / 2;
+      padding: size(padding) * 0.5;
       font-weight: 600;
 
       .exo-icon {

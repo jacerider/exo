@@ -6,7 +6,7 @@
     $offset: map-get($theme, offset);
     $primary: map-get($theme, primary);
 
-    &.exo-menu-theme-#{$key} {
+    &.exo-menu-theme-#{'' + $key} {
       background: color($base);
 
       a {

@@ -100,7 +100,7 @@ $exo-block-grid-max: 8 !default;
   // Output our margin gutters.
   @if (type-of($gutters) == 'map') {
     @include -exo-breakpoint-value(auto, $gutters) {
-      $gutter: rem-calc($-exo-bp-value) / 2;
+      $gutter: rem-calc($-exo-bp-value) * 0.5;
 
       // Loop through each gutter position
       @each $value in $gutter-position {
@@ -196,7 +196,7 @@ $exo-block-grid-max: 8 !default;
       @error 'Wrong syntax for exo-cell-size(). Use the format "n of n" or "n/n".';
     }
     @else {
-      $size: percentage(nth($size, 1) / nth($size, 3));
+      $size: percentage(math.div(nth($size, 1), nth($size, 3)));
     }
   }
   // Anything else is incorrect
@@ -452,7 +452,7 @@ $exo-block-grid-max: 8 !default;
   $direction: if($vertical, 'top', $global-left);
 
   @include -exo-breakpoint-value($breakpoint, $gutters) {
-    $gutter: rem-calc($-exo-bp-value) / 2;
+    $gutter: rem-calc($-exo-bp-value) * 0.5;
     $gutter-margin: if($gutter-type == 'margin', $gutter, 0);
     $size: if($gutter-margin == 0, #{exo-cell-size($n)}, calc(#{exo-cell-size($n)} + #{$gutter-margin}));
 
@@ -483,7 +483,7 @@ $exo-block-grid-max: 8 !default;
   $breakpoint: null,
   $vertical: false
 ) {
-  $size: percentage(1/$n);
+  $size: percentage(math.div(1, $n));
 
   & > #{$selector} {
     @include exo-cell($size, $gutter-output, $gutters, $gutter-type, $gutter-position, $breakpoint, $vertical);

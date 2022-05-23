@@ -12,7 +12,7 @@
     $offset: map-get($theme, offset);
     $primary: map-get($theme, primary);
 
-    &.exo-modal-theme-#{$key} {
+    &.exo-modal-theme-#{'' + $key} {
       border-bottom-color: color($base);
 
       .exo-modal-header {
@@ -79,7 +79,7 @@
     $offset: map-get($theme, offset);
     $primary: map-get($theme, primary);
 
-    &.exo-modal-theme-content-#{$key} {
+    &.exo-modal-theme-content-#{'' + $key} {
       .exo-modal-wrap,
       .exo-modal-section-header,
       .exo-modal-section-footer,

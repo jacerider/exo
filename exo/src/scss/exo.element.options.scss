@@ -3,7 +3,7 @@
 fieldset.exo-element-options { // sass-lint:disable-line no-qualifying-elements force-element-nesting
 
   .fieldset-wrapper > .description {
-    margin-bottom: $global-margin / 2;
+    margin-bottom: $global-margin * 0.5;
   }
 }
 

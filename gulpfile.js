@@ -14,7 +14,7 @@ const execSync = require('child_process').execSync;
 // Plugins.
 const sequence = require('gulp-sequence');
 const clean = require('gulp-clean');
-const sass = require('gulp-sass');
+const sass = require('gulp-sass')(require('sass'));
 const sassLint = require('gulp-sass-lint');
 const plumber = require('gulp-plumber');
 const notify = require('gulp-notify');
@@ -71,6 +71,7 @@ gulp.task('drupal', function() {
  */
 gulp.task('scss', function () {
   return gulp.src(config.scss.src)
+    .pipe(cache('scss'))
     .pipe(plumber({
       errorHandler: function (error) {
         notify.onError({
@@ -83,13 +84,13 @@ gulp.task('scss', function () {
       }
     }))
     // .pipe(sourcemaps.init())
-    .pipe(sass({
+    .pipe(sass.sync({
       outputStyle: config.scss.outputStyle,
-      errLogToConsole: true,
-      includePaths: config.scss.includePaths
+      errLogToConsole: false,
+      includePaths: config.scss.includePaths,
+      quietDeps: true
     }))
     .pipe(autoprefix('last 2 versions', '> 1%', 'ie 9', 'ie 10'))
-    .pipe(cache('scss'))
     .pipe(rename(function(path) {
       var matches;
       path.dirname = path.dirname.replace('scss', config.scss.dest);
@@ -125,6 +126,7 @@ gulp.task('scss', function () {
  */
 gulp.task('js', function () {
   return gulp.src(config.js.src)
+    .pipe(cache('js'))
     .pipe(plumber())
     .pipe(eslint({
       configFile: '.eslintrc',
@@ -132,7 +134,6 @@ gulp.task('js', function () {
     }))
     .pipe(eslint.format())
     .pipe(uglify())
-    .pipe(cache('js'))
     .pipe(rename(function(path) {
       path.dirname = path.dirname.replace('/src/js', '/' + config.js.dest);
     }))
@@ -176,6 +177,7 @@ gulp.task('tsPackage', function () {
  */
 gulp.task('tsCompile', function () {
   return gulp.src(config.ts.tmpsrc)
+    .pipe(cache('ts'))
     .pipe(plumber())
     // .pipe(sourcemaps.init())
     .pipe(tsProject(ts.reporter.nullReporter()))
@@ -189,7 +191,6 @@ gulp.task('tsCompile', function () {
       ]]
     }))
     .pipe(uglify())
-    .pipe(cache('ts'))
     .pipe(rename(function(path) {
       path.dirname = path.dirname.replace('/' + config.ts.tmp, '/' + config.ts.dest);
     }))

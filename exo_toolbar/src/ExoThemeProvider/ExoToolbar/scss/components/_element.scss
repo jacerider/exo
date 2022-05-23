@@ -1,3 +1,5 @@
+@use "sass:math";
+
 .exo-toolbar-element {
   // @include flex;
   // @include flex-align(left, stretch);
@@ -35,8 +37,8 @@
 
     @each $key, $sizes in $region-sizes {
       [data-exo-size='#{$key}'] & {
-        border-radius: rem-calc(map-get($sizes, 'element') / 2);
-        margin: rem-calc(map-get($sizes, 'padding') / 2);
+        border-radius: rem-calc(map-get($sizes, 'element') * 0.5);
+        margin: rem-calc(map-get($sizes, 'padding') * 0.5);
 
         .exo-toolbar-element-inner {
           font-size: rem-calc(map-get($sizes, 'text') * 0.75);
@@ -57,7 +59,7 @@
     }
 
     [data-exo-align='vertical'] & {
-      width: calc(100% - #{rem-calc(map-get($sizes, 'padding') / 3)});
+      width: calc(100% - #{rem-calc(math.div(map-get($sizes, 'padding'), 3))});
     }
 
     [data-exo-section='left'] & {
@@ -88,11 +90,11 @@
   }
 
   .has-icon-before & {
-    padding-left: size(padding) / 4;
+    padding-left: size(padding) * 0.25;
   }
 
   .has-icon-after & {
-    padding-right: size(padding) / 4;
+    padding-right: size(padding) * 0.25;
   }
 
   // A toolbar can be set to icon only mode.
@@ -141,7 +143,7 @@
       // A toolbar can be set to icon only mode.
       .exo-toolbar-region-mark-only[data-exo-align='horizontal'][data-exo-size='#{$key}'] & {
         // @TODO: We may want to hide the after mark?
-        padding-left: rem-calc(map-get($sizes, 'padding') / 2);
+        padding-left: rem-calc(map-get($sizes, 'padding') * 0.5);
       }
     }
 
@@ -218,7 +220,7 @@
   }
 
   .has-icon-after & {
-    margin-right: rem-calc(map-get($sizes, 'padding') / 4);
+    margin-right: rem-calc(map-get($sizes, 'padding') * 0.25);
   }
 }
 

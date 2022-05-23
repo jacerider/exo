@@ -1,3 +1,5 @@
+@use "sass:math";
+
 .exo-toolbar-element-grid {
   @include flex;
   flex-wrap: wrap;
@@ -18,7 +20,7 @@
 
     .exo-icon,
     .exo-icon-label {
-      transition: color 300ms, transform $global-speed / 3;
+      transition: color 300ms, transform math.div($global-speed, 3);
     }
 
     .exo-icon {

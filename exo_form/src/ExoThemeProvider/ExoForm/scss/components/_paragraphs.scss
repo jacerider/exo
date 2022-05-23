@@ -20,7 +20,7 @@
     @include flex;
 
     .paragraph-type-icon {
-      margin-right: $global-padding / 2;
+      margin-right: $global-padding * 0.5;
     }
   }
 

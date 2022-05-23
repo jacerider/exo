@@ -6,7 +6,7 @@
       float: none;
 
       .allday {
-        margin: $global-margin $global-margin / 2 0;
+        margin: $global-margin $global-margin * 0.5 0;
       }
     }
 

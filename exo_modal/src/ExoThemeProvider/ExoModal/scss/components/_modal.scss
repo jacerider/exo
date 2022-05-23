@@ -1,3 +1,5 @@
+@use "sass:math";
+
 .exo-modal {
   @include exo-progress-throbber;
   display: none;
@@ -292,7 +294,7 @@
       text-align: center;
       margin: 0;
       border: 0;
-      padding: $global-padding / 1.5;
+      padding: math.div($global-padding, 1.5);
       line-height: 1;
       font-size: rem-calc(13);
       border-radius: 0;

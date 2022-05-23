@@ -11,7 +11,7 @@
     $offset: map-get($theme, offset);
     $primary: map-get($theme, primary);
 
-    &.exo-modal-theme-content-#{$key} {
+    &.exo-modal-theme-content-#{'' + $key} {
 
       .exo-button {
         background-color: color($base);

@@ -15,7 +15,7 @@
     @include exo-cell(6, $gutters: -1px, $gutter-position: top right bottom left);
     background: color(theme-offset);
     // max-width: rem-calc(120);
-    padding: size(padding) / 2;
+    padding: size(padding) * 0.5;
     border: 1px solid color(theme-base);
     box-sizing: border-box;
 
