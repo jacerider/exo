@@ -22,6 +22,7 @@ class EntityList extends RenderElement {
         [$class, 'preRenderExoEntityListViewElement'],
       ],
       '#list_id' => NULL,
+      '#list_filters' => [],
       '#cache' => [],
     ];
   }
@@ -42,6 +43,10 @@ class EntityList extends RenderElement {
     }
     else {
       $list = $element['#entity_list'];
+    }
+    /** @var \Drupal\exo_list_builder\EntityListInterface $list */
+    foreach ($element['#list_filters'] as $key => $filter) {
+      $list->getHandler()->setOption(['filter', $key], $filter);
     }
 
     $element['list'] = \Drupal::entityTypeManager()->getViewBuilder($list->getEntityTypeId())->view($list, 'default');

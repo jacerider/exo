@@ -103,6 +103,7 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
         $render = [
           '#type' => 'exo_entity_list',
           '#entity_list' => $entity,
+          '#list_filters' => $field->getAdditionalValue('exo_entity_list_filters') ?? [],
         ];
       }
       if ($field->hasAdditionalValue('exo_entity_list_hide_if_empty') && !$handler->isModified() && empty($handler->getTotal())) {
