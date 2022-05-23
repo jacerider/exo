@@ -306,7 +306,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    *
    * @return $this
    */
-  protected function setOption($key, $value) {
+  public function setOption($key, $value) {
     NestedArray::setValue($this->options, (array) $key, $value);
     return $this;
   }
