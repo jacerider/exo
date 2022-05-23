@@ -512,11 +512,9 @@ class EntityListForm extends EntityForm {
         $row['view']['options']['sort']['sort_default'] = [
           '#type' => 'radio',
           '#title' => $this->t('Sort default'),
-          '#default_value' => $exo_entity_list->getSort() === $field_id ? $field_id : NULL,
+          '#default_value' => $exo_entity_list->getSort() === $field_id ? $field_id : FALSE,
           '#return_value' => $field_id,
-          '#parents' => [
-            'sort',
-          ],
+          '#parents' => ['sort'],
         ];
       }
       $row['view']['options']['wrapper'] = [
@@ -755,6 +753,9 @@ class EntityListForm extends EntityForm {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
+
+    $sort = $form_state->getUserInput()['sort'] ?? NULL;
+    $form_state->setValue('sort', $sort);
 
     if ($form_state->getValue('limit_all')) {
       $form_state->setValue('limit', 0);
