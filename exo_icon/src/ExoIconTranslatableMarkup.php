@@ -358,7 +358,7 @@ class ExoIconTranslatableMarkup extends TranslatableMarkup {
     $output = [];
     $string = $this->getText();
     if ($icon = $this->getIcon()) {
-      if (empty($string)) {
+      if (is_null($string)) {
         $output = $icon->toRenderable();
       }
       else {
