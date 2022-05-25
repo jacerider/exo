@@ -57,37 +57,23 @@ class ExoListBuilderLocalTasks extends DeriverBase implements ContainerDeriverIn
     $exo_entity_lists = $this->entityTypeManager->getStorage('exo_entity_list')->loadMultiple();
 
     foreach ($exo_entity_lists as $exo_entity_list) {
-      $handler = $exo_entity_list->getHandler();
-      if ($handler instanceof ExoListBuilderContentStatesInterface) {
-        $entity_type_id = $exo_entity_list->getTargetEntityTypeId();
-        if ($exo_entity_list->isOverride()) {
-          $this->derivatives['exo_list_builder.' . $exo_entity_list->id() . '.state.default'] = [
-            'route_name' => "entity.$entity_type_id.collection",
-            'title' => $handler->getDefaultStateLabel(),
-            'options' => [
-              'attributes' => [
-                'data-icon' => $handler->getDefaultStateIcon(),
-              ],
-            ],
-            'base_route' => "entity.$entity_type_id.collection",
+      if ($exo_entity_list->isOverride() && $exo_entity_list->getTargetEntityTypeId() === 'taxonomy_term') {
+        foreach ($exo_entity_list->getTargetBundleIds() as $bundle) {
+          $route_name = 'exo_list_builder.' . $exo_entity_list->id() . '.' . $bundle . '.taxonomy_vocabulary.overview_form';
+          $this->derivatives[$route_name] = [
+            'route_name' => $route_name,
+            'title' => 'List',
+            'base_route' => $route_name,
             'weight' => -10,
           ] + $base_plugin_definition;
-          foreach ($handler->getStates() as $state_id => $state) {
-            $this->derivatives['exo_list_builder.' . $exo_entity_list->id() . '.state.' . $state_id] = [
-              'route_name' => "entity.$entity_type_id.collection",
-              'route_parameters' => [
-                'state' => $state_id,
-              ],
-              'title' => $state['label'],
-              'options' => [
-                'attributes' => [
-                  'data-icon' => $state['icon'],
-                ],
-              ],
-              'base_route' => "entity.$entity_type_id.collection",
-              'weight' => -10,
-            ] + $base_plugin_definition;
-          }
+          // The update redirect route. This is needed due to how the taxonomy
+          // module generates is menu tasks.
+          $redirect_route_name = 'exo_list_builder.' . $exo_entity_list->id() . '.' . $bundle . '.taxonomy_vocabulary.update_form';
+          $this->derivatives[$redirect_route_name] = [
+            'route_name' => $redirect_route_name,
+            'title' => 'Edit',
+            'base_route' => $route_name,
+          ] + $base_plugin_definition;
         }
       }
     }

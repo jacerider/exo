@@ -32,7 +32,9 @@ class ExoListRoutes {
       if ($override && $exo_entity_list->getTargetEntityTypeId() === 'taxonomy_term') {
         // Special condition allowing for override of taxonomy management page.
         foreach ($exo_entity_list->getTargetBundleIds() as $bundle) {
-          $routes['exo_list_builder.' . $exo_entity_list->id() . '.taxonomy_vocabulary.overview_form'] = new Route('/admin/structure/taxonomy/manage/' . $bundle . '/overview', $defaults, $requirements);
+          $routes['exo_list_builder.' . $exo_entity_list->id() . '.' . $bundle . '.taxonomy_vocabulary.overview_form'] = new Route('/admin/structure/taxonomy/manage/' . $bundle . '/overview', $defaults + [
+            'taxonomy_vocabulary' => $bundle,
+          ], $requirements);
         }
         $override = FALSE;
       }

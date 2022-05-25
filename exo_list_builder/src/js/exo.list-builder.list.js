@@ -33,10 +33,10 @@
 
     $.extend(Drupal.theme, {
       tableDragChangedMarker: function tableDragChangedMarker() {
-        return "";
+        return '';
       },
       tableDragChangedWarning: function tableDragChangedWarning() {
-        return "";
+        return '';
       }
     });
   }
