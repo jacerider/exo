@@ -753,6 +753,13 @@ function exo_alchemist_preprocess_block__page_title_block(&$variables) {
         $variables['attributes']['class'][] = 'visually-hidden';
       }
       break;
+    case 'entity.taxonomy_term.canonical':
+      $term = \Drupal::routeMatch()->getParameter('taxonomy_term');
+      // If field exists we can assume this is handled by layout builder.
+      if ($term && \Drupal::service('exo_alchemist.generator')->isLayoutCompatibleEntity($term)) {
+        $variables['attributes']['class'][] = 'visually-hidden';
+      }
+      break;
     case 'exo_alchemist.component.preview':
     case substr($route_name, 0, 24) === 'layout_builder.defaults.';
     case substr($route_name, 0, 25) === 'layout_builder.overrides.';
