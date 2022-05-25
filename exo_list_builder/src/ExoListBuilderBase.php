@@ -423,7 +423,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
       // Non-exposed fields that have a default value set.
       if (empty($field['filter']['settings']['expose']) && !empty($field['filter']['settings']['default'])) {
-        $filter_value = $field['filter']['settings']['default'];
+        $filter_value = $this->getOption(['filter', $field_id]) ?? $field['filter']['settings']['default'];
       }
       // Exposed fields.
       else {
