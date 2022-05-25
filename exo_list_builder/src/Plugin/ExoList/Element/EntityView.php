@@ -107,7 +107,9 @@ class EntityView extends ExoListElementBase implements ContainerFactoryPluginInt
   protected function view(EntityInterface $entity, array $field) {
     $view_builder = $this->entityTypeManager->getViewBuilder($entity->getEntityTypeId());
     $configuration = $this->getConfiguration();
-    return $view_builder->view($entity, $configuration['view_mode'], $entity->language()->getId());
+    $render = $view_builder->view($entity, $configuration['view_mode'], $entity->language()->getId());
+    $render['#exo_hide_title'] = TRUE;
+    return $render;
   }
 
   /**
