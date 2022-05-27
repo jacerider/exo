@@ -18,7 +18,10 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
   const DEFAULTS = [
     'position' => 'modal',
     'expose' => TRUE,
-    'default' => NULL,
+    'default' => [
+      'status' => FALSE,
+      'value' => NULL,
+    ],
     'expose_block' => FALSE,
     'multiple' => FALSE,
     'multiple_join' => 'or',
@@ -150,6 +153,19 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
    *   The preview string.
    */
   public function toPreview($value, EntityListInterface $entity_list, array $field);
+
+  /**
+   * Get default filter value.
+   *
+   * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
+   *   The entity list.
+   * @param array $field
+   *   The field definition.
+   *
+   * @return mixed
+   *   The default value.
+   */
+  public function getDefaultValue(EntityListInterface $entity_list, array $field);
 
   /**
    * Alter the query.

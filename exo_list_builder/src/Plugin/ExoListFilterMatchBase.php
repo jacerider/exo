@@ -104,7 +104,7 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase {
    *
    * @param string $field_id
    *   The field id.
-   * @param \Drupal\Core\Entity\Query\QueryInterface $query
+   * @param \Drupal\Core\Entity\Query\QueryInterface|\Drupal\Core\Condition\ConditionInterface $query
    *   The query.
    * @param mixed $value
    *   The filter value.
@@ -113,7 +113,7 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase {
    * @param array $field
    *   The field definition.
    */
-  protected function queryAlterByField($field_id, QueryInterface $query, $value, EntityListInterface $entity_list, array $field) {
+  protected function queryAlterByField($field_id, $query, $value, EntityListInterface $entity_list, array $field) {
     $match_operator = $this->getConfiguration()['match_operator'];
     $query->condition($field_id, $value, $match_operator);
   }

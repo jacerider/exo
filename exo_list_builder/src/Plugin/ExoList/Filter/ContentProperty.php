@@ -2,6 +2,7 @@
 
 namespace Drupal\exo_list_builder\Plugin\ExoList\Filter;
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\exo_list_builder\EntityListInterface;
@@ -30,11 +31,22 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
   /**
    * {@inheritdoc}
    */
+  protected $supportsMultiple = TRUE;
+
+  /**
+   * {@inheritdoc}
+   */
   public function defaultConfiguration() {
     return [
       'property' => [],
       'autocomplete' => FALSE,
       'select' => FALSE,
+      'default_from_url' => [
+        'status' => FALSE,
+        'entity_type' => NULL,
+        'field_name' => NULL,
+      ],
+      // 'default_from_url' => FALSE,
     ] + parent::defaultConfiguration();
   }
 
@@ -68,6 +80,9 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
         'disabled' => [
           ':input[id="' . $form['#id'] . '-dropdown' . '"]' => ['checked' => TRUE],
         ],
+        'visible' => [
+          ':input[name="fields[' . $field['id'] . '][filter][settings][expose]"]' => ['checked' => TRUE],
+        ],
       ],
     ];
 
@@ -80,9 +95,104 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
         'disabled' => [
           ':input[id="' . $form['#id'] . '-autocomplete' . '"]' => ['checked' => TRUE],
         ],
+        'visible' => [
+          ':input[name="fields[' . $field['id'] . '][filter][settings][expose]"]' => ['checked' => TRUE],
+        ],
       ],
     ];
+
+    $form['default_from_url'] = [
+      '#type' => $configuration['default_from_url']['status'] ? 'fieldset' : 'html_tag',
+      '#tag' => 'div',
+      '#attributes' => [
+        'id' => $form['#id'] . '-default-from-url',
+        'class' => ['exo-form-element'],
+      ],
+      '#weight' => -69,
+    ];
+
+    $form['default_from_url']['status'] = [
+      '#type' => 'checkbox',
+      '#id' => $form['#id'] . '-default-from-url-status',
+      '#title' => $this->t('Default value from URL'),
+      '#ajax' => [
+        'method' => 'replace',
+        'wrapper' => $form['#id'] . '-default-from-url',
+        'callback' => [__CLASS__, 'ajaxReplaceDefaultFromUrl'],
+      ],
+      '#default_value' => $configuration['default_from_url']['status'],
+    ];
+
+    if ($configuration['default_from_url']['status']) {
+      $entity_types = $this->entityTypeManager()->getDefinitions();
+      $entity_type_id = $configuration['default_from_url']['entity_type'] ?? NULL;
+      $options = [];
+      foreach ($entity_types as $type) {
+        $options[$type->id()] = $type->getLabel();
+      }
+      $form['default_from_url']['entity_type'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Entity Type'),
+        '#options' => $options,
+        '#required' => TRUE,
+        '#default_value' => $entity_type_id,
+        '#ajax' => [
+          'method' => 'replace',
+          'wrapper' => $form['#id'] . '-default-from-url',
+          'callback' => [__CLASS__, 'ajaxReplaceDefaultFromUrl'],
+        ],
+      ];
+
+      if ($entity_type_id && isset($entity_types[$entity_type_id])) {
+        $entity_type = $entity_types[$entity_type_id];
+        /** @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface $bundle_manager */
+        $bundle_manager = \Drupal::service('entity_type.bundle.info');
+        /** @var \Drupal\Core\Entity\EntityFieldManagerInterface $field_manager */
+        $field_manager = \Drupal::service('entity_field.manager');
+        $field_options = [
+          '' => $this->t('@entity_type_label ID', [
+            '@entity_type_label' => $entity_type->getLabel(),
+          ]),
+        ];
+        if ($entity_type->hasKey('bundle') && $bundles = $bundle_manager->getBundleInfo($entity_type->id())) {
+          foreach ($bundles as $bundle_id => $bundle) {
+            foreach ($field_manager->getFieldDefinitions($entity_type_id, $bundle_id) as $field_id => $field) {
+              if ($field->getType() == 'entity_reference') {
+                $field_options[$field_id] = $this->t('@entity_type_label -> @field_label ID', [
+                  '@entity_type_label' => $entity_type->getLabel(),
+                  '@field_label' => $field->getLabel(),
+                ]);
+              }
+            }
+          }
+        }
+        $form['default_from_url']['field_name'] = [
+          '#type' => 'select',
+          '#title' => $this->t('Reference Field'),
+          '#options' => $field_options,
+          '#default_value' => $configuration['default_from_url']['field_name'] ?? NULL,
+        ];
+      }
+    }
     return $form;
+  }
+
+  /**
+   * Ajax replace callback.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return array
+   *   The fields form.
+   */
+  public static function ajaxReplaceDefaultFromUrl(array $form, FormStateInterface $form_state) {
+    $parents = $form_state->getTriggeringElement()['#array_parents'];
+    $parents = array_slice($form_state->getTriggeringElement()['#array_parents'], 0, -2);
+    $element = NestedArray::getValue($form, $parents);
+    return $element['default_from_url'];
   }
 
   /**
@@ -116,6 +226,31 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
     }
 
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultValue(EntityListInterface $entity_list, array $field) {
+    $configuration = $this->getConfiguration();
+    if (!empty($configuration['default_from_url']['status']) && !empty($configuration['default_from_url']['entity_type'])) {
+      $entity = \Drupal::routeMatch()->getParameter($configuration['default_from_url']['entity_type']);
+      if ($entity) {
+        if (!empty($configuration['default_from_url']['field_name'])) {
+          $field_name = $configuration['default_from_url']['field_name'];
+          if ($entity->hasField($field_name)) {
+            // We return an empty string so that the filter is used and no
+            // results are returned.
+            // @todo Support optional arguments. Would just need to return null.
+            return !empty($entity->get($field_name)->entity) ? $entity->get($field_name)->entity->id() : '';
+          }
+        }
+        else {
+          return $entity->id();
+        }
+      }
+    }
+    return parent::getDefaultValue($entity_list, $field);
   }
 
   /**

@@ -2,7 +2,6 @@
 
 namespace Drupal\exo_list_builder\Plugin\ExoList\Filter;
 
-use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\OptGroup;
 use Drupal\exo_list_builder\EntityListInterface;

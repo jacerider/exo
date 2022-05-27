@@ -65,6 +65,12 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state, EntityListInterface $entity_list, array $field) {
     $configuration = $this->getConfiguration();
+    $form['expose'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Expose in List'),
+      '#default_value' => !empty($configuration['expose']),
+      '#weight' => -100,
+    ];
     $form['position'] = [
       '#type' => 'select',
       '#title' => $this->t('Position'),
@@ -73,11 +79,12 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
         'header' => $this->t('Header'),
       ],
       '#default_value' => $configuration['position'] ?: 'modal',
-    ];
-    $form['expose'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Expose in List'),
-      '#default_value' => !empty($configuration['expose']),
+      '#states' => [
+        'visible' => [
+          ':input[name="fields[' . $field['id'] . '][filter][settings][expose]"]' => ['checked' => TRUE],
+        ],
+      ],
+      '#weight' => -90,
     ];
     $form['expose_block'] = [
       '#type' => 'checkbox',
@@ -86,8 +93,9 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       '#states' => [
         'visible' => [
           ':input[name="settings[block_status]"]' => ['checked' => TRUE],
-        ]
+        ],
       ],
+      '#weight' => -80,
     ];
     if ($this->supportsMultiple) {
       $form['multiple'] = [
@@ -100,6 +108,7 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
           'wrapper' => $form['#id'] . '--default',
           'callback' => [__CLASS__, 'ajaxReplaceFilterCallback'],
         ],
+        '#weight' => -70,
       ];
       $form['multiple_join'] = [
         '#type' => 'radios',
@@ -111,19 +120,46 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
             '#' . $form['#id'] . '--multiple' => ['checked' => TRUE],
           ],
         ],
+        '#weight' => -70,
       ];
     }
+
+    $default_status = !empty($configuration['default']['status']);
     $form['default'] = [
-      '#type' => 'details',
-      '#open' => !empty($configuration['default']),
-      '#title' => $this->t('Default value'),
-      '#exo_list_field' => $field,
-      '#prefix' => '<div id="' . $form['#id'] . '--default">',
-      '#suffix' => '</div>',
+      '#type' => $default_status ? 'fieldset' : 'html_tag',
+      '#tag' => 'div',
+      '#attributes' => [
+        'id' => $form['#id'] . '--default',
+        'class' => ['exo-form-element'],
+      ],
+      // '#prefix' => '<div id="' . $form['#id'] . '--default">',
+      // '#suffix' => '</div>',
+      '#weight' => -60,
     ];
-    $subform_state = SubformState::createForSubform($form['default'], $form, $form_state);
-    $default = $configuration['default'] ?: $this->defaultValue();
-    $form['default'] = $this->buildForm($form['default'], $subform_state, $default, $entity_list, $field);
+
+    $form['default']['status'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Default value'),
+      '#ajax' => [
+        'method' => 'replace',
+        'wrapper' => $form['#id'] . '--default',
+        'callback' => [__CLASS__, 'ajaxReplaceDefault'],
+      ],
+      '#default_value' => $default_status,
+    ];
+
+    if ($default_status) {
+      $form['default']['value'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#title' => $this->t('Default value'),
+        '#exo_list_field' => $field,
+      ];
+      $subform_state = SubformState::createForSubform($form['default']['value'], $form, $form_state);
+      $default = $configuration['default']['value'] ?: $this->defaultValue();
+      $form['default']['value'] = $this->buildForm($form['default']['value'], $subform_state, $default, $entity_list, $field);
+    }
+
     return $form;
   }
 
@@ -146,19 +182,37 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
   }
 
   /**
+   * Ajax replace callback.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return array
+   *   The fields form.
+   */
+  public static function ajaxReplaceDefault(array $form, FormStateInterface $form_state) {
+    $parents = $form_state->getTriggeringElement()['#array_parents'];
+    $parents = array_slice($form_state->getTriggeringElement()['#array_parents'], 0, -2);
+    $element = NestedArray::getValue($form, $parents);
+    return $element['default'];
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array $form, FormStateInterface $form_state) {
     $entity_list = $form_state->get('exo_entity_list');
-    if (!empty($form['default'])) {
-      $subform_state = SubformState::createForSubform($form['default'], $form, $form_state);
-      $this->validateForm($form['default'], $subform_state);
-      $default = $this->toUrlQuery($form_state->getValue('default', []), $entity_list, $form['default']['#exo_list_field']);
+    if (!empty($form['default']['value'])) {
+      $subform_state = SubformState::createForSubform($form['default']['value'], $form, $form_state);
+      $this->validateForm($form['default']['value'], $subform_state);
+      $default = $this->toUrlQuery($form_state->getValue(['default', 'value'], []), $entity_list, $form['default']['value']['#exo_list_field']);
       if ($default) {
-        $form_state->setValue('default', $default);
+        $form_state->setValue(['default', 'value'], $default);
       }
       else {
-        $form_state->unsetValue('default');
+        $form_state->unsetValue(['default']);
       }
     }
   }
@@ -191,6 +245,13 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       $value = implode(', ', $value);
     }
     return $value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultValue(EntityListInterface $entity_list, array $field) {
+    return !empty($field['filter']['settings']['default']['status']) && !is_null($field['filter']['settings']['default']['value']) ? $field['filter']['settings']['default']['value'] : NULL;
   }
 
   /**

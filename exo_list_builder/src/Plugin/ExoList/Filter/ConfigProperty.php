@@ -53,6 +53,9 @@ class ConfigProperty extends ExoListFilterMatchBase implements ExoListFieldValue
         'disabled' => [
           ':input[id="' . $form['#id'] . '-dropdown' . '"]' => ['checked' => TRUE],
         ],
+        'visible' => [
+          ':input[name="fields[' . $field['id'] . '][filter][settings][expose]"]' => ['checked' => TRUE],
+        ],
       ],
     ];
 
@@ -64,6 +67,9 @@ class ConfigProperty extends ExoListFilterMatchBase implements ExoListFieldValue
       '#states' => [
         'disabled' => [
           ':input[id="' . $form['#id'] . '-autocomplete' . '"]' => ['checked' => TRUE],
+        ],
+        'visible' => [
+          ':input[name="fields[' . $field['id'] . '][filter][settings][expose]"]' => ['checked' => TRUE],
         ],
       ],
     ];

@@ -421,21 +421,22 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       if (!$field['filter']['instance']) {
         continue;
       }
+      /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
+      $instance = $field['filter']['instance'];
+      $default_value = $instance->getDefaultValue($entity_list, $field);
       // Non-exposed fields that have a default value set.
-      if (empty($field['filter']['settings']['expose']) && !empty($field['filter']['settings']['default'])) {
-        $filter_value = $this->getOption(['filter', $field_id]) ?? $field['filter']['settings']['default'];
+      if (empty($field['filter']['settings']['expose']) && !is_null($default_value)) {
+        $filter_value = $this->getOption(['filter', $field_id]) ?? $default_value;
       }
       // Exposed fields.
       else {
         $filter_value = $this->getOption(['filter', $field_id]);
         // Provide default filters when filter value is empty, list has not been
         // modified and field provides a default.
-        if (empty($filter_value) && !$this->isModified() && !empty($field['filter']['settings']['default'])) {
-          $filter_value = $field['filter']['settings']['default'];
+        if (empty($filter_value) && !$this->isModified() && !is_null($default_value)) {
+          $filter_value = $default_value;
         }
       }
-      /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
-      $instance = $field['filter']['instance'];
       if (!is_null($filter_value)) {
         if (is_array($filter_value)) {
           $group = NULL;
@@ -588,7 +589,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   public function isFiltered() {
     foreach ($this->getFilters() as $field_id => $field) {
-      if (!empty($field['filter']['settings']['default'])) {
+      if (!empty($field['filter']['settings']['default']['status'])) {
         return TRUE;
       }
     }
@@ -1354,7 +1355,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         $value = $this->getOption([
           'filter',
           $field_id,
-        ], ($this->isModified() ? NULL : $field['filter']['settings']['default'] ?? $instance->defaultValue()));
+        ], ($this->isModified() ? NULL : $instance->getDefaultValue($this->entityList, $field) ?? $instance->defaultValue()));
         $form[$field_id] = [];
         $form[$field_id] = $instance->buildForm($form[$field_id], $form_state, $value, $this->entityList, $field);
       }
@@ -1402,8 +1403,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $filters = $this->getExposedFilters();
     if (!$this->isModified()) {
       foreach ($filters as $field_id => $field) {
-        if (!isset($filter_values[$field_id]) && !empty($field['filter']['settings']['default'])) {
-          $filter_values[$field_id] = $field['filter']['settings']['default'];
+        if (!isset($filter_values[$field_id]) && !empty($field['filter']['settings']['default']['value'])) {
+          $filter_values[$field_id] = $field['filter']['settings']['default']['value'];
         }
       }
     }

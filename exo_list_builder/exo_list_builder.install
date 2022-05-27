@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * @file
+ * Contains install and update functions for exo exo_list_builder.
+ */
+
+use Drupal\Core\Field\BaseFieldDefinition;
+
+/**
+ * Convert field defaults to new format.
+ */
+function exo_exo_list_builder_update_8001() {
+  foreach (\Drupal::entityTypeManager()->getStorage('exo_entity_list')->loadMultiple() as $exo_entity_list) {
+    /** @var \Drupal\exo_list_builder\EntityListInterface $exo_entity_list */
+    $fields = $exo_entity_list->get('fields');
+    foreach ($fields as &$field) {
+      if (!empty($field['filter']['settings']['default']) && !isset($field['filter']['settings']['status'])) {
+        $field['filter']['settings']['default'] = [
+          'status' => '1',
+          'value' => $field['filter']['settings']['default'],
+        ];
+      }
+    }
+    $exo_entity_list->set('fields', $fields);
+    $exo_entity_list->save();
+  }
+}
