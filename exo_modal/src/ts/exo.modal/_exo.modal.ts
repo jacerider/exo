@@ -861,7 +861,8 @@ class ExoModal extends ExoData {
           base: this.$element.attr('id'),
           element: this.$element[0],
           url: href,
-          exoModal: this
+          exoModal: this,
+          exoModalParam: param
         });
         const successCallback = ajax.options.success;
         ajax.options.success = function (response, status, xmlhttprequest) {

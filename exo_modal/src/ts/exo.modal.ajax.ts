@@ -39,7 +39,7 @@
       if (response.selector.length) {
         response.method = 'html';
         Drupal.AjaxCommands.prototype.insert(ajax, response);
-        ajax.exoModal.rebuildContent().open();
+        ajax.exoModal.rebuildContent().open(ajax.exoModalParam || {});
       }
     }
   };
