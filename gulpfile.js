@@ -71,7 +71,6 @@ gulp.task('drupal', function() {
  */
 gulp.task('scss', function () {
   return gulp.src(config.scss.src)
-    .pipe(cache('scss'))
     .pipe(plumber({
       errorHandler: function (error) {
         notify.onError({
@@ -90,6 +89,7 @@ gulp.task('scss', function () {
       includePaths: config.scss.includePaths,
       quietDeps: true
     }))
+    .pipe(cache('scss'))
     .pipe(autoprefix('last 2 versions', '> 1%', 'ie 9', 'ie 10'))
     .pipe(rename(function(path) {
       var matches;
