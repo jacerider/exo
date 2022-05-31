@@ -631,6 +631,32 @@
 
 }
 
+.exo-modal-navigate-titles {
+  @include flex;
+  @include flex-align(left, middle);
+  width: 100%;
+  font-size: 13px;
+  text-transform: uppercase;
+  font-weight: 700;
+
+  .exo-modal-navigate-title-prev {
+    @include exo-icon(regular, \f053) {
+      padding-right: rem-calc(5);
+    }
+    display: block;
+    padding: $global-padding;
+  }
+
+  .exo-modal-navigate-title-next {
+    @include exo-icon(regular, \f054, after) {
+      padding-left: rem-calc(5);
+    }
+    display: block;
+    padding: $global-padding;
+    margin-left: auto;
+  }
+}
+
 .exo-modal-navigate > button {
   position: absolute;
   // bottom: 0;

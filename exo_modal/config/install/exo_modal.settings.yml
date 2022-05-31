@@ -9,6 +9,7 @@ trigger:
 modal:
   preset: '' # A system defined preset.
   title: '' # Title in modal's header.
+  hideTitle: false # Do not show the title even if one is set.
   subtitle: '' # Caption below modal's title.
   icon: '' # Icon class (font-icon of your choice) that will be displayed in modal header.
   iconText: '' # Icon text (font-icon using html) that will be displayed in modal header.
@@ -37,6 +38,7 @@ modal:
   loop: false # It allows loop with modals of the same group.
   navigateCaption: true # Displays arrows to navigate.
   navigateArrows: true # Change arrows position to navigate between the modals. It can be: 'closeToModal' or 'closeScreenEdge'.
+  navigateTitles: false # Show navigation by modal titles.
   history: false # Enable browsing history with hash.
   restoreDefaultContent: false # Reset the modal to default to be opened again.
   destroyOnClose: false # Destroy modal on close.

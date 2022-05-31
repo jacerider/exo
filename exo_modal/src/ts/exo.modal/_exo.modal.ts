@@ -12,6 +12,7 @@ class ExoModal extends ExoData {
   protected defaults:ExoSettingsGroupInterface = {
     preset: null,
     title: '',
+    hideTitle: false,
     subtitle: '',
     overlayColor: 'rgba(0, 0, 0, 0.4)',
     icon: null,
@@ -44,6 +45,7 @@ class ExoModal extends ExoData {
     arrowKeys: true,
     navigateCaption: true,
     navigateArrows: true, // Boolean, 'closeToModal', 'closeScreenEdge'
+    navigateTitles: false,
     history: false,
     restoreDefaultContent: false,
     autoOpen: 0, // Boolean, Number
@@ -128,6 +130,7 @@ class ExoModal extends ExoData {
   protected $trigger:JQuery;
   protected $element:JQuery;
   protected $contentAjaxPlaceholder:JQuery;
+  protected ajaxLoaded:boolean = false;
   protected contentAjaxLoaded:boolean = false;
   protected $overlay:JQuery;
   protected $navigate:JQuery;
@@ -385,7 +388,8 @@ class ExoModal extends ExoData {
     // This can be called multiple times and should be rebuilt each time.
     this.$element.find('.' + this.name + '-header').remove();
 
-    this.$header = $('<div class="' + this.name + '-header"><h2 class="' + this.name + '-header-title">' + this.get('title') + '</h2><p class="' + this.name + '-header-subtitle"><span>' + this.get('subtitle') + '</span></p><div class="' + this.name + '-header-buttons"></div></div>');
+    const title = this.get('hideTitle') === true ? '' : this.get('title');
+    this.$header = $('<div class="' + this.name + '-header"><h2 class="' + this.name + '-header-title">' + title + '</h2><p class="' + this.name + '-header-subtitle"><span>' + this.get('subtitle') + '</span></p><div class="' + this.name + '-header-buttons"></div></div>');
 
     if (this.get('subtitle') === '') {
       this.$header.addClass(this.name + '-no-subtitle');
@@ -428,6 +432,7 @@ class ExoModal extends ExoData {
     this.$element.find('.' + this.name + '-footer').remove();
     this.$element.removeClass('has-footer');
 
+    this.$footer = $('<div class="' + this.name + '-footer"></div>');
     if (this.get('smartActions') === true) {
       const $actions = this.$element.find('.form-actions');
       if ($actions.length) {
@@ -438,12 +443,10 @@ class ExoModal extends ExoData {
       }
       $actions.removeClass('exo-form-element');
 
-      this.$footer = $('<div class="' + this.name + '-footer"></div>');
       $('.exo-modal-views-view .exo-form-container-form-actions').addClass('exo-modal-actions');
       const $inputs = this.$element.find('.exo-modal-actions:last input, .exo-modal-actions button, .exo-modal-actions a');
       if ($inputs.length) {
         this.$element.addClass('has-footer');
-        this.$element.append(this.$footer);
         this.$element.css('border-bottom-width', 0);
         this.set('borderBottom', false);
         if ($inputs.length) {
@@ -500,6 +503,29 @@ class ExoModal extends ExoData {
           $inputs.closest('.exo-form-container-exo-modal-actions').addClass('exo-modal-hide');
         }
       }
+    }
+
+    const groupModals = Drupal.ExoModal.getGrouped(this.get('group'));
+    if (groupModals.count() > 1) {
+      if (this.get('navigateTitles') === true) {
+        const prevModal = groupModals.getPrev(this.getId(), this.get('loop'));
+        const nextModal = groupModals.getNext(this.getId(), this.get('loop'));
+        const $navigateTitles = $('<div class="exo-modal-navigate-titles"><a href="javascript:void(0)" class="exo-modal-navigate-title-prev" data-' + this.name + '-prev></a><a href="javascript:void(0)" class="exo-modal-navigate-title-next" data-' + this.name + '-next></a></div>');
+        const $prevTitle = $('.exo-modal-navigate-title-prev', $navigateTitles).hide();
+        const $nextTitle = $('.exo-modal-navigate-title-next', $navigateTitles).hide();
+        if (prevModal) {
+          $prevTitle.text(prevModal.get('title') || 'Prev').fadeIn();
+        }
+        if (nextModal) {
+          $nextTitle.text(nextModal.get('title') || 'Next').fadeIn();
+        }
+
+        $navigateTitles.appendTo(this.$footer);
+      }
+    }
+
+    if (this.$footer.children().length) {
+      this.$element.append(this.$footer);
     }
   }
 
@@ -825,14 +851,31 @@ class ExoModal extends ExoData {
   public open(param?:any) {
     if (this.state == this.states.CLOSED) {
       this.debug('log', 'Open', '[' + this.getId() + ']', this.getData());
-      if (this.get('contentAjax')) {
-        if (this.contentAjaxLoaded === false && this.get('contentAjaxCache') === true) {
-          this.contentAjaxLoaded = true;
-          // Rebind trigger so that it doesn't do another ajax request.
-          this.$trigger.off('click.exo.modal.' + this.getId());
-          this.bindTrigger();
-        }
+
+      if (this.ajaxLoaded === false && (this.get('ajax') || (this.get('contentAjax') && this.contentAjaxLoaded === false))) {
+        const self = this;
+        const route = this.get('ajax') ? this.get('ajax') : this.get('contentAjax');
+        const href = this.addDestination(Drupal.url(route));
+        let ajax = Drupal.ajax({
+          progress: { type: 'fullscreen' },
+          base: this.$element.attr('id'),
+          element: this.$element[0],
+          url: href,
+          exoModal: this
+        });
+        const successCallback = ajax.options.success;
+        ajax.options.success = function (response, status, xmlhttprequest) {
+          // Set ajax request as loaded so we can continue.
+          self.ajaxLoaded = true;
+          // Do not load again if content cache is enabled.
+          self.contentAjaxLoaded = self.get('contentAjaxCache');
+          successCallback(response, status, xmlhttprequest);
+        };
+        ajax.execute();
+        return;
       }
+      // Prepare for next ajax request.
+      this.ajaxLoaded = false;
       this.toggleContentSelector();
       this.buildContent();
       Drupal.ExoDisplace.calculate();
@@ -897,68 +940,9 @@ class ExoModal extends ExoData {
 
   public doOpen(param?:any) {
     this.debug('log', 'Do Open', '[' + this.getId() + ']', param);
-    const groupModals = Drupal.ExoModal.getGrouped(this.get('group'));
     this.$trigger.trigger('blur');
     if (!this.$element.closest('#exo-modals').length) {
       $('.exo-fixed-float:not(.exo-fixed-not-invisible)').addClass('exo-fixed-invisible');
-    }
-
-    if (groupModals.count() > 1) {
-      const prevModal = groupModals.getPrev(this.getId(), this.get('loop'));
-      const nextModal = groupModals.getNext(this.getId(), this.get('loop'));
-
-      if (this.get('appendToNavigate') === false) {
-        this.$navigate.appendTo('body');
-      } else {
-        if (this.get('appendToClosest') === true) {
-          this.$navigate.appendTo(this.$element.closest(this.get('appendToNavigate')));
-        }
-        else {
-          this.$navigate.appendTo(this.get('appendToNavigate'));
-        }
-        // If modal is within eXo content, we need to offset it so that it
-        // accounts for displacement.
-        if (this.$navigate.closest('.exo-content').length) {
-          this.$navigate.css({
-            top: displace.offsets.top,
-            bottom: displace.offsets.bottom,
-            left: displace.offsets.left,
-            right: displace.offsets.right,
-          });
-        }
-      }
-
-      this.$navigate.addClass('fadeIn');
-
-      if (this.get('navigateCaption') === true) {
-        if (this.get('left') !== null && this.get('left') !== false) {
-          this.$navigate.find('.' + this.name + '-navigate-caption').css('right', '10px').show();
-        }
-        else {
-          this.$navigate.find('.' + this.name + '-navigate-caption').css('left', '10px').show();
-        }
-      }
-
-      var modalWidth = this.$element.outerWidth();
-      if (this.get('navigateArrows') !== false) {
-        if (this.get('navigateArrows') === 'closeScreenEdge') {
-          this.$navigate.find('.' + this.name + '-navigate-prev').css('left', 0).show();
-          this.$navigate.find('.' + this.name + '-navigate-next').css('right', 0).show();
-        } else {
-          this.$navigate.find('.' + this.name + '-navigate-prev').css('margin-left', -((modalWidth / 2) + 84)).show();
-          this.$navigate.find('.' + this.name + '-navigate-next').css('margin-right', -((modalWidth / 2) + 84)).show();
-        }
-      } else {
-        this.$navigate.find('.' + this.name + '-navigate-prev').hide();
-        this.$navigate.find('.' + this.name + '-navigate-next').hide();
-      }
-
-      if (!prevModal) {
-        this.$navigate.find('.' + this.name + '-navigate-prev').hide();
-      }
-      if (!nextModal) {
-        this.$navigate.find('.' + this.name + '-navigate-next').hide();
-      }
     }
 
     if (this.get('overlay') === true) {
@@ -1064,6 +1048,65 @@ class ExoModal extends ExoData {
           break;
       }
     });
+
+    const groupModals = Drupal.ExoModal.getGrouped(this.get('group'));
+    if (groupModals.count() > 1) {
+      const prevModal = groupModals.getPrev(this.getId(), this.get('loop'));
+      const nextModal = groupModals.getNext(this.getId(), this.get('loop'));
+
+      if (this.get('appendToNavigate') === false) {
+        this.$navigate.appendTo('body');
+      } else {
+        if (this.get('appendToClosest') === true) {
+          this.$navigate.appendTo(this.$element.closest(this.get('appendToNavigate')));
+        }
+        else {
+          this.$navigate.appendTo(this.get('appendToNavigate'));
+        }
+        // If modal is within eXo content, we need to offset it so that it
+        // accounts for displacement.
+        if (this.$navigate.closest('.exo-content').length) {
+          this.$navigate.css({
+            top: displace.offsets.top,
+            bottom: displace.offsets.bottom,
+            left: displace.offsets.left,
+            right: displace.offsets.right,
+          });
+        }
+      }
+
+      this.$navigate.addClass('fadeIn');
+
+      if (this.get('navigateCaption') === true) {
+        if (this.get('left') !== null && this.get('left') !== false) {
+          this.$navigate.find('.' + this.name + '-navigate-caption').css('right', '10px').show();
+        }
+        else {
+          this.$navigate.find('.' + this.name + '-navigate-caption').css('left', '10px').show();
+        }
+      }
+
+      var modalWidth = this.$element.outerWidth();
+      if (this.get('navigateArrows') !== false) {
+        if (this.get('navigateArrows') === 'closeScreenEdge') {
+          this.$navigate.find('.' + this.name + '-navigate-prev').css('left', 0).show();
+          this.$navigate.find('.' + this.name + '-navigate-next').css('right', 0).show();
+        } else {
+          this.$navigate.find('.' + this.name + '-navigate-prev').css('margin-left', -((modalWidth / 2) + 84)).show();
+          this.$navigate.find('.' + this.name + '-navigate-next').css('margin-right', -((modalWidth / 2) + 84)).show();
+        }
+      } else {
+        this.$navigate.find('.' + this.name + '-navigate-prev').hide();
+        this.$navigate.find('.' + this.name + '-navigate-next').hide();
+      }
+
+      if (!prevModal) {
+        this.$navigate.find('.' + this.name + '-navigate-prev').hide();
+      }
+      if (!nextModal) {
+        this.$navigate.find('.' + this.name + '-navigate-next').hide();
+      }
+    }
 
     // Support drimage module.
     if (typeof Drupal.drimage !== 'undefined') {
@@ -1356,7 +1399,7 @@ class ExoModal extends ExoData {
         }
       }
 
-      if (this.get('borderBottom') === true && this.get('title') !== '') {
+      if (this.get('borderBottom') === true && this.get('title') !== '' && this.get('hideTitle') === false) {
         borderSize = 3;
       }
 
@@ -1539,43 +1582,19 @@ class ExoModal extends ExoData {
   protected bindTrigger() {
     const $trigger = this.getTriggerElement();
     if ($trigger.length) {
-      if (this.get('ajax') || (this.get('contentAjax') && this.contentAjaxLoaded === false)) {
-        this.bindTriggerAjax();
-      }
-      else {
-        $trigger.off('click.exo.modal.' + this.getId()).on('click.exo.modal.' + this.getId(), e => {
-          e.preventDefault();
-          this.toggle();
-        }).off('keydown.exo.modal.' + this.getId()).on('keydown.exo.modal.' + this.getId(), e => {
-          switch (e.which) {
-            case 13: // enter
-            case 32: // space
-              e.preventDefault();
-              e.stopPropagation();
-              this.toggle();
-              break;
-          }
-        });
-      }
-    }
-  }
-
-  protected bindTriggerAjax() {
-    const $trigger = this.getTriggerElement();
-    if ($trigger.length) {
-      const route = this.get('ajax') ? this.get('ajax') : this.get('contentAjax');
-      const href = this.addDestination(Drupal.url(route));
-
-      const triggerSettings = {
-        progress: { type: 'fullscreen' },
-        base: $trigger.attr('id'),
-        element: $trigger[0],
-        url: href,
-        exoModal: this,
-        event: 'click.exo.modal.' + this.getId()
-      };
-
-      Drupal.ajax(triggerSettings);
+      $trigger.off('click.exo.modal.' + this.getId()).on('click.exo.modal.' + this.getId(), e => {
+        e.preventDefault();
+        this.toggle();
+      }).off('keydown.exo.modal.' + this.getId()).on('keydown.exo.modal.' + this.getId(), e => {
+        switch (e.which) {
+          case 13: // enter
+          case 32: // space
+            e.preventDefault();
+            e.stopPropagation();
+            this.toggle();
+            break;
+        }
+      });
     }
   }
 
