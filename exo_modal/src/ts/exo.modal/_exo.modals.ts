@@ -166,9 +166,13 @@ class ExoModals extends ExoDataManager<ExoModal> {
   public getGrouped(groupId:string):ExoDataCollection<ExoModal> {
     const collection = new ExoDataCollection<ExoModal>();
     if (groupId !== '') {
-      this.getInstances().each((modal:ExoModal) => {
+      const instances = this.getInstances();
+      let weight = instances.count();
+      instances.each((modal:ExoModal) => {
         if (modal.get('group') === groupId) {
+          modal.setWeight(weight);
           collection.add(modal);
+          weight--;
         }
       });
     }
