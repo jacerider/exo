@@ -331,7 +331,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * {@inheritdoc}
    */
   public function optionsDecode($options) {
-    return json_decode(base64_decode($options), TRUE);
+    return @json_decode(base64_decode($options), TRUE) ?: [];
   }
 
   /**
@@ -697,7 +697,11 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * {@inheritdoc}
    */
   public function getCacheTags() {
-    return Cache::mergeTags(parent::getCacheTags(), $this->getTargetEntityType()->getListCacheTags());
+    $cache = Cache::mergeTags(parent::getCacheTags(), $this->getTargetEntityType()->getListCacheTags());
+    foreach ($this->getTargetBundleIds() as $bundle) {
+      $cache = Cache::mergeTags($cache, [$this->getTargetEntityTypeId() . '_list:' . $bundle]);
+    }
+    return $cache;
   }
 
   /**

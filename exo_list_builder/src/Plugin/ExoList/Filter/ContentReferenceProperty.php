@@ -2,11 +2,14 @@
 
 namespace Drupal\exo_list_builder\Plugin\ExoList\Filter;
 
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\Sql\SqlEntityStorageInterface;
 use Drupal\Core\Field\FieldConfigInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\exo_list_builder\EntityListInterface;
+use Drupal\taxonomy\TermInterface;
 
 /**
  * Defines a eXo list element for rendering a content entity field.
@@ -44,16 +47,16 @@ class ContentReferenceProperty extends ContentProperty {
   /**
    * Get available field values query.
    */
-  protected function getAvailableFieldValuesQuery(EntityListInterface $entity_list, $field_id, $property, $condition = NULL) {
+  protected function getAvailableFieldValuesQuery(EntityListInterface $entity_list, $field_id, $property, $condition, CacheableMetadata $cacheable_metadata) {
     $field = $entity_list->getField($field_id);
     $field_definition = $field['definition'];
-    return $this->getReferencedAvailableFieldValuesQuery($field_definition, $property, $condition);
+    return $this->getReferencedAvailableFieldValuesQuery($field_definition, $property, $condition, $cacheable_metadata);
   }
 
   /**
    * Get referenced available field values query.
    */
-  protected function getReferencedAvailableFieldValuesQuery(FieldDefinitionInterface $field_definition, $property, $condition = NULL) {
+  protected function getReferencedAvailableFieldValuesQuery(FieldDefinitionInterface $field_definition, $property, $condition, CacheableMetadata $cacheable_metadata) {
     $query = NULL;
     /** @var \Drupal\Core\Entity\EntityFieldManager $entity_field_manager */
     $entity_field_manager = \Drupal::service('entity_field.manager');
@@ -65,10 +68,12 @@ class ContentReferenceProperty extends ContentProperty {
     }
     if ($reference_table_mapping = $this->getReferencedTableMapping($reference_entity_type_id)) {
       $reference_entity_type = $this->entityTypeManager()->getDefinition($reference_entity_type_id);
+      $cacheable_metadata->addCacheTags([$reference_entity_type->id() . '_list']);
       $reference_bundles = $this->getFieldBundles($field_definition, $reference_entity_type);
       @[$reference_field_name, $reference_property] = explode('.', $property);
       $reference_field_definitions = [];
       foreach ($reference_bundles as $reference_bundle) {
+        $cacheable_metadata->addCacheTags([$reference_entity_type->id() . '_list:' . $reference_bundle]);
         $reference_field_definitions += $entity_field_manager->getFieldDefinitions($reference_entity_type_id, $reference_bundle);
       };
       /** @var \Drupal\Core\Field\FieldConfigInterface $reference_field_definition */
@@ -99,9 +104,9 @@ class ContentReferenceProperty extends ContentProperty {
         ->distinct(TRUE);
 
       if (!empty($condition)) {
-
         if ($reference_property === 'target_id') {
           $target_entity_type = $this->entityTypeManager()->getDefinition($reference_field_definition->getSetting('target_type'));
+          $cacheable_metadata->addCacheTags([$target_entity_type->id() . '_list']);
           $target_table_mapping = $this->getReferencedTableMapping($target_entity_type->id());
           $label_key = $target_entity_type->getKey('label');
           if ($label_key && $target_table_mapping) {
@@ -116,24 +121,13 @@ class ContentReferenceProperty extends ContentProperty {
           $query->condition('f.' . $reference_field_column, '%' . $connection->escapeLike($condition) . '%', 'LIKE');
         }
       }
+      else {
+        if ($label_key = $reference_entity_type->getKey('label')) {
+          $query->orderBy($label_key);
+        }
+      }
     }
     return $query;
-  }
-
-  /**
-   * Get referenced table mapping.
-   *
-   * @return \Drupal\Core\Entity\Sql\DefaultTableMapping
-   *   The mapping.
-   */
-  protected function getReferencedTableMapping($entity_type_id) {
-    $mapping = NULL;
-    $storage = $this->entityTypeManager()->getStorage($entity_type_id);
-    if ($storage instanceof SqlEntityStorageInterface) {
-      /** @var \Drupal\Core\Entity\Sql\DefaultTableMapping $reference_table_mapping */
-      $mapping = $storage->getTableMapping();
-    }
-    return $mapping;
   }
 
   /**
@@ -141,22 +135,8 @@ class ContentReferenceProperty extends ContentProperty {
    */
   public function getValueOptions(EntityListInterface $entity_list, array $field, $input = NULL) {
     $configuration = $this->getConfiguration();
-    [$field_name, $property] = explode('.', $configuration['property']);
     $values = $this->getAvailableFieldValues($entity_list, $field['id'], $configuration['property'], $input);
     $values = array_combine($values, $values);
-
-    // When referencing a target entity, we will fetch the entity labels.
-    if ($property === 'target_id') {
-      $field_definition = $field['definition'];
-      if ($reference_field_definition = $this->getReferenceFieldDefinition($field_definition)) {
-        $nested_reference_entity_type_id = $reference_field_definition->getSetting('target_type');
-        $entities = $this->entityTypeManager()->getStorage($nested_reference_entity_type_id)->loadMultiple($values);
-        foreach ($values as $target_id => $value) {
-          $values[$target_id] = $entities[$target_id]->label();
-        }
-      }
-    }
-
     return $values;
   }
 
@@ -174,30 +154,6 @@ class ContentReferenceProperty extends ContentProperty {
       }
     }
     return implode(', ', $value);
-  }
-
-  /**
-   * Get the entity type bundles from the definition.
-   *
-   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
-   *   The field definition.
-   *
-   * @return \Drupal\Core\Field\FieldDefinitionInterface
-   *   A field definition.
-   */
-  protected function getReferenceFieldDefinition(FieldDefinitionInterface $field_definition) {
-    $configuration = $this->getConfiguration();
-    [$field_name, $property] = explode('.', $configuration['property']);
-    $reference_entity_type_id = $field_definition->getSetting('target_type');
-    $reference_entity_type = $this->entityTypeManager()->getDefinition($reference_entity_type_id);
-    $reference_bundles = $this->getFieldBundles($field_definition, $reference_entity_type);
-    /** @var \Drupal\Core\Entity\EntityFieldManager $entity_field_manager */
-    $entity_field_manager = \Drupal::service('entity_field.manager');
-    $fields = [];
-    foreach ($reference_bundles as $bundle_id) {
-      $fields += $entity_field_manager->getFieldDefinitions($field_definition->getTargetEntityTypeId(), $bundle_id);
-    }
-    return isset($fields[$field_name]) ? $fields[$field_name] : NULL;
   }
 
   /**

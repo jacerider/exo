@@ -260,9 +260,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * Build the query options.
    */
   protected function buildOptions() {
-    $query = \Drupal::request()->query->all();
+    $query = \Drupal::request()->query->all() ?? [];
     $key = $this->getEntityList()->getKey();
-    if (!empty($query[$key])) {
+    if (!empty($query[$key]) && is_string($query[$key])) {
       $query += $this->getEntityList()->optionsDecode($query[$key]);
     }
     $this->setOptions($query);
@@ -828,7 +828,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         ],
       ];
     }
-    // ksm($form);
 
     return $form;
   }
@@ -1642,6 +1641,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected function renderField(EntityInterface $entity, array $field) {
     /** @var \Drupal\exo_list_builder\Plugin\ExoListElementInterface $instance */
     $instance = $this->elementManager->createInstance($field['view']['type'], $field['view']['settings']);
+    $entity->exoEntityList = $this->getEntityList();
+    $entity->exoEntityListField = $field;
     $build = $instance->buildView($entity, $field);
     if (!is_array($build)) {
       $build = [

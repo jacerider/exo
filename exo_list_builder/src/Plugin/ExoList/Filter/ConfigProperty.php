@@ -85,7 +85,7 @@ class ConfigProperty extends ExoListFilterMatchBase implements ExoListFieldValue
     $configuration = $this->getConfiguration();
     if (!empty($configuration['select'])) {
       $form['q']['#type'] = 'select';
-      $form['q']['#options'] = ['' => $this->t('- Select -')] + $this->getValueOptions($entity_list, $field);
+      $form['q']['#options'] = ['' => $this->t('- All -')] + $this->getValueOptions($entity_list, $field);
     }
     elseif (!empty($configuration['autocomplete']) && !$entity_list->isNew()) {
       $form['q'] += [

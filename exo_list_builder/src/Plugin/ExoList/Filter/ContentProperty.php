@@ -4,6 +4,7 @@ namespace Drupal\exo_list_builder\Plugin\ExoList\Filter;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\exo_list_builder\EntityListInterface;
 use Drupal\exo_list_builder\Plugin\ExoListContentTrait;
@@ -204,16 +205,8 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
     $configuration = $this->getConfiguration();
     if (!empty($configuration['select'])) {
       $form['q']['#type'] = 'select';
-
-      $cid = 'exo_list_buider:filter:' . $entity_list->id() . ':' . $field['id'] . ':' . $field['filter']['type'];
-      if ($cache = \Drupal::cache()->get($cid)) {
-        $options = $cache->data;
-      }
-      else {
-        $options = $this->getValueOptions($entity_list, $field);
-        \Drupal::cache()->set($cid, $options, Cache::PERMANENT, $entity_list->getCacheTags());
-      }
-      $form['q']['#options'] = ['' => $this->t('- Select -')] + $options;
+      $form['q']['#multiple'] = $this->allowsMultiple($field);
+      $form['q']['#options'] = ['' => $this->t('- All -')] + $this->getValueOptions($entity_list, $field);
     }
     elseif (!empty($configuration['autocomplete']) && !$entity_list->isNew()) {
       $form['q'] += [

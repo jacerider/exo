@@ -2,7 +2,6 @@
 
 namespace Drupal\exo_list_builder\Plugin;
 
-use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\exo_list_builder\EntityListInterface;
 
