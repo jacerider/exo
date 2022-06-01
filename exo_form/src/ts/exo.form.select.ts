@@ -22,6 +22,7 @@
     protected $dropdown:JQuery;
     protected $dropdownWrapper:JQuery;
     protected $dropdownScroll:JQuery;
+    protected $dropdownList:JQuery;
     protected debug:boolean = false;
     protected open:boolean = false;
     protected supported:boolean;
@@ -43,7 +44,6 @@
       this.$element = $element;
       this.$field = this.$element.find('select');
       this.multiple = (this.$field.attr('multiple')) ? true : false;
-      // this.$error = this.$element.find('.field-error');
       if (this.hasError()) {
         this.$element.addClass('invalid');
       }
@@ -81,8 +81,9 @@
           this.$dropdownWrapper = $('<div id="exo-form-select-dropdown-wrapper" class="exo-form"></div>');
           Drupal.Exo.getBodyElement().append(this.$dropdownWrapper);
         }
-        this.$dropdown = $('<div class="exo-form-select-dropdown exo-form-input" role="combobox" aria-owns="exo-form-select-scroll-' + this.uniqueId + '" aria-expanded="false"></div>');
-        this.$dropdownScroll = $('<ul id="exo-form-select-scroll-' + this.uniqueId + '" class="exo-form-select-scroll" role="listbox" aria-labelledby="exo-form-select-label-' + this.uniqueId + '" tabindex="-1"></div>').appendTo(this.$dropdown);
+        this.$dropdown = $('<div class="exo-form-select-dropdown exo-form-input" role="combobox" aria-owns="exo-form-select-list-' + this.uniqueId + '" aria-expanded="false"></div>');
+        this.$dropdownScroll = $('<div class="exo-form-select-scroll"></div>').appendTo(this.$dropdown);
+        this.$dropdownList = $('<ul id="exo-form-select-list-' + this.uniqueId + '" class="exo-form-select-list" role="listbox" aria-labelledby="exo-form-select-label-' + this.uniqueId + '" tabindex="-1"></ul>').appendTo(this.$dropdownScroll);
         // this.$wrapper.append(this.$dropdown);
         this.$dropdownWrapper.append(this.$dropdown);
         this.$dropdown.addClass((this.multiple ? 'is-multiple' : 'is-single'));
@@ -461,7 +462,7 @@
     }
 
     public populateDropdown() {
-      this.$dropdownScroll.find('li').remove();
+      this.$dropdownList.find('li').remove();
 
       if (this.$dropdown.find('.search-input').length === 0) {
         this.$dropdown
@@ -477,6 +478,9 @@
       var options = this.getAllOptions();
       for (var i = 0; i < options.length; i++) {
         var option = options[i];
+        if (option['value'] === '' && this.multiple === true) {
+          continue;
+        }
         const checkboxId = 'exo-form-option-' + this.uniqueId + '-' + i;
 
         var li = $('<li role="option" role="listitem" tabindex="-1"></li>');
@@ -504,11 +508,11 @@
         }
 
         li.data('option', option);
-        this.$dropdownScroll.append(li);
+        this.$dropdownList.append(li);
       }
 
       if (this.multiple) {
-        this.$dropdownScroll.find('.form-checkbox').on('change', e => {
+        this.$dropdownList.find('.form-checkbox').on('change', e => {
           this.highlightOption($(e.currentTarget).closest('.selector'), false);
           if (!this.isIos) {
             this.$dropdown.find('.search-input').focus();
@@ -518,7 +522,7 @@
 
       this.highlightOption();
 
-      Drupal.attachBehaviors(this.$dropdownScroll[0]);
+      Drupal.attachBehaviors(this.$dropdownList[0]);
     }
 
     public getAllOptions(field?) {
@@ -551,7 +555,12 @@
           values.text = $item.html();
           values.selected = $item.is(':selected');
         }
-        this.selected.push(values);
+        if (this.multiple && (values.value === '' || values.value === '_none')) {
+          $item.remove();
+        }
+        else {
+          this.selected.push(values);
+        }
       });
     }
 
@@ -639,7 +648,7 @@
           }
         }
         if (this.multiple) {
-          if (this.selected[i].value !== '_none' && this.selected[i].selected) {
+          if ((this.selected[i].value !== '' || this.selected[i].value !== '_none') && this.selected[i].selected) {
             notEmpty = true;
           }
         }
@@ -647,7 +656,7 @@
 
       if (this.multiple) {
         for (var i = 0; i < this.selected.length; i++) {
-          if (this.selected[i].value === '_none') {
+          if (this.selected[i].value === '' || this.selected[i].value === '_none') {
             this.selected[i].selected = !notEmpty;
           }
         }
@@ -665,12 +674,10 @@
     }
 
     public highlightOption($item?:JQuery, scroll?:boolean, force?:boolean) {
-      if (scroll !== false) {
-        scroll = true;
-      }
-      $item = $item || this.$dropdownScroll.find('.selector.active:eq(0)');
+      scroll = scroll !== false;
+      $item = $item || this.$dropdownList.find('.selector.active:eq(0)');
       if (!$item.length && force) {
-        $item = this.$dropdownScroll.find('.selector:eq(0)');
+        $item = this.$dropdownList.find('.selector:eq(0)');
       }
       if ($item.length) {
         this.$dropdown.find('.selector.selected').removeClass('selected').removeAttr('aria-selected');
@@ -705,6 +712,9 @@
     public hasValue() {
       var value = this.$field.val();
       if (value && typeof value === 'object') {
+        if (value.length === 1 && value[0] === '') {
+          return false;
+        }
         return value.length > 0;
       }
       return value !== '' && value !== '- Any -' && value !== '_none';
@@ -725,7 +735,7 @@
       this.open = true;
       exoFormSelectCurrent = this;
 
-      this.$dropdownScroll.css('max-height', '');
+      this.$dropdownList.css('max-height', '');
 
       this.positionDropdown();
       Drupal.Exo.lockOverflow(this.$dropdown);
@@ -739,6 +749,7 @@
       if (this.isIos) {
         this.$dropdown.find('.search-input').trigger('blur');
       }
+      this.$dropdownScroll.scrollTop(0);
       this.highlightScrollTo();
 
       setTimeout(() => {
@@ -779,7 +790,7 @@
         // Check if dropdown can fit in available window.
         if (windowHeight - fixedHeaderHeight < dropdownHeight || (this.isMobile && !this.isIos)) {
           dropdownHeight = windowHeight - fixedHeaderHeight - this.$dropdown.find('.search-input').height() - 20;
-          this.$dropdownScroll.css('max-height', dropdownHeight);
+          this.$dropdownList.css('max-height', dropdownHeight);
           Drupal.Exo.$window.scrollTop(dropdownTop - fixedHeaderHeight - 10);
         }
         else {
@@ -806,6 +817,32 @@
             this.$dropdown.addClass('from-bottom').css('bottom', offset);
             break;
         }
+
+        if (this.multiple && this.$dropdownScroll[0].scrollHeight > this.$dropdownScroll.height() * 2) {
+          const scrollWidth = this.$dropdownScroll.outerWidth();
+          const scrollOffsetLeft = this.$dropdownScroll.offset().left;
+          const scrollOffsetRight = scrollOffsetLeft + scrollWidth;
+          const newScrollColumnWidth = 260;
+          const newScrollWidth = newScrollColumnWidth * 3;
+          if (scrollOffsetLeft + newScrollWidth < Drupal.Exo.$window.width()) {
+            this.$dropdownList.addClass('column--3');
+            this.$dropdownScroll.css({
+              marginRight: (newScrollWidth - scrollWidth) * -1,
+              width: newScrollWidth,
+              minWidth: newScrollWidth,
+              maxWidth: newScrollWidth,
+            });
+          }
+          else if (scrollOffsetRight - newScrollWidth > 0) {
+            this.$dropdownList.addClass('column--3');
+            this.$dropdownScroll.css({
+              marginLeft: (newScrollWidth - scrollWidth) * -1,
+              width: newScrollWidth,
+              minWidth: newScrollWidth,
+              maxWidth: newScrollWidth,
+            });
+          }
+        }
       }
     }
 
@@ -821,7 +858,7 @@
         Drupal.Exo.hideShadow();
         $('body').off('.' + this.uniqueId);
         setTimeout(() => {
-          this.$dropdownScroll.find('.hide').removeClass('hide');
+          this.$dropdownList.find('.hide').removeClass('hide');
           Drupal.Exo.unlockOverflow(this.$dropdown);
           if (this.hasValue() === true) {
             this.$element.addClass('filled');

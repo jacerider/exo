@@ -152,8 +152,8 @@
   display: none;
   opacity: 0;
   z-index: 100;
-  margin: 0;
-  padding: 0;
+  margin: 0 !important;
+  padding: 0 !important;
   min-width: 200px;
   visibility: hidden;
   z-index: 9999;
@@ -190,6 +190,12 @@
     border-top-width: 0;
     flex: 1 1 100%;
     max-height: $select-item-height * 10;
+  }
+
+  .exo-form-select-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
 
     li {
       display: block;
@@ -208,6 +214,20 @@
         > label {
           font-size: $select-font-size;
         }
+      }
+    }
+
+    &.column--3 {
+      column-count: 3;
+      column-gap: 0;
+      // @include flex;
+      // flex-wrap: wrap;
+
+      > .selector {
+        page-break-inside: avoid;
+        will-change: transform;
+        // transform: translateX(0);
+      //   width: 33.33%;
       }
     }
   }
