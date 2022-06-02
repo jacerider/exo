@@ -574,6 +574,14 @@
     min-width: rem-calc(160);
     max-width: rem-calc(300);
     padding: rem-calc(10 15);
+    margin: 0 !important;
+
+    p {
+
+      &:last-of-type {
+        margin-bottom: 0;
+      }
+    }
 
     &,
     .exo-form-element-wrapper-description {
