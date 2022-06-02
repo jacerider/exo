@@ -194,7 +194,6 @@ class ExoVideoBase extends ExoData implements ExoVideoProviderInterface {
   protected videoResize() {
     this.$video.css({
       width: '',
-      height: '',
     });
     var w = this.$videoWrapper.innerWidth();
     var h = this.$videoWrapper.innerHeight();
