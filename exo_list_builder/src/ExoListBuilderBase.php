@@ -87,6 +87,13 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected $options;
 
   /**
+   * The query.
+   *
+   * @var \Drupal\Core\Entity\Query\QueryInterface
+   */
+  protected $query;
+
+  /**
    * The total number of results.
    *
    * @var int
@@ -137,6 +144,13 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface[]
    */
   protected $actions;
+
+  /**
+   * The job queue.
+   *
+   * @var \Drupal\Core\Queue\QueueInterface[]
+   */
+  protected $queues;
 
   /**
    * {@inheritdoc}
@@ -374,6 +388,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
     // Only add the pager if a limit is specified.
     if ($limit = $this->getOption('limit')) {
+      $query = clone $query;
       $query->pager($limit);
     }
 
@@ -383,7 +398,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   /**
    * {@inheritDoc}
    */
-  public function getQuery() {
+  protected function buildQuery() {
     $entity_list = $this->getEntityList();
     $query = $this->getStorage()->getQuery()->accessCheck(TRUE);
 
@@ -463,8 +478,17 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
     $this->moduleHandler->alter('exo_list_builder_query', $query, $entity_list);
     $this->moduleHandler->alter('exo_list_builder_query_' . $entity_list->id(), $query, $entity_list);
-
     return $query;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function getQuery() {
+    if (!isset($this->query)) {
+      $this->query = $this->buildQuery();
+    }
+    return $this->query;
   }
 
   /**
@@ -512,7 +536,10 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   public function getTotal() {
     if (!isset($this->total)) {
-      $this->total = $this->getQuery()->count()->execute();
+      $query = clone $this->getQuery();
+      // $query->pager(0);
+      // $query->range(0, 10000);
+      $this->total = $query->count()->execute();
     }
     return $this->total;
   }
@@ -589,7 +616,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   public function isFiltered() {
     foreach ($this->getFilters() as $field_id => $field) {
-      if (!empty($field['filter']['settings']['default']['status'])) {
+      // If a filter is exposed AND contains a default value, then consider it
+      // as filtered.
+      if (!empty($field['filter']['settings']['expose']) && !empty($field['filter']['settings']['default']['status'])) {
         return TRUE;
       }
     }
@@ -699,7 +728,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           }
         }
       }
-      if ($subform = $this->buildFormSort($build)) {
+      if ($subform = $this->buildSort($build)) {
         $build['header']['second']['sort'] = $subform + [
           '#weight' => -10,
         ];
@@ -716,7 +745,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $build[$this->entitiesKey]['#entities'] = $entities;
 
     if ($entities || $this->isFiltered()) {
-      $pager = $this->buildFormPager($build);
+      $pager = $this->buildPager($build);
       $build['header']['second']['pager'] = $pager;
       // Remove pages from header.
       unset($build['header']['second']['pager']['pages']);
@@ -753,6 +782,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    $entity_list = $this->getEntityList();
     $actions = $this->getActions();
     $form = $this->buildList($form);
 
@@ -763,7 +793,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       '#attributes' => ['class' => ['hidden']],
     ];
 
-    $format = $this->entityList->getFormat();
+    $format = $entity_list->getFormat();
     switch ($format) {
       case 'table':
         $form[$this->entitiesKey]['#tableselect'] = !empty($actions);
@@ -792,6 +822,18 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           '#weight' => -100,
         ];
         $form['header']['second']['batch']['#attached']['library'][] = 'exo_list_builder/download';
+      }
+
+      if (!empty($actions)) {
+        $is_queue = FALSE;
+        foreach ($actions as $action) {
+          if ($action->asJobQueue()) {
+            $is_queue = TRUE;
+            /** @var \Drupal\exo_list_builder\QueueWorker\ExoListActionProcess $queue_worker */
+            // $queue_worker = \Drupal::service('plugin.manager.queue_worker')->createInstance('exo_list_action:' . $entity_list->id() . ':' . $action->getPluginId());
+            ksm($this->getQueue($action->getPluginId()));
+          }
+        }
       }
     }
 
@@ -896,7 +938,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   /**
    * Build form pager.
    */
-  protected function buildFormSort(array $form) {
+  protected function buildSort(array $form) {
     $form = [];
     $entity_list = $this->entityList;
     if ($entity_list->getSetting('sort_status')) {
@@ -1035,7 +1077,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   /**
    * Build form pager.
    */
-  protected function buildFormPager(array $form) {
+  protected function buildPager(array $form) {
     $entity_list = $this->getEntityList();
     $form = [
       '#type' => 'html_tag',
@@ -1521,25 +1563,60 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
     $instance = $this->getActions()[$action['id']];
     $ids = $instance->getEntityIds($selected, $this);
-    $batch_builder = (new BatchBuilder())
-      ->setTitle($this->t('Processing Items'))
-      ->setFinishCallback([ExoListActionManager::class, 'batchFinish'])
-      ->setInitMessage($this->t('Starting item processing.'))
-      ->setProgressMessage($this->t('Processed @current out of @total.'))
-      ->setErrorMessage($this->t('Item processing has encountered an error.'));
-    $do_batch = FALSE;
-    foreach ($ids as $entity_id) {
-      $do_batch = TRUE;
-      $batch_builder->addOperation([ExoListActionManager::class, 'batch'], [
-        $action,
-        $entity_id,
-        $entity_list->id(),
-        array_keys($this->getShownFields()),
-        isset($selected[$entity_id]),
+    if ($instance->asJobQueue()) {
+      $queue = $this->getQueue($instance->getPluginId());
+      $job_id = $entity_list->id() . '.' . time();
+      /** @var \Drupal\exo_list_builder\QueueWorker\ExoListActionProcess $queue_worker */
+      $queue_worker = \Drupal::service('plugin.manager.queue_worker')->createInstance('exo_list_action:' . $entity_list->id() . ':' . $instance->getPluginId());
+      $queue_worker->processItem([
+        'op' => 'start',
+        'job_id' => $job_id,
+        'action' => $action,
+        'list_id' => $this->getEntityList()->id(),
+      ]);
+      foreach ($ids as $id) {
+        $queue->createItem([
+          'op' => 'process',
+          'job_id' => $job_id,
+          'action' => $action,
+          'id' => $id,
+          'list_id' => $this->getEntityList()->id(),
+          'field_ids' => array_keys($this->getShownFields()),
+          'selected' => isset($selected[$id]),
+        ]);
+      }
+      $queue->createItem([
+        'op' => 'finish',
+        'job_id' => $job_id,
+        'action' => $action,
+        'list_id' => $this->getEntityList()->id(),
       ]);
     }
-    if ($do_batch) {
-      batch_set($batch_builder->toArray());
+    else {
+      $batch_builder = (new BatchBuilder())
+        ->setTitle($this->t('Processing Items'))
+        ->setFinishCallback([ExoListActionManager::class, 'batchFinish'])
+        ->setInitMessage($this->t('Starting item processing.'))
+        ->setProgressMessage($this->t('Processed @current out of @total.'))
+        ->setErrorMessage($this->t('Item processing has encountered an error.'));
+      $do_batch = FALSE;
+      $batch_builder->addOperation([ExoListActionManager::class, 'batchStart'], [
+        $action,
+        $entity_list->id(),
+      ]);
+      foreach ($ids as $entity_id) {
+        $do_batch = TRUE;
+        $batch_builder->addOperation([ExoListActionManager::class, 'batch'], [
+          $action,
+          $entity_id,
+          $entity_list->id(),
+          array_keys($this->getShownFields()),
+          isset($selected[$entity_id]),
+        ]);
+      }
+      if ($do_batch) {
+        batch_set($batch_builder->toArray());
+      }
     }
   }
 
@@ -1798,6 +1875,32 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
     }
     return $this->actions;
+  }
+
+  /**
+   * Get queue.
+   *
+   * @return \Drupal\Core\Queue\QueueInterface
+   *   The queue.
+   */
+  protected function getQueue($action_id) {
+    if (!isset($this->queues[$action_id])) {
+      /** @var \Drupal\Core\Queue\QueueFactory $queue_factory */
+      $queue_factory = \Drupal::service('queue');
+      $this->queues[$action_id] = $queue_factory->get('exo_list_action:' . $this->getEntityList()->id() . ':' . $action_id, TRUE);
+    }
+    return $this->queues[$action_id];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __sleep() {
+    $vars = parent::__sleep();
+    $vars = array_combine($vars, $vars);
+    // Query contains a database reference and needs to be ignored on sleep.
+    unset($vars['query']);
+    return array_keys($vars);
   }
 
 }

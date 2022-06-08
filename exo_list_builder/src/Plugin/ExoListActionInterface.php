@@ -22,6 +22,14 @@ interface ExoListActionInterface extends PluginInspectionInterface, Configurable
   public function label();
 
   /**
+   * Flag indicating if action should be run in a job queue.
+   *
+   * @returb bool
+   *   TRUE if action should be run in a job queue.
+   */
+  public function asJobQueue();
+
+  /**
    * Build the configuration form.
    *
    * @param array $form
@@ -57,6 +65,16 @@ interface ExoListActionInterface extends PluginInspectionInterface, Configurable
    *   The current entity list builder.
    */
   public function getEntityIds(array $selected_ids, ExoListBuilderInterface $exo_list_builder);
+
+  /**
+   * Execute start action.
+   *
+   * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
+   *   The entity list.
+   * @param array $context
+   *   The batch context.
+   */
+  public function executeStart(EntityListInterface $entity_list, array &$context);
 
   /**
    * Execute action.

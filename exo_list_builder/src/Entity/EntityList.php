@@ -286,6 +286,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   public function postSave(EntityStorageInterface $storage, $update = TRUE) {
     parent::postSave($storage, $update);
     \Drupal::service('router.builder')->rebuild();
+    \Drupal::service('plugin.manager.queue_worker')->clearCachedDefinitions();
   }
 
   /**
@@ -669,7 +670,13 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   public function getHandler() {
     if (!isset($this->entityHandler)) {
       $definition = $this->entityTypeManager()->getDefinition($this->getTargetEntityTypeId());
-      $class = $definition->getHandlerClass('exo_list_builder');
+      if ($definition->hasHandlerClass('exo_list_builder_' . $this->id())) {
+        // Allow handler per list.
+        $class = $definition->getHandlerClass('exo_list_builder_' . $this->id());
+      }
+      else {
+        $class = $definition->getHandlerClass('exo_list_builder');
+      }
       $this->entityHandler = $this->entityTypeManager()->createHandlerInstance($class, $definition);
       $this->entityHandler->setEntityList($this);
     }

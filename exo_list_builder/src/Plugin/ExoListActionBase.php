@@ -67,6 +67,13 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
   /**
    * {@inheritdoc}
    */
+  public function asJobQueue() {
+    return !empty($this->getPluginDefinition()['queue']);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function defaultConfiguration() {
     return [];
   }
@@ -107,6 +114,12 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
       $selected_ids = $exo_list_builder->getQuery()->execute();
     }
     return $selected_ids;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function executeStart(EntityListInterface $entity_list, array &$context) {
   }
 
   /**

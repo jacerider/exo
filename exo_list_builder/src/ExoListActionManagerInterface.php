@@ -2,12 +2,14 @@
 
 namespace Drupal\exo_list_builder;
 
+use Drupal\Component\Plugin\Discovery\CachedDiscoveryInterface;
 use Drupal\Component\Plugin\PluginManagerInterface;
+use Drupal\Core\Cache\CacheableDependencyInterface;
 
 /**
  * Define exo list action manager interface.
  */
-interface ExoListActionManagerInterface extends PluginManagerInterface {
+interface ExoListActionManagerInterface extends PluginManagerInterface, CachedDiscoveryInterface, CacheableDependencyInterface {
 
   /**
    * Get definition options.

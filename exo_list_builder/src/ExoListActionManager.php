@@ -12,11 +12,20 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 class ExoListActionManager extends DefaultPluginManager implements ExoListActionManagerInterface {
 
   /**
-   * The plugin type.
+   * Provides default values for all exo_list_field plugins.
    *
-   * @var string
+   * @var array
    */
-  protected $type;
+  protected $defaults = [
+    // Add required and optional plugin properties.
+    'id' => '',
+    'label' => '',
+    'description' => '',
+    'weight' => 0,
+    'entity_type' => [],
+    'bundle' => [],
+    'queue' => FALSE,
+  ];
 
   /**
    * Constructs a new ExoListActionManager object.
@@ -103,6 +112,24 @@ class ExoListActionManager extends DefaultPluginManager implements ExoListAction
   }
 
   /**
+   * Batch start operation.
+   *
+   * @param array $action
+   *   The action definition.
+   * @param string $entity_list_id
+   *   The entity list id.
+   * @param array $context
+   *   The context.
+   */
+  public static function batchStart(array $action, $entity_list_id, array &$context) {
+    /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
+    $instance = \Drupal::service('plugin.manager.exo_list_action')->createInstance($action['id'], $action['settings']);
+    /** @var \Drupal\exo_list_builder\EntityListInterface $entity_list */
+    $entity_list = \Drupal::entityTypeManager()->getStorage('exo_entity_list')->load($entity_list_id);
+    $instance->executeStart($entity_list, $context);
+  }
+
+  /**
    * Batch operation.
    *
    * @param array $action
@@ -126,12 +153,13 @@ class ExoListActionManager extends DefaultPluginManager implements ExoListAction
     // Override the entity fields.
     $fields = array_intersect_key($entity_list->getFields(), array_flip($field_ids));
     $entity_list->setFields($fields);
-    $instance->execute($entity_id, $entity_list, $selected, $context);
     if (!isset($context['results']['entity_list_id'])) {
       $context['results']['entity_list_id'] = $entity_list_id;
       $context['results']['entity_list_action'] = $action;
       $context['results']['entity_list_fields'] = $field_ids;
+      $context['results']['entity_ids'] = [];
     }
+    $instance->execute($entity_id, $entity_list, $selected, $context);
     $context['results']['entity_ids'][] = $entity_id;
   }
 

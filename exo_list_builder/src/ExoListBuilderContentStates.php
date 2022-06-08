@@ -26,7 +26,14 @@ class ExoListBuilderContentStates extends ExoListBuilderContent implements ExoLi
   protected $stateDefaultIcon = 'regular-list-alt';
 
   /**
-   * The message shown when no archived records exist.
+   * The message shown when no records exist.
+   *
+   * @var string
+   */
+  protected $emptyMessage = 'No @state @label exist.';
+
+  /**
+   * The message shown when no state records exist.
    *
    * @var string
    */
@@ -81,13 +88,10 @@ class ExoListBuilderContentStates extends ExoListBuilderContent implements ExoLi
   }
 
   /**
-   * Get the query.
-   *
-   * @return \Drupal\Core\Entity\Query\QueryInterface
-   *   The query.
+   * {@inheritDoc}
    */
-  public function getQuery() {
-    $query = parent::getQuery();
+  protected function buildQuery() {
+    $query = parent::buildQuery();
 
     if ($state = $this->getState()) {
       $this->alterQueryState($state, $query);
@@ -201,9 +205,11 @@ class ExoListBuilderContentStates extends ExoListBuilderContent implements ExoLi
     if ($state = $this->getState()) {
       return $this->getEmptyMessageState($state);
     }
-    return $this->t('No @state @label exist.', [
-      '@state' => strtolower($this->stateDefaultLabel),
-      '@label' => strtolower($this->entityType->getCollectionLabel()),
+    $message = $this->emptyMessage;
+    $message = str_replace('@state', strtolower($this->stateDefaultLabel), $message);
+    $message = str_replace('@label', strtolower($this->entityType->getPluralLabel()), $message);
+    return $this->t('<div>@message</div>', [
+      '@message' => $message,
     ]);
   }
 
