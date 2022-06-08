@@ -232,9 +232,11 @@ trait ExoNestedEntityFormTrait {
       // $inner_form_state->setTemporaryValue('entity_validated', FALSE);
       // Pass through both the form elements validation and the form object
       // validation.
+      $entity_form->validateForm($form, $inner_form_state);
 
       // Build Entity.
-      $entity_form->setEntity($entity_form->buildEntity($form, $inner_form_state));
+      $entity = $entity_form->buildEntity($form, $inner_form_state);
+      $entity_form->setEntity($entity);
 
       $form_validator->validateForm($entity_form->getFormId(), $form, $inner_form_state);
       foreach ($inner_form_state->getErrors() as $error_element_path => $error) {
