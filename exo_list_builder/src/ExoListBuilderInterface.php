@@ -101,6 +101,14 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
   public function getTotal();
 
   /**
+   * Get actions.
+   *
+   * @return \Drupal\exo_list_builder\Plugin\ExoListActionInterface[]
+   *   An array of action instances.
+   */
+  public function getActions();
+
+  /**
    * Get filters.
    *
    * @return array
@@ -125,5 +133,13 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
    *   Returns TRUE if modified.
    */
   public function isModified();
+
+  /**
+   * Get queue.
+   *
+   * @return \Drupal\Core\Queue\QueueInterface
+   *   The queue.
+   */
+  public function getQueue($action_id);
 
 }

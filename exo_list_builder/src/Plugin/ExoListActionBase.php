@@ -11,6 +11,7 @@ use Drupal\exo_list_builder\EntityListInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\exo_list_builder\ExoListBuilderInterface;
+use Drupal\user\Entity\User;
 
 /**
  * Base class for eXo list actions.
@@ -120,6 +121,19 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
    * {@inheritdoc}
    */
   public function executeStart(EntityListInterface $entity_list, array &$context) {
+    if ($this->asJobQueue()) {
+      if ($email = $this->getNotifyEmail()) {
+        \Drupal::messenger()->addMessage($this->t('Started action "@action". This process will continue in the background. When finished, a notification email will be sent to %email.', [
+          '@action' => $this->label(),
+          '%email' => $email,
+        ]));
+      }
+      else {
+        \Drupal::messenger()->addMessage($this->t('Started action "@action". This process will continue in the background and you can view the status of the action in the "active actions overview" section of this page.', [
+          '@action' => $this->label(),
+        ]));
+      }
+    }
   }
 
   /**
@@ -132,6 +146,82 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
    * {@inheritdoc}
    */
   public function executeFinish(EntityListInterface $entity_list, array &$results) {
+    if ($this->asJobQueue() && ($email = $this->getNotifyEmail())) {
+      $this->notifyEmailFinish($entity_list, $results, $email);
+    }
+  }
+
+  /**
+   * An optional email no notify when the job queue has finished.
+   *
+   * @return string
+   *   The email to notify.
+   */
+  protected function getNotifyEmail() {
+    return NULL;
+  }
+
+  /**
+   * Notify via email.
+   *
+   * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
+   *   The entity list.
+   * @param array $results
+   *   The batch results.
+   * @param string $email
+   *   A comma separated list of email addresses.
+   * @param string $subject
+   *   The email subject.
+   * @param mixed $message
+   *   The email message.
+   * @param string $link_text
+   *   The link text.
+   * @param Drupal\Core\Url|string $link_url
+   *   The link url.
+   */
+  protected function notifyEmailFinish(EntityListInterface $entity_list, array $results, $email, $subject = NULL, $message = NULL, $link_text = NULL, $link_url = NULL) {
+    $subject = $subject ?: $this->t('@label: @action: Finished', [
+      '@label' => $entity_list->label(),
+      '@action' => $this->label(),
+    ]);
+    $message = $message ?: $this->t('The "%action" action triggered from the <a href="@url">%label</a> has finished processing.', [
+      '%label' => $entity_list->label(),
+      '%action' => $this->label(),
+      '@url' => $entity_list->toUrl()->setAbsolute()->toString(),
+    ]);
+    return $entity_list->notifyEmail($email, $subject, $message, $link_text, $link_url);
+  }
+
+  /**
+   * Act as another user.
+   *
+   * Useful when running as job.
+   *
+   * @param string $user_id
+   *   The user id to act as.
+   *
+   * @return $this
+   */
+  protected function userSwitch($user_id) {
+    // Always run as admin.
+    $this->currentUser = User::load(\Drupal::currentUser()->id());
+    $act_user = User::load($user_id);
+    \Drupal::currentUser()->setAccount($act_user);
+    return $this;
+  }
+
+  /**
+   * Restore original user.
+   *
+   * @return $this
+   */
+  protected function userRestore() {
+    if (isset($this->currentUser)) {
+      // Return authentication to previous user.
+      \Drupal::currentUser()->setAccount($this->currentUser);
+      unset($this->currentUser);
+    }
+    return $this;
   }
 
   /**

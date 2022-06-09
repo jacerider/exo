@@ -23,3 +23,11 @@ entity.exo_entity_list.duplicate_form:
     _title: 'Duplicate Entity List'
   requirements:
     _entity_create_access: 'exo_entity_list'
+
+entity.exo_entity_list.action_cancel_form:
+  path: '/admin/config/exo/list/{exo_entity_list}/{exo_entity_list_action}/cancel'
+  defaults:
+    _entity_form: 'exo_entity_list.action_cancel'
+    _title: 'Cancel Entity List Action'
+  requirements:
+    _entity_access: 'exo_entity_list.view'

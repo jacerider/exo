@@ -30,6 +30,7 @@ use Drupal\exo_list_builder\Plugin\ExoListFilterInterface;
  *       "delete" = "Drupal\exo_list_builder\Form\EntityListDeleteForm",
  *       "filter" = "Drupal\exo_list_builder\Form\EntityListFilterForm",
  *       "duplicate" = "Drupal\exo_list_builder\Form\EntityListForm",
+ *       "action_cancel" = "Drupal\exo_list_builder\Form\EntityListActionCancelForm",
  *     },
  *     "route_provider" = {
  *       "html" = "Drupal\exo_list_builder\EntityListHtmlRouteProvider",
@@ -70,6 +71,7 @@ use Drupal\exo_list_builder\Plugin\ExoListFilterInterface;
  *     "add-form" = "/admin/config/exo/list/add",
  *     "edit-form" = "/admin/config/exo/list/{exo_entity_list}/edit",
  *     "duplicate-form" = "/admin/config/exo/list/{exo_entity_list}/duplicate",
+ *     "action-cancel-form" = "/admin/config/exo/list/{exo_entity_list}/{exo_entity_list_action}/cancel",
  *     "delete-form" = "/admin/config/exo/list/{exo_entity_list}/delete",
  *     "collection" = "/admin/config/exo/list"
  *   }
@@ -681,6 +683,40 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       $this->entityHandler->setEntityList($this);
     }
     return $this->entityHandler;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function notifyEmail($email, $subject, $message, $link_text = NULL, $link_url = NULL) {
+    $module = 'exo_list_builder';
+    $key = 'notify';
+    $langcode = \Drupal::currentUser()->getPreferredLangcode();
+    $message = [
+      '#theme' => 'exo_list_builder_notify',
+      '#message' => is_array($message) ? $message : [
+        '#markup' => '<p>' . $message . '</p>',
+      ],
+      '#link_text' => $link_text,
+      '#link_url' => $link_url ? ($link_url instanceof Url ? $link_url->setAbsolute()->toString() : $link_url) : NULL,
+    ];
+
+    $params = [
+      'subject' => $subject,
+      'message' => $message,
+    ];
+
+    try {
+      /** @var \Drupal\Core\Mail\MailManagerInterface $mail_manager */
+      $mail_manager = \Drupal::service('plugin.manager.mail');
+      $result = $mail_manager->mail($module, $key, $email, $langcode, $params);
+      $sent = (bool) $result['result'];
+    }
+    catch (\Exception $e) {
+      $sent = FALSE;
+    }
+
+    return $sent;
   }
 
   /**

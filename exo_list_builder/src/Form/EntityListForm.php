@@ -780,7 +780,7 @@ class EntityListForm extends EntityForm {
     if ($form_state->getValue('limit_all')) {
       $form_state->setValue('limit', 0);
     }
-    elseif (!$form_state->getValue('limit_status')) {
+    elseif (!$form_state->getValue(['settings', 'limit_status'])) {
       $form_state->setValue('limit', $form_state->getValue('limit_range'));
     }
     else {

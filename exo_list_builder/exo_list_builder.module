@@ -29,6 +29,44 @@ function exo_list_builder_help($route_name, RouteMatchInterface $route_match) {
 }
 
 /**
+ * Implements hook_theme().
+ */
+function exo_list_builder_theme() {
+  $theme = [];
+  $theme['exo_list_builder_notify'] = [
+    'variables' => [
+      'message' => NULL,
+      'link_text' => NULL,
+      'link_url' => NULL,
+    ],
+  ];
+  return $theme;
+}
+
+/**
+ * Implements hook_mail().
+ *
+ * @param string $key
+ * @param array $message
+ * @param array $params
+ * @return void
+ */
+function exo_list_builder_mail($key, &$message, $params) {
+  $message['subject'] = $params['subject'];
+
+  /** @var \Drupal\Core\Render\RendererInterface $renderer */
+  $renderer = \Drupal::service('renderer');
+  $message['body'][] = (string) $renderer->renderPlain($params['message']);
+
+  /**
+   * PDF attachments.
+   */
+  if (isset($params['attachments'])) {
+    $message['params']['attachments'] = $params['attachments'];
+  }
+}
+
+/**
  * Implements hook_entity_type_alter().
  */
 function exo_list_builder_entity_type_alter(array &$entity_types) {

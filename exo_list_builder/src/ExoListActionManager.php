@@ -118,14 +118,28 @@ class ExoListActionManager extends DefaultPluginManager implements ExoListAction
    *   The action definition.
    * @param string $entity_list_id
    *   The entity list id.
+   * @param array $field_ids
+   *   The shown field ids.
+   * @param array $entity_ids
+   *   The complete list of entity ids.
    * @param array $context
    *   The context.
    */
-  public static function batchStart(array $action, $entity_list_id, array &$context) {
+  public static function batchStart(array $action, $entity_list_id, array $field_ids, array $entity_ids, array &$context) {
     /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
     $instance = \Drupal::service('plugin.manager.exo_list_action')->createInstance($action['id'], $action['settings']);
     /** @var \Drupal\exo_list_builder\EntityListInterface $entity_list */
     $entity_list = \Drupal::entityTypeManager()->getStorage('exo_entity_list')->load($entity_list_id);
+    // Override the entity fields.
+    $fields = array_intersect_key($entity_list->getFields(), array_flip($field_ids));
+    $entity_list->setFields($fields);
+    // Set context data.
+    $context['results']['entity_list_id'] = $entity_list_id;
+    $context['results']['entity_list_action'] = $action;
+    $context['results']['entity_list_fields'] = $field_ids;
+    $context['results']['entity_ids'] = $entity_ids;
+    $context['results']['entity_ids_complete'] = [];
+    // Start.
     $instance->executeStart($entity_list, $context);
   }
 
@@ -134,18 +148,18 @@ class ExoListActionManager extends DefaultPluginManager implements ExoListAction
    *
    * @param array $action
    *   The action definition.
-   * @param string $entity_id
-   *   The entity id.
    * @param string $entity_list_id
    *   The entity list id.
    * @param array $field_ids
    *   The shown field ids.
+   * @param string $entity_id
+   *   The entity id.
    * @param bool $selected
    *   Will be true if entity was selected.
    * @param array $context
    *   The context.
    */
-  public static function batch(array $action, $entity_id, $entity_list_id, array $field_ids, $selected, array &$context) {
+  public static function batch(array $action, $entity_list_id, array $field_ids, $entity_id, $selected, array &$context) {
     /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
     $instance = \Drupal::service('plugin.manager.exo_list_action')->createInstance($action['id'], $action['settings']);
     /** @var \Drupal\exo_list_builder\EntityListInterface $entity_list */
@@ -153,14 +167,8 @@ class ExoListActionManager extends DefaultPluginManager implements ExoListAction
     // Override the entity fields.
     $fields = array_intersect_key($entity_list->getFields(), array_flip($field_ids));
     $entity_list->setFields($fields);
-    if (!isset($context['results']['entity_list_id'])) {
-      $context['results']['entity_list_id'] = $entity_list_id;
-      $context['results']['entity_list_action'] = $action;
-      $context['results']['entity_list_fields'] = $field_ids;
-      $context['results']['entity_ids'] = [];
-    }
     $instance->execute($entity_id, $entity_list, $selected, $context);
-    $context['results']['entity_ids'][] = $entity_id;
+    $context['results']['entity_ids_complete'][$entity_id] = \Drupal::time()->getRequestTime();
   }
 
   /**

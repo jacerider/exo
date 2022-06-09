@@ -825,15 +825,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
 
       if (!empty($actions)) {
-        $is_queue = FALSE;
-        foreach ($actions as $action) {
-          if ($action->asJobQueue()) {
-            $is_queue = TRUE;
-            /** @var \Drupal\exo_list_builder\QueueWorker\ExoListActionProcess $queue_worker */
-            // $queue_worker = \Drupal::service('plugin.manager.queue_worker')->createInstance('exo_list_action:' . $entity_list->id() . ':' . $action->getPluginId());
-            ksm($this->getQueue($action->getPluginId()));
-          }
-        }
+        $form = $this->buildFormActionsQueue($form, $form_state);
       }
     }
 
@@ -873,6 +865,88 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
     return $form;
   }
+
+  /**
+   * Build form actions queue.
+   */
+  protected function buildFormActionsQueue(array $form, FormStateInterface $form_state) {
+    $show_action_status_column = FALSE;
+    $entity_list = $this->getEntityList();
+    $actions = $this->getActions();
+    $entities = $form[$this->entitiesKey]['#entities'];
+    $actions_status_list = [];
+    foreach ($actions as $action_id => $action) {
+      if ($action->asJobQueue()) {
+        /** @var \Drupal\exo_list_builder\QueueWorker\ExoListActionProcess $queue_worker */
+        $queue_worker = \Drupal::service('plugin.manager.queue_worker')->createInstance('exo_list_action:' . $entity_list->id() . ':' . $action_id);
+        $date_formatter = \Drupal::service('date.formatter');
+        $context = $queue_worker->getContext();
+        if (!empty($context['results']['entity_list_id'])) {
+          $actions_status_list[$action_id] = [
+            '#type' => 'inline_template',
+            '#template' => '<strong>{{ title }}</strong> | <em>Started:</em> {{ started }}{% if finished %} | <em>Finished:</em> {{ finished }} | <em>Processed:</em> {{ processed }}{% else %} | <em>Processed:</em> {{ processed }} | <em>Remaining:</em> {{ remaining }} | <a href="{{ cancel_url }}">{{ cancel }}</a>{% endif %}',
+            '#context' => [
+              'title' => $action->label(),
+              'started' => $date_formatter->format($context['job_start'], 'medium'),
+              'finished' => !empty($context['job_finish']) ? $date_formatter->format($context['job_finish'], 'medium') : NULL,
+              'processed' => count($context['results']['entity_ids_complete']),
+              'remaining' => count($context['results']['entity_ids']) - count($context['results']['entity_ids_complete']),
+              'cancel' => $this->icon('Cancel')->setIcon('regular-times-circle'),
+              'cancel_url' => $entity_list->toUrl('action-cancel-form', [
+                'query' => \Drupal::destination()->getAsArray(),
+              ])->setRouteParameter('exo_entity_list_action', $action_id)->toString(),
+            ],
+          ];
+          if (empty($context['job_finish'])) {
+            $show_action_status_column = TRUE;
+            foreach ($entities as $entity_id => $entity) {
+              if (!isset($form['entities'][$entity_id]['_action_status']['data'][$action_id])) {
+                $form['entities'][$entity_id]['_action_status']['data'][$action_id] = [
+                  '#theme' => 'item_list',
+                ];
+              }
+              if (isset($context['results']['entity_ids_complete'][$entity_id])) {
+                $date = $date_formatter->format($context['results']['entity_ids_complete'][$entity_id], 'medium');
+                $form['entities'][$entity_id]['_action_status']['data'][$action_id]['#items'][]['#markup'] = '<small>' . $action->label() . ': <em>' . $this->icon($date)->setIcon('regular-check-circle') . '</em></small>';
+              }
+              elseif (isset($context['results']['entity_ids'][$entity_id])) {
+                $form['entities'][$entity_id]['_action_status']['data'][$action_id]['#items'][]['#markup'] = '<small>' . $action->label() . ': <em>' . $this->icon('Pending')->setIcon('regular-clock') . '</em></small>';
+              }
+            }
+          }
+        }
+      }
+    }
+    if (!empty($actions_status_list)) {
+      $form['action_status'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => [
+          'class' => ['exo-list-action-status'],
+        ],
+        '#weight' => -99,
+      ];
+      $form['action_status']['list'] = [
+        '#theme' => 'item_list',
+        '#title' => $this->t('Actions Overview'),
+        '#items' => $actions_status_list,
+      ];
+    }
+
+    if ($show_action_status_column) {
+      // $form['#process'][] = [static::class, 'processActionTable'];
+      $form['entities']['#header']['_action_status'] = [
+        'data' => $this->t('Action Status'),
+        'class' => ['exo-list-action-status'],
+      ];
+    }
+    return $form;
+  }
+
+  // public static function processActionTable(array &$element) {
+  //   // ksm($element);
+  //   return $element;
+  // }
 
   /**
    * Get cache contexts.
@@ -1563,31 +1637,40 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
     $instance = $this->getActions()[$action['id']];
     $ids = $instance->getEntityIds($selected, $this);
+    $ids = array_combine($ids, $ids);
+    $shown_field_ids = array_keys($this->getShownFields());
     if ($instance->asJobQueue()) {
       $queue = $this->getQueue($instance->getPluginId());
-      $job_id = $entity_list->id() . '.' . time();
+      $queue->deleteQueue();
       /** @var \Drupal\exo_list_builder\QueueWorker\ExoListActionProcess $queue_worker */
       $queue_worker = \Drupal::service('plugin.manager.queue_worker')->createInstance('exo_list_action:' . $entity_list->id() . ':' . $instance->getPluginId());
+      $context = $queue_worker->getContext();
+      if (!empty($context['results']['entity_list_id'])) {
+        // If we have an existing list that never finished. Append selected
+        // ids to unprocessed ids.
+        if (!empty($selected)) {
+          $ids = array_diff_key($context['results']['entity_ids'], $context['results']['entity_ids_complete']) + $ids;
+        }
+      }
       $queue_worker->processItem([
         'op' => 'start',
-        'job_id' => $job_id,
         'action' => $action,
         'list_id' => $this->getEntityList()->id(),
+        'field_ids' => $shown_field_ids,
+        'entity_ids' => $ids,
       ]);
       foreach ($ids as $id) {
         $queue->createItem([
           'op' => 'process',
-          'job_id' => $job_id,
           'action' => $action,
           'id' => $id,
           'list_id' => $this->getEntityList()->id(),
-          'field_ids' => array_keys($this->getShownFields()),
+          'field_ids' => $shown_field_ids,
           'selected' => isset($selected[$id]),
         ]);
       }
       $queue->createItem([
         'op' => 'finish',
-        'job_id' => $job_id,
         'action' => $action,
         'list_id' => $this->getEntityList()->id(),
       ]);
@@ -1603,14 +1686,16 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       $batch_builder->addOperation([ExoListActionManager::class, 'batchStart'], [
         $action,
         $entity_list->id(),
+        $shown_field_ids,
+        $ids,
       ]);
       foreach ($ids as $entity_id) {
         $do_batch = TRUE;
         $batch_builder->addOperation([ExoListActionManager::class, 'batch'], [
           $action,
-          $entity_id,
           $entity_list->id(),
-          array_keys($this->getShownFields()),
+          $shown_field_ids,
+          $entity_id,
           isset($selected[$entity_id]),
         ]);
       }
@@ -1858,12 +1943,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   }
 
   /**
-   * Get actions.
-   *
-   * @return \Drupal\exo_list_builder\Plugin\ExoListActionInterface[]
-   *   An array of action instances.
+   * {@inheritDoc}
    */
-  protected function getActions() {
+  public function getActions() {
     if (!isset($this->actions)) {
       $this->actions = [];
       foreach ($this->entityList->getActions() as $action_id => $action) {
@@ -1883,7 +1965,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * @return \Drupal\Core\Queue\QueueInterface
    *   The queue.
    */
-  protected function getQueue($action_id) {
+  public function getQueue($action_id) {
     if (!isset($this->queues[$action_id])) {
       /** @var \Drupal\Core\Queue\QueueFactory $queue_factory */
       $queue_factory = \Drupal::service('queue');

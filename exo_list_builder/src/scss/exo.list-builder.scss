@@ -210,6 +210,34 @@
     }
   }
 
+  .exo-list-action-status {
+    margin-bottom: $global-margin;
+    background: gray(3);
+    border: 1px solid gray(7);
+    border-bottom: 1px solid gray(10);
+    padding: $global-padding;
+
+    h3 {
+      font-weight: 400 !important;
+      font-size: rem-calc(11) !important;
+      line-height: 1 !important;
+      margin: 0 !important;
+      padding: 0 0 $global-padding * 0.5 !important;
+      text-transform: uppercase !important;
+      color: gray(40) !important;
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      li {
+        font-size: rem-calc(12);
+      }
+    }
+  }
+
   .exo-list-pages {
     margin-right: $global-margin;
   }
@@ -306,6 +334,25 @@
   .exo-list-pager {
     @include flex;
     flex-wrap: wrap;
+
+    // Drupal default.
+    .pagination {
+      @include flex;
+      @include flex-align(center, middle);
+      margin: 0 0 0 $global-margin;
+
+      .item {
+        margin-left: $global-margin;
+
+        &:first-child {
+          margin-left: 0;
+        }
+      }
+
+      .current {
+        font-weight: 700;
+      }
+    }
 
     .pagerer-container {
       width: auto;

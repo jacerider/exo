@@ -3,6 +3,7 @@
 namespace Drupal\exo_list_builder;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
+use Drupal\Core\Url;
 
 /**
  * Provides an interface for defining eXo Entity List entities.
@@ -277,6 +278,22 @@ interface EntityListInterface extends ConfigEntityInterface {
    *   The entity handler.
    */
   public function getHandler();
+
+  /**
+   * Notify via email.
+   *
+   * @param string $email
+   *   A comma separated list of email addresses.
+   * @param string $subject
+   *   The email subject.
+   * @param mixed $message
+   *   The email message.
+   * @param string $link_text
+   *   The link text.
+   * @param Drupal\Core\Url|string $link_url
+   *   The link url.
+   */
+  public function notifyEmail($email, $subject, $message, $link_text = NULL, $link_url = NULL);
 
   /**
    * Gets the settings.
