@@ -2,6 +2,7 @@
 
 namespace Drupal\exo_list_builder\Plugin\QueueWorker;
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\Core\State\StateInterface;
@@ -15,7 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   id = "exo_list_action",
  *   title = @Translation("Process eXo list action item."),
  *   deriver = "Drupal\exo_list_builder\Plugin\Derivative\ExoListAction",
- *   cron = {"time" = 120}
+ *   cron = {"time" = 30}
  * )
  */
 class ExoListAction extends QueueWorkerBase implements ContainerFactoryPluginInterface {
@@ -73,6 +74,11 @@ class ExoListAction extends QueueWorkerBase implements ContainerFactoryPluginInt
       case 'process':
         $context = $this->getContext();
         ExoListActionManager::batch($data['action'], $data['list_id'], $data['field_ids'], $data['id'], $data['selected'], $context);
+        // Sometimes jobs run concurrently. We need to make sure we never loose
+        // result information.
+        // $current_context = $this->getContext();
+        // $context['results']['entity_ids_complete'] = $context['results']['entity_ids_complete'] + $current_context['results']['entity_ids_complete'];
+        // $context['results'] = NestedArray::mergeDeep($context['results'], $original_context['results']);
         $this->state->set($this->getStateId(), $context);
         break;
 

@@ -934,7 +934,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
 
     if ($show_action_status_column) {
-      // $form['#process'][] = [static::class, 'processActionTable'];
       $form['entities']['#header']['_action_status'] = [
         'data' => $this->t('Action Status'),
         'class' => ['exo-list-action-status'],
@@ -942,11 +941,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
     return $form;
   }
-
-  // public static function processActionTable(array &$element) {
-  //   // ksm($element);
-  //   return $element;
-  // }
 
   /**
    * Get cache contexts.
@@ -1749,7 +1743,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       'data' => $this->t('Operations'),
       'class' => [
         'exo-list-builder-field-id--operations',
-        'exo-form-table-compact',
+        'exo-list-builder--compact',
       ],
     ];
 
@@ -1781,7 +1775,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     if ($this->entityList->showOperations()) {
       $row['operations']['data'] = $this->buildOperations($entity);
       $row['operations']['#wrapper_attributes']['class'][] = 'exo-list-builder-field-id--operations';
-      $row['operations']['#wrapper_attributes']['class'][] = 'exo-form-table-compact';
+      $row['operations']['#wrapper_attributes']['class'][] = 'exo-list-builder--compact';
     }
     if ($entity instanceof EntityPublishedInterface) {
       if ($entity->isPublished()) {

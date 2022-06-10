@@ -204,9 +204,12 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
    */
   protected function userSwitch($user_id) {
     // Always run as admin.
-    $this->currentUser = User::load(\Drupal::currentUser()->id());
-    $act_user = User::load($user_id);
-    \Drupal::currentUser()->setAccount($act_user);
+    $user = User::load($user_id);
+    if ($user) {
+      /** @var \Drupal\Core\Session\AccountSwitcherInterface $account_switcher */
+      $this->accountSwitcher = \Drupal::service('account_switcher');
+      $this->accountSwitcher->switchTo($user);
+    }
     return $this;
   }
 
@@ -216,10 +219,11 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
    * @return $this
    */
   protected function userRestore() {
-    if (isset($this->currentUser)) {
-      // Return authentication to previous user.
-      \Drupal::currentUser()->setAccount($this->currentUser);
-      unset($this->currentUser);
+    if (isset($this->accountSwitcher)) {
+      /** @var \Drupal\Core\Session\AccountSwitcherInterface $account_switcher */
+      $account_switcher = \Drupal::service('account_switcher');
+      $account_switcher->switchBack();
+      unset($this->accountSwitcher);
     }
     return $this;
   }

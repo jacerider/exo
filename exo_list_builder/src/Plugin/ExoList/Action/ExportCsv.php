@@ -5,7 +5,6 @@ namespace Drupal\exo_list_builder\Plugin\ExoList\Action;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Render\RendererInterface;
-use Drupal\Core\StreamWrapper\PrivateStream;
 use Drupal\Core\Url;
 use Drupal\exo_list_builder\EntityListInterface;
 use Drupal\exo_list_builder\ExoListManagerInterface;
@@ -27,17 +26,30 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ExportCsv extends ExoListActionBase {
 
   /**
-   * The temporary export directory.
+   * The private export directory.
+   *
+   * @var string
    */
-  const TEMPORARY_DIRECTORY = 'temporary://exo_entity_list/export';
+  const CSV_DIRECTORY = 'private://exo-entity-list/export';
 
   /**
-   * The private export directory.
+   * Store CSV permanently.
+   *
+   * @var bool
    */
-  const PRIVATE_DIRECTORY = 'private://exo_entity_list/export';
+  const CSV_PRESERVE = FALSE;
+
+  /**
+   * Store CSV as a managed file.
+   *
+   * @var bool
+   */
+  const CSV_MANAGED = TRUE;
 
   /**
    * The delimiter.
+   *
+   * @var string
    */
   const DELIMITER = ',';
 
@@ -94,30 +106,25 @@ class ExportCsv extends ExoListActionBase {
   /**
    * {@inheritdoc}
    */
-  public function execute($entity_id, EntityListInterface $entity_list, $selected, array &$context) {
-    $fields = $entity_list->getFields();
-    if (!isset($context['results']['file_path'])) {
-      $file_path = $this->prepareExportFile($entity_list, $context);
-      $headers = [];
-      foreach ($fields as $field_id => $field) {
-        $headers[$field_id] = $field['display_label'] ?: $field['label'];
-      }
-      $handle = fopen($file_path, 'w');
-      // Add BOM to fix UTF-8 in Excel.
-      fwrite($handle, (chr(0xEF) . chr(0xBB) . chr(0xBF)));
-      // Write headers now.
-      fputcsv($handle, $headers, static::DELIMITER);
-      fclose($handle);
-    }
+  public function executeStart(EntityListInterface $entity_list, array &$context) {
+    parent::executeStart($entity_list, $context);
 
-    $entity = $this->loadEntity($entity_list->getTargetEntityTypeId(), $entity_id);
-    $handle = fopen($context['results']['file_path'], 'a');
-    $row = [];
-    foreach ($fields as $field_id => $field) {
-      /** @var \Drupal\exo_list_builder\Plugin\ExoListElementInterface $instance */
-      $instance = $this->elementManager->createInstance($field['view']['type'], $field['view']['settings']);
-      $row[$field_id] = $instance->buildPlainView($entity, $field);
-    }
+    $file_path = $this->prepareCsvFile($entity_list, $context);
+    $headers = $this->getCsvHeader($entity_list, $context);
+    $handle = fopen($file_path, 'w');
+    // Add BOM to fix UTF-8 in Excel.
+    fwrite($handle, (chr(0xEF) . chr(0xBB) . chr(0xBF)));
+    // Write headers now.
+    fputcsv($handle, $headers, static::DELIMITER);
+    fclose($handle);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function execute($entity_id, EntityListInterface $entity_list, $selected, array &$context) {
+    $handle = fopen($context['results']['csv_file_path'], 'a');
+    $row = $this->getCsvRow($entity_id, $entity_list, $selected, $context);
     fputcsv($handle, $row, static::DELIMITER);
     fclose($handle);
   }
@@ -126,10 +133,11 @@ class ExportCsv extends ExoListActionBase {
    * {@inheritdoc}
    */
   public function executeFinish(EntityListInterface $entity_list, array &$results) {
+    parent::executeFinish($entity_list, $results);
     // Hide default message.
     $results['entity_list_hide_message'] = TRUE;
-    if (isset($results['file_uri']) && file_exists($results['file_uri'])) {
-      $file_uri = $results['file_uri'];
+    if (!$this->asJobQueue() && isset($results['csv_file_uri']) && file_exists($results['csv_file_uri'])) {
+      $file_uri = $results['csv_file_uri'];
       /** @var \Drupal\Core\Access\CsrfTokenGenerator $csrf_token */
       $csrf_token = \Drupal::service('csrf_token');
       $token = $csrf_token->get($file_uri);
@@ -150,6 +158,17 @@ class ExportCsv extends ExoListActionBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  protected function notifyEmailFinish(EntityListInterface $entity_list, array $results, $email, $subject = NULL, $message = NULL, $link_text = NULL, $link_url = NULL) {
+    if ($this->asJobQueue()) {
+      $link_text = $link_text ?: $this->t('Download CSV');
+      $link_url = \Drupal::service('file_url_generator')->generateAbsoluteString($results['csv_file_uri']);
+    }
+    return parent::notifyEmailFinish($entity_list, $results, $email, $subject, $message, $link_text, $link_url);
+  }
+
+  /**
    * Prepare the export file.
    *
    * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
@@ -162,32 +181,119 @@ class ExportCsv extends ExoListActionBase {
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function prepareExportFile(EntityListInterface $entity_list, array &$context) {
+  public function prepareCsvFile(EntityListInterface $entity_list, array &$context) {
     /** @var \Drupal\Core\File\FileSystemInterface $file_system */
     $file_system = \Drupal::service('file_system');
-    $private_system_file = PrivateStream::basePath();
-    if (!$private_system_file) {
-      $directory = static::TEMPORARY_DIRECTORY;
+    $directory = $this->getCsvDirectory($entity_list, $context);
+    $file_system->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
+    $filename = $this->getCsvFilename($entity_list, $context);
+    $file_uri = $directory . '/' . $filename;
+    $file_path = $file_system->realpath($file_uri);
+
+    if (static::CSV_MANAGED) {
+      /** @var \Drupal\file\FileRepositoryInterface $file_repository */
+      $file_repository = \Drupal::service('file.repository');
+      $file = $file_repository->writeData('', $file_uri, FileSystemInterface::EXISTS_ERROR);
+      if (static::CSV_PRESERVE) {
+        $file->setPermanent();
+      }
+      else {
+        $file->setTemporary();
+      }
+      $file->save();
+      // URI may have changed.
+      $file_uri = $file->getFileUri();
     }
     else {
-      $directory = static::PRIVATE_DIRECTORY;
+      if (file_exists($file_uri)) {
+        $file_system->delete($file_uri);
+      }
+      $file_system->saveData('', $file_uri);
     }
-    $file_system->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY);
-    $time = time();
-    $filename = $entity_list->id() . '_' . $time . '.csv';
-    $destination = $directory . '/' . $filename;
-    /** @var \Drupal\file\FileRepositoryInterface $file_repository */
-    $file_repository = \Drupal::service('file.repository');
-    $file = $file_repository->writeData('', $destination, FileSystemInterface::EXISTS_ERROR);
-    $file->setTemporary();
-    $file->save();
-    $file_path = $file_system->realpath($destination);
-    $file_uri = $file->getFileUri();
-    $context['results']['filename'] = $filename;
-    $context['results']['file_path'] = $file_path;
-    $context['results']['file_uri'] = $file_uri;
 
+    $context['results']['csv_filename'] = $filename;
+    $context['results']['csv_file_path'] = $file_path;
+    $context['results']['csv_file_uri'] = $file_uri;
     return $file_path;
+  }
+
+  /**
+   * Get CSV file directory.
+   *
+   * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
+   *   The entity list.
+   * @param array $context
+   *   An array of the batch context.
+   *
+   * @return string
+   *   The file directory.
+   */
+  protected function getCsvDirectory(EntityListInterface $entity_list, array &$context) {
+    return static::CSV_DIRECTORY;
+  }
+
+  /**
+   * Get CSV file filename.
+   *
+   * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
+   *   The entity list.
+   * @param array $context
+   *   An array of the batch context.
+   *
+   * @return string
+   *   The file name.
+   */
+  protected function getCsvFilename(EntityListInterface $entity_list, array &$context) {
+    $filename = md5($entity_list->id() . $this->getPluginId());
+    if (static::CSV_PRESERVE) {
+      $filename .= '-' . \Drupal::time()->getRequestTime();
+    }
+    return $filename . '.csv';
+  }
+
+  /**
+   * Get CSV file headers.
+   *
+   * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
+   *   The entity list.
+   * @param array $context
+   *   The batch context.
+   *
+   * @return array
+   *   The CSV file headers.
+   */
+  protected function getCsvHeader(EntityListInterface $entity_list, array &$context) {
+    $headers = [];
+    foreach ($entity_list->getFields() as $field_id => $field) {
+      $headers[$field_id] = $field['display_label'] ?: $field['label'];
+    }
+    return $headers;
+  }
+
+  /**
+   * Get CSV file row.
+   *
+   * @param string $entity_id
+   *   The entity id.
+   * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
+   *   The entity list.
+   * @param bool $selected
+   *   Will be true if entity was selected.
+   * @param array $context
+   *   The batch context.
+   *
+   * @return array
+   *   The CSV file row.
+   */
+  protected function getCsvRow($entity_id, EntityListInterface $entity_list, $selected, array &$context) {
+    $row = [];
+    $entity = $this->loadEntity($entity_list->getTargetEntityTypeId(), $entity_id);
+    foreach ($entity_list->getFields() as $field_id => $field) {
+      /** @var \Drupal\exo_list_builder\Plugin\ExoListElementInterface $instance */
+      $instance = $this->elementManager->createInstance($field['view']['type'], $field['view']['settings']);
+      $row[$field_id] = $instance->buildPlainView($entity, $field);
+    }
+    return $row;
   }
 
 }

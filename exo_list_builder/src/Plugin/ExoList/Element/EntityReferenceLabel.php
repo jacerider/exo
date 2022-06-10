@@ -7,7 +7,6 @@ use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\exo_list_builder\EntityListInterface;
-use Drupal\exo_list_builder\Plugin\ExoListContentTrait;
 use Drupal\exo_list_builder\Plugin\ExoListElementContentBase;
 
 /**
@@ -93,8 +92,15 @@ class EntityReferenceLabel extends ExoListElementContentBase {
   /**
    * {@inheritdoc}
    */
-  protected function viewPlain(EntityInterface $entity, array $field) {
-    return $entity->label() . ' (' . $entity->id() . ')';
+  protected function viewPlainItem(EntityInterface $entity, FieldItemInterface $field_item, array $field) {
+    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $field_item */
+    $reference_entity = $field_item->entity;
+    $configuration = $this->getConfiguration();
+    $label = $reference_entity->label();
+    if ($configuration['entity_id']) {
+      $label .= ' (' . $reference_entity->id() . ')';
+    }
+    return $label;
   }
 
 }

@@ -3,7 +3,6 @@
 namespace Drupal\exo_list_builder\Form;
 
 use Drupal\Core\Entity\EntityConfirmFormBase;
-use Drupal\Core\Url;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -64,7 +63,7 @@ class EntityListActionCancelForm extends EntityConfirmFormBase {
    * {@inheritdoc}
    */
   public function getConfirmText() {
-    return $this->t('Cancel');
+    return $this->t('Cancel Pending Actions');
   }
 
   /**
