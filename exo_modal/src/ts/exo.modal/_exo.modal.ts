@@ -161,7 +161,6 @@ class ExoModal extends ExoData {
           const $element = this.getElement().once('exo.modal');
           if ($element.length) {
             this.debug('log', 'Build: Found Element', '[' + this.id + ']');
-            this.state = this.states.CLOSED;
             if (this.get('contentAjax')) {
               this.$contentAjaxPlaceholder = $('<div class="exo-modal-ajax-placeholder hidden" />').insertBefore($element);
             }
@@ -171,6 +170,7 @@ class ExoModal extends ExoData {
           // do this due to ajax as the trigger may exist but the modal element
           // may not yet.
           if ($trigger.length || $element.length) {
+            this.state = this.states.CLOSED;
             resolve(data);
           }
           else {
@@ -851,7 +851,6 @@ class ExoModal extends ExoData {
   public open(param?:any) {
     if (this.state == this.states.CLOSED) {
       this.debug('log', 'Open', '[' + this.getId() + ']', this.getData());
-
       if (this.ajaxLoaded === false && (this.get('ajax') || (this.get('contentAjax') && this.contentAjaxLoaded === false))) {
         const self = this;
         const route = this.get('ajax') ? this.get('ajax') : this.get('contentAjax');
@@ -1264,8 +1263,7 @@ class ExoModal extends ExoData {
 
   protected bindElement() {
     // Close when button pressed.
-    this.$element.find('[data-' + this.name + '-close]').off('click.exo.modal')
-      .on('click.exo.modal', e => {
+    this.$element.find('[data-' + this.name + '-close]').off('click.exo.modal').on('click.exo.modal', e => {
         e.preventDefault();
         var transition = $(e.currentTarget).attr('data-' + this.name + '-transitionOut');
 
