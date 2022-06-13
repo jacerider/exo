@@ -98,6 +98,7 @@ class OptionsSelect extends ExoListFilterBase implements ExoListFieldValuesInter
       '#empty_value' => NULL,
       '#default_value' => $value,
     ];
+    $form['#access'] = !empty($options) && count($options) > 1;
     return $form;
   }
 
