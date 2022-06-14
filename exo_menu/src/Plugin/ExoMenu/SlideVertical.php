@@ -24,6 +24,7 @@ class SlideVertical extends ExoMenuBase {
   public function defaultConfiguration() {
     return parent::defaultConfiguration() + [
       'backNav' => 0,
+      'backSelector' => '.exo-menu-top',
       'backText' => 'Back',
       'backIcon' => '',
       'breadcrumbNav' => 1,
@@ -44,6 +45,12 @@ class SlideVertical extends ExoMenuBase {
       '#title' => $this->t('Use back button'),
       '#description' => $this->t('The back button provides a way to navigate backwards one level.'),
       '#default_value' => $this->configuration['backNav'],
+    ];
+    $form['backSelector'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('CSS Selector for back button'),
+      '#description' => $this->t('The css class of the div to insert the back navigation.'),
+      '#default_value' => $this->configuration['backSelector'],
     ];
     $form['backText'] = [
       '#type' => 'textfield',
