@@ -202,8 +202,12 @@ trait ExoListContentTrait {
     /** @var \Drupal\Core\Entity\Sql\TableMappingInterface $table_mapping*/
     $storage = $this->entityTypeManager()->getStorage($entity_list->getTargetEntityTypeId());
     if ($storage instanceof SqlEntityStorageInterface) {
+      $entity_type = $entity_list->getTargetEntityType();
+      $base_table = $entity_type->getBaseTable();
+      $base_id_key = $entity_type->getKey('id');
       $field = $entity_list->getField($field_id);
       $field_name = $field['field_name'];
+      // /** @var \Drupal\Core\Entity\Sql\DefaultTableMapping $table_mapping */
       $table_mapping = $storage->getTableMapping();
       $field_table = $table_mapping->getFieldTableName($field_name);
       $field_storage_definitions = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions($entity_list->getTargetEntityTypeId())[$field_name];
@@ -215,11 +219,17 @@ trait ExoListContentTrait {
       if (!empty($condition)) {
         $query->condition($field_column, '%' . $connection->escapeLike($condition) . '%', 'LIKE');
       }
-      if ($bundle_key = $entity_list->getTargetEntityType()->getKey('bundle')) {
-        $query->condition($bundle_key, $entity_list->getTargetBundleIds(), 'IN');
+      $base_alias = 'f';
+      if ($field_table !== $base_table) {
+        // If we are fetching from a non-base table, we need to join the base.
+        $query->join($base_table, 'b', 'b.' . $base_id_key . ' = f.entity_id');
+        $base_alias = 'b';
       }
-      if ($label_key = $entity_list->getTargetEntityType()->getKey('label')) {
-        $query->orderBy($label_key);
+      if ($bundle_key = $entity_type->getKey('bundle')) {
+        $query->condition($base_alias . '.' . $bundle_key, $entity_list->getTargetBundleIds(), 'IN');
+      }
+      if ($label_key = $entity_type->getKey('label')) {
+        $query->orderBy($base_alias . '.' . $label_key);
       }
       return $query;
     }
