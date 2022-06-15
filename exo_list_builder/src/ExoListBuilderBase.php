@@ -452,7 +452,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           $filter_value = $default_value;
         }
       }
-      if (!is_null($filter_value)) {
+      if ($instance->allowQueryAlter($filter_value, $entity_list, $field)) {
         if (is_array($filter_value)) {
           $group = NULL;
           switch ($instance->getMultipleJoin($field)) {

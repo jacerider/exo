@@ -257,6 +257,13 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
   /**
    * {@inheritdoc}
    */
+  public function allowQueryAlter(&$value, EntityListInterface $entity_list, array $field) {
+    return !is_null($value);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
   }
 

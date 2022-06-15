@@ -168,6 +168,21 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
   public function getDefaultValue(EntityListInterface $entity_list, array $field);
 
   /**
+   * Should query be altered.
+   *
+   * @param mixed $value
+   *   The filter value.
+   * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
+   *   The entity list.
+   * @param array $field
+   *   The field definition.
+   *
+   * @return bool
+   *   Returns TRUE if query should be altered.
+   */
+  public function allowQueryAlter(&$value, EntityListInterface $entity_list, array $field);
+
+  /**
    * Alter the query.
    *
    * @param \Drupal\Core\Entity\Query\QueryInterface|\Drupal\Core\Entity\Query\ConditionInterface $query
