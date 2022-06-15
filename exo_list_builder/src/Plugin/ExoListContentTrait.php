@@ -161,32 +161,43 @@ trait ExoListContentTrait {
     else {
       $cacheable_metadata = new CacheableMetadata();
       $cacheable_metadata->addCacheTags($entity_list->getCacheTags());
-      if ($query = $this->getAvailableFieldValuesQuery($entity_list, $field_id, $property, $condition, $cacheable_metadata)) {
-        $values = $query->execute()->fetchCol();
+      $field = $entity_list->getField($field_id);
+      if ($computed_filter = $this->getComputedFilterClass($field['definition'])) {
+        $values = $computed_filter::getExoListAvailableFieldValues($entity_list, $field_id, $property, $condition);
       }
+      elseif ($field['definition']->isComputed()) {
+        // No support for computed fields. You can use the
+        // ExoListComputedFilterInterface if you have control of the field item
+        // class.
+      }
+      else {
+        if ($query = $this->getAvailableFieldValuesQuery($entity_list, $field_id, $property, $condition, $cacheable_metadata)) {
+          $values = $query->execute()->fetchCol();
+        }
 
-      $parts = explode('.', $property);
-      $field_name = $parts[0] ?? $property;
-      $column = $parts[1] ?? NULL;
-      // When referencing a target entity, we will fetch the entity labels.
-      if ($column === 'target_id') {
-        $field_definition = $entity_list->getField($field_id)['definition'];
-        if ($reference_field_definition = $this->getReferenceFieldDefinition($field_definition)) {
-          $nested_reference_entity_type_id = $reference_field_definition->getSetting('target_type');
-          $entities = $this->entityTypeManager()->getStorage($nested_reference_entity_type_id)->loadMultiple($values);
-          uasort($entities, function (EntityInterface $a, EntityInterface $b) {
-            if ($a instanceof TermInterface && $b instanceof TermInterface) {
-              return $a->getWeight() <=> $b->getWeight();
+        $parts = explode('.', $property);
+        $field_name = $parts[0] ?? $property;
+        $column = $parts[1] ?? NULL;
+        // When referencing a target entity, we will fetch the entity labels.
+        if ($column === 'target_id') {
+          $field_definition = $entity_list->getField($field_id)['definition'];
+          if ($reference_field_definition = $this->getReferenceFieldDefinition($field_definition)) {
+            $nested_reference_entity_type_id = $reference_field_definition->getSetting('target_type');
+            $entities = $this->entityTypeManager()->getStorage($nested_reference_entity_type_id)->loadMultiple($values);
+            uasort($entities, function (EntityInterface $a, EntityInterface $b) {
+              if ($a instanceof TermInterface && $b instanceof TermInterface) {
+                return $a->getWeight() <=> $b->getWeight();
+              }
+              return strnatcasecmp($a->label(), $b->label());
+            });
+            $values = [];
+            foreach ($entities as $entity) {
+              if ($entity->getEntityType()->hasKey('bundle')) {
+                $cacheable_metadata->addCacheTags([$entity->getEntityTypeId() . '_list:' . $entity->bundle()]);
+              }
+              $cacheable_metadata->addCacheableDependency($entity);
+              $values[$entity->id()] = $entity->label();
             }
-            return strnatcasecmp($a->label(), $b->label());
-          });
-          $values = [];
-          foreach ($entities as $entity) {
-            if ($entity->getEntityType()->hasKey('bundle')) {
-              $cacheable_metadata->addCacheTags([$entity->getEntityTypeId() . '_list:' . $entity->bundle()]);
-            }
-            $cacheable_metadata->addCacheableDependency($entity);
-            $values[$entity->id()] = $entity->label();
           }
         }
       }
@@ -206,6 +217,9 @@ trait ExoListContentTrait {
       $base_table = $entity_type->getBaseTable();
       $base_id_key = $entity_type->getKey('id');
       $field = $entity_list->getField($field_id);
+      if ($field['definition']->isComputed()) {
+        return NULL;
+      }
       $field_name = $field['field_name'];
       // /** @var \Drupal\Core\Entity\Sql\DefaultTableMapping $table_mapping */
       $table_mapping = $storage->getTableMapping();
@@ -274,6 +288,26 @@ trait ExoListContentTrait {
       $fields += $entity_field_manager->getFieldDefinitions($field_definition->getTargetEntityTypeId(), $bundle_id);
     }
     return isset($fields[$field_name]) ? $fields[$field_name] : NULL;
+  }
+
+  /**
+   * Check if field supports computed filtering.
+   *
+   * @return bool
+   *   Returns TRUE if the field supports computed filtering.
+   */
+  protected function isComputedFilter(FieldDefinitionInterface $field_definition) {
+    return isset(class_implements($field_definition->getClass())['Drupal\exo_list_builder\ExoListComputedFilterInterface']);
+  }
+
+  /**
+   * Get the computed class.
+   *
+   * @return \Drupal\exo_list_builder\ExoListComputedFilterInterface
+   *   Returns TRUE if the field supports computed filtering.
+   */
+  protected function getComputedFilterClass(FieldDefinitionInterface $field_definition) {
+    return $this->isComputedFilter($field_definition) ? $field_definition->getClass() : '';
   }
 
 }

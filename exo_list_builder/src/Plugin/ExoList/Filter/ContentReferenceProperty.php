@@ -4,12 +4,9 @@ namespace Drupal\exo_list_builder\Plugin\ExoList\Filter;
 
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\Sql\SqlEntityStorageInterface;
-use Drupal\Core\Field\FieldConfigInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\exo_list_builder\EntityListInterface;
-use Drupal\taxonomy\TermInterface;
 
 /**
  * Defines a eXo list element for rendering a content entity field.
@@ -40,7 +37,7 @@ class ContentReferenceProperty extends ContentProperty {
   /**
    * {@inheritdoc}
    */
-  public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
+  public function queryFieldAlter($query, $value, EntityListInterface $entity_list, array $field) {
     $this->queryAlterByField($field['field_name'] . '.entity.' . $this->getConfiguration()['property'], $query, $value, $entity_list, $field);
   }
 

@@ -248,6 +248,32 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
    * {@inheritdoc}
    */
   public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
+    if ($computed_filter = $this->getComputedFilterClass($field['definition'])) {
+      $computed_filter::alterExoListQuery($query, $value, $entity_list, $field);
+    }
+    elseif ($field['definition']->isComputed()) {
+      // No support for computed fields. You can use the
+      // ExoListComputedFilterInterface if you have control of the field item
+      // class.
+    }
+    else {
+      $this->queryFieldAlter($query, $value, $entity_list, $field);
+    }
+  }
+
+  /**
+   * Alter the query with a valid field.
+   *
+   * @param \Drupal\Core\Entity\Query\QueryInterface|\Drupal\Core\Entity\Query\ConditionInterface $query
+   *   The query.
+   * @param mixed $value
+   *   The filter value.
+   * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
+   *   The entity list.
+   * @param array $field
+   *   The field definition.
+   */
+  protected function queryFieldAlter($query, $value, EntityListInterface $entity_list, array $field) {
     $this->queryAlterByField($field['field_name'] . '.' . $this->getConfiguration()['property'], $query, $value, $entity_list, $field);
   }
 
@@ -258,6 +284,22 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
     $configuration = $this->getConfiguration();
     $values = $this->getAvailableFieldValues($entity_list, $field['id'], $configuration['property'], $input);
     return array_combine($values, $values);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function applies(array $field) {
+    // Fields can compute their own values.
+    if ($this->getComputedFilterClass($field['definition'])) {
+      return TRUE;
+    }
+    // Computed fields are not supported unless they implement the
+    // ExoListComputedFilterInterface interface.
+    if ($field['definition']->isComputed()) {
+      return FALSE;
+    }
+    return TRUE;
   }
 
 }
