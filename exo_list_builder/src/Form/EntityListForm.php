@@ -585,6 +585,7 @@ class EntityListForm extends EntityForm {
         '#type' => 'container',
         '#id' => $filter_id,
         '#states' => $states,
+        '#access' => !empty($filters),
       ];
       $filter_type = $this->getElementPropertyValue([
         'fields',
