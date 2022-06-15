@@ -935,8 +935,10 @@ function exo_form_field_widget_date_recur_modular_sierra_form_alter(&$element, F
  * Implements hook_form_FORM_ID_alter().
  */
 function exo_form_form_revision_overview_form_alter(&$form, FormStateInterface $form_state) {
-  foreach (Element::children($form['node_revisions_table']) as $key) {
-    $element = &$form['node_revisions_table'][$key];
+  $target = $form['commerce_product_revisions_table'] ?? $form['node_revisions_table'];
+
+  foreach (Element::children($target) as $key) {
+    $element = &$target[$key];
     $element['select_column_one']['#exo_form_default'] = TRUE;
     $element['select_column_two']['#exo_form_default'] = TRUE;
   }
