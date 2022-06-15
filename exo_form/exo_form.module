@@ -9,7 +9,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Entity\ContentEntityFormInterface;
 use Drupal\Core\Form\FormHelper;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Template\Attribute;
@@ -407,23 +406,24 @@ function exo_form_preprocess_region__content(&$variables) {
  * Implements hook_theme_registry_alter().
  */
 function exo_form_theme_registry_alter(&$theme_registry) {
-  $theme_registry['fieldset']['path'] = drupal_get_path('module', 'exo_form') . '/templates';
-  $theme_registry['form_element']['path'] = drupal_get_path('module', 'exo_form') . '/templates';
-  $theme_registry['views_exposed_form']['path'] = drupal_get_path('module', 'exo_form') . '/templates';
-  $theme_registry['image_widget']['path'] = drupal_get_path('module', 'exo_form') . '/templates';
+  $theme_registry['fieldset']['path'] = \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form') . '/templates';
+  $theme_registry['form_element']['path'] = \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form') . '/templates';
+  $theme_registry['views_exposed_form']['path'] = \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form') . '/templates';
+  $theme_registry['image_widget']['path'] = \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form') . '/templates';
 }
 
 /**
  * Implements hook_preprocess().
  */
-function exo_form_preprocess(&$variables, $hook, &$info) {
+function exo_form_preprocess(&$variables, $hook, $info) {
   if ($hook == 'form_element' || $hook == 'fieldset') {
     if (!exo_form_access()) {
       return;
     }
+
     // Force form elements to use exo form template.
-    $info['theme path'] = drupal_get_path('module', 'exo_form');
-    $info['path'] = drupal_get_path('module', 'exo_form') . '/templates';
+    $info['theme path'] = \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form');
+    $info['path'] = \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form') . '/templates';
   }
 }
 
@@ -796,11 +796,11 @@ function exo_form_library_info_alter(&$libraries, $extension) {
     return;
   }
   if ($extension == 'media_library') {
-    $path = '/' . drupal_get_path('module', 'exo_form');
+    $path = '/' . \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form');
     $libraries['widget']['js'][$path . '/js/exo.form.media-library.widget.js'] = [];
   }
   if ($extension == 'views_bulk_operations') {
-    $path = '/' . drupal_get_path('module', 'exo_form');
+    $path = '/' . \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form');
     $libraries['frontUi']['js'][$path . '/js/exo.form.views-bulk-operations.js'] = [];
   }
   if ($extension == 'date_recur_modular') {
@@ -822,10 +822,10 @@ function exo_form_library_info_alter(&$libraries, $extension) {
               unset($libraries[$library]['js'][$filepath]);
             }
             if ($filepath == 'js/views-admin.js') {
-              $libraries[$library]['js']['/' . drupal_get_path('module', 'exo_form') . '/js/exo.form.views.ui.js'] = [];
+              $libraries[$library]['js']['/' . \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form') . '/js/exo.form.views.ui.js'] = [];
             }
             if ($filepath == 'misc/machine-name.js') {
-              $libraries[$library]['js']['/' . drupal_get_path('module', 'exo_form') . '/js/exo.form.machine-name.js'] = [];
+              $libraries[$library]['js']['/' . \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form') . '/js/exo.form.machine-name.js'] = [];
             }
           }
 
@@ -935,10 +935,8 @@ function exo_form_field_widget_date_recur_modular_sierra_form_alter(&$element, F
  * Implements hook_form_FORM_ID_alter().
  */
 function exo_form_form_revision_overview_form_alter(&$form, FormStateInterface $form_state) {
-  $target = $form['commerce_product_revisions_table'] ?? $form['node_revisions_table'];
-
-  foreach (Element::children($target) as $key) {
-    $element = &$target[$key];
+  foreach (Element::children($form['node_revisions_table']) as $key) {
+    $element = &$form['node_revisions_table'][$key];
     $element['select_column_one']['#exo_form_default'] = TRUE;
     $element['select_column_two']['#exo_form_default'] = TRUE;
   }
