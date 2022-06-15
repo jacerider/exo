@@ -45,8 +45,9 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase {
       'STARTS_WITH' => t('Starts with'),
       'CONTAINS' => t('Contains'),
       'ENDS_WITH' => t('Ends with'),
-      'IS NULL' => t('IS NULL'),
       'IS NOT NULL' => t('IS NOT NULL'),
+      'IS NULL' => t('IS NULL'),
+      'IS NULL EMPTY' => t('IS NULL or Empty String'),
     ];
   }
 
@@ -105,7 +106,7 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase {
    */
   public function allowQueryAlter(&$value, EntityListInterface $entity_list, array $field) {
     $match_operator = $this->getConfiguration()['match_operator'];
-    if (in_array($match_operator, ['IS NULL', 'IS NOT NULL'])) {
+    if (in_array($match_operator, ['IS NOT NULL', 'IS NULL', 'IS NULL EMPTY'])) {
       $value = NULL;
       return TRUE;
     }
@@ -128,7 +129,15 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase {
    */
   protected function queryAlterByField($field_id, $query, $value, EntityListInterface $entity_list, array $field) {
     $match_operator = $this->getConfiguration()['match_operator'];
-    $query->condition($field_id, $value, $match_operator);
+    if ($match_operator === 'IS NULL EMPTY') {
+      $group = $query->orConditionGroup();
+      $group->condition($field_id, NULL, 'IS NULL');
+      $group->condition($field_id, '', '=');
+      $query->condition($group);
+    }
+    else {
+      $query->condition($field_id, $value, $match_operator);
+    }
   }
 
 }
