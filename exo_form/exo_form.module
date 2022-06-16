@@ -406,10 +406,12 @@ function exo_form_preprocess_region__content(&$variables) {
  * Implements hook_theme_registry_alter().
  */
 function exo_form_theme_registry_alter(&$theme_registry) {
-  $theme_registry['fieldset']['path'] = \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form') . '/templates';
-  $theme_registry['form_element']['path'] = \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form') . '/templates';
-  $theme_registry['views_exposed_form']['path'] = \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form') . '/templates';
-  $theme_registry['image_widget']['path'] = \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form') . '/templates';
+  $path_resolver = \Drupal::service('extension.path.resolver');
+
+  $theme_registry['fieldset']['path'] = $path_resolver->getPath('module', 'exo_form') . '/templates';
+  $theme_registry['form_element']['path'] = $path_resolver->getPath('module', 'exo_form') . '/templates';
+  $theme_registry['views_exposed_form']['path'] = $path_resolver->getPath('module', 'exo_form') . '/templates';
+  $theme_registry['image_widget']['path'] = $path_resolver->getPath('module', 'exo_form') . '/templates';
 }
 
 /**
@@ -421,9 +423,10 @@ function exo_form_preprocess(&$variables, $hook, $info) {
       return;
     }
 
+    $path_resolver = \Drupal::service('extension.path.resolver');
     // Force form elements to use exo form template.
-    $info['theme path'] = \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form');
-    $info['path'] = \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form') . '/templates';
+    $info['theme path'] = $path_resolver->getPath('module', 'exo_form');
+    $info['path'] = $path_resolver->getPath('module', 'exo_form') . '/templates';
   }
 }
 
@@ -795,12 +798,14 @@ function exo_form_library_info_alter(&$libraries, $extension) {
   if (!exo_form_access()) {
     return;
   }
+
+  $path_resolver = \Drupal::service('extension.path.resolver');
   if ($extension == 'media_library') {
-    $path = '/' . \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form');
+    $path = '/' . $path_resolver->getPath('module', 'exo_form');
     $libraries['widget']['js'][$path . '/js/exo.form.media-library.widget.js'] = [];
   }
   if ($extension == 'views_bulk_operations') {
-    $path = '/' . \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form');
+    $path = '/' . $path_resolver->getPath('module', 'exo_form');
     $libraries['frontUi']['js'][$path . '/js/exo.form.views-bulk-operations.js'] = [];
   }
   if ($extension == 'date_recur_modular') {
@@ -822,10 +827,10 @@ function exo_form_library_info_alter(&$libraries, $extension) {
               unset($libraries[$library]['js'][$filepath]);
             }
             if ($filepath == 'js/views-admin.js') {
-              $libraries[$library]['js']['/' . \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form') . '/js/exo.form.views.ui.js'] = [];
+              $libraries[$library]['js']['/' . $path_resolver->getPath('module', 'exo_form') . '/js/exo.form.views.ui.js'] = [];
             }
             if ($filepath == 'misc/machine-name.js') {
-              $libraries[$library]['js']['/' . \Drupal::service('extension.path.resolver')->getPath('module', 'exo_form') . '/js/exo.form.machine-name.js'] = [];
+              $libraries[$library]['js']['/' . $path_resolver->getPath('module', 'exo_form') . '/js/exo.form.machine-name.js'] = [];
             }
           }
 
