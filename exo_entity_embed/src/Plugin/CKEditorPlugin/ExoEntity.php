@@ -24,7 +24,7 @@ class ExoEntity extends DrupalEntity {
    * {@inheritdoc}
    */
   public function getFile() {
-    return drupal_get_path('module', 'exo_entity_embed') . '/js/plugins/exoentity/plugin.js';
+    return $this->getModulePath('exo_entity_embed') . '/js/plugins/exoentity/plugin.js';
   }
 
   /**
@@ -35,6 +35,7 @@ class ExoEntity extends DrupalEntity {
       'ExoEntity_dialogTitleAdd' => t('Insert entity'),
       'ExoEntity_dialogTitleEdit' => t('Edit entity'),
       'ExoEntity_buttons' => $this->getButtons(),
+      'ExoEntity_previewCsrfToken' => \Drupal::csrfToken()->get('X-Drupal-EmbedPreview-CSRF-Token'),
     ];
   }
 
@@ -85,8 +86,8 @@ class ExoEntity extends DrupalEntity {
    */
   public function getCssFiles(Editor $editor) {
     return [
-      drupal_get_path('module', 'system') . '/css/components/hidden.module.css',
-      drupal_get_path('module', 'exo_entity_embed') . '/css/exo.entity-embed.css',
+      $this->getModulePath('system') . '/css/components/hidden.module.css',
+      $this->getModulePath('exo_entity_embed') . '/css/exo.entity-embed.css',
     ];
   }
 
