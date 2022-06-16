@@ -47,6 +47,14 @@ exo_list_builder.exo_entity_list.*:
         mapping:
           settings:
             type: mapping
+    sorts:
+      type: sequence
+      label: Sorts
+      sequence:
+        type: mapping
+        mapping:
+          settings:
+            type: mapping
     sort:
       type: string
       label: Default sort field

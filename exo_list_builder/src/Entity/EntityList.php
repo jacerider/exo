@@ -57,6 +57,7 @@ use Drupal\exo_list_builder\Plugin\ExoListFilterInterface;
  *     "limit",
  *     "limit_options",
  *     "actions",
+ *     "sorts",
  *     "sort",
  *     "fields",
  *     "settings",
@@ -169,6 +170,20 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * @var array
    */
   protected $actionDefinitions;
+
+  /**
+   * The sort definitions.
+   *
+   * @var array
+   */
+  protected $sorts = [];
+
+  /**
+   * The sort plugin definitions.
+   *
+   * @var array
+   */
+  protected $sortDefinitions;
 
   /**
    * The sort default.
@@ -479,6 +494,22 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   /**
    * {@inheritdoc}
    */
+  public function getSortPluginId($sort = NULL) {
+    $parts = explode(':', $sort ?: $this->getSort());
+    return $parts[0];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSortPluginValue($sort = NULL) {
+    $parts = explode(':', $sort ?: $this->getSort());
+    return $parts[1] ?? NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getActions() {
     $actions = [];
     $definitions = $this->getAvailableActions();
@@ -491,10 +522,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   }
 
   /**
-   * Get action definitions.
-   *
-   * @return array
-   *   An array of action definitions.
+   * {@inheritdoc}
    */
   public function getAvailableActions() {
     if (!isset($this->actionDefinitions)) {
@@ -513,6 +541,42 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       }
     }
     return $this->actionDefinitions;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSorts() {
+    $sorts = [];
+    $definitions = $this->getAvailableSorts();
+    foreach ($definitions as $sort_id => $definition) {
+      if (isset($this->sorts[$sort_id])) {
+        $sorts[$sort_id] = NestedArray::mergeDeep($this->sorts[$sort_id] + $definition);
+      }
+    }
+    return $sorts;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getAvailableSorts() {
+    if (!isset($this->sortDefinitions)) {
+      $this->sortDefinitions = [];
+      /** @var \Drupal\exo_list_builder\ExoListSortManagerInterface $manager */
+      $manager = \Drupal::service('plugin.manager.exo_list_sort');
+      $sorts = [];
+      foreach ($this->getTargetBundleIds() as $bundle_id) {
+        $sorts += $manager->getFieldOptions($this->getTargetEntityTypeId(), $bundle_id);
+      }
+      foreach ($sorts as $action_id => $label) {
+        $this->sortDefinitions[$action_id] = [
+          'id' => $action_id,
+          'label' => $label,
+        ] + $this->actionDefaults;
+      }
+    }
+    return $this->sortDefinitions;
   }
 
   /**

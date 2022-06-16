@@ -12,6 +12,7 @@ use Drupal\Core\Form\SubformState;
 use Drupal\Core\Render\Element;
 use Drupal\exo_list_builder\ExoListActionManagerInterface;
 use Drupal\exo_list_builder\ExoListManagerInterface;
+use Drupal\exo_list_builder\ExoListSortManagerInterface;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -62,6 +63,13 @@ class EntityListForm extends EntityForm {
   protected $actionManager;
 
   /**
+   * The sort manager service.
+   *
+   * @var \Drupal\exo_list_builder\ExoListSortManagerInterface
+   */
+  protected $sortManager;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
@@ -70,7 +78,8 @@ class EntityListForm extends EntityForm {
       $container->get('entity_type.manager'),
       $container->get('plugin.manager.exo_list_element'),
       $container->get('plugin.manager.exo_list_filter'),
-      $container->get('plugin.manager.exo_list_action')
+      $container->get('plugin.manager.exo_list_action'),
+      $container->get('plugin.manager.exo_list_sort')
     );
   }
 
@@ -87,13 +96,16 @@ class EntityListForm extends EntityForm {
    *   The filter manager service.
    * @param \Drupal\exo_list_builder\ExoListActionManagerInterface $action_manager
    *   The action manager service.
+   * @param \Drupal\exo_list_builder\ExoListSortManagerInterface $sort_manager
+   *   The sort manager service.
    */
-  public function __construct(EntityTypeBundleInfoInterface $entity_type_bundle_info, EntityTypeManagerInterface $entity_type_manager, ExoListManagerInterface $element_manager, ExoListManagerInterface $filter_manager, ExoListActionManagerInterface $action_manager) {
+  public function __construct(EntityTypeBundleInfoInterface $entity_type_bundle_info, EntityTypeManagerInterface $entity_type_manager, ExoListManagerInterface $element_manager, ExoListManagerInterface $filter_manager, ExoListActionManagerInterface $action_manager, ExoListSortManagerInterface $sort_manager) {
     $this->entityTypeBundleInfo = $entity_type_bundle_info;
     $this->entityTypeManager = $entity_type_manager;
     $this->elementManager = $element_manager;
     $this->filterManager = $filter_manager;
     $this->actionManager = $action_manager;
+    $this->sortManager = $sort_manager;
   }
 
   /**
@@ -297,6 +309,7 @@ class EntityListForm extends EntityForm {
     }
 
     $this->buildFormActions($form, $form_state);
+    $this->buildFormSorts($form, $form_state);
 
     $form['settings'] = [
       '#type' => 'details',
@@ -531,9 +544,9 @@ class EntityListForm extends EntityForm {
         ];
         $row['view']['options']['sort']['sort_default'] = [
           '#type' => 'radio',
-          '#title' => $this->t('Sort default'),
-          '#default_value' => $exo_entity_list->getSort() === $field_id ? $field_id : FALSE,
-          '#return_value' => $field_id,
+          '#title' => $this->t('Default Sort'),
+          '#default_value' => $exo_entity_list->getSort() === 'field:' . $field_id ? 'field:' . $field_id : FALSE,
+          '#return_value' => 'field:' . $field_id,
           '#parents' => ['sort'],
         ];
       }
@@ -649,11 +662,12 @@ class EntityListForm extends EntityForm {
     $exo_entity_list = $this->entity;
 
     $actions = $this->getElementPropertyValue(['actions'], $form_state, $exo_entity_list->getActions());
+    $open = $exo_entity_list->getActions() !== $actions;
 
     $form['actions_container'] = [
       '#type' => 'details',
       '#title' => $this->t('Actions'),
-      '#open' => !empty($actions),
+      '#open' => $open,
       '#prefix' => '<div id="actions-wrapper" class="exo-form-element">',
       '#suffix' => '</div>',
     ];
@@ -695,6 +709,67 @@ class EntityListForm extends EntityForm {
       }
       $form['actions_container']['actions'][$action_id] = $row;
     }
+  }
+
+  /**
+   * Build sorts.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  protected function buildFormSorts(array &$form, FormStateInterface $form_state) {
+    $exo_entity_list = $this->entity;
+    $sorts = $this->getElementPropertyValue(['sorts'], $form_state, $exo_entity_list->getSorts());
+
+    $form['sorts_container'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Sort'),
+      '#description' => $this->t('Individual fields can be set as sortable via their view options.'),
+      '#open' => FALSE,
+      '#prefix' => '<div id="sorts-wrapper" class="exo-form-element">',
+      '#suffix' => '</div>',
+    ];
+    $form['sorts_container']['sorts'] = [
+      '#type' => 'table',
+      '#header' => [
+        'status' => $this->t('Status'),
+        'name' => $this->t('Name'),
+        'default' => $this->t('Default Sort'),
+      ],
+      '#empty' => $this->t('No sorts available.'),
+    ];
+    $sort_plugins = array_filter($exo_entity_list->getAvailableSorts(), function ($sort) use ($exo_entity_list) {
+      /** @var \Drupal\exo_list_builder\Plugin\ExoListSortInterface $instance */
+      $instance = $this->sortManager->createInstance($sort);
+      return $instance->applies($exo_entity_list);
+    }, ARRAY_FILTER_USE_KEY);
+    foreach ($sort_plugins as $sort_id => $sort) {
+      $enabled = isset($sorts[$sort_id]);
+      $row = [];
+      $row['status'] = [
+        '#type' => 'checkbox',
+        '#default_value' => $sort_id === 'default' ?: $enabled,
+        '#disabled' => $sort_id === 'default',
+      ];
+      $row['name'] = [
+        '#markup' => '<strong>' . $sort['label'] . '</strong>',
+      ];
+      $row['default'] = [
+        '#type' => 'radio',
+        '#default_value' => $exo_entity_list->getSort() === $sort_id ? $sort_id : FALSE,
+        '#return_value' => $sort_id,
+        '#parents' => ['sort'],
+        '#states' => [
+          'disabled' => [
+            ':input[name="sorts[' . $sort_id . '][status]"]' => ['checked' => FALSE],
+          ],
+        ],
+      ];
+      $form['sorts_container']['sorts'][$sort_id] = $row;
+    }
+
   }
 
   /**
@@ -849,7 +924,18 @@ class EntityListForm extends EntityForm {
         unset($action['status']);
       }
     }
-    $form_state->setValue('actions', $actions);
+    $form_state->setValue('actions', $action);
+
+    $sorts = $form_state->getValue('sorts');
+    foreach ($sorts as $sort_id => &$sort) {
+      if (empty($sort['status']) || $sort_id === 'default') {
+        unset($sorts[$sort_id]);
+      }
+      else {
+        unset($sort['status']);
+      }
+    }
+    $form_state->setValue('sorts', $sorts);
   }
 
   /**

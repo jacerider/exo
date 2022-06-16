@@ -183,12 +183,50 @@ interface EntityListInterface extends ConfigEntityInterface {
   public function getAvailableActions();
 
   /**
-   * Get the sort default field.
+   * Get enabled sort definitions.
+   *
+   * @return array
+   *   The sort ddefinitions.
+   */
+  public function getSorts();
+
+  /**
+   * Get available action definitions.
+   *
+   * @return array
+   *   The action ddefinitions.
+   */
+  public function getAvailableSorts();
+
+  /**
+   * Get the sort value.
    *
    * @return string
-   *   The sort default field id.
+   *   The sort value.
    */
   public function getSort();
+
+  /**
+   * Get the sort plugin id.
+   *
+   * @param string $sort
+   *   Optional sort value. If empty, will use configured sort value.
+   *
+   * @return string
+   *   The sort plugin id.
+   */
+  public function getSortPluginId($sort = NULL);
+
+  /**
+   * Get the sort plugin value.
+   *
+   * @param string $sort
+   *   Optional sort value. If empty, will use configured sort value.
+   *
+   * @return string
+   *   The sort plugin value.
+   */
+  public function getSortPluginValue($sort = NULL);
 
   /**
    * Get enabled field definitions.

@@ -10,19 +10,40 @@ use Drupal\Core\Field\BaseFieldDefinition;
 /**
  * Convert field defaults to new format.
  */
-function exo_exo_list_builder_update_8001() {
+function exo_list_builder_update_8001() {
   foreach (\Drupal::entityTypeManager()->getStorage('exo_entity_list')->loadMultiple() as $exo_entity_list) {
     /** @var \Drupal\exo_list_builder\EntityListInterface $exo_entity_list */
     $fields = $exo_entity_list->get('fields');
+    $do_save = FALSE;
     foreach ($fields as &$field) {
-      if (!empty($field['filter']['settings']['default']) && !isset($field['filter']['settings']['status'])) {
+      if (!empty($field['filter']['settings']['default']) && !isset($field['filter']['settings']['default']['status'])) {
+        $do_save = TRUE;
         $field['filter']['settings']['default'] = [
           'status' => '1',
           'value' => $field['filter']['settings']['default'],
         ];
       }
     }
-    $exo_entity_list->set('fields', $fields);
-    $exo_entity_list->save();
+    if ($do_save) {
+      $exo_entity_list->set('fields', $fields);
+      $exo_entity_list->save();
+    }
+  }
+}
+
+/**
+ * Convert sort to plugin system.
+ */
+function exo_list_builder_update_8002() {
+  foreach (\Drupal::entityTypeManager()->getStorage('exo_entity_list')->loadMultiple() as $exo_entity_list) {
+    /** @var \Drupal\exo_list_builder\EntityListInterface $exo_entity_list */
+    if ($sort = $exo_entity_list->getSort()) {
+      $parts = explode(':', $sort);
+      if (!isset($parts[1])) {
+        $sort = 'field:' . $sort;
+        $exo_entity_list->set('sort', $sort);
+        $exo_entity_list->save();
+      }
+    }
   }
 }

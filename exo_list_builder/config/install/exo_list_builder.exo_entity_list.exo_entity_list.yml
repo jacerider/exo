@@ -20,7 +20,7 @@ limit_options:
   - '50'
   - '100'
 actions: {  }
-sort: _label
+sort: 'field:_label'
 fields:
   _label:
     display_label: Name
