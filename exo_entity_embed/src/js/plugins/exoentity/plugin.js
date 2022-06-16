@@ -117,6 +117,12 @@
             // Use a custom event to trigger the call.
             event: 'entity_embed_dummy_event'
           });
+
+          // Required by embed module.
+          entityEmbedPreview.options.headers = {
+            'X-Drupal-EmbedPreview-CSRF-Token': editor.config.ExoEntity_previewCsrfToken
+          };
+
           entityEmbedPreview.execute();
         },
 
