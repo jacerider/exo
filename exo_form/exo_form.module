@@ -407,7 +407,6 @@ function exo_form_preprocess_region__content(&$variables) {
  */
 function exo_form_theme_registry_alter(&$theme_registry) {
   $path_resolver = \Drupal::service('extension.path.resolver');
-
   $theme_registry['fieldset']['path'] = $path_resolver->getPath('module', 'exo_form') . '/templates';
   $theme_registry['form_element']['path'] = $path_resolver->getPath('module', 'exo_form') . '/templates';
   $theme_registry['views_exposed_form']['path'] = $path_resolver->getPath('module', 'exo_form') . '/templates';
