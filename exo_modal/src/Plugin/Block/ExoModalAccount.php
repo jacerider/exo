@@ -52,15 +52,15 @@ class ExoModalAccount extends ExoModalBlockBase {
       ];
       $build['login']['form'] = $form_builder->getForm('\Drupal\exo_modal\Form\ExoModalAccountLoginForm', $this->configuration['modal']);
 
-      $build['create'] = [
-        '#type' => 'html_tag',
-        '#tag' => 'div',
-        '#attributes' => [
-          'class' => ['exo-modal-second', 'exo-modal-account--create'],
-        ],
-      ];
-
       if (\Drupal::service('access_check.user.register')->access($account)->isAllowed()) {
+        $build['create'] = [
+          '#type' => 'html_tag',
+          '#tag' => 'div',
+          '#attributes' => [
+            'class' => ['exo-modal-second', 'exo-modal-account--create'],
+          ],
+        ];
+
         $build['create']['title'] = [
           '#type' => 'html_tag',
           '#tag' => 'h2',
