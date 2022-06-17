@@ -407,26 +407,24 @@ function exo_form_preprocess_region__content(&$variables) {
  */
 function exo_form_theme_registry_alter(&$theme_registry) {
   $path_resolver = \Drupal::service('extension.path.resolver');
-  $theme_registry['fieldset']['path'] = $path_resolver->getPath('module', 'exo_form') . '/templates';
-  $theme_registry['form_element']['path'] = $path_resolver->getPath('module', 'exo_form') . '/templates';
-  $theme_registry['views_exposed_form']['path'] = $path_resolver->getPath('module', 'exo_form') . '/templates';
-  $theme_registry['image_widget']['path'] = $path_resolver->getPath('module', 'exo_form') . '/templates';
-}
+  $module_path = $path_resolver->getPath('module', 'exo_form');
+  $path = $module_path . '/templates';
 
-/**
- * Implements hook_preprocess().
- */
-function exo_form_preprocess(&$variables, $hook, $info) {
-  if ($hook == 'form_element' || $hook == 'fieldset') {
-    if (!exo_form_access()) {
-      return;
-    }
+  $theme_registry['fieldset']['path'] = $path;
+  $theme_registry['fieldset']['theme path'] = $module_path;
+  $theme_registry['fieldset']['strict'] = TRUE;
 
-    $path_resolver = \Drupal::service('extension.path.resolver');
-    // Force form elements to use exo form template.
-    $info['theme path'] = $path_resolver->getPath('module', 'exo_form');
-    $info['path'] = $path_resolver->getPath('module', 'exo_form') . '/templates';
-  }
+  $theme_registry['form_element']['path'] = $path;
+  $theme_registry['form_element']['theme path'] = $module_path;
+  $theme_registry['form_element']['strict'] = TRUE;
+
+  $theme_registry['views_exposed_form']['path'] = $path;
+  $theme_registry['views_exposed_form']['theme path'] = $module_path;
+  $theme_registry['views_exposed_form']['strict'] = TRUE;
+
+  $theme_registry['image_widget']['path'] = $path;
+  $theme_registry['image_widget']['theme path'] = $module_path;
+  $theme_registry['image_widget']['strict'] = TRUE;
 }
 
 /**
