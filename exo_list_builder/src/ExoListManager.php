@@ -59,7 +59,7 @@ class ExoListManager extends DefaultPluginManager implements ExoListManagerInter
   /**
    * {@inheritdoc}
    */
-  public function getFieldOptions($field_type, $entity_type = NULL, $bundle = NULL, $field_name = NULL) {
+  public function getFieldOptions($field_type, $entity_type = NULL, array $bundles = NULL, $field_name = NULL) {
     $options = [];
     $definitions = $this->getDefinitions();
     $this->sortDefinitions($definitions);
@@ -76,9 +76,17 @@ class ExoListManager extends DefaultPluginManager implements ExoListManagerInter
             continue;
           }
         }
-        if ($bundle) {
-          if (!empty($definition['bundle']) && !in_array($bundle, $definition['bundle'])) {
-            continue;
+        if ($bundles) {
+          if (!empty($definition['bundle'])) {
+            $found = FALSE;
+            foreach ($definition['bundle'] as $bundle_id) {
+              if (in_array($bundle_id, $bundles)) {
+                $found = TRUE;
+              }
+            }
+            if (!$found) {
+              continue;
+            }
           }
         }
         if ($field_name) {
