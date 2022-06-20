@@ -1,5 +1,6 @@
 .exo-form-address {
   // margin-bottom: -$global-margin !important;
+  // display: none;
 
   .exo-form-inline {
     margin-top: $global-margin;
@@ -7,5 +8,20 @@
 
   .exo-form-element-type-address-country {
     margin-bottom: 0;
+  }
+}
+
+.exo-form-element.exo-form-address-wrapper {
+
+  > .fieldset-wrapper {
+    margin-top: 0 !important;
+
+    > .exo-form-address {
+      margin-top: 0 !important;
+    }
+  }
+
+  .exo-form-element-type-address-country .exo-form-element-type-select {
+    margin-top: $global-margin !important;
   }
 }

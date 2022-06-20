@@ -72,6 +72,8 @@ class ExoAddressWidget extends AddressDefaultWidget {
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $element = parent::formElement($items, $delta, $element, $form, $form_state);
     $element['#type'] = $this->getSetting('wrapper');
+    $element['#attributes']['class'][] = 'exo-form-address-wrapper';
+
     if ($this->getSetting('force_address') && empty($element['#required']) && count($element['address']['#available_countries']) === 1) {
       $element['address']['#default_value']['country_code'] = key($element['address']['#available_countries']);
       $element['address']['#hide_country'] = TRUE;
@@ -145,6 +147,7 @@ class ExoAddressWidget extends AddressDefaultWidget {
     if (!empty($element['#hide_country'])) {
       $value = $element['#value'];
       $element['country_code']['#access'] = FALSE;
+      $element['country_code']['#weight'] = 1000;
       $field_overrides = $element['#parsed_field_overrides'];
       /** @var \CommerceGuys\Addressing\AddressFormat\AddressFormat $address_format */
       $address_format = \Drupal::service('address.address_format_repository')->get($value['country_code']);
