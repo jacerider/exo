@@ -50,6 +50,7 @@ class ExoListAutocomplete extends ControllerBase implements ContainerInjectionIn
    */
   public function results(Request $request, EntityListInterface $exo_entity_list, $field_id) {
     $field = $exo_entity_list->getField($field_id);
+    $results = [];
     if (!empty($field['filter']['type'])) {
       $instance = $this->filterManager->createInstance($field['filter']['type'], $field['filter']['settings']);
       if ($instance instanceof ExoListFieldValuesInterface) {
