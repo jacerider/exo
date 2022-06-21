@@ -561,8 +561,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   public function getTotal() {
     if (!isset($this->total)) {
       $query = clone $this->getQuery();
-      // $query->pager(0);
-      // $query->range(0, 10000);
       $this->total = $query->count()->execute();
     }
     return $this->total;
