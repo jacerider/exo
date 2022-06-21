@@ -495,7 +495,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * {@inheritdoc}
    */
   public function getSortPluginId($sort = NULL) {
-    $parts = explode(':', $sort ?: $this->getSort());
+    $parts = explode(':', $sort ?: $this->getSort() ?? '');
     return $parts[0];
   }
 
@@ -503,7 +503,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * {@inheritdoc}
    */
   public function getSortPluginValue($sort = NULL) {
-    $parts = explode(':', $sort ?: $this->getSort());
+    $parts = explode(':', $sort ?: $this->getSort() ?? '');
     return $parts[1] ?? NULL;
   }
 
