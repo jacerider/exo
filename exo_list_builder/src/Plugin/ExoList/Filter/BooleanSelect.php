@@ -159,7 +159,7 @@ class BooleanSelect extends ExoListFilterBase implements ExoListFieldValuesInter
    * {@inheritdoc}
    */
   public function isEmpty($raw_value) {
-    return is_null($raw_value['q']) || $raw_value['q'] === '';
+    return !isset($raw_value['q']) || is_null($raw_value['q']) || $raw_value['q'] === '';
   }
 
   /**
