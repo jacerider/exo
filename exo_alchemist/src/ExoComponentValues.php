@@ -184,6 +184,7 @@ class ExoComponentValues implements \IteratorAggregate, \ArrayAccess, \Countable
    * @return int
    *   The count.
    */
+  #[\ReturnTypeWillChange]
   public function count() {
     return count($this->data);
   }
@@ -306,6 +307,7 @@ class ExoComponentValues implements \IteratorAggregate, \ArrayAccess, \Countable
    * @return bool
    *   TRUE or FALSE
    */
+  #[\ReturnTypeWillChange]
   public function offsetExists($delta) {
     $exists = NULL;
     NestedArray::getValue($this->data, (array) $delta, $exists);
@@ -321,6 +323,7 @@ class ExoComponentValues implements \IteratorAggregate, \ArrayAccess, \Countable
    * @return mixed
    *   The value.
    */
+  #[\ReturnTypeWillChange]
   public function &offsetGet($delta) {
     $value = NULL;
     if (!$this->offsetExists($delta)) {
@@ -338,6 +341,7 @@ class ExoComponentValues implements \IteratorAggregate, \ArrayAccess, \Countable
    * @param mixed $value
    *   A value.
    */
+  #[\ReturnTypeWillChange]
   public function offsetSet($delta, $value) {
     if (!$value instanceof ExoComponentValue) {
       $value = new ExoComponentValue($this->getDefinition(), $value);
@@ -352,6 +356,7 @@ class ExoComponentValues implements \IteratorAggregate, \ArrayAccess, \Countable
    * @param mixed $delta
    *   A key.
    */
+  #[\ReturnTypeWillChange]
   public function offsetUnset($delta) {
     NestedArray::unsetValue($this->data, (array) $delta);
   }
@@ -362,6 +367,7 @@ class ExoComponentValues implements \IteratorAggregate, \ArrayAccess, \Countable
    * @return \ArrayIterator
    *   An \ArrayIterator instance
    */
+  #[\ReturnTypeWillChange]
   public function getIterator() {
     return new \ArrayIterator($this->data);
   }
