@@ -479,12 +479,12 @@ class Exo {
     }
   }
 
-  public lockOverflow($element?:HTMLElement|JQuery) {
+  public lockOverflow($element?:HTMLElement|JQuery, options?) {
     if ($element) {
       if ($element instanceof HTMLElement) {
         $element = $($element);
       }
-      bodyScrollLock.disableBodyScroll($element.get(0));
+      bodyScrollLock.disableBodyScroll($element.get(0), options);
     }
     else {
       $('body').css('top', -(document.documentElement.scrollTop) + 'px');
