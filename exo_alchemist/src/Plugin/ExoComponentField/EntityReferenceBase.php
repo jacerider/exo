@@ -491,7 +491,7 @@ class EntityReferenceBase extends ExoComponentFieldFieldableBase implements Cont
     if ($this->isPreview($contexts)) {
       $bundles = $this->getEntityTypeBundles();
       $bundle = !empty($bundles) ? reset($bundles) : NULL;
-      $entity = $this->getPreviewEntity($this->getEntityType(), $bundle, $entity->id());
+      $entity = $this->getPreviewEntity($this->getEntityType(), $bundle, $entity ? $entity->id() : NULL);
     }
     $this->addCacheableDependency($contexts, $entity);
     return $entity;
