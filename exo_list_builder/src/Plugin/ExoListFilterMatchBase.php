@@ -90,13 +90,6 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase {
   /**
    * {@inheritdoc}
    */
-  public function isEmpty($raw_value) {
-    return empty($raw_value['q']);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
     $this->queryAlterByField($field['field_name'], $query, $value, $entity_list, $field);
   }
@@ -110,7 +103,7 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase {
       $value = NULL;
       return TRUE;
     }
-    return !is_null($value);
+    return parent::allowQueryAlter($value, $entity_list, $field);
   }
 
   /**
