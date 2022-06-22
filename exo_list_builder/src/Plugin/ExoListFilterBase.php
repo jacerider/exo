@@ -274,6 +274,9 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
     if (is_string($raw_value)) {
       $raw_value = trim($raw_value);
     }
+    if (is_array($raw_value)) {
+      $raw_value = array_filter($raw_value);
+    }
     return empty($raw_value);
   }
 
