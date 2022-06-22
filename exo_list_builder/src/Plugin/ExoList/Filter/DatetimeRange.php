@@ -107,15 +107,9 @@ class DatetimeRange extends ExoListFilterBase implements ContainerFactoryPluginI
     $query = [];
     if (!empty($raw_value['date']['s'])) {
       $query['s'] = $raw_value['date']['s'];
-      // $date = new \DateTime($raw_value['date']['s']);
-      // $date->setTime(0, 0);
-      // $query['s'] = $date->getTimestamp();
     }
     if (!empty($raw_value['date']['e'])) {
       $query['e'] = $raw_value['date']['e'];
-      // $date = new \DateTime($raw_value['date']['e']);
-      // $date->setTime(23, 59);
-      // $query['e'] = $date->getTimestamp();
     }
     return $query;
   }
