@@ -81,7 +81,7 @@ class ExoComponentRepository {
         'sortComponents',
       ]);
       foreach ($components as $component) {
-        if ($component instanceof SectionComponent) {
+        if ($component instanceof InlineBlock) {
           if ($exo_component = $this->extractBlockEntity($component->getPlugin())) {
             $exo_components[] = $exo_component;
           }
