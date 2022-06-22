@@ -90,6 +90,13 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase {
   /**
    * {@inheritdoc}
    */
+  public function isEmpty($raw_value) {
+    return empty($raw_value['q']) || $this->checkEmpty($raw_value['q']);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
     $this->queryAlterByField($field['field_name'], $query, $value, $entity_list, $field);
   }

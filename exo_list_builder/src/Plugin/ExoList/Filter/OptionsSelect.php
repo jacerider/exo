@@ -130,7 +130,7 @@ class OptionsSelect extends ExoListFilterBase implements ExoListFieldValuesInter
    * {@inheritdoc}
    */
   public function isEmpty($raw_value) {
-    return empty($raw_value['q']);
+    return $this->checkEmpty($raw_value['q']);
   }
 
   /**

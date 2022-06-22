@@ -122,7 +122,7 @@ class TimestampRange extends ExoListFilterBase implements ContainerFactoryPlugin
    * {@inheritdoc}
    */
   public function isEmpty($raw_value) {
-    return empty($raw_value['date']['s']) && empty($raw_value['date']['e']);
+    return $this->checkEmpty($raw_value['date']['s']) && $this->checkEmpty($raw_value['date']['e']);
   }
 
   /**

@@ -112,7 +112,7 @@ class ModerationState extends ExoListFilterBase implements ContainerFactoryPlugi
    * {@inheritdoc}
    */
   public function isEmpty($raw_value) {
-    return empty($raw_value['state']);
+    return $this->checkEmpty($raw_value['state']);
   }
 
   /**

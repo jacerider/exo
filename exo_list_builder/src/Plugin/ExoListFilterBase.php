@@ -271,13 +271,26 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
    * {@inheritdoc}
    */
   public function isEmpty($raw_value) {
-    if (is_string($raw_value)) {
-      $raw_value = trim($raw_value);
+    return $this->checkEmpty($raw_value);
+  }
+
+  /**
+   * Utility function to check if mixed is empty.
+   *
+   * @param string|array $value
+   *   A value.
+   *
+   * @return bool
+   *   Returns TRUE if empty.
+   */
+  protected function checkEmpty($value) {
+    if (is_string($value)) {
+      $value = trim($value);
     }
-    if (is_array($raw_value)) {
-      $raw_value = array_filter($raw_value);
+    if (is_array($value)) {
+      $value = array_filter($value);
     }
-    return empty($raw_value);
+    return empty($value);
   }
 
   /**
