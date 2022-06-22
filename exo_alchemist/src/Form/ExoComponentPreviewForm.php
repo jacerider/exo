@@ -487,7 +487,7 @@ class ExoComponentPreviewForm extends FormBase {
       foreach ($data['properties'] as $property => $label) {
         $row = [];
         if ($count == 0) {
-          $row[] = ['data' => ['#markup' => '<small><strong>' . $data['label'] . '</strong></small>']];
+          $row[] = ['data' => ['#markup' => '<small><strong>' . ($data['label'] ?? 'Unnamed') . '</strong></small>']];
         }
         else {
           $row[] = '';
