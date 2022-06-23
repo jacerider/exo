@@ -122,17 +122,19 @@
     }
 
     protected evaluate() {
-      var required = this.isRequired();
-      var disabled = this.isDisabled();
+      if (this.supported) {
+        var required = this.isRequired();
+        var disabled = this.isDisabled();
 
-      this.$field.prop('required', required);
+        this.$field.prop('required', required);
 
-      this.$trigger.prop('disabled', disabled);
-      disabled ? this.$element.addClass('form-disabled') : this.$element.removeClass('form-disabled');
-      if (this.multiple) {
-        var $checkboxes = this.$dropdown.find('.exo-form-checkbox');
-        disabled ? $checkboxes.addClass('form-disabled') : $checkboxes.removeClass('form-disabled');
-        $checkboxes.find('.form-checkbox').prop('disabled', disabled);
+        this.$trigger.prop('disabled', disabled);
+        disabled ? this.$element.addClass('form-disabled') : this.$element.removeClass('form-disabled');
+        if (this.multiple) {
+          var $checkboxes = this.$dropdown.find('.exo-form-checkbox');
+          disabled ? $checkboxes.addClass('form-disabled') : $checkboxes.removeClass('form-disabled');
+          $checkboxes.find('.form-checkbox').prop('disabled', disabled);
+        }
       }
     }
 
