@@ -20,8 +20,6 @@
 
 .exo-form-checkbox {
   position: relative;
-  // Allow tooltip to function.
-  pointer-events: none;
 
   .exo-form-select-dropdown & {
     pointer-events: auto;

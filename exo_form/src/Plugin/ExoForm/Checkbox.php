@@ -35,11 +35,6 @@ class Checkbox extends ExoFormBase {
       $element['#title_display'] = 'after';
       $element['#title'] = $this->t('<span class="visually-hidden">@title</span>', ['@title' => $element['#title']]);
     }
-    // Drupal expects label to be at field.parent(). By default, we move the
-    // label to this location to better support javascript.
-    if (isset($element['#title_display']) && $element['#title_display'] == 'after') {
-      $element['#title_display'] = 'input';
-    }
     if (!empty($element['#title'])) {
       if ($element['#title'] instanceof MarkupInterface) {
         $element['#title'] = Markup::create('<div class="exo-ripple"></div>' . $element['#title']);
