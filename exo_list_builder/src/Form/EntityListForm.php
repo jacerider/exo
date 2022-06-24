@@ -924,7 +924,7 @@ class EntityListForm extends EntityForm {
         unset($action['status']);
       }
     }
-    $form_state->setValue('actions', $action);
+    $form_state->setValue('actions', $actions);
 
     $sorts = $form_state->getValue('sorts');
     foreach ($sorts as $sort_id => &$sort) {
