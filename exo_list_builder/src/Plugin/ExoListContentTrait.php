@@ -235,8 +235,13 @@ trait ExoListContentTrait {
       }
       $base_alias = 'f';
       if ($field_table !== $base_table) {
+        // There is likely a better way to pull this off. We need the "id"
+        // column of the field so that it can be joined. We are assuming it is
+        // the first column but this may not always be the case.
+        $field_columns = $table_mapping->getAllColumns($field_table);
+        $field_id_key = reset($field_columns);
         // If we are fetching from a non-base table, we need to join the base.
-        $query->join($base_table, 'b', 'b.' . $base_id_key . ' = f.entity_id');
+        $query->join($base_table, 'b', 'b.' . $base_id_key . ' = f.' . $field_id_key);
         $base_alias = 'b';
       }
       if ($bundle_key = $entity_type->getKey('bundle')) {
