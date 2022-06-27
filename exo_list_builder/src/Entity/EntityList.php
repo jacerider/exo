@@ -705,7 +705,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   public function getFieldValue($field_name, $key) {
     $default = static::getFieldDefaults();
     $field = $this->getField($field_name);
-    return isset($field[$key]) ? $field[$key] : (isset($default[$key]) ? $default[$key] : NULL);
+    return $field[$key] ?? ($default[$key] ?? NULL);
   }
 
   /**
