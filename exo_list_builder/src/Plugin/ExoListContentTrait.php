@@ -155,7 +155,7 @@ trait ExoListContentTrait {
   public function getAvailableFieldValues(EntityListInterface $entity_list, $field_id, $property, $condition) {
     $cid = 'exo_list_buider:filter:' . $entity_list->id() . ':' . $field_id . ':' . $property;
     $values = [];
-    if (($cache = \Drupal::cache()->get($cid))) {
+    if (empty($condition) && ($cache = \Drupal::cache()->get($cid))) {
       $values = $cache->data;
     }
     else {
@@ -168,13 +168,12 @@ trait ExoListContentTrait {
       elseif ($field['definition']->isComputed()) {
         // No support for computed fields. You can use the
         // ExoListComputedFilterInterface if you have control of the field item
-        // class.
+        // class. See getComputedFilterClass().
       }
       else {
         if ($query = $this->getAvailableFieldValuesQuery($entity_list, $field_id, $property, $condition, $cacheable_metadata)) {
           $values = $query->execute()->fetchCol();
         }
-
         $parts = explode('.', $property);
         $field_name = $parts[0] ?? $property;
         $column = $parts[1] ?? NULL;
@@ -201,7 +200,9 @@ trait ExoListContentTrait {
           }
         }
       }
-      \Drupal::cache()->set($cid, $values, Cache::PERMANENT, $cacheable_metadata->getCacheTags());
+      if (empty($condition)) {
+        \Drupal::cache()->set($cid, $values, Cache::PERMANENT, $cacheable_metadata->getCacheTags());
+      }
     }
     return $values;
   }
@@ -229,7 +230,8 @@ trait ExoListContentTrait {
       $connection = \Drupal::database();
       $query = $connection->select($field_table, 'f')
         ->fields('f', [$field_column])
-        ->distinct(TRUE);
+        ->distinct(TRUE)
+        ->range(0, 50);
       if (!empty($condition)) {
         $query->condition($field_column, '%' . $connection->escapeLike($condition) . '%', 'LIKE');
       }

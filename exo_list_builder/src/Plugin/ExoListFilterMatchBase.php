@@ -8,7 +8,7 @@ use Drupal\exo_list_builder\EntityListInterface;
 /**
  * Base class for eXo list filters.
  */
-abstract class ExoListFilterMatchBase extends ExoListFilterBase {
+abstract class ExoListFilterMatchBase extends ExoListFilterBase implements ExoListFieldValuesElementInterface {
 
   /**
    * {@inheritdoc}
@@ -78,6 +78,13 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase {
       '#default_value' => $value,
     ];
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getValuesParents() {
+    return ['q'];
   }
 
   /**

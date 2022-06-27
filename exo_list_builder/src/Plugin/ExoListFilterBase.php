@@ -36,7 +36,12 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
-    return ExoListFilterInterface::DEFAULTS;
+    $default = ExoListFilterInterface::DEFAULTS;
+    if ($this instanceof ExoListFieldValuesElementInterface && $this instanceof ExoListFieldValuesInterface) {
+      $default['autocomplete'] = FALSE;
+      $default['select'] = FALSE;
+    }
+    return $default;
   }
 
   /**
@@ -158,6 +163,44 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       $subform_state = SubformState::createForSubform($form['default']['value'], $form, $form_state);
       $default = $configuration['default']['value'] ?: $this->defaultValue();
       $form['default']['value'] = $this->buildForm($form['default']['value'], $subform_state, $default, $entity_list, $field);
+      $form['default']['value'] = $this->buildFormAfter($form['default']['value'], $subform_state, $default, $entity_list, $field);
+    }
+
+    if ($this instanceof ExoListFieldValuesElementInterface && $this instanceof ExoListFieldValuesInterface) {
+      if (!isset($configuration['autocomplete'])) {
+        ksm($field, $configuration, $this->defaultConfiguration());
+      }
+      $form['autocomplete'] = [
+        '#type' => 'checkbox',
+        '#id' => $form['#id'] . '-autocomplete',
+        '#title' => $this->t('As Autocomplete'),
+        '#default_value' => $configuration['autocomplete'],
+        '#states' => [
+          'disabled' => [
+            ':input[id="' . $form['#id'] . '-dropdown' . '"]' => ['checked' => TRUE],
+          ],
+          'visible' => [
+            ':input[name="fields[' . $field['id'] . '][filter][settings][expose]"]' => ['checked' => TRUE],
+          ],
+        ],
+        '#weight' => 10000,
+      ];
+
+      $form['select'] = [
+        '#type' => 'checkbox',
+        '#id' => $form['#id'] . '-dropdown',
+        '#title' => $this->t('As Select Dropdown'),
+        '#default_value' => $configuration['select'],
+        '#states' => [
+          'disabled' => [
+            ':input[id="' . $form['#id'] . '-autocomplete' . '"]' => ['checked' => TRUE],
+          ],
+          'visible' => [
+            ':input[name="fields[' . $field['id'] . '][filter][settings][expose]"]' => ['checked' => TRUE],
+          ],
+        ],
+        '#weight' => 10000,
+      ];
     }
 
     return $form;
@@ -221,6 +264,35 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, $value, EntityListInterface $entity_list, array $field) {
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildFormAfter(array $form, FormStateInterface $form_state, $value, EntityListInterface $entity_list, array $field) {
+    if ($this instanceof ExoListFieldValuesElementInterface && $this instanceof ExoListFieldValuesInterface) {
+      if ($parents = $this->getValuesParents()) {
+        $element = NestedArray::getValue($form, $parents);
+        if ($element) {
+          $configuration = $this->getConfiguration();
+          if (!empty($configuration['select'])) {
+            $element['#type'] = 'select';
+            $element['#options'] = ['' => $this->t('- All -')] + $this->getValueOptions($entity_list, $field);
+          }
+          elseif (!empty($configuration['autocomplete']) && !$entity_list->isNew()) {
+            $element += [
+              '#autocomplete_route_name' => 'exo_list_builder.autocomplete',
+              '#autocomplete_route_parameters' => [
+                'exo_entity_list' => $entity_list->id(),
+                'field_id' => $field['id'],
+              ],
+            ];
+          }
+          NestedArray::setValue($form, $parents, $element);
+        }
+      }
+    }
     return $form;
   }
 

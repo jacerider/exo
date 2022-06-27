@@ -38,14 +38,11 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
   public function defaultConfiguration() {
     return [
       'property' => [],
-      'autocomplete' => FALSE,
-      'select' => FALSE,
       'default_from_url' => [
         'status' => FALSE,
         'entity_type' => NULL,
         'field_name' => NULL,
       ],
-      // 'default_from_url' => FALSE,
     ] + parent::defaultConfiguration();
   }
 
@@ -69,36 +66,6 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
     if (count($properties) > 5) {
       $form['property']['#type'] = 'select';
     }
-
-    $form['autocomplete'] = [
-      '#type' => 'checkbox',
-      '#id' => $form['#id'] . '-autocomplete',
-      '#title' => $this->t('As Autocomplete'),
-      '#default_value' => $configuration['autocomplete'],
-      '#states' => [
-        'disabled' => [
-          ':input[id="' . $form['#id'] . '-dropdown' . '"]' => ['checked' => TRUE],
-        ],
-        'visible' => [
-          ':input[name="fields[' . $field['id'] . '][filter][settings][expose]"]' => ['checked' => TRUE],
-        ],
-      ],
-    ];
-
-    $form['select'] = [
-      '#type' => 'checkbox',
-      '#id' => $form['#id'] . '-dropdown',
-      '#title' => $this->t('As Select Dropdown'),
-      '#default_value' => $configuration['select'],
-      '#states' => [
-        'disabled' => [
-          ':input[id="' . $form['#id'] . '-autocomplete' . '"]' => ['checked' => TRUE],
-        ],
-        'visible' => [
-          ':input[name="fields[' . $field['id'] . '][filter][settings][expose]"]' => ['checked' => TRUE],
-        ],
-      ],
-    ];
 
     $form['default_from_url'] = [
       '#type' => $configuration['default_from_url']['status'] ? 'fieldset' : 'html_tag',
@@ -192,31 +159,6 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
     $parents = array_slice($form_state->getTriggeringElement()['#array_parents'], 0, -2);
     $element = NestedArray::getValue($form, $parents);
     return $element['default_from_url'];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function buildForm(array $form, FormStateInterface $form_state, $value, EntityListInterface $entity_list, array $field) {
-    $form = parent::buildForm($form, $form_state, $value, $entity_list, $field);
-
-    $configuration = $this->getConfiguration();
-    if (!empty($configuration['select'])) {
-      $form['q']['#type'] = 'select';
-      $form['q']['#multiple'] = $this->allowsMultiple($field);
-      $form['q']['#options'] = ['' => $this->t('- All -')] + $this->getValueOptions($entity_list, $field);
-    }
-    elseif (!empty($configuration['autocomplete']) && !$entity_list->isNew()) {
-      $form['q'] += [
-        '#autocomplete_route_name' => 'exo_list_builder.autocomplete',
-        '#autocomplete_route_parameters' => [
-          'exo_entity_list' => $entity_list->id(),
-          'field_id' => $field['id'],
-        ],
-      ];
-    }
-
-    return $form;
   }
 
   /**

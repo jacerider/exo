@@ -82,6 +82,25 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
   public function buildForm(array $form, FormStateInterface $form_state, $value, EntityListInterface $entity_list, array $field);
 
   /**
+   * Alter build form.
+   *
+   * @param array $form
+   *   An associative array containing the structure of the form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   * @param mixed $value
+   *   The filter value.
+   * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
+   *   The entity list.
+   * @param array $field
+   *   The field definition.
+   *
+   * @return array
+   *   The form structure.
+   */
+  public function buildFormAfter(array $form, FormStateInterface $form_state, $value, EntityListInterface $entity_list, array $field);
+
+  /**
    * Form validation handler.
    *
    * @param array $form

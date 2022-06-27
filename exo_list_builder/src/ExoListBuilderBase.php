@@ -1523,6 +1523,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         ], ($this->isModified() ? NULL : $instance->getDefaultValue($this->entityList, $field) ?? $instance->defaultValue()));
         $form[$field_id] = [];
         $form[$field_id] = $instance->buildForm($form[$field_id], $form_state, $value, $this->entityList, $field);
+        $form[$field_id] = $instance->buildFormAfter($form[$field_id], $form_state, $value, $this->entityList, $field);
       }
     }
     return $form;
