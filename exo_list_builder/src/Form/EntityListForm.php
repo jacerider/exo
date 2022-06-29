@@ -330,6 +330,13 @@ class EntityListForm extends EntityForm {
       '#parents' => ['key'],
     ];
 
+    $form['settings']['render_status'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Show Rendered Results'),
+      '#description' => $this->t('If unchecked, the rendered rows of the list will not be shown.'),
+      '#default_value' => $exo_entity_list->getSetting('render_status'),
+    ];
+
     $form['settings']['operations_status'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Show Operations'),
@@ -349,6 +356,13 @@ class EntityListForm extends EntityForm {
       '#title' => $this->t('Show Sort Selector'),
       '#description' => $this->t('If checked, the user will be able to change the sort order via a dropdown.'),
       '#default_value' => $exo_entity_list->getSetting('sort_status'),
+    ];
+
+    $form['settings']['filter_overview_status'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Show Filter Overview'),
+      '#description' => $this->t('If checked, the filter overview will be shown.'),
+      '#default_value' => $exo_entity_list->getSetting('filter_overview_status'),
     ];
 
     $form['settings']['block_status'] = [

@@ -262,10 +262,12 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * @var array
    */
   protected $settingDefaults = [
+    'render_status' => TRUE,
     'operations_status' => TRUE,
     'limit_status' => TRUE,
     'result_status' => TRUE,
     'sort_status' => TRUE,
+    'filter_overview_status' => TRUE,
     'block_status' => FALSE,
     'first_page_only_status' => FALSE,
   ];
@@ -696,7 +698,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    */
   public function getField($field_name) {
     $fields = $this->getFields();
-    return isset($fields[$field_name]) ? $fields[$field_name] : NULL;
+    return $fields[$field_name] ?? NULL;
   }
 
   /**

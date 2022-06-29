@@ -117,11 +117,13 @@ fields:
       type: ''
     weight: -6
 settings:
+  render_status: 1
   limit_status: 1
   pagerer_header: ''
   pagerer_footer: ''
   operations_status: 1
   result_status: 1
+  filter_overview_status: 1
   block_status: 0
   first_page_only_status: 0
 weight: 0

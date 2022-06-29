@@ -493,7 +493,7 @@
     }
   }
 
-  .exo-list-filter-overview {
+  .exo-list-header .exo-list-filter-overview {
     @include flex;
     @include flex-align(left, middle);
     margin: $global-margin 0 0 0;

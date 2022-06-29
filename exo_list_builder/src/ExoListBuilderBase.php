@@ -659,6 +659,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   public function buildList(array $build) {
     $entity_list = $this->getEntityList();
+    $render_status = $entity_list->getSetting('render_status');
 
     $id = str_replace('_', '-', $entity_list->id());
     $build['#id'] = 'exo-list-' . $id;
@@ -695,25 +696,28 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     ];
 
     $format = $this->entityList->getFormat();
-    $format_build = [
-      '#type' => 'container',
-      '#attributes' => [
-        'class' => [
-          'exo-list-content',
-          'exo-list-' . str_replace('_', '-', $format),
+    $format_build = [];
+    if ($render_status) {
+      $format_build = [
+        '#type' => 'container',
+        '#attributes' => [
+          'class' => [
+            'exo-list-content',
+            'exo-list-' . str_replace('_', '-', $format),
+          ],
         ],
-      ],
-      '#cache' => [
-        'contexts' => $this->getCacheContexts(),
-        'tags' => $this->getCacheTags(),
-      ],
-    ];
-    switch ($format) {
-      case 'table':
-        $format_build['#type'] = 'table';
-        $format_build['#header'] = $this->buildHeader();
-        $format_build['#title'] = $this->getTitle();
-        break;
+        '#cache' => [
+          'contexts' => $this->getCacheContexts(),
+          'tags' => $this->getCacheTags(),
+        ],
+      ];
+      switch ($format) {
+        case 'table':
+          $format_build['#type'] = 'table';
+          $format_build['#header'] = $this->buildHeader();
+          $format_build['#title'] = $this->getTitle();
+          break;
+      }
     }
     $build[$this->entitiesKey] = $format_build;
 
@@ -724,7 +728,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       '#attributes' => ['class' => ['exo-list-footer']],
     ];
 
-    $entities = $this->load();
+    // Only load the entities when we want to render the results.
+    $entities = $render_status ? $this->load() : [];
     $build['#draggable'] = FALSE;
     if ($entities) {
       foreach ($entities as $target_entity) {
@@ -756,7 +761,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         ];
       }
     }
-    else {
+    elseif ($render_status) {
       if (!$this->isModified() && $this->entityList->getSetting('hide_no_results')) {
         $build['#access'] = FALSE;
       }
@@ -805,6 +810,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $entity_list = $this->getEntityList();
+    $render_status = $entity_list->getSetting('render_status');
     $actions = $this->getActions();
     $form = $this->buildList($form);
 
@@ -815,16 +821,18 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       '#attributes' => ['class' => ['hidden']],
     ];
 
-    $format = $entity_list->getFormat();
-    switch ($format) {
-      case 'table':
-        $form[$this->entitiesKey]['#tableselect'] = !empty($actions);
-        break;
+    if ($render_status) {
+      $format = $entity_list->getFormat();
+      switch ($format) {
+        case 'table':
+          $form[$this->entitiesKey]['#tableselect'] = !empty($actions);
+          break;
+      }
     }
 
     $entities = $form[$this->entitiesKey]['#entities'];
 
-    if ($entities || $this->isFiltered()) {
+    if ($entities || !$render_status || $this->isFiltered()) {
       // Filter.
       if ($subform = $this->buildFormFilters($form, $form_state)) {
         $form['header']['first']['filters'] = $subform;
@@ -836,14 +844,15 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       if ($subform = $this->buildFormColumns($form, $form_state)) {
         $form['header']['first']['columns'] = $subform;
       }
+    }
 
+    if ($entities || !$render_status) {
       // Ensure a consistent container for filters/operations in the view
       // header.
       if ($subform = $this->buildFormBatch($form, $form_state)) {
         $form['header']['second']['batch'] = $subform + [
           '#weight' => -100,
         ];
-        $form['header']['second']['batch']['#attached']['library'][] = 'exo_list_builder/download';
       }
 
       if (!empty($actions)) {
@@ -853,14 +862,16 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
     if ($entities || $this->isFiltered()) {
       // Filter overview.
-      $filter_overview = $this->buildFormFilterOverview($form, $form_state);
-      if (empty($form['header']['second']['batch'])) {
-        $form['header']['second']['filter_overview'] = [
-          '#weight' => -1000,
-        ] + $filter_overview;
-      }
-      else {
-        $form['header']['filter_overview'] = $filter_overview;
+      if ($entity_list->getSetting('filter_overview_status')) {
+        $filter_overview = $this->buildFormFilterOverview($form, $form_state);
+        if (empty($form['header']['second']['batch'])) {
+          $form['header']['second']['filter_overview'] = [
+            '#weight' => -1000,
+          ] + $filter_overview;
+        }
+        else {
+          $form['header']['filter_overview'] = $filter_overview;
+        }
       }
     }
 
@@ -987,7 +998,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   /**
    * Build form pager.
    */
-  protected function buildEmpty(array $form) {
+  protected function buildEmpty(array $build) {
     $message = $this->isFiltered() ? $this->getEmptyFilterMessage() : $this->getEmptyMessage();
     return [
       '#type' => 'html_tag',
@@ -1028,8 +1039,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   /**
    * Build form pager.
    */
-  protected function buildSort(array $form) {
-    $form = [];
+  protected function buildSort(array $build) {
+    $build = [];
     $entity_list = $this->entityList;
     if ($entity_list->getSetting('sort_status')) {
       $links = [];
@@ -1113,18 +1124,18 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           ];
         }
         $links = [$active] + $links;
-        $form = [
+        $build = [
           '#type' => 'container',
           '#attributes' => ['class' => ['exo-list-sort']],
         ];
-        $form['list'] = [
+        $build['list'] = [
           '#type' => 'dropbutton',
           '#links' => $links,
         ];
       }
     }
 
-    return $form;
+    return $build;
   }
 
   /**
@@ -1140,9 +1151,15 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected function buildFormBatch(array $form, FormStateInterface $form_state) {
     $form = [];
     if ($actions = $this->getActions()) {
+      $entity_list = $this->getEntityList();
+      $render_status = $entity_list->getSetting('render_status');
+
       $form = [
         '#type' => 'container',
         '#attributes' => ['class' => ['exo-list-batch']],
+        '#attached' => [
+          'library' => ['exo_list_builder/download'],
+        ],
       ];
       $options = [];
       foreach ($actions as $action_id => $action) {
@@ -1155,6 +1172,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         '#type' => 'select',
         '#options' => ['' => $this->t('- Bulk Actions -')] + $options,
         '#exo_form_default' => TRUE,
+        '#name' => 'action',
       ];
       $form['actions'] = [
         '#type' => 'actions',
@@ -1169,6 +1187,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         '#value' => $this->t('Apply to selected items'),
         '#exo_form_default' => TRUE,
         '#op' => 'action',
+        '#name' => 'actions_selected',
         '#submit' => ['::submitBatchForm'],
         '#attributes' => [
           'style' => 'display:none',
@@ -1184,6 +1203,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         '#value' => $this->t('Apply to all items'),
         '#exo_form_default' => TRUE,
         '#op' => 'action',
+        '#name' => 'actions_all',
         '#submit' => ['::submitBatchForm'],
         '#attributes' => [
           'style' => 'display:none',
@@ -1194,6 +1214,15 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           ],
         ],
       ];
+      if (!$render_status) {
+        unset($form['actions']['selected']);
+        $form['actions']['all']['#value'] = $this->t('Apply');
+        $form['actions']['all']['#states'] = [
+          '!visible' => [
+            ':input[name="action"]' => ['value' => ''],
+          ],
+        ];
+      }
     }
     return $form;
   }
@@ -1684,7 +1713,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
     $entity_list = $this->getEntityList();
     $action = $entity_list->getAvailableActions()[$form_state->getValue('action')];
-    $selected = array_filter($form_state->getValue($this->entitiesKey));
+    $selected = array_filter($form_state->getValue($this->entitiesKey) ?? []);
     /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
     $instance = $this->getActions()[$action['id']];
     $ids = $instance->getEntityIds($selected, $this);
