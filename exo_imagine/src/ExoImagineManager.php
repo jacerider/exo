@@ -117,7 +117,10 @@ class ExoImagineManager {
       }
       $image_style = $imagine_style->getStyle();
       $image_style_uri = $image_style->buildUri($image_uri);
-      $info = getimagesize($image_uri);
+      $info = @getimagesize($image_uri);
+      if (empty($info)) {
+        return $definition;
+      }
       $ratio = $info[0] / $info[1];
       if ($width && !$height) {
         $height = $width * $ratio;
@@ -186,7 +189,10 @@ class ExoImagineManager {
         }
         $image_style = $imagine_style->getStyle();
         $image_style_uri = $image_style->buildUri($image_uri);
-        $info = getimagesize($image_uri);
+        $info = @getimagesize($image_uri);
+        if (empty($info)) {
+          return $definition;
+        }
         $ratio = $info[0] / $info[1];
         if ($width && !$height) {
           $height = $width * $ratio;

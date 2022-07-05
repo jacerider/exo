@@ -375,6 +375,10 @@ class ExoImagineFormatter extends ImageFormatter {
             $preview_definition = $this->exoImagineManager->getImagePreviewDefinition($file, $data['width'], $data['height'], $data['unique'], $blur, TRUE);
             $cache['tags'] = Cache::mergeTags($cache['tags'], $preview_definition['cache_tags']);
 
+            if (empty($image_definition['src'])) {
+              continue;
+            }
+
             if (isset($image_definition['webp'])) {
               $element['#image_sources'][$key . 'webp'] = new Attribute([
                 'media' => $data['media'],
