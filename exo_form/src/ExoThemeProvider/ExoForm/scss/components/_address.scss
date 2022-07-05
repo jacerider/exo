@@ -24,4 +24,11 @@
   .exo-form-element-type-address-country .exo-form-element-type-select {
     margin-top: $global-margin !important;
   }
+
+  &.exo-form-address-type-container {
+
+    [type='hidden'] + .exo-form-element {
+      margin-top: 0 !important;
+    }
+  }
 }

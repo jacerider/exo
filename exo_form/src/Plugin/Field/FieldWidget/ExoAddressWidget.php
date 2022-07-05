@@ -73,6 +73,7 @@ class ExoAddressWidget extends AddressDefaultWidget {
     $element = parent::formElement($items, $delta, $element, $form, $form_state);
     $element['#type'] = $this->getSetting('wrapper');
     $element['#attributes']['class'][] = 'exo-form-address-wrapper';
+    $element['#attributes']['class'][] = 'exo-form-address-type-' . $element['#type'];
 
     if ($this->getSetting('force_address') && empty($element['#required']) && count($element['address']['#available_countries']) === 1) {
       $element['address']['#default_value']['country_code'] = key($element['address']['#available_countries']);
