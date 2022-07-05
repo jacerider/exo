@@ -14,7 +14,7 @@ const execSync = require('child_process').execSync;
 // Plugins.
 const sequence = require('gulp-sequence');
 const clean = require('gulp-clean');
-const sass = require('gulp-sass');
+const sass = require('gulp-sass')(require('sass'));
 const sassLint = require('gulp-sass-lint');
 const plumber = require('gulp-plumber');
 const notify = require('gulp-notify');
