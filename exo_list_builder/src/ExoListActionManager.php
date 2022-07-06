@@ -107,7 +107,14 @@ class ExoListActionManager extends DefaultPluginManager implements ExoListAction
    */
   protected function sortDefinitions(array &$definitions) {
     uasort($definitions, function ($a, $b) {
-      return $a['weight'] - $b['weight'];
+      // Sort by weight.
+      $weight = $a['weight'] - $b['weight'];
+      if ($weight) {
+        return $weight;
+      }
+
+      // Sort by label.
+      return strcmp($a['label'], $b['label']);
     });
   }
 
