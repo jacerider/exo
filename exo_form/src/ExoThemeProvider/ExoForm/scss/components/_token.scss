@@ -1,0 +1,15 @@
+.exo-form .token-tree.treetable {
+  font-size: rem-calc(12);
+
+  tr {
+    font-size: rem-calc(12);
+
+    span.indenter {
+      margin-left: 0;
+    }
+
+    &.expanded {
+      font-weight: 700;
+    }
+  }
+}
