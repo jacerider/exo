@@ -16,10 +16,12 @@ use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\SubformState;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RedirectDestinationTrait;
 use Drupal\Core\Url;
 use Drupal\exo_icon\ExoIconTranslationTrait;
+use Drupal\exo_list_builder\Plugin\ExoListActionSettingsInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -604,29 +606,31 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       $build = $this->buildList($build);
     }
 
-    if (!Element::children($build['top'])) {
-      $build['top']['#access'] = FALSE;
+    if (isset($build['top'])) {
+      if (!Element::children($build['top'])) {
+        $build['top']['#access'] = FALSE;
+      }
+      else {
+        $build['top']['shadow'] = [
+          '#type' => 'html_tag',
+          '#tag' => 'div',
+          '#attributes' => [
+            'class' => 'exo-list-states--shadow',
+          ],
+          '#weight' => 100,
+        ];
+      }
     }
-    else {
-      $build['top']['shadow'] = [
-        '#type' => 'html_tag',
-        '#tag' => 'div',
-        '#attributes' => [
-          'class' => 'exo-list-states--shadow',
-        ],
-        '#weight' => 100,
-      ];
-    }
-    if (!Element::getVisibleChildren($build['header']['first'])) {
+    if (isset($build['header']['first']) && !Element::getVisibleChildren($build['header']['first'])) {
       $build['header']['first']['#access'] = FALSE;
     }
-    if (!Element::getVisibleChildren($build['header']['second'])) {
+    if (isset($build['header']['second']) && !Element::getVisibleChildren($build['header']['second'])) {
       $build['header']['second']['#access'] = FALSE;
     }
-    if (!Element::getVisibleChildren($build['header'])) {
+    if (isset($build['header']) && !Element::getVisibleChildren($build['header'])) {
       $build['header']['#access'] = FALSE;
     }
-    if (!Element::getVisibleChildren($build['footer'])) {
+    if (isset($build['footer']) && !Element::getVisibleChildren($build['footer'])) {
       $build['footer']['#access'] = FALSE;
     }
 
@@ -812,6 +816,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $entity_list = $this->getEntityList();
     $render_status = $entity_list->getSetting('render_status');
     $actions = $this->getActions();
+    $action_settings_action = $form_state->get('action_settings_action');
     $form = $this->buildList($form);
 
     $form['submit'] = [
@@ -894,6 +899,17 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           'class' => ['exo-list-draggable-submit'],
         ],
       ];
+    }
+    if ($action_settings_action && isset($actions[$action_settings_action])) {
+      foreach (Element::children($form) as $key) {
+        $form[$key]['#access'] = FALSE;
+      }
+      if ($subform = $this->buildBatchForm($form, $form_state)) {
+        $form['action_settings'] = $subform;
+      }
+      // $form['header']['#access'] = FALSE;
+      // $form['footer']['#access'] = FALSE;
+      // $form[$this->entitiesKey]['#access'] = FALSE;
     }
 
     return $form;
@@ -1706,6 +1722,57 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   /**
    * {@inheritdoc}
    */
+  protected function buildBatchForm(array $form, FormStateInterface $form_state) {
+    $form = [];
+    $entity_list = $this->getEntityList();
+    $action = $entity_list->getAvailableActions()[$form_state->get('action_settings_action')];
+    /** @var \Drupal\exo_list_builder\Plugin\ExoListActionSettingsInterface $instance */
+    $instance = $this->getActions()[$action['id']];
+    $form['action_settings'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('@label Settings', [
+        '@label' => $action['label'],
+      ]),
+      '#element_validate' => ['::validateBatchSettingsForm'],
+      '#tree' => TRUE,
+    ];
+    $subform_state = SubformState::createForSubform($form['action_settings'], $form, $form_state);
+    $form['action_settings'] = $instance->buildSettingsForm($form['action_settings'], $subform_state, $entity_list, $action);
+    $form['action_submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Process'),
+      '#weight' => 1000,
+      '#op' => 'action',
+      '#submit' => ['::submitBatchSettingsForm'],
+    ];
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateBatchSettingsForm(array &$form, FormStateInterface $form_state) {
+    $entity_list = $this->getEntityList();
+    $action = $entity_list->getAvailableActions()[$form_state->get('action_settings_action')];
+    /** @var \Drupal\exo_list_builder\Plugin\ExoListActionSettingsInterface $instance */
+    $instance = $this->getActions()[$action['id']];
+    $subform_state = SubformState::createForSubform($form, $form_state->getCompleteForm(), $form_state);
+    $instance->validateSettingsForm($form, $subform_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitBatchSettingsForm(array &$form, FormStateInterface $form_state) {
+    $form_state->setValue('action', $form_state->get('action_settings_action'));
+    $form_state->set('action_settings_status', TRUE);
+    $form_state->setValue($this->entitiesKey, $form_state->get('action_settings_selected'));
+    $this->submitBatchForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function submitBatchForm(array &$form, FormStateInterface $form_state) {
     $trigger = $form_state->getTriggeringElement();
     if (empty($trigger['#op']) || $trigger['#op'] !== 'action') {
@@ -1716,6 +1783,13 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $selected = array_filter($form_state->getValue($this->entitiesKey) ?? []);
     /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
     $instance = $this->getActions()[$action['id']];
+    if ($instance instanceof ExoListActionSettingsInterface && empty($form_state->get('action_settings_status'))) {
+      $form_state->set('action_settings_action', $form_state->getValue('action'));
+      $form_state->set('action_settings_selected', $selected);
+      $form_state->setRebuild();
+      return;
+    }
+    $settings = $form_state->getValue(['action_settings']);
     $ids = $instance->getEntityIds($selected, $this);
     $ids = array_combine($ids, $ids);
     $shown_field_ids = array_keys($this->getShownFields());
@@ -1738,6 +1812,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         'list_id' => $this->getEntityList()->id(),
         'field_ids' => $shown_field_ids,
         'entity_ids' => $ids,
+        'settings' => $settings,
       ]);
       foreach ($ids as $id) {
         $queue->createItem([
@@ -1768,6 +1843,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         $entity_list->id(),
         $shown_field_ids,
         $ids,
+        $settings,
       ]);
       foreach ($ids as $entity_id) {
         $do_batch = TRUE;

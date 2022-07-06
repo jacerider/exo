@@ -86,7 +86,7 @@ class ExoListActionManager extends DefaultPluginManager implements ExoListAction
    * {@inheritdoc}
    */
   public function removeExcludeDefinitions(array $definitions) {
-    $definitions = isset($definitions) ? $definitions : $this->getDefinitions();
+    $definitions = $definitions ?? $this->getDefinitions();
     // Exclude 'broken' fallback plugin.
     unset($definitions['broken']);
     return $definitions;
@@ -122,10 +122,12 @@ class ExoListActionManager extends DefaultPluginManager implements ExoListAction
    *   The shown field ids.
    * @param array $entity_ids
    *   The complete list of entity ids.
+   * @param array $settings
+   *   The action settings.
    * @param array $context
    *   The context.
    */
-  public static function batchStart(array $action, $entity_list_id, array $field_ids, array $entity_ids, array &$context) {
+  public static function batchStart(array $action, $entity_list_id, array $field_ids, array $entity_ids, array $settings, array &$context) {
     /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
     $instance = \Drupal::service('plugin.manager.exo_list_action')->createInstance($action['id'], $action['settings']);
     /** @var \Drupal\exo_list_builder\EntityListInterface $entity_list */
@@ -139,6 +141,7 @@ class ExoListActionManager extends DefaultPluginManager implements ExoListAction
     $context['results']['entity_list_fields'] = $field_ids;
     $context['results']['entity_ids'] = $entity_ids;
     $context['results']['entity_ids_complete'] = [];
+    $context['results']['action_settings'] = $settings;
     // Start.
     $instance->executeStart($entity_list, $context);
   }

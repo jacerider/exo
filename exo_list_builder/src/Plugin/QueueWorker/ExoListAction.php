@@ -67,18 +67,13 @@ class ExoListAction extends QueueWorkerBase implements ContainerFactoryPluginInt
         $this->deleteContext();
         $context = $this->getContext();
         $context['job_start'] = \Drupal::time()->getRequestTime();
-        ExoListActionManager::batchStart($data['action'], $data['list_id'], $data['field_ids'], $data['entity_ids'], $context);
+        ExoListActionManager::batchStart($data['action'], $data['list_id'], $data['field_ids'], $data['entity_ids'], $data['settings'], $context);
         $this->state->set($this->getStateId(), $context);
         break;
 
       case 'process':
         $context = $this->getContext();
         ExoListActionManager::batch($data['action'], $data['list_id'], $data['field_ids'], $data['id'], $data['selected'], $context);
-        // Sometimes jobs run concurrently. We need to make sure we never loose
-        // result information.
-        // $current_context = $this->getContext();
-        // $context['results']['entity_ids_complete'] = $context['results']['entity_ids_complete'] + $current_context['results']['entity_ids_complete'];
-        // $context['results'] = NestedArray::mergeDeep($context['results'], $original_context['results']);
         $this->state->set($this->getStateId(), $context);
         break;
 
@@ -116,6 +111,7 @@ class ExoListAction extends QueueWorkerBase implements ContainerFactoryPluginInt
         'entity_list_fields' => [],
         'entity_ids' => [],
         'entity_ids_complete' => [],
+        'action_settings' => [],
       ],
       'finished' => 1,
       'message' => '',
