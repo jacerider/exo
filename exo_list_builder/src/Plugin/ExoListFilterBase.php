@@ -102,6 +102,12 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       ],
       '#weight' => -80,
     ];
+    $form['allow_zero'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Allow 0 (zero) values'),
+      '#default_value' => $configuration['allow_zero'],
+      '#weight' => -70,
+    ];
     if ($this->supportsMultiple) {
       $form['multiple'] = [
         '#type' => 'checkbox',
@@ -356,10 +362,21 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
    *   Returns TRUE if empty.
    */
   protected function checkEmpty($value) {
+    $configuration = $this->getConfiguration();
     if (is_string($value)) {
-      $value = trim($value);
+      if (!empty($configuration['allow_zero']) && ($value === '0' || $value === 0)) {
+        return FALSE;
+      }
+      $value = [trim($value)];
     }
     if (is_array($value)) {
+      if (!empty($configuration['allow_zero'])) {
+        foreach ($value as $val) {
+          if (is_string($val) && ($val === '0' || $val === 0)) {
+            return FALSE;
+          }
+        }
+      }
       $value = array_filter($value);
     }
     return empty($value);

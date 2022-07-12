@@ -25,6 +25,7 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
     'expose_block' => FALSE,
     'multiple' => FALSE,
     'multiple_join' => 'or',
+    'allow_zero' => FALSE,
   ];
 
   /**
