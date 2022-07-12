@@ -50,8 +50,8 @@ function exo_theme($existing, $type, $theme, $path) {
       'children' => NULL,
       'attributes' => [],
       'pre_render' => [],
-      'convas_before' => [],
-      'convas_after' => [],
+      'canvas_before' => [],
+      'canvas_after' => [],
     ],
     'file' => 'exo.theme',
   ];
