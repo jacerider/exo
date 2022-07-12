@@ -134,7 +134,7 @@ class ExoListBuilderContentStates extends ExoListBuilderContent implements ExoLi
       'state_default' => [
         '#type' => 'link',
         '#title' => $this->icon($this->getDefaultStateLabel())->setIcon($this->getDefaultStateIcon()),
-        '#url' => Url::fromRoute('<current>'),
+        '#url' => $this->getOptionsUrl(),
         '#attributes' => [
           'class' => [
             'exo-list-states--state',
@@ -145,14 +145,14 @@ class ExoListBuilderContentStates extends ExoListBuilderContent implements ExoLi
       ]
     ];
     foreach ($this->getStates() as $state_id => $state) {
+      $url = $this->getOptionsUrl();
+      $query = $url->getOption('query');
+      $query['state'] = $state_id;
+      $url->setOption('query', $query);
       $links['state_' . $state_id] = [
         '#type' => 'link',
         '#title' => $this->icon($state['label'])->setIcon($state['icon']),
-        '#url' => Url::fromRoute('<current>', [], [
-          'query' => [
-            'state' => $state_id,
-          ],
-        ]),
+        '#url' => $url,
         '#attributes' => [
           'class' => [
             'exo-list-states--state',
