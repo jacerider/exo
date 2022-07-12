@@ -55,6 +55,11 @@ abstract class ExoListElementBase extends PluginBase implements ExoListElementIn
       '#title' => $this->t('Link to the entity'),
       '#default_value' => $this->configuration['link'],
     ];
+    $form['empty'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Empty value'),
+      '#default_value' => $this->configuration['empty'],
+    ];
     return $form;
   }
 
