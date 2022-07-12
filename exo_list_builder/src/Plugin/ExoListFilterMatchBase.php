@@ -98,7 +98,7 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase implements ExoLi
    * {@inheritdoc}
    */
   public function isEmpty($raw_value) {
-    return empty($raw_value['q']) || $this->checkEmpty($raw_value['q']);
+    return !isset($raw_value['q']) || $this->checkEmpty($raw_value['q']);
   }
 
   /**
