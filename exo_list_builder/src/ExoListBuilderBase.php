@@ -1685,6 +1685,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $this->setOptions([]);
     // Limit.
     $this->setOption('limit', $form_state->getValue('limit'));
+
     // Show.
     if ($show = $form_state->getValue('show')) {
       $fields = $this->getShownFields();
@@ -1789,7 +1790,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       $form_state->setRebuild();
       return;
     }
-    $settings = $form_state->getValue(['action_settings']);
+    $settings = $form_state->getValue(['action_settings']) ?? [];
     $ids = $instance->getEntityIds($selected, $this);
     $ids = array_combine($ids, $ids);
     $shown_field_ids = array_keys($this->getShownFields());
