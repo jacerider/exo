@@ -173,9 +173,6 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
     }
 
     if ($this instanceof ExoListFieldValuesElementInterface && $this instanceof ExoListFieldValuesInterface) {
-      if (!isset($configuration['autocomplete'])) {
-        ksm($field, $configuration, $this->defaultConfiguration());
-      }
       $form['autocomplete'] = [
         '#type' => 'checkbox',
         '#id' => $form['#id'] . '-autocomplete',
