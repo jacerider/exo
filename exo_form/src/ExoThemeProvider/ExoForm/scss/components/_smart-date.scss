@@ -40,3 +40,29 @@
     margin-top: 0;
   }
 }
+
+.exo-form .smartdate--time-inline {
+  @include flex;
+  @include flex-align(left, middle);
+
+  > div {
+    padding-left: $global-padding * 0.5;
+    padding-right: $global-padding * 0.5;
+  }
+
+  .exo-form-date,
+  .exo-form-time {
+    margin-top: 0 !important;
+  }
+}
+
+.exo-form-style-float-inside .smartdate--widget .duration-wrapper {
+
+  .allday-label {
+    margin-top: 0;
+
+    .allday {
+      margin-top: $global-margin * 1.5;
+    }
+  }
+}
