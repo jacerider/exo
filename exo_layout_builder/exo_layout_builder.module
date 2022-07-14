@@ -7,6 +7,7 @@
 
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\layout_builder\Form\OverridesEntityForm;
 
 /**
  * Implements hook_help().
@@ -57,5 +58,24 @@ function exo_layout_builder_form_alter(&$form, FormStateInterface $form_state, $
     $form['actions']['#weight'] = 1;
     $form['layout_builder_message']['#group'] = 'top';
     $form['layout_builder_message']['#weight'] = 0;
+
+    $form_object = $form_state->getFormObject();
+    if ($form_object instanceof OverridesEntityForm) {
+      // Hide revision checkbox if user does not have revision permission.
+      $entity = $form_object->getEntity();
+      $allow = FALSE;
+      foreach ([
+        'view all revisions',
+        'view revision',
+        'revert revision',
+        'delete revision',
+      ] as $operation) {
+        if ($entity->access($operation)) {
+          $allow = TRUE;
+          break;
+        }
+      }
+      $form['revision']['#access'] = $allow;
+    }
   }
 }
