@@ -7,8 +7,10 @@
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\exo_imagine\ExoImagineManager;
 use Drupal\file\FileInterface;
 
 /**
@@ -65,6 +67,24 @@ function template_preprocess_exo_imagine(&$variables) {
 function exo_imagine_file_move(FileInterface $file, FileInterface $source) {
   // Delete any image derivatives at the original image path.
   exo_imagine_path_flush($source->getFileUri());
+}
+
+/**
+ * Implements hook_entity_update().
+ *
+ * Saves the focal point value for the image file entity about to be saved.
+ */
+function exo_imagine_entity_update(EntityInterface $entity) {
+  // Support crop module.
+  if ($entity->getEntityTypeId() === 'crop') {
+    $webp = \Drupal::service('exo_imagine.settings')->getSetting('webp');
+    if ($webp) {
+      /** @var \Drupal\crop\CropInterface $entity */
+      $uri = $entity->get('uri')->value;
+      $webp_uri = ExoImagineManager::toWebpUri($uri);
+      image_path_flush($webp_uri);
+    }
+  }
 }
 
 /**

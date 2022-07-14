@@ -131,7 +131,7 @@ class ExoImagineManager {
       $mime = $info['mime'];
       $definition['uri'] = $image_style_uri;
       $definition['src'] = $this->generateUrl($image_style->buildUrl($image_uri));
-      $definition['webp'] = $webp ? $this->toWebpUri($definition['src']) : NULL;
+      $definition['webp'] = $webp ? static::toWebpUri($definition['src']) : NULL;
       if (!empty($definition['webp'])) {
         // Support alterations done to the main image url.
         $parts = explode('?', $definition['src']);
@@ -203,7 +203,7 @@ class ExoImagineManager {
         $mime = $info['mime'];
         $definition['uri'] = $image_style_uri;
         $definition['src'] = $this->generateUrl($image_style->buildUrl($image_uri));
-        $definition['webp'] = $webp ? $this->toWebpUri($definition['src']) : NULL;
+        $definition['webp'] = $webp ? static::toWebpUri($definition['src']) : NULL;
         if (!empty($definition['webp'])) {
           // Support alterations done to the main image url.
           $parts = explode('?', $definition['src']);
@@ -518,7 +518,7 @@ class ExoImagineManager {
    * @return bool|string
    *   The location of the WebP image if successful, FALSE if not successful.
    */
-  public function toWebpUri($uri) {
+  public static function toWebpUri($uri) {
     $pathInfo = pathinfo($uri);
     $destination = substr($uri, 0, strlen($pathInfo['extension']) * -1) . 'webp';
     return $destination;
