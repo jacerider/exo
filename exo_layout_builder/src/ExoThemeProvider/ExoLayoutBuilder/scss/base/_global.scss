@@ -14,6 +14,7 @@
     z-index: 905;
     text-align: center;
     pointer-events: none;
+    margin-bottom: 0 !important;
 
     > .exo-form-vertical-tabs {
       display: inline-block;
@@ -49,7 +50,7 @@
         font-weight: 700;
         font-size: rem-calc(12);
         text-transform: uppercase;
-        color: gray(0);
+        color: gray(0) !important;
       }
     }
   }
