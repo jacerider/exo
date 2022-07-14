@@ -130,11 +130,15 @@ class ExoListBuilderContentStates extends ExoListBuilderContent implements ExoLi
     $build = parent::buildForm($form, $form_state);
     $current_state = $this->getState();
 
+    $url = $this->getOptionsUrl();
+    $query = $url->getOption('query');
+    unset($query['state']);
+    $url->setOption('query', $query);
     $links = [
       'state_default' => [
         '#type' => 'link',
         '#title' => $this->icon($this->getDefaultStateLabel())->setIcon($this->getDefaultStateIcon()),
-        '#url' => $this->getOptionsUrl(),
+        '#url' => $url,
         '#attributes' => [
           'class' => [
             'exo-list-states--state',
