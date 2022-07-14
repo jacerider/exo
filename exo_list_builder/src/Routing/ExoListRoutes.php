@@ -18,6 +18,7 @@ class ExoListRoutes {
     $entity_type_manager = \Drupal::entityTypeManager();
     /** @var \Drupal\exo_list_builder\EntityListInterface[] $exo_entity_lists */
     $exo_entity_lists = $entity_type_manager->getStorage('exo_entity_list')->loadMultiple();
+    $bundle_info = \Drupal::service('entity_type.bundle.info')->getAllBundleInfo();
 
     foreach ($exo_entity_lists as $exo_entity_list) {
       $override = $exo_entity_list->isOverride();
@@ -32,9 +33,18 @@ class ExoListRoutes {
       if ($override && $exo_entity_list->getTargetEntityTypeId() === 'taxonomy_term') {
         // Special condition allowing for override of taxonomy management page.
         foreach ($exo_entity_list->getTargetBundleIds() as $bundle) {
+          // Overview.
           $routes['exo_list_builder.' . $exo_entity_list->id() . '.' . $bundle . '.taxonomy_vocabulary.overview_form'] = new Route('/admin/structure/taxonomy/manage/' . $bundle . '/overview', $defaults + [
             'taxonomy_vocabulary' => $bundle,
           ], $requirements);
+          // Add.
+          $routes['exo_list_builder.' . $exo_entity_list->id() . '.' . $bundle . '.taxonomy_vocabulary.add_form'] = new Route('/admin/structure/taxonomy/manage/' . $bundle . '/add', [
+            '_controller' => '\Drupal\taxonomy\Controller\TaxonomyController::addForm',
+            '_title' => 'Add ' . $bundle_info['taxonomy_term'][$bundle]['label'] . ' Term',
+            'taxonomy_vocabulary' => $bundle,
+          ], [
+            '_entity_create_access' => 'taxonomy_term:' . $bundle,
+          ]);
         }
         $override = FALSE;
       }

@@ -3,3 +3,7 @@ entity.exo_entity_list.add_form:
   title: 'Add Entity List'
   appears_on:
     - entity.exo_entity_list.collection
+
+exo_list_builder.local_actions:
+  deriver: 'Drupal\exo_list_builder\Plugin\Derivative\ExoListBuilderLocalActions'
+  weight: 100
