@@ -84,7 +84,6 @@
         this.$dropdown = $('<div class="exo-form-select-dropdown exo-form-input" role="combobox" aria-owns="exo-form-select-list-' + this.uniqueId + '" aria-expanded="false"></div>');
         this.$dropdownScroll = $('<div class="exo-form-select-scroll"></div>').appendTo(this.$dropdown);
         this.$dropdownList = $('<ul id="exo-form-select-list-' + this.uniqueId + '" class="exo-form-select-list" role="listbox" aria-labelledby="exo-form-select-label-' + this.uniqueId + '" tabindex="-1"></ul>').appendTo(this.$dropdownScroll);
-        // this.$wrapper.append(this.$dropdown);
         this.$dropdownWrapper.append(this.$dropdown);
         this.$dropdown.addClass((this.multiple ? 'is-multiple' : 'is-single'));
         if (this.hasValue() === true) {
@@ -576,7 +575,6 @@
         // This change was made because it caused reload issues within Webform
         // email handler screens. It caused the page to reload indefiniately.
         // I do not believe it is used by anything so it has been removed.
-        // this.$trigger.val(this.htmlDecode(this.getSelectedOptions('text').join(', '))).trigger('change');
         this.$trigger.val(this.htmlDecode(this.getSelectedOptions('text').join(', ')));
       }
     }
@@ -629,8 +627,8 @@
       }
 
       this.$field.val(this.getSelectedOptions('value'));
-      this.$field.trigger('change', [true]);
-      this.$field.trigger('input', [true]);
+      this.$field[0].dispatchEvent(new Event('change', {'bubbles':true, 'cancelable':false}));
+      this.$field[0].dispatchEvent(new Event('input', {'bubbles':true, 'cancelable':false}));
     }
 
     public changeSelected(option, action) {
