@@ -201,6 +201,20 @@ class ExoLayoutBuilder extends LayoutBuilder {
     $permission = $this->getSectionPermission($this->section);
     $is_default_storage = $this->isDefaultStorage($section_storage);
     $is_nested_storage = $this->isNestedStorage($section_storage);
+
+    // Sanity check to remove components that may no longer exist.
+    foreach ($section_storage->getSections() as $section) {
+      foreach ($section->getComponents() as $uuid => $component) {
+        $configuration = $component->get('configuration');
+        if (!empty($configuration['block_uuid'])) {
+          $block = \Drupal::service('entity.repository')->loadEntityByUuid('block_content', $configuration['block_uuid']);
+          if (!$block) {
+            $section->removeComponent($uuid);
+          }
+        }
+      }
+    }
+
     $build = parent::buildAdministrativeSection($section_storage, $delta);
     $build['#attributes']['class'][] = 'exo-section';
     if ($this->isSectionEditable($section_storage)) {
