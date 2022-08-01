@@ -166,7 +166,7 @@ class ExoListBuilderContentStates extends ExoListBuilderContent implements ExoLi
       ];
     }
 
-    if (!empty($links)) {
+    if (count($links) > 1) {
       $build['top']['links'] = [
         '#type' => 'html_tag',
         '#tag' => 'div',
