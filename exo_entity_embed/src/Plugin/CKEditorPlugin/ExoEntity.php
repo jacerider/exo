@@ -57,7 +57,7 @@ class ExoEntity extends DrupalEntity {
         '#context' => [
           'direction' => $direction,
           'name' => $name,
-          'icon' => $icon->toMarkup(),
+          'icon' => $icon->toMarkup(TRUE),
           'classname' => '_ exo-icon exo-icon-font icon-regular-window-close _',
         ],
       ];
