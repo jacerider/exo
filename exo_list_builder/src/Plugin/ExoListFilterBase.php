@@ -282,13 +282,18 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
           if (!empty($configuration['select'])) {
             $element['#type'] = 'select';
             $element['#options'] = ['' => $this->t('- All -')] + $this->getValueOptions($entity_list, $field);
+            $element['#multiple'] = $this->allowsMultiple($field);
           }
           elseif (!empty($configuration['autocomplete']) && !$entity_list->isNew()) {
+            $element['#multiple'] = $this->allowsMultiple($field);
             $element += [
               '#autocomplete_route_name' => 'exo_list_builder.autocomplete',
               '#autocomplete_route_parameters' => [
                 'exo_entity_list' => $entity_list->id(),
                 'field_id' => $field['id'],
+              ],
+              '#element_validate' => [
+                [$this, 'validateElementAutocomplete'],
               ],
             ];
           }
@@ -297,6 +302,17 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       }
     }
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function validateElementAutocomplete($element, FormStateInterface $form_state) {
+    if (!empty($element['#multiple'])) {
+      $value = $form_state->getValue($element['#parents']);
+      $value = array_map('trim', explode(',', $value));
+      $form_state->setValue($element['#parents'], $value);
+    }
   }
 
   /**
