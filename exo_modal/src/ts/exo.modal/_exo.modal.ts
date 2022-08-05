@@ -293,7 +293,12 @@ class ExoModal extends ExoData {
 
       if (this.get('appendTo') !== false) {
         if (this.get('appendToClosest') === true) {
-          this.$element.appendTo(this.$element.closest(this.get('appendTo')));
+          if (this.get('appendTo') === 'form') {
+            this.$element.prependTo(this.$element.closest(this.get('appendTo')));
+          }
+          else {
+            this.$element.appendTo(this.$element.closest(this.get('appendTo')));
+          }
         }
         else {
           this.$element.appendTo(this.get('appendTo'));
