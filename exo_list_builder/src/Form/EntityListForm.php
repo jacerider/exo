@@ -142,6 +142,12 @@ class EntityListForm extends EntityForm {
       '#disabled' => !$exo_entity_list->isNew(),
     ];
 
+    $form['entity_type'] = [
+      '#type' => 'item',
+      '#title' => $this->t('Entity type'),
+      '#markup' => $exo_entity_list->getTargetEntityType()->getLabel() . ' (' . $exo_entity_list->getTargetEntityType()->id() . ')',
+    ];
+
     $form['status'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enabled'),
