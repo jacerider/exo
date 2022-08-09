@@ -458,6 +458,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
 
     // Filter.
+    $filter_values = [];
     foreach ($this->getFilters() as $field_id => $field) {
       if (!$field['filter']['instance']) {
         continue;
@@ -500,8 +501,12 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         else {
           $instance->queryAlter($query, $filter_value, $entity_list, $field);
         }
+        $filter_values[$field_id] = $filter_value;
       }
     }
+    $query->addTag('exo_list_query');
+    $query->addMetaData('exo_list_builder', $this);
+    $query->addMetaData('exo_list_filter_values', $filter_values);
     $this->moduleHandler->alter('exo_list_builder_query', $query, $entity_list);
     $this->moduleHandler->alter('exo_list_builder_query_' . $entity_list->id(), $query, $entity_list);
     return $query;

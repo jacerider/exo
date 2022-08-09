@@ -4,6 +4,7 @@ namespace Drupal\exo_list_builder\Plugin;
 
 use Drupal\Component\Plugin\ConfigurableInterface;
 use Drupal\Component\Plugin\PluginInspectionInterface;
+use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\exo_list_builder\EntityListInterface;
 
@@ -203,7 +204,7 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
   public function allowQueryAlter(&$value, EntityListInterface $entity_list, array $field);
 
   /**
-   * Alter the query.
+   * Alter the entity query.
    *
    * @param \Drupal\Core\Entity\Query\QueryInterface|\Drupal\Core\Entity\Query\ConditionInterface $query
    *   The query.
@@ -215,6 +216,20 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
    *   The field definition.
    */
   public function queryAlter($query, $value, EntityListInterface $entity_list, array $field);
+
+  /**
+   * Alter the raw query.
+   *
+   * @param \Drupal\Core\Database\Query\SelectInterface $query
+   *   The query.
+   * @param mixed $value
+   *   The filter value.
+   * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
+   *   The entity list.
+   * @param array $field
+   *   The field definition.
+   */
+  public function queryRawAlter(SelectInterface $query, $value, EntityListInterface $entity_list, array $field);
 
   /**
    * Whether this theme negotiator should be used to set the theme.

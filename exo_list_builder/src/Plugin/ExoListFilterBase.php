@@ -4,6 +4,7 @@ namespace Drupal\exo_list_builder\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
@@ -356,6 +357,12 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
    * {@inheritdoc}
    */
   public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function queryRawAlter(SelectInterface $query, $value, EntityListInterface $entity_list, array $field) {
   }
 
   /**

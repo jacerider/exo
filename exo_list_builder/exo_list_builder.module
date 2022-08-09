@@ -7,7 +7,7 @@
 
 use Drupal\Core\Config\Entity\ConfigEntityTypeInterface;
 use Drupal\Core\Database\Query\AlterableInterface;
-use Drupal\Core\Database\Query\Select;
+use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
@@ -90,8 +90,26 @@ function exo_list_builder_entity_type_alter(array &$entity_types) {
 /**
  * Implements hook_query_TAG_alter().
  */
+function exo_list_builder_query_exo_list_query_alter(AlterableInterface $query) {
+  if ($query instanceof SelectInterface) {
+    /** @var \Drupal\exo_list_builder\ExoListBuilderInterface $exo_list_builder */
+    $exo_list_builder = $query->getMetaData('exo_list_builder');
+    $filter_values = $query->getMetaData('exo_list_filter_values');
+    foreach ($exo_list_builder->getFilters() as $field_id => $field) {
+      if (!empty($field['filter']['instance']) && isset($filter_values[$field_id])) {
+        /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
+        $instance = $field['filter']['instance'];
+        $instance->queryRawAlter($query, $filter_values[$field_id], $exo_list_builder->getEntityList(), $field);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_query_TAG_alter().
+ */
 function exo_list_builder_query_exo_entity_list_moderation_state_alter(AlterableInterface $query) {
-  if ($query instanceof Select) {
+  if ($query instanceof SelectInterface) {
     $entity_type = $query->getMetaData('entity_type');
     if (!$entity_type) {
       return;
