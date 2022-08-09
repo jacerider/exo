@@ -225,7 +225,9 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
   public function getValueOptions(EntityListInterface $entity_list, array $field, $input = NULL) {
     $configuration = $this->getConfiguration();
     $values = $this->getAvailableFieldValues($entity_list, $field['id'], $configuration['property'], $input);
-    return array_combine($values, $values);
+    $values = array_combine($values, $values);
+    asort($values);
+    return $values;
   }
 
   /**
