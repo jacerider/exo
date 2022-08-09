@@ -140,19 +140,17 @@ abstract class ExoListElementBase extends PluginBase implements ExoListElementIn
    */
   protected function getIcon(EntityInterface $entity) {
     $icon = NULL;
-    $label = $entity->label();
-    if ($label) {
-      if ($label instanceof HtmlEscapedText) {
-        $label = $label->__toString();
-      }
-      $icon = new ExoIconTranslatableMarkup($label);
-      $entity_icon = exo_icon_entity_icon($entity);
-      if ($entity_icon) {
-        $icon->setIcon($entity_icon);
-      }
-      else {
-        $icon->match([], (string) $entity->getEntityType()->getLabel());
-      }
+    $label = $entity->label() ?: '';
+    if ($label instanceof HtmlEscapedText) {
+      $label = $label->__toString();
+    }
+    $icon = new ExoIconTranslatableMarkup($label);
+    $entity_icon = exo_icon_entity_icon($entity);
+    if ($entity_icon) {
+      $icon->setIcon($entity_icon);
+    }
+    else {
+      $icon->match([], (string) $entity->getEntityType()->getLabel());
     }
     return $icon;
   }

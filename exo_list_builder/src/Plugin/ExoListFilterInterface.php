@@ -189,6 +189,22 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
   public function getDefaultValue(EntityListInterface $entity_list, array $field);
 
   /**
+   * Helper function to get filtered options.
+   *
+   * Only applies to filters that implement ExoListFieldValuesElementInterface
+   * and ExoListFieldValuesInterface.
+   *
+   * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
+   *   The entity list.
+   * @param array $field
+   *   The field definition.
+   *
+   * @return array
+   *   The filtered options.
+   */
+  public function getFilteredValueOptions(EntityListInterface $entity_list, array $field);
+
+  /**
    * Should query be altered.
    *
    * @param mixed $value

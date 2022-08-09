@@ -41,6 +41,11 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
     if ($this instanceof ExoListFieldValuesElementInterface && $this instanceof ExoListFieldValuesInterface) {
       $default['autocomplete'] = FALSE;
       $default['select'] = FALSE;
+      $default['options'] = [
+        'status' => FALSE,
+        'exclude' => [],
+        'include' => [],
+      ];
     }
     return $default;
   }
@@ -205,6 +210,70 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
         ],
         '#weight' => 10000,
       ];
+
+      $options_status = !empty($configuration['options']['status']);
+      $form['options'] = [
+        '#type' => $options_status ? 'fieldset' : 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => [
+          'id' => $form['#id'] . '--options',
+          'class' => ['exo-form-element'],
+        ],
+        '#states' => [
+          'visible' => [
+            [':input[id="' . $form['#id'] . '-autocomplete' . '"]' => ['checked' => TRUE]],
+            'or',
+            [':input[id="' . $form['#id'] . '-dropdown' . '"]' => ['checked' => TRUE]],
+          ],
+        ],
+        '#weight' => 10001,
+      ];
+
+      $form['options']['status'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Options Include/Exclude'),
+        '#ajax' => [
+          'method' => 'replace',
+          'wrapper' => $form['#id'] . '--options',
+          'callback' => [__CLASS__, 'ajaxReplaceOptions'],
+        ],
+        '#default_value' => $options_status,
+      ];
+      if ($options_status) {
+        $options = $this->getValueOptions($entity_list, $field);
+        if (count($options) === 50) {
+          $form['options']['exclude'] = [
+            '#type' => 'textfield',
+            '#title' => $this->t('Exclude'),
+            '#description' => $this->t('Comma separated list of values to exclude.'),
+            '#options' => $options,
+            '#default_value' => implode(', ', $configuration['options']['exclude']),
+          ];
+          $form['options']['include'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Include'),
+            '#description' => $this->t('Comma separated list of values to include.'),
+            '#options' => $options,
+            '#default_value' => implode(', ', $configuration['options']['include'])
+          ];
+        }
+        else {
+          $form['options']['exclude'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Exclude'),
+            '#options' => $options,
+            '#default_value' => $configuration['options']['exclude'],
+            '#multiple' => TRUE,
+          ];
+          $form['options']['include'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Include'),
+            '#options' => $options,
+            '#default_value' => $configuration['options']['include'],
+            '#multiple' => TRUE,
+          ];
+        }
+      }
     }
 
     return $form;
@@ -247,6 +316,24 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
   }
 
   /**
+   * Ajax replace callback.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return array
+   *   The fields form.
+   */
+  public static function ajaxReplaceOptions(array $form, FormStateInterface $form_state) {
+    $parents = $form_state->getTriggeringElement()['#array_parents'];
+    $parents = array_slice($form_state->getTriggeringElement()['#array_parents'], 0, -2);
+    $element = NestedArray::getValue($form, $parents);
+    return $element['options'];
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array $form, FormStateInterface $form_state) {
@@ -261,6 +348,17 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       else {
         $form_state->unsetValue(['default']);
       }
+    }
+    if ($this instanceof ExoListFieldValuesElementInterface && $this instanceof ExoListFieldValuesInterface) {
+      $exclude = $form_state->getValue(['options', 'exclude'], '');
+      $exclude = array_filter(is_array($exclude) ? $exclude : explode(',', $exclude));
+      $exclude = $exclude ? array_combine($exclude, $exclude) : [];
+      $form_state->setValue(['options', 'exclude'], $exclude);
+
+      $include = $form_state->getValue(['options', 'include'], '');
+      $exclude = array_filter(is_array($include) ? $include : explode(',', $include));
+      $include = $include ? array_combine($include, $include) : [];
+      $form_state->setValue(['options', 'include'], $include);
     }
   }
 
@@ -282,7 +380,7 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
           $configuration = $this->getConfiguration();
           if (!empty($configuration['select'])) {
             $element['#type'] = 'select';
-            $element['#options'] = ['' => $this->t('- All -')] + $this->getValueOptions($entity_list, $field);
+            $element['#options'] = ['' => $this->t('- All -')] + $this->getFilteredValueOptions($entity_list, $field);
             $element['#multiple'] = $this->allowsMultiple($field);
           }
           elseif (!empty($configuration['autocomplete']) && !$entity_list->isNew()) {
@@ -303,6 +401,26 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       }
     }
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFilteredValueOptions(EntityListInterface $entity_list, array $field) {
+    $options = [];
+    if ($this instanceof ExoListFieldValuesInterface) {
+      $options = $this->getValueOptions($entity_list, $field);
+    }
+    if ($this instanceof ExoListFieldValuesElementInterface) {
+      $configuration = $this->getConfiguration();
+      if (!empty($configuration['options']['exclude'])) {
+        $options = array_diff_key($options, $configuration['options']['exclude']);
+      }
+      if (!empty($configuration['options']['include'])) {
+        $options = array_intersect_key($options, $configuration['options']['include']);
+      }
+    }
+    return $options;
   }
 
   /**
