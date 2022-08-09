@@ -175,7 +175,6 @@ trait ExoListContentTrait {
           $values = $query->execute()->fetchCol();
         }
         $parts = explode('.', $property);
-        $field_name = $parts[0] ?? $property;
         $column = $parts[1] ?? NULL;
         // When referencing a target entity, we will fetch the entity labels.
         if ($column === 'target_id') {
