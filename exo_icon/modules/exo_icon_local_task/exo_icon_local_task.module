@@ -77,13 +77,15 @@ function exo_icon_local_tasks_alter(&$local_tasks) {
 function exo_icon_menu_local_actions_alter(&$local_actions) {
   $manager = \Drupal::service('plugin.manager.exo_icon');
   foreach ($local_actions as &$action) {
-    $icon = $manager->getDefinitionMatch($action['title'], [
-      'local_action',
-      'local_task',
-      'admin',
-    ]);
-    if ($icon) {
-      $action['options']['attributes']['data-icon'] = $icon;
+    if (empty($action['options']['attributes']['data-icon'])) {
+      $icon = $manager->getDefinitionMatch($action['title'], [
+        'local_action',
+        'local_task',
+        'admin',
+      ]);
+      if ($icon) {
+        $action['options']['attributes']['data-icon'] = $icon;
+      }
     }
   }
 }
