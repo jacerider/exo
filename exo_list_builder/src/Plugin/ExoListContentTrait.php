@@ -198,6 +198,10 @@ trait ExoListContentTrait {
             }
           }
         }
+        else {
+          $values = array_combine($values, $values);
+        }
+        asort($values);
       }
       if (empty($condition)) {
         \Drupal::cache()->set($cid, $values, Cache::PERMANENT, $cacheable_metadata->getCacheTags());
@@ -293,7 +297,7 @@ trait ExoListContentTrait {
     foreach ($reference_bundles as $bundle_id) {
       $fields += $entity_field_manager->getFieldDefinitions($field_definition->getTargetEntityTypeId(), $bundle_id);
     }
-    return isset($fields[$field_name]) ? $fields[$field_name] : NULL;
+    return $fields[$field_name] ?? NULL;
   }
 
   /**

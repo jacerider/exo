@@ -132,9 +132,7 @@ class ContentReferenceProperty extends ContentProperty {
    */
   public function getValueOptions(EntityListInterface $entity_list, array $field, $input = NULL) {
     $configuration = $this->getConfiguration();
-    $values = $this->getAvailableFieldValues($entity_list, $field['id'], $configuration['property'], $input);
-    $values = array_combine($values, $values);
-    return $values;
+    return $this->getAvailableFieldValues($entity_list, $field['id'], $configuration['property'], $input);
   }
 
   /**
@@ -147,7 +145,7 @@ class ContentReferenceProperty extends ContentProperty {
     if ($property === 'target_id') {
       $options = $this->getValueOptions($entity_list, $field);
       foreach ($value as &$val) {
-        $val = isset($options[$val]) ? $options[$val] : $val;
+        $val = $options[$val] ?? $val;
       }
     }
     return implode(', ', $value);
