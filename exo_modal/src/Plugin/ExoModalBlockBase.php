@@ -327,7 +327,8 @@ abstract class ExoModalBlockBase extends BlockBase implements ExoModalBlockPlugi
   public function buildModal() {
     $modal = $this->generateModal();
     $modal->setSetting(['modal', 'autoOpen'], TRUE);
-    $modal->setSetting(['modal', 'destroyOnClose'], TRUE);
+    // This was removed as it was causing the modal to not open a second time.
+    // $modal->setSetting(['modal', 'destroyOnClose'], TRUE);
     return $modal->toRenderableModal();
   }
 
