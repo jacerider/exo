@@ -142,6 +142,10 @@ class ExoModalAccount extends ExoModalBlockBase {
       $modal->setTriggerAttribute('href', Url::fromRoute('user.login')->setOption('query', \Drupal::destination()->getAsArray())->toString());
     }
     else {
+      $modal->setTriggerText($this->t('<span class="account--title">@title</span> <span class="account--name">@name</span>', [
+        '@title' => $this->configuration['modal']['trigger']['text'],
+        '@name' => $account->getDisplayName(),
+      ]));
       $modal->setModalSetting('title', $this->t('My Account'));
       $modal->setTriggerAttribute('href', Url::fromRoute('user.page')->toString());
     }
