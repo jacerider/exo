@@ -104,7 +104,7 @@ class ExoModalAccount extends ExoModalBlockBase {
           'class' => ['exo-modal-account--welcome'],
         ],
         'message' => [
-          '#markup' => $this->t('Hello,<br>@name', ['@name' => $user->getDisplayName()]),
+          '#markup' => $this->t('Hello, <span>@name</span>', ['@name' => $user->getDisplayName()]),
         ],
       ];
       $build['account']['user'] = $this->entityTypeManager->getViewBuilder('user')->view($user, 'default');
