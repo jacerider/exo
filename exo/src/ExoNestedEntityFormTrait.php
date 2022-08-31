@@ -235,13 +235,25 @@ trait ExoNestedEntityFormTrait {
       $entity_form->validateForm($form, $inner_form_state);
 
       // Build Entity.
-      $entity = $entity_form->buildEntity($form, $inner_form_state);
-      $entity_form->setEntity($entity);
+      $this->buildInnerEntity($form, $form_state);
 
       $form_validator->validateForm($entity_form->getFormId(), $form, $inner_form_state);
       foreach ($inner_form_state->getErrors() as $error_element_path => $error) {
         $form_state->setErrorByName($error_element_path, $error);
       }
+    }
+  }
+
+  /**
+   * Build inner entity.
+   */
+  public function buildInnerEntity(array $form, FormStateInterface $form_state) {
+    if ($entity_form = $this->getInnerForm($form['#parents'])) {
+      $inner_form_state = static::getInnerFormState($form['#parents'], $form_state);
+
+      // Build Entity.
+      $entity = $entity_form->buildEntity($form, $inner_form_state);
+      $entity_form->setEntity($entity);
     }
   }
 
