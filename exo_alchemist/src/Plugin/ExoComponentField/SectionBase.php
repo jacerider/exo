@@ -218,11 +218,11 @@ abstract class SectionBase extends ExoComponentFieldComputedBase implements Cont
       }
     }
     else {
-      // // When layout builder, we do not worry about rendering as the element
-      // // will handle rendering of this element.
-      // if ($this->isLayoutBuilder($contexts)) {
-      //   return [];
-      // }
+      // When layout builder, we do not worry about rendering as the element
+      // will handle rendering of this element.
+      if ($this->isLayoutBuilder($contexts)) {
+        return [];
+      }
       $entity->exoComponentSection = TRUE;
       $render = $this->entityTypeManager->getViewBuilder($entity->getEntityTypeId())->view($entity);
     }
