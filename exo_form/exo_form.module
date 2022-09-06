@@ -406,8 +406,13 @@ function exo_form_preprocess_region__content(&$variables) {
  * Implements hook_theme_registry_alter().
  */
 function exo_form_theme_registry_alter(&$theme_registry) {
-  $path_resolver = \Drupal::service('extension.path.resolver');
-  $module_path = $path_resolver->getPath('module', 'exo_form');
+  if (function_exists('drupal_get_path')) {
+    $module_path = drupal_get_path('module', 'exo_form');
+  }
+  else {
+    $path_resolver = \Drupal::service('extension.path.resolver');
+    $module_path = $path_resolver->getPath('module', 'exo_form');
+  }
   $path = $module_path . '/templates';
 
   $theme_registry['fieldset']['path'] = $path;
@@ -436,10 +441,17 @@ if (version_compare(\Drupal::VERSION, 9.4) <= 0) {
       if (!exo_form_access()) {
         return;
       }
-      $path_resolver = \Drupal::service('extension.path.resolver');
-      // Force form elements to use exo form template.
-      $info['theme path'] = $path_resolver->getPath('module', 'exo_form');
-      $info['path'] = $path_resolver->getPath('module', 'exo_form') . '/templates';
+      if (function_exists('drupal_get_path')) {
+        // Force form elements to use exo form template.
+        $info['theme path'] = drupal_get_path('module', 'exo_form');
+        $info['path'] = drupal_get_path('module', 'exo_form') . '/templates';
+      }
+      else {
+        $path_resolver = \Drupal::service('extension.path.resolver');
+        $info['theme path'] = $path_resolver->getPath('module', 'exo_form');
+        // Force form elements to use exo form template.
+        $info['path'] = $path_resolver->getPath('module', 'exo_form') . '/templates';
+      }
     }
   }
 }
@@ -813,14 +825,18 @@ function exo_form_library_info_alter(&$libraries, $extension) {
     return;
   }
 
-  $path_resolver = \Drupal::service('extension.path.resolver');
+  if (function_exists('drupal_get_path')) {
+    $module_path = drupal_get_path('module', 'exo_form');
+  }
+  else {
+    $path_resolver = \Drupal::service('extension.path.resolver');
+    $module_path = $path_resolver->getPath('module', 'exo_form');
+  }
   if ($extension == 'media_library') {
-    $path = '/' . $path_resolver->getPath('module', 'exo_form');
-    $libraries['widget']['js'][$path . '/js/exo.form.media-library.widget.js'] = [];
+    $libraries['widget']['js']['/' . $module_path . '/js/exo.form.media-library.widget.js'] = [];
   }
   if ($extension == 'views_bulk_operations') {
-    $path = '/' . $path_resolver->getPath('module', 'exo_form');
-    $libraries['frontUi']['js'][$path . '/js/exo.form.views-bulk-operations.js'] = [];
+    $libraries['frontUi']['js']['/' . $module_path . '/js/exo.form.views-bulk-operations.js'] = [];
   }
   if ($extension == 'date_recur_modular') {
     unset($libraries['date_recur_modular_sierra_widget']['css']);
@@ -841,10 +857,10 @@ function exo_form_library_info_alter(&$libraries, $extension) {
               unset($libraries[$library]['js'][$filepath]);
             }
             if ($filepath == 'js/views-admin.js') {
-              $libraries[$library]['js']['/' . $path_resolver->getPath('module', 'exo_form') . '/js/exo.form.views.ui.js'] = [];
+              $libraries[$library]['js']['/' . $module_path . '/js/exo.form.views.ui.js'] = [];
             }
             if ($filepath == 'misc/machine-name.js') {
-              $libraries[$library]['js']['/' . $path_resolver->getPath('module', 'exo_form') . '/js/exo.form.machine-name.js'] = [];
+              $libraries[$library]['js']['/' . $module_path . '/js/exo.form.machine-name.js'] = [];
             }
           }
 
