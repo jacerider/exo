@@ -564,6 +564,36 @@ class ExoLayoutBuilder extends LayoutBuilder {
   /**
    * Returns all populated contexts, both global and section-storage-specific.
    *
+   * Drupal 8 support.
+   *
+   * @param \Drupal\layout_builder\SectionStorageInterface $section_storage
+   *   The section storage.
+   *
+   * @return \Drupal\Core\Plugin\Context\ContextInterface[]
+   *   The array of context objects.
+   */
+  protected function getAvailableContexts(SectionStorageInterface $section_storage): array {
+    $key = $section_storage->getStorageId();
+    if (isset($this->delta)) {
+      $key .= '.' . $this->delta;
+    }
+    if (!isset($this->contexts[$key])) {
+      $this->contexts[$key] = parent::getAvailableContexts($section_storage);
+      if ($this->section) {
+        $is_nested_storage = $this->isNestedStorage($section_storage);
+        $this->contexts[$key]['default_storage'] = new Context(new ContextDefinition('boolean'), $this->isDefaultStorage($section_storage));
+        $this->contexts[$key]['nested_storage'] = new Context(new ContextDefinition('boolean'), $is_nested_storage);
+        // Nested storage inherity parent's locked status.
+        $is_locked = $is_nested_storage ? $this->isSectionLocked($this->parentSection) : $this->isSectionLocked();
+        $this->contexts[$key]['exo_section_lock'] = new Context(new ContextDefinition('boolean'), $is_locked);
+      }
+    }
+    return $this->contexts[$key];
+  }
+
+  /**
+   * Returns all populated contexts, both global and section-storage-specific.
+   *
    * @param \Drupal\layout_builder\SectionStorageInterface $section_storage
    *   The section storage.
    *
