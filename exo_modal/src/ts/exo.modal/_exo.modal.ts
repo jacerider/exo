@@ -48,6 +48,7 @@ class ExoModal extends ExoData {
     navigateTitles: false,
     history: false,
     restoreDefaultContent: false,
+    destroyOnClose: false,
     autoOpen: 0, // Boolean, Number
     bodyOverflow: true,
     fullscreen: false,
@@ -856,29 +857,34 @@ class ExoModal extends ExoData {
   public open(param?:any) {
     if (this.state == this.states.CLOSED) {
       this.debug('log', 'Open', '[' + this.getId() + ']', this.getData());
-      if (this.ajaxLoaded === false && (this.get('ajax') || (this.get('contentAjax') && this.contentAjaxLoaded === false))) {
-        const self = this;
+      let ajaxUrl = this.get('ajaxUrl');
+      if (!ajaxUrl && this.get('ajax') || this.get('contentAjax')) {
         const route = this.get('ajax') ? this.get('ajax') : this.get('contentAjax');
-        const href = this.addDestination(Drupal.url(route));
+        ajaxUrl = this.addDestination(Drupal.url(route));
+        this.set('ajaxUrl', ajaxUrl);
+      }
+      if (ajaxUrl && this.ajaxLoaded === false && this.contentAjaxLoaded === false) {
+        const self = this;
         let ajax = Drupal.ajax({
           progress: { type: 'fullscreen' },
-          base: this.$element.attr('id'),
-          element: this.$element[0],
-          url: href,
+          base: this.$trigger.attr('id'),
+          element: this.$trigger[0],
+          url: ajaxUrl,
           exoModal: this,
-          exoModalParam: param
+          exoModalParam: param,
         });
         const successCallback = ajax.options.success;
         ajax.options.success = function (response, status, xmlhttprequest) {
           // Set ajax request as loaded so we can continue.
           self.ajaxLoaded = true;
           // Do not load again if content cache is enabled.
-          self.contentAjaxLoaded = self.get('contentAjaxCache');
+          self.contentAjaxLoaded = self.get('contentAjaxCache') || !self.get('destroyOnClose');
           successCallback(response, status, xmlhttprequest);
         };
         ajax.execute();
         return;
       }
+
       // Prepare for next ajax request.
       this.ajaxLoaded = false;
       this.toggleContentSelector();
@@ -940,7 +946,9 @@ class ExoModal extends ExoData {
       this.recalcLayout();
       this.timer = setTimeout(updateTimer, 300);
     }
-    updateTimer();
+    setTimeout(() => {
+      updateTimer();
+    });
   }
 
   public doOpen(param?:any) {
@@ -973,11 +981,9 @@ class ExoModal extends ExoData {
       }
     }
 
-    if (this.get('transitionInOverlay')) {
-      this.$overlay.addClass(this.get('transitionInOverlay'));
-    }
-
     var transitionIn = this.get('transitionIn');
+    var transitionInOverlay = this.get('transitionInOverlay');
+    var previousModal = null;
 
     if (typeof param == 'object') {
 
@@ -987,6 +993,19 @@ class ExoModal extends ExoData {
       if (param.zindex !== undefined) {
         this.setZindex(param.zindex);
       }
+      if (param.previousModal !== undefined) {
+        previousModal = param.previousModal;
+      }
+    }
+
+    if (previousModal) {
+      previousModal.getOverlay().hide();
+      this.$overlay.show();
+      transitionInOverlay = null;
+    }
+
+    if (transitionInOverlay) {
+      this.$overlay.addClass(transitionInOverlay);
     }
 
     // Bind behaviors. When using exoModalInsert ajax this has not yet happened.
@@ -999,17 +1018,19 @@ class ExoModal extends ExoData {
         if (this.$wrap.get(0) === e.currentTarget) {
           this.$wrap.off(Drupal.Exo.animationEvent + '.exo.modal');
           this.$element.removeClass(transitionIn + ' transitionIn');
-          this.$overlay.removeClass(this.get('transitionInOverlay'));
+          this.$overlay.removeClass(transitionInOverlay);
           this.$navigate.removeClass('fadeIn');
-          this.opened();
+          this.opened(param);
         }
       });
     } else {
       this.$element.css('display', 'flex');
       this.event('opening').trigger(this);
       this.callCallback('onOpening');
-      this.opened();
+      this.opened(param);
     }
+
+    this.openNav(param);
 
     if (this.get('pauseOnHover') === true && this.get('pauseOnHover') === true && this.get('timeout') !== false && !isNaN(parseInt(this.get('timeout'))) && this.get('timeout') !== false && this.get('timeout') !== 0) {
       this.$element.off('mouseenter')
@@ -1038,7 +1059,7 @@ class ExoModal extends ExoData {
     });
   }
 
-  protected opened() {
+  protected opened(param?:any) {
     this.bindElement();
     this.state = this.states.OPENED;
     this.$element.trigger(this.states.OPENED);
@@ -1054,10 +1075,26 @@ class ExoModal extends ExoData {
       }
     });
 
+    // Support drimage module.
+    if (typeof Drupal.drimage !== 'undefined') {
+      setTimeout(() => {
+        Drupal.drimage.init(this.$element.get(0));
+      });
+    }
+  }
+
+  public openNav(param?:any) {
     const groupModals = Drupal.ExoModal.getGrouped(this.get('group'));
     if (groupModals.count() > 1) {
       const prevModal = groupModals.getPrev(this.getId(), this.get('loop'));
       const nextModal = groupModals.getNext(this.getId(), this.get('loop'));
+      var previousModal = null;
+
+      if (typeof param == 'object') {
+        if (param.previousModal !== undefined) {
+          previousModal = param.previousModal;
+        }
+      }
 
       if (this.get('appendToNavigate') === false) {
         this.$navigate.appendTo('body');
@@ -1080,7 +1117,9 @@ class ExoModal extends ExoData {
         }
       }
 
-      this.$navigate.addClass('fadeIn');
+      if (!previousModal) {
+        this.$navigate.addClass('fadeIn');
+      }
 
       if (this.get('navigateCaption') === true) {
         if (this.get('left') !== null && this.get('left') !== false) {
@@ -1112,13 +1151,6 @@ class ExoModal extends ExoData {
         this.$navigate.find('.' + this.name + '-navigate-next').hide();
       }
     }
-
-    // Support drimage module.
-    if (typeof Drupal.drimage !== 'undefined') {
-      setTimeout(() => {
-        Drupal.drimage.init(this.$element.get(0));
-      });
-    }
   }
 
   public close(param?:any) {
@@ -1145,7 +1177,12 @@ class ExoModal extends ExoData {
       this.event('closing').trigger(this);
       this.callCallback('onClosing');
 
-      var transitionOut = this.get('transitionOut');
+      let transitionOut = this.get('transitionOut');
+      let transitionOutOverlay = this.get('transitionOutOverlay');
+      if (this.get('transitionOutTemp') !== null) {
+        transitionOut = this.get('transitionOutTemp');
+        this.set('transitionOutTemp', null);
+      }
 
       if (typeof param == 'object') {
         if (param.transition !== undefined || param.transitionOut !== undefined) {
@@ -1170,8 +1207,9 @@ class ExoModal extends ExoData {
           this.get('rtl') ? this.name + '-rtl' : ''
         ].join(' '));
 
-        this.$overlay.attr('class', this.name + '-overlay ' + this.get('transitionOutOverlay'));
-
+        if (transitionOutOverlay) {
+          this.$overlay.attr('class', this.name + '-overlay ' + transitionOutOverlay);
+        }
         if (this.get('navigateArrows') !== false && !Drupal.Exo.isMobile()) {
           this.$navigate.attr('class', this.name + '-navigate fadeOut');
         }
@@ -1182,7 +1220,9 @@ class ExoModal extends ExoData {
             if (this.$element.hasClass(transitionOut)) {
               this.$element.removeClass(transitionOut + ' transitionOut').hide();
             }
-            this.$overlay.removeClass(this.get('transitionOutOverlay')).remove();
+            if (this.$overlay.hasClass(transitionOutOverlay)) {
+              this.$overlay.removeClass(transitionOutOverlay).remove();
+            }
             this.$navigate.removeClass('fadeOut').remove();
             this.closed();
           }
@@ -1191,7 +1231,7 @@ class ExoModal extends ExoData {
     }
   }
 
-  protected closed() {
+  protected closed(param?:any) {
     this.toggleContentSelector();
     this.state = this.states.CLOSED;
     this.$element.trigger(this.states.CLOSED);
@@ -1223,12 +1263,13 @@ class ExoModal extends ExoData {
       this.rebuildContent();
     }
     if (this.get('destroyOnClose')) {
-      this.destroy();
+      this.destroy(param);
     }
   }
 
-  protected destroy() {
+  protected destroy(param?:any) {
     this.debug('log', 'Destroy', '[' + this.getId() + ']');
+
     var e = $.Event('destroy');
     this.$element.trigger(e);
 
@@ -1550,16 +1591,11 @@ class ExoModal extends ExoData {
     if (modal) {
       const transitionOut = this.get('transitionOut') === this.defaults.transitionOut ? 'fadeOutLeft' : this.get('transitionOut');
       const transitionIn = modal.get('transitionIn') === this.defaults.transitionIn ? 'fadeInRight' : modal.get('transitionIn');
-
-      this.close({
-        transition: transitionOut
+      this.set('transitionOutTemp', transitionOut);
+      modal.open({
+        transition: transitionIn,
+        previousModal: this,
       });
-
-      setTimeout(() => {
-        modal.open({
-          transition: transitionIn
-        });
-      }, 200);
     }
   }
 
@@ -1570,16 +1606,11 @@ class ExoModal extends ExoData {
     if (modal) {
       const transitionOut = this.get('transitionOut') === this.defaults.transitionOut ? 'fadeOutRight' : this.get('transitionOut');
       const transitionIn = modal.get('transitionIn') === this.defaults.transitionIn ? 'fadeInLeft' : modal.get('transitionIn');
-
-      this.close({
-        transition: transitionOut
+      this.set('transitionOutTemp', transitionOut);
+      modal.open({
+        transition: transitionIn,
+        previousModal: this,
       });
-
-      setTimeout(() => {
-        modal.open({
-          transition: transitionIn
-        });
-      }, 200);
     }
   }
 
@@ -1654,6 +1685,10 @@ class ExoModal extends ExoData {
       });
     }
     return this.$element;
+  }
+
+  public getOverlay():JQuery {
+    return this.$overlay;
   }
 
 }
