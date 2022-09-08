@@ -122,7 +122,7 @@ class ExoModalAccount extends ExoModalBlockBase {
       ];
       $build['logout']['link'] = [
         '#type' => 'link',
-        '#title' => $this->t('Log out'),
+        '#title' => $this->icon('Log out')->setIcon('regular-sign-out'),
         '#url' => Url::fromRoute('user.logout'),
       ];
     }
