@@ -6,6 +6,7 @@ use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\exo_alchemist\ExoComponentValue;
+use Drupal\media\OEmbed\ResourceException;
 
 /**
  * A 'media' adapter for exo components.
@@ -99,9 +100,15 @@ class MediaRemoteVideo extends MediaBase {
       $url_resolver = \Drupal::service('media.oembed.url_resolver');
       $resource_url = $url_resolver->getResourceUrl($url);
       $provider = $url_resolver->getProviderByUrl($url);
-      /** @var \Drupal\media\OEmbed\Resource $resource */
-      $resource = \Drupal::service('media.oembed.resource_fetcher')->fetchResource($resource_url);
+      $resource = NULL;
+      try {
+        $resource = \Drupal::service('media.oembed.resource_fetcher')->fetchResource($resource_url);
+      }
+      catch (ResourceException $e) {
+        return NULL;
+      }
       if ($resource) {
+        /** @var \Drupal\media\OEmbed\Resource $resource */
         $value = [
           'url' => $url,
           'embed' => $resource->getHtml(),
