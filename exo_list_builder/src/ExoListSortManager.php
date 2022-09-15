@@ -91,7 +91,7 @@ class ExoListSortManager extends DefaultPluginManager implements ExoListSortMana
    * {@inheritdoc}
    */
   public function removeExcludeDefinitions(array $definitions) {
-    $definitions = isset($definitions) ? $definitions : $this->getDefinitions();
+    $definitions = $definitions ?? $this->getDefinitions();
     // Exclude 'broken' fallback plugin.
     unset($definitions['broken']);
     return $definitions;

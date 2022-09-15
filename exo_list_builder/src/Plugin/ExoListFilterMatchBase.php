@@ -136,6 +136,10 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase implements ExoLi
    */
   protected function queryAlterByField($field_id, $query, $value, EntityListInterface $entity_list, array $field) {
     $match_operator = $this->getConfiguration()['match_operator'];
+    if (!empty($field['reference_field'])) {
+      // Support reference field.
+      $field_id = str_replace(':', '.entity.', $field['reference_field']) . '.entity.' . $field_id;
+    }
     if ($match_operator === 'IS NULL EMPTY') {
       $group = $query->orConditionGroup();
       $group->condition($field_id, NULL, 'IS NULL');

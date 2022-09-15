@@ -4,6 +4,7 @@ namespace Drupal\exo_list_builder\Plugin;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -91,7 +92,7 @@ trait ExoListContentTrait {
    * @return array
    *   An array of property.
    */
-  protected function getPropertyOptions(FieldDefinitionInterface $field_definition) {
+  public function getPropertyOptions(FieldDefinitionInterface $field_definition) {
     $property = $this->getFieldProperties($field_definition);
     $options = [];
     foreach ($property as $property_name => $property) {
@@ -152,16 +153,20 @@ trait ExoListContentTrait {
   /**
    * Get available field values.
    */
-  public function getAvailableFieldValues(EntityListInterface $entity_list, $field_id, $property, $condition) {
+  public function getAvailableFieldValues(EntityListInterface $entity_list, array $field, $property, $condition) {
+    $field_id = $field['id'];
     $cid = 'exo_list_buider:filter:' . $entity_list->id() . ':' . $field_id . ':' . $property;
     $values = [];
-    if (empty($condition) && ($cache = \Drupal::cache()->get($cid))) {
+    // Field can enable facet support.
+    $faceted = !empty($field['filter']['settings']['widget_settings']['facet']);
+    $group_property = $field['filter']['settings']['widget_settings']['group'] ?? NULL;
+    $do_cache = empty($faceted) && empty($condition);
+    if (FALSE && $do_cache && ($cache = \Drupal::cache()->get($cid))) {
       $values = $cache->data;
     }
     else {
       $cacheable_metadata = new CacheableMetadata();
       $cacheable_metadata->addCacheTags($entity_list->getCacheTags());
-      $field = $entity_list->getField($field_id);
       if ($computed_filter = $this->getComputedFilterClass($field['definition'])) {
         $values = $computed_filter::getExoListAvailableFieldValues($entity_list, $field_id, $property, $condition);
       }
@@ -171,39 +176,55 @@ trait ExoListContentTrait {
         // class. See getComputedFilterClass().
       }
       else {
-        if ($query = $this->getAvailableFieldValuesQuery($entity_list, $field_id, $property, $condition, $cacheable_metadata)) {
-          $values = $query->execute()->fetchCol();
-        }
-        $parts = explode('.', $property);
-        $column = $parts[1] ?? NULL;
-        // When referencing a target entity, we will fetch the entity labels.
-        if ($column === 'target_id') {
-          $field_definition = $entity_list->getField($field_id)['definition'];
-          if ($reference_field_definition = $this->getReferenceFieldDefinition($field_definition)) {
-            $nested_reference_entity_type_id = $reference_field_definition->getSetting('target_type');
-            $entities = $this->entityTypeManager()->getStorage($nested_reference_entity_type_id)->loadMultiple($values);
-            uasort($entities, function (EntityInterface $a, EntityInterface $b) {
-              if ($a instanceof TermInterface && $b instanceof TermInterface) {
-                return $a->getWeight() <=> $b->getWeight();
-              }
-              return strnatcasecmp($a->label(), $b->label());
-            });
-            $values = [];
-            foreach ($entities as $entity) {
-              if ($entity->getEntityType()->hasKey('bundle')) {
-                $cacheable_metadata->addCacheTags([$entity->getEntityTypeId() . '_list:' . $entity->bundle()]);
-              }
-              $cacheable_metadata->addCacheableDependency($entity);
-              $values[$entity->id()] = $entity->label();
+        $query = $this->getAvailableFieldValuesQuery($entity_list, $field, $property, $condition, $cacheable_metadata);
+        if ($query) {
+          if ($faceted && ($base_alias = $query->getMetaData('base_alias')) && ($base_id_key = $query->getMetaData('base_id_key'))) {
+            $ids = $entity_list->getHandler()->getQuery()->execute();
+            if (empty($ids)) {
+              return [];
             }
+            $query->condition($base_alias . '.' . $base_id_key, $entity_list->getHandler()->getQuery()->execute(), 'IN');
+          }
+          $results = $query->execute();
+          if ($group_property) {
+            $values = $results->fetchAllKeyed();
+            ksort($values);
+          }
+          else {
+            $values = $results->fetchCol();
+            $parts = explode('.', $property);
+            $column = $parts[1] ?? NULL;
+            // When referencing a target entity, we will fetch the entity
+            // labels.
+            if ($column === 'target_id') {
+              $field_definition = $field['definition'];
+              if ($reference_field_definition = $this->getReferenceFieldDefinition($field_definition)) {
+                $nested_reference_entity_type_id = $reference_field_definition->getSetting('target_type');
+                $entities = $this->entityTypeManager()->getStorage($nested_reference_entity_type_id)->loadMultiple($values);
+                uasort($entities, function (EntityInterface $a, EntityInterface $b) {
+                  if ($a instanceof TermInterface && $b instanceof TermInterface) {
+                    return $a->getWeight() <=> $b->getWeight();
+                  }
+                  return strnatcasecmp($a->label(), $b->label());
+                });
+                $values = [];
+                foreach ($entities as $entity) {
+                  if ($entity->getEntityType()->hasKey('bundle')) {
+                    $cacheable_metadata->addCacheTags([$entity->getEntityTypeId() . '_list:' . $entity->bundle()]);
+                  }
+                  $cacheable_metadata->addCacheableDependency($entity);
+                  $values[$entity->id()] = $entity->label();
+                }
+              }
+            }
+            else {
+              $values = array_combine($values, $values);
+            }
+            asort($values);
           }
         }
-        else {
-          $values = array_combine($values, $values);
-        }
-        asort($values);
       }
-      if (empty($condition)) {
+      if ($do_cache) {
         \Drupal::cache()->set($cid, $values, Cache::PERMANENT, $cacheable_metadata->getCacheTags());
       }
     }
@@ -213,26 +234,33 @@ trait ExoListContentTrait {
   /**
    * Get available field values query.
    */
-  protected function getAvailableFieldValuesQuery(EntityListInterface $entity_list, $field_id, $property, $condition, CacheableMetadata $cacheable_metadata) {
-    /** @var \Drupal\Core\Entity\Sql\TableMappingInterface $table_mapping*/
-    $storage = $this->entityTypeManager()->getStorage($entity_list->getTargetEntityTypeId());
+  protected function getAvailableFieldValuesQuery(EntityListInterface $entity_list, array $field, $property, $condition, CacheableMetadata $cacheable_metadata) {
+    /** @var \Drupal\Core\Field\FieldDefinitionInterface $definition */
+    $definition = $field['definition'];
+    $entity_type_id = $definition->getTargetEntityTypeId();
+    $storage = $this->entityTypeManager()->getStorage($entity_type_id);
     if ($storage instanceof SqlEntityStorageInterface) {
-      $entity_type = $entity_list->getTargetEntityType();
-      $base_table = $entity_type->getBaseTable();
+      $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
       $base_id_key = $entity_type->getKey('id');
-      $field = $entity_list->getField($field_id);
-      if ($field['definition']->isComputed()) {
+      if ($definition->isComputed()) {
         return NULL;
       }
       $field_name = $field['field_name'];
-      // /** @var \Drupal\Core\Entity\Sql\DefaultTableMapping $table_mapping */
+      /** @var \Drupal\Core\Entity\Sql\DefaultTableMapping $table_mapping */
       $table_mapping = $storage->getTableMapping();
+      $base_table = $table_mapping->getDataTable() ?: $table_mapping->getBaseTable();
       $field_table = $table_mapping->getFieldTableName($field_name);
-      $field_storage_definitions = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions($entity_list->getTargetEntityTypeId())[$field_name];
+      $field_storage_definitions = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions($entity_type_id)[$field_name];
       $field_column = $table_mapping->getFieldColumnName($field_storage_definitions, $property);
+      $fields = [$field_column];
+      $group_property = $field['filter']['settings']['widget_settings']['group'] ?? NULL;
+      if ($group_property) {
+        $field_group_column = $table_mapping->getFieldColumnName($field_storage_definitions, $group_property);
+        $fields[] = $field_group_column;
+      }
       $connection = \Drupal::database();
       $query = $connection->select($field_table, 'f')
-        ->fields('f', [$field_column])
+        ->fields('f', $fields)
         ->distinct(TRUE)
         ->range(0, 50);
       if (!empty($condition)) {
@@ -244,20 +272,204 @@ trait ExoListContentTrait {
         // column of the field so that it can be joined. We are assuming it is
         // the first column but this may not always be the case.
         $field_columns = $table_mapping->getAllColumns($field_table);
-        $field_id_key = reset($field_columns);
+        if (in_array('id', $field_columns)) {
+          $field_id_key = 'id';
+        }
+        elseif (in_array('entity_id', $field_columns)) {
+          $field_id_key = 'entity_id';
+        }
+        else {
+          $field_id_key = reset($field_columns);
+        }
+        kint($base_table);
         // If we are fetching from a non-base table, we need to join the base.
         $query->join($base_table, 'b', 'b.' . $base_id_key . ' = f.' . $field_id_key);
         $base_alias = 'b';
       }
-      if ($bundle_key = $entity_type->getKey('bundle')) {
-        $query->condition($base_alias . '.' . $bundle_key, $entity_list->getTargetBundleIds(), 'IN');
-      }
       if ($label_key = $entity_type->getKey('label')) {
         $query->orderBy($base_alias . '.' . $label_key);
+      }
+      $query->addMetaData('base_alias', $base_alias);
+      $query->addMetaData('base_id_key', $base_id_key);
+      if (!empty($field['reference_field'])) {
+        $this->alterAvailableFieldValuesQueryByReference($query, $entity_list, $field['reference_field'], $cacheable_metadata);
+      }
+      if ($bundle_key = $entity_list->getTargetEntityType()->getKey('bundle')) {
+        $query->condition($query->getMetaData('base_alias') . '.' . $bundle_key, $entity_list->getTargetBundleIds(), 'IN');
       }
       return $query;
     }
     return NULL;
+  }
+
+  /**
+   * Alter available field values query by reference.
+   */
+  protected function alterAvailableFieldValuesQueryByReference(SelectInterface $query, EntityListInterface $entity_list, $reference_field, CacheableMetadata $cacheable_metadata) {
+    $field = $entity_list->getField($reference_field) ?: $entity_list->getAvailableFields()[$reference_field] ?? NULL;
+    if (empty($field)) {
+      return;
+    }
+    /** @var \Drupal\Core\Field\FieldDefinitionInterface $definition */
+    $definition = $field['definition'];
+    $entity_type_id = $definition->getTargetEntityTypeId();
+    $storage = $this->entityTypeManager()->getStorage($entity_type_id);
+    if ($storage instanceof SqlEntityStorageInterface) {
+      $property = 'target_id';
+      $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
+      $base_id_key = $entity_type->getKey('id');
+      if ($definition->isComputed()) {
+        return NULL;
+      }
+      $field_name = $field['field_name'];
+      /** @var \Drupal\Core\Entity\Sql\DefaultTableMapping $table_mapping */
+      $table_mapping = $storage->getTableMapping();
+      $base_table = $table_mapping->getDataTable() ?: $table_mapping->getBaseTable();
+      $field_table = $table_mapping->getFieldTableName($field_name);
+      $field_storage_definitions = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions($entity_type_id)[$field_name];
+      $field_column = $table_mapping->getFieldColumnName($field_storage_definitions, $property);
+      $field_alias = str_replace(':', '_', $reference_field);
+      $query->join($field_table, $field_alias, $field_alias . '.' . $field_column . ' = ' . $query->getMetaData('base_alias') . '.' . $query->getMetaData('base_id_key'));
+      if (!empty($field['reference_field'])) {
+        // We have made it to the base query level.
+        $query->addMetaData('base_alias', $field_alias);
+        $query->addMetaData('base_id_key', $base_id_key);
+        $this->alterAvailableFieldValuesQueryByReference($query, $entity_list, $field['reference_field'], $cacheable_metadata);
+      }
+      else {
+        if ($field_table !== $base_table) {
+          // There is likely a better way to pull this off. We need the "id"
+          // column of the field so that it can be joined. We are assuming it is
+          // the first column but this may not always be the case.
+          $field_columns = $table_mapping->getAllColumns($field_table);
+          if (in_array('id', $field_columns)) {
+            $field_id_key = 'id';
+          }
+          elseif (in_array('entity_id', $field_columns)) {
+            $field_id_key = 'entity_id';
+          }
+          else {
+            $field_id_key = reset($field_columns);
+          }
+          // If we are fetching from a non-base table, we need to join the base.
+          $base_alias = 'base_' . $field_alias;
+          $query->join($base_table, $base_alias, $base_alias . '.' . $base_id_key . ' = ' . $field_alias . '.' . $field_id_key);
+        }
+        // We have made it to the base query level.
+        $query->addMetaData('base_alias', $base_alias);
+        $query->addMetaData('base_id_key', $base_id_key);
+      }
+    }
+  }
+
+  /**
+   * Get referenced available field values query.
+   */
+  protected function getReferencedAvailableFieldValuesQuery(EntityListInterface $entity_list, array $field, $property, $condition, CacheableMetadata $cacheable_metadata) {
+    $query = NULL;
+    /** @var \Drupal\Core\Field\FieldDefinitionInterface $field_definition */
+    $field_definition = $field['definition'];
+    /** @var \Drupal\Core\Entity\EntityFieldManager $entity_field_manager */
+    $entity_field_manager = \Drupal::service('entity_field.manager');
+    $entity_type_id = $field_definition->getTargetEntityTypeId();
+    $reference_entity_type_id = $field_definition->getSetting('target_type');
+    if (empty($reference_entity_type_id)) {
+      return $query;
+    }
+    $storage = $this->entityTypeManager()->getStorage($entity_type_id);
+    if (!$storage instanceof SqlEntityStorageInterface) {
+      return $query;
+    }
+    if ($reference_table_mapping = $this->getReferencedTableMapping($reference_entity_type_id)) {
+      $reference_entity_type = $this->entityTypeManager()->getDefinition($reference_entity_type_id);
+      $cacheable_metadata->addCacheTags([$reference_entity_type->id() . '_list']);
+      $reference_bundles = $this->getFieldBundles($field_definition, $reference_entity_type);
+      @[$reference_field_name, $reference_property] = explode('.', $property);
+      $reference_field_definitions = [];
+      foreach ($reference_bundles as $reference_bundle) {
+        $cacheable_metadata->addCacheTags([$reference_entity_type->id() . '_list:' . $reference_bundle]);
+        $reference_field_definitions += $entity_field_manager->getFieldDefinitions($reference_entity_type_id, $reference_bundle);
+      };
+      /** @var \Drupal\Core\Field\FieldConfigInterface $reference_field_definition */
+      $reference_field_definition = $reference_field_definitions[$reference_field_name];
+      $reference_field_storage_definition = $reference_field_definition->getFieldStorageDefinition();
+      // $reference_field_storage_definition = $entity_field_manager->getFieldStorageDefinitions($reference_entity_type_id)[$reference_field_name];
+      $reference_id_key = $reference_entity_type->getKey('id');
+      $reference_data_table = $reference_table_mapping->getDataTable() ?: $reference_table_mapping->getBaseTable();
+      $reference_field_table = $reference_table_mapping->getFieldTableName($reference_field_name);
+      $reference_field_column = $reference_table_mapping->getFieldColumnName($reference_field_storage_definition, $reference_property);
+      $reference_bundle_key = $reference_entity_type->getKey('bundle');
+      $connection = \Drupal::database();
+      // We are searching against a field's table.
+      if ($reference_data_table && $reference_data_table !== $reference_field_table) {
+        $query = $connection->select($reference_data_table, 'd');
+        $query->join($reference_field_table, 'f', 'd.' . $reference_id_key . ' = f.entity_id');
+        if (!empty($reference_bundles)) {
+          $query->condition('f.bundle', $reference_bundles, 'IN');
+        }
+        $query->addMetaData('base_alias', 'd');
+        $query->addMetaData('base_id_key', $reference_id_key);
+      }
+      else {
+        $query = $connection->select($reference_field_table, 'f');
+        if (!empty($reference_bundles) && $reference_bundle_key) {
+          $query->condition('f.' . $reference_bundle_key, $reference_bundles, 'IN');
+        }
+        $query->addMetaData('base_alias', 'f');
+        $query->addMetaData('base_id_key', $reference_id_key);
+      }
+      $query->fields('f', [$reference_field_column])
+        ->distinct(TRUE);
+
+      if (!empty($condition)) {
+        if ($reference_property === 'target_id') {
+          $target_entity_type = $this->entityTypeManager()->getDefinition($reference_field_definition->getSetting('target_type'));
+          $cacheable_metadata->addCacheTags([$target_entity_type->id() . '_list']);
+          $target_table_mapping = $this->getReferencedTableMapping($target_entity_type->id());
+          $label_key = $target_entity_type->getKey('label');
+          if ($label_key && $target_table_mapping) {
+            $target_data_table = $target_table_mapping->getDataTable() ?: $target_table_mapping->getBaseTable();
+            $target_id_key = $target_entity_type->getKey('id');
+            $target_field_column = $reference_table_mapping->getFieldColumnName($reference_field_storage_definition, 'target_id');
+            $query->join($target_data_table, 't', 't.' . $target_id_key . ' = f.' . $target_field_column);
+            $query->condition('t.' . $label_key, '%' . $connection->escapeLike($condition) . '%', 'LIKE');
+          }
+        }
+        else {
+          $query->condition('f.' . $reference_field_column, '%' . $connection->escapeLike($condition) . '%', 'LIKE');
+        }
+      }
+      else {
+        if ($label_key = $reference_entity_type->getKey('label')) {
+          $query->orderBy($query->getMetaData('base_alias') . '.' . $label_key);
+        }
+      }
+
+      $storage = $this->entityTypeManager()->getStorage($entity_list->getTargetEntityTypeId());
+      if ($storage instanceof SqlEntityStorageInterface) {
+        // Here is some insane logic to get the query to join to the parent
+        // entity table.
+        $field_name = $field['field_name'];
+        /** @var \Drupal\Core\Entity\Sql\DefaultTableMapping $table_mapping */
+        $table_mapping = $storage->getTableMapping();
+        $table = $table_mapping->getFieldTableName($field_name);
+        $column = $table_mapping->getFieldColumnName($field['definition']->getFieldStorageDefinition(), 'target_id');
+        $query->join($table, 'ff', 'ff.' . $column . ' = ' . $query->getMetaData('base_alias') . '.' . $query->getMetaData('base_id_key'));
+        $query->addMetaData('base_alias', 'ff');
+        $query->addMetaData('base_id_key', $column);
+
+        $entity_type = $entity_list->getTargetEntityType();
+        $base_table = $table_mapping->getDataTable() ?? $table_mapping->getBaseTable();
+        $base_id_key = $entity_type->getKey('id');
+        if ($table !== $base_table) {
+          // If we are not on the actual base table, we need to join to it.
+          $query->join($base_table, 'b', 'b.' . $base_id_key . ' = ff.entity_id');
+          $query->addMetaData('base_alias', 'b');
+          $query->addMetaData('base_id_key', $base_id_key);
+        }
+      }
+    }
+    return $query;
   }
 
   /**

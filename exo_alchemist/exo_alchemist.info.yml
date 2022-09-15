@@ -10,4 +10,5 @@ dependencies:
   - exo:exo_form
   - core:block_content
   - core:media
+  - core:menu_ui
   - entity_reference_revisions:entity_reference_revisions

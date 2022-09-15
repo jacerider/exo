@@ -8,6 +8,7 @@ use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
+use Drupal\Core\Render\Element;
 use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\exo_list_builder\EntityListInterface;
 
@@ -26,6 +27,13 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
   protected $supportsMultiple = FALSE;
 
   /**
+   * The cached list widget.
+   *
+   * @var \Drupal\exo_list_builder\Plugin\ExoListWidgetInterface
+   */
+  protected $listWidget;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition) {
@@ -39,13 +47,8 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
   public function defaultConfiguration() {
     $default = ExoListFilterInterface::DEFAULTS;
     if ($this instanceof ExoListFieldValuesElementInterface && $this instanceof ExoListFieldValuesInterface) {
-      $default['autocomplete'] = FALSE;
-      $default['select'] = FALSE;
-      $default['options'] = [
-        'status' => FALSE,
-        'exclude' => [],
-        'include' => [],
-      ];
+      $default['widget'] = 'textfield';
+      $default['widget_settings'] = [];
     }
     return $default;
   }
@@ -54,7 +57,11 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
    * {@inheritdoc}
    */
   public function getConfiguration() {
-    return $this->configuration + $this->defaultConfiguration();
+    $configuration = $this->configuration + $this->defaultConfiguration();
+    if ($instance = $this->getListWidgetInstance()) {
+      $configuration['widget_settings'] += $instance->getConfiguration();
+    }
+    return $configuration;
   }
 
   /**
@@ -86,8 +93,8 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       '#type' => 'select',
       '#title' => $this->t('Position'),
       '#options' => [
-        'modal' => $this->t('Modal'),
         'header' => $this->t('Header'),
+        'modal' => $this->t('Modal'),
       ],
       '#default_value' => $configuration['position'] ?: 'modal',
       '#states' => [
@@ -178,101 +185,32 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       $form['default']['value'] = $this->buildFormAfter($form['default']['value'], $subform_state, $default, $entity_list, $field);
     }
 
-    if ($this instanceof ExoListFieldValuesElementInterface && $this instanceof ExoListFieldValuesInterface) {
-      $form['autocomplete'] = [
-        '#type' => 'checkbox',
-        '#id' => $form['#id'] . '-autocomplete',
-        '#title' => $this->t('As Autocomplete'),
-        '#default_value' => $configuration['autocomplete'],
-        '#states' => [
-          'disabled' => [
-            ':input[id="' . $form['#id'] . '-dropdown' . '"]' => ['checked' => TRUE],
-          ],
-          'visible' => [
-            ':input[name="fields[' . $field['id'] . '][filter][settings][expose]"]' => ['checked' => TRUE],
-          ],
-        ],
+    if ($instance = $this->getListWidgetInstance()) {
+      /** @var \Drupal\exo_list_builder\ExoListManagerInterface $widget_manager */
+      $widget_manager = \Drupal::service('plugin.manager.exo_list_widget');
+      $options = $widget_manager->getOptions();
+      $form['widget'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Widget'),
+        '#default_value' => $configuration['widget'],
+        '#options' => $options,
         '#weight' => 10000,
-      ];
-
-      $form['select'] = [
-        '#type' => 'checkbox',
-        '#id' => $form['#id'] . '-dropdown',
-        '#title' => $this->t('As Select Dropdown'),
-        '#default_value' => $configuration['select'],
-        '#states' => [
-          'disabled' => [
-            ':input[id="' . $form['#id'] . '-autocomplete' . '"]' => ['checked' => TRUE],
-          ],
-          'visible' => [
-            ':input[name="fields[' . $field['id'] . '][filter][settings][expose]"]' => ['checked' => TRUE],
-          ],
-        ],
-        '#weight' => 10000,
-      ];
-
-      $options_status = !empty($configuration['options']['status']);
-      $form['options'] = [
-        '#type' => $options_status ? 'fieldset' : 'html_tag',
-        '#tag' => 'div',
-        '#attributes' => [
-          'id' => $form['#id'] . '--options',
-          'class' => ['exo-form-element'],
-        ],
-        '#states' => [
-          'visible' => [
-            [':input[id="' . $form['#id'] . '-autocomplete' . '"]' => ['checked' => TRUE]],
-            'or',
-            [':input[id="' . $form['#id'] . '-dropdown' . '"]' => ['checked' => TRUE]],
-          ],
-        ],
-        '#weight' => 10001,
-      ];
-
-      $form['options']['status'] = [
-        '#type' => 'checkbox',
-        '#title' => $this->t('Options Include/Exclude'),
         '#ajax' => [
           'method' => 'replace',
-          'wrapper' => $form['#id'] . '--options',
-          'callback' => [__CLASS__, 'ajaxReplaceOptions'],
+          'wrapper' => $form['#id'] . '--widget-settings',
+          'callback' => [__CLASS__, 'ajaxReplaceWidget'],
         ],
-        '#default_value' => $options_status,
       ];
-      if ($options_status) {
-        $options = $this->getValueOptions($entity_list, $field);
-        if (count($options) === 50) {
-          $form['options']['exclude'] = [
-            '#type' => 'textfield',
-            '#title' => $this->t('Exclude'),
-            '#description' => $this->t('Comma separated list of values to exclude.'),
-            '#options' => $options,
-            '#default_value' => implode(', ', $configuration['options']['exclude']),
-          ];
-          $form['options']['include'] = [
-            '#type' => 'select',
-            '#title' => $this->t('Include'),
-            '#description' => $this->t('Comma separated list of values to include.'),
-            '#options' => $options,
-            '#default_value' => implode(', ', $configuration['options']['include'])
-          ];
-        }
-        else {
-          $form['options']['exclude'] = [
-            '#type' => 'select',
-            '#title' => $this->t('Exclude'),
-            '#options' => $options,
-            '#default_value' => $configuration['options']['exclude'],
-            '#multiple' => TRUE,
-          ];
-          $form['options']['include'] = [
-            '#type' => 'select',
-            '#title' => $this->t('Include'),
-            '#options' => $options,
-            '#default_value' => $configuration['options']['include'],
-            '#multiple' => TRUE,
-          ];
-        }
+      $form['widget_settings'] = [
+        '#type' => 'container',
+        '#title' => $this->t('Widget Settings'),
+        '#id' => $form['#id'] . '--widget-settings',
+        '#weight' => 10000,
+      ];
+      $subform_state = SubformState::createForSubform($form['widget_settings'], $form, $form_state);
+      $form['widget_settings'] = $instance->buildConfigurationForm($form['widget_settings'], $subform_state, $entity_list, $this, $field);
+      if (Element::children($form['widget_settings'])) {
+        $form['widget_settings']['#type'] = 'fieldset';
       }
     }
 
@@ -326,11 +264,10 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
    * @return array
    *   The fields form.
    */
-  public static function ajaxReplaceOptions(array $form, FormStateInterface $form_state) {
-    $parents = $form_state->getTriggeringElement()['#array_parents'];
-    $parents = array_slice($form_state->getTriggeringElement()['#array_parents'], 0, -2);
+  public static function ajaxReplaceWidget(array $form, FormStateInterface $form_state) {
+    $parents = array_slice($form_state->getTriggeringElement()['#array_parents'], 0, -1);
     $element = NestedArray::getValue($form, $parents);
-    return $element['options'];
+    return $element['widget_settings'];
   }
 
   /**
@@ -349,16 +286,13 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
         $form_state->unsetValue(['default']);
       }
     }
-    if ($this instanceof ExoListFieldValuesElementInterface && $this instanceof ExoListFieldValuesInterface) {
-      $exclude = $form_state->getValue(['options', 'exclude'], '');
-      $exclude = array_filter(is_array($exclude) ? $exclude : explode(',', $exclude));
-      $exclude = $exclude ? array_combine($exclude, $exclude) : [];
-      $form_state->setValue(['options', 'exclude'], $exclude);
-
-      $include = $form_state->getValue(['options', 'include'], '');
-      $exclude = array_filter(is_array($include) ? $include : explode(',', $include));
-      $include = $include ? array_combine($include, $include) : [];
-      $form_state->setValue(['options', 'include'], $include);
+    if ($this instanceof ExoListFieldValuesElementInterface && $this instanceof ExoListFieldValuesInterface && $form_state->getValue('widget')) {
+      /** @var \Drupal\exo_list_builder\ExoListManagerInterface $widget_manager */
+      $widget_manager = \Drupal::service('plugin.manager.exo_list_widget');
+      /** @var \Drupal\exo_list_builder\Plugin\ExoListWidgetInterface $instance */
+      $instance = $widget_manager->createInstance($form_state->getValue('widget'), $form_state->getValue('widget_settings') ?? []);
+      $subform_state = SubformState::createForSubform($form['widget_settings'], $form, $form_state);
+      $instance->validateConfigurationForm($form['widget_settings'], $subform_state);
     }
   }
 
@@ -377,24 +311,8 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       if ($parents = $this->getValuesParents()) {
         $element = NestedArray::getValue($form, $parents);
         if ($element) {
-          $configuration = $this->getConfiguration();
-          if (!empty($configuration['select'])) {
-            $element['#type'] = 'select';
-            $element['#options'] = ['' => $this->t('- All -')] + $this->getFilteredValueOptions($entity_list, $field);
-            $element['#multiple'] = $this->allowsMultiple($field);
-          }
-          elseif (!empty($configuration['autocomplete']) && !$entity_list->isNew()) {
-            $element['#multiple'] = $this->allowsMultiple($field);
-            $element += [
-              '#autocomplete_route_name' => 'exo_list_builder.autocomplete',
-              '#autocomplete_route_parameters' => [
-                'exo_entity_list' => $entity_list->id(),
-                'field_id' => $field['id'],
-              ],
-              '#element_validate' => [
-                [$this, 'validateElementAutocomplete'],
-              ],
-            ];
+          if ($instance = $this->getListWidgetInstance()) {
+            $instance->alterElement($element, $entity_list, $this, $field);
           }
           NestedArray::setValue($form, $parents, $element);
         }
@@ -406,32 +324,15 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
   /**
    * {@inheritdoc}
    */
-  public function getFilteredValueOptions(EntityListInterface $entity_list, array $field) {
+  public function getFilteredValueOptions(EntityListInterface $entity_list, array $field, $input = NULL) {
     $options = [];
     if ($this instanceof ExoListFieldValuesInterface) {
-      $options = $this->getValueOptions($entity_list, $field);
+      $options = $this->getValueOptions($entity_list, $field, $input);
     }
-    if ($this instanceof ExoListFieldValuesElementInterface) {
-      $configuration = $this->getConfiguration();
-      if (!empty($configuration['options']['exclude'])) {
-        $options = array_diff_key($options, $configuration['options']['exclude']);
-      }
-      if (!empty($configuration['options']['include'])) {
-        $options = array_intersect_key($options, $configuration['options']['include']);
-      }
+    if ($instance = $this->getListWidgetInstance()) {
+      $instance->alterOptions($options, $entity_list, $this, $field);
     }
     return $options;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function validateElementAutocomplete($element, FormStateInterface $form_state) {
-    if (!empty($element['#multiple'])) {
-      $value = $form_state->getValue($element['#parents']);
-      $value = array_map('trim', explode(',', $value));
-      $form_state->setValue($element['#parents'], $value);
-    }
   }
 
   /**
@@ -539,6 +440,30 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
    */
   public function applies(array $field) {
     return TRUE;
+  }
+
+  /**
+   * Get the list widget.
+   *
+   * @return \Drupal\exo_list_builder\Plugin\ExoListWidgetInterface
+   *   The list widget instance.
+   */
+  protected function getListWidgetInstance() {
+    if (!isset($this->listWidget)) {
+      $this->listWidget = NULL;
+      if ($this instanceof ExoListFieldValuesElementInterface && $this instanceof ExoListFieldValuesInterface) {
+        $configuration = $this->configuration + $this->defaultConfiguration();
+        $widget = $configuration['widget'] ?? NULL;
+        $widget_settings = $configuration['widget_settings'] ?? [];
+        if ($widget) {
+          /** @var \Drupal\exo_list_builder\ExoListManagerInterface $widget_manager */
+          $widget_manager = \Drupal::service('plugin.manager.exo_list_widget');
+          /** @var \Drupal\exo_list_builder\Plugin\ExoListWidgetInterface $instance */
+          $this->listWidget = $widget_manager->createInstance($widget, $widget_settings);
+        }
+      }
+    }
+    return $this->listWidget;
   }
 
   /**

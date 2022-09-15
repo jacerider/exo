@@ -119,10 +119,13 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
   /**
    * Check if the entity list is filtered.
    *
+   * @param bool $include_defaults
+   *   Whether to count default values as filtered.
+   *
    * @return bool
    *   Returns TRUE if filtered.
    */
-  public function isFiltered();
+  public function isFiltered($include_defaults = FALSE);
 
   /**
    * Check if the entity list has been modified by the user.

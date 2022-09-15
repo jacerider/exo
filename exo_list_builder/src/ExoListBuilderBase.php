@@ -423,6 +423,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected function buildQuery() {
     $entity_list = $this->getEntityList();
     $query = $this->getStorage()->getQuery()->accessCheck(TRUE);
+    $query->addTag('exo_list_query');
+    $query->addMetaData('exo_list_builder', $this);
 
     if ($entity_list->getFormat() === 'table') {
       $header = $this->buildHeader();
@@ -484,18 +486,20 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           $group = NULL;
           switch ($instance->getMultipleJoin($field)) {
             case 'and':
-              $group = $query->andConditionGroup();
+              foreach ($filter_value as $filter_val) {
+                $group = $query->andConditionGroup();
+                $instance->queryAlter($group, $filter_val, $entity_list, $field);
+                $query->condition($group);
+              }
               break;
 
             default:
               $group = $query->orConditionGroup();
+              foreach ($filter_value as $filter_val) {
+                $instance->queryAlter($group, $filter_val, $entity_list, $field);
+              }
+              $query->condition($group);
               break;
-          }
-          if ($group) {
-            foreach ($filter_value as $filter_val) {
-              $instance->queryAlter($group, $filter_val, $entity_list, $field);
-            }
-            $query->condition($group);
           }
         }
         else {
@@ -504,8 +508,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         $filter_values[$field_id] = $filter_value;
       }
     }
-    $query->addTag('exo_list_query');
-    $query->addMetaData('exo_list_builder', $this);
     $query->addMetaData('exo_list_filter_values', $filter_values);
     $this->moduleHandler->alter('exo_list_builder_query', $query, $entity_list);
     $this->moduleHandler->alter('exo_list_builder_query_' . $entity_list->id(), $query, $entity_list);
@@ -645,11 +647,14 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   /**
    * {@inheritdoc}
    */
-  public function isFiltered() {
+  public function isFiltered($include_defaults = FALSE) {
     foreach ($this->getFilters() as $field_id => $field) {
       // If a filter is exposed AND contains a default value, then consider it
       // as filtered.
       if (!empty($field['filter']['settings']['expose']) && !empty($field['filter']['settings']['default']['status'])) {
+        return TRUE;
+      }
+      if ($include_defaults && !empty($field['filter']['settings']['default']['status'])) {
         return TRUE;
       }
     }
@@ -1967,9 +1972,21 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected function renderField(EntityInterface $entity, array $field) {
     /** @var \Drupal\exo_list_builder\Plugin\ExoListElementInterface $instance */
     $instance = $this->elementManager->createInstance($field['view']['type'], $field['view']['settings']);
-    $entity->exoEntityList = $this->getEntityList();
-    $entity->exoEntityListField = $field;
-    $build = $instance->buildView($entity, $field);
+    $instance_entity = $entity;
+    if (!empty($field['reference_field']) && $entity instanceof ContentEntityInterface) {
+      $reference_entity = $this->getFieldEntity($instance_entity, explode(':', $field['reference_field']));
+      if ($reference_entity = $this->getFieldEntity($instance_entity, explode(':', $field['reference_field']))) {
+        $instance_entity = $reference_entity;
+      }
+      else {
+        return [
+          '#markup' => $instance->getConfiguration()['empty'],
+        ];
+      }
+    }
+    $instance_entity->exoEntityList = $this->getEntityList();
+    $instance_entity->exoEntityListField = $field;
+    $build = $instance->buildView($instance_entity, $field);
     if (!is_array($build)) {
       $build = [
         '#markup' => $build,
@@ -1980,6 +1997,26 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       $build['#suffix'] = '</' . $field['view']['wrapper'] . '>';
     }
     return $build;
+  }
+
+  /**
+   * Get field entity.
+   *
+   * @return \Drupal\Core\Entity\ContentEntityInterface
+   *   The field entity.
+   */
+  protected function getFieldEntity(ContentEntityInterface $entity, array $path) {
+    if (!empty($path)) {
+      $field_name = array_shift($path);
+      if ($entity->hasField($field_name) && !empty($entity->get($field_name)->entity)) {
+        $entity = $entity->get($field_name)->entity;
+        if (!empty($path)) {
+          return $this->getFieldEntity($entity, $path);
+        }
+        return $entity;
+      }
+    }
+    return NULL;
   }
 
   /**

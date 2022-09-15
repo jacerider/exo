@@ -317,6 +317,13 @@ class EntityListForm extends EntityForm {
     $this->buildFormActions($form, $form_state);
     $this->buildFormSorts($form, $form_state);
 
+    $form['references'] = [
+      '#type' => 'details',
+      '#title' => $this->t('References'),
+      '#tree' => TRUE,
+      '#access' => FALSE,
+    ];
+
     $form['settings'] = [
       '#type' => 'details',
       '#title' => $this->t('Advanced Settings'),
@@ -665,9 +672,66 @@ class EntityListForm extends EntityForm {
         '#attributes' => ['class' => ['weight']],
       ];
       $form['fields_container']['fields'][$field_id] = $row;
+
+      if ($field['type'] === 'entity_reference' && !empty($field['definition'])) {
+        $this->buildFormReferencesField($field, $form, $form_state);
+      }
     }
 
+    ksort($form['references']);
+
     return $form;
+  }
+
+  /**
+   * Build references field.
+   *
+   * @param array $field
+   *   The field.
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  protected function buildFormReferencesField(array $field, array &$form, FormStateInterface $form_state) {
+    $field_id = $field['id'];
+    $references = $this->entity->getReferences();
+    $reference_fields = $this->entity->getReferenceFields($field);
+    if (!empty($reference_fields)) {
+      $form['references']['#access'] = TRUE;
+      $id = Html::getId('fields-wrapper-references-' . $field_id);
+      $form['references'][$field_id] = [
+        '#type' => 'fieldset',
+        '#title' => $field['label'],
+        '#id' => $id,
+      ];
+      $form['references'][$field_id]['status'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Enabled'),
+        '#default_value' => !empty($references[$field_id]['status']),
+        '#ajax' => [
+          'event' => 'change',
+          'method' => 'replace',
+          'wrapper' => $id,
+          'callback' => [__CLASS__, 'ajaxReplaceReferencesCallback'],
+        ],
+      ];
+      if (!empty($references[$field_id]['status'])) {
+        $options = [];
+        foreach ($reference_fields as $reference_field_id => $reference_field) {
+          $options[$reference_field_id] = $reference_field['label'];
+        }
+        asort($options);
+        $form['references'][$field_id]['fields'] = [
+          '#type' => 'select',
+          '#title' => $this->t('Fields'),
+          '#multiple' => TRUE,
+          '#options' => $options,
+          '#default_value' => $references[$field_id]['fields'],
+        ];
+      }
+    }
+
   }
 
   /**
@@ -805,6 +869,25 @@ class EntityListForm extends EntityForm {
    */
   public static function ajaxReplaceActionsCallback(array $form, FormStateInterface $form_state) {
     return $form['actions_container'];
+  }
+
+  /**
+   * Ajax replace callback.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return array
+   *   The fields form.
+   */
+  public static function ajaxReplaceReferencesCallback(array $form, FormStateInterface $form_state) {
+    $trigger = $form_state->getTriggeringElement();
+    $parents = $trigger['#array_parents'];
+    array_pop($parents);
+    $view = NestedArray::getValue($form, $parents);
+    return $view;
   }
 
   /**
@@ -956,6 +1039,17 @@ class EntityListForm extends EntityForm {
       }
     }
     $form_state->setValue('sorts', $sorts);
+
+    $references = $form_state->getValue('references');
+    foreach ($references as $reference_id => &$reference) {
+      if (empty($reference['status'])) {
+        unset($references[$reference_id]);
+      }
+      else {
+        $references[$reference_id]['fields'] = array_values($reference['fields']);
+      }
+    }
+    $form_state->setValue('references', $references);
   }
 
   /**

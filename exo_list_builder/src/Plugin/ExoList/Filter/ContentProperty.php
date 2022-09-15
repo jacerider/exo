@@ -6,6 +6,7 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\exo_list_builder\EntityListInterface;
 use Drupal\exo_list_builder\Plugin\ExoListContentTrait;
+use Drupal\exo_list_builder\Plugin\ExoListFieldPropertyInterface;
 use Drupal\exo_list_builder\Plugin\ExoListFieldValuesInterface;
 use Drupal\exo_list_builder\Plugin\ExoListFilterMatchBase;
 
@@ -24,7 +25,7 @@ use Drupal\exo_list_builder\Plugin\ExoListFilterMatchBase;
  *   exclusive = FALSE,
  * )
  */
-class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValuesInterface {
+class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValuesInterface, ExoListFieldPropertyInterface {
   use ExoListContentTrait;
 
   /**
@@ -37,7 +38,7 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
    */
   public function defaultConfiguration() {
     return [
-      'property' => [],
+      'property' => NULL,
       'default_from_url' => [
         'status' => FALSE,
         'entity_type' => NULL,
@@ -224,7 +225,7 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
    */
   public function getValueOptions(EntityListInterface $entity_list, array $field, $input = NULL) {
     $configuration = $this->getConfiguration();
-    return $this->getAvailableFieldValues($entity_list, $field['id'], $configuration['property'], $input);
+    return $this->getAvailableFieldValues($entity_list, $field, $configuration['property'], $input);
   }
 
   /**

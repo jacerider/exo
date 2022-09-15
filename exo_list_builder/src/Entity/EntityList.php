@@ -59,6 +59,7 @@ use Drupal\exo_list_builder\Plugin\ExoListFilterInterface;
  *     "actions",
  *     "sorts",
  *     "sort",
+ *     "references",
  *     "fields",
  *     "settings",
  *     "weight",
@@ -193,6 +194,13 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   protected $sort = '';
 
   /**
+   * The reference fields.
+   *
+   * @var array
+   */
+  protected $references = [];
+
+  /**
    * Various settings.
    *
    * @var array
@@ -242,6 +250,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       'type' => '',
       'settings' => [],
     ],
+    'reference_field' => NULL,
     'alias_field' => NULL,
     'sort_field' => NULL,
     'weight' => 0,
@@ -319,12 +328,15 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * {@inheritdoc}
    */
   public function toUrl($rel = 'canonical', array $options = []) {
-    if ($rel === 'canonical' && $this->getUrl()) {
+    if ($rel === 'canonical') {
       $key = $this->getKey();
       if (!empty($options['query'][$key])) {
         $options['query'][$key] = $this->optionsEncode($options['query'][$key]);
       }
-      return Url::fromRoute($this->getRouteName(), [], $options);
+      if ($this->getUrl()) {
+        return Url::fromRoute($this->getRouteName(), [], $options);
+      }
+      return Url::fromRoute('<current>', [], $options);
     }
     return parent::toUrl($rel, $options);
   }
@@ -512,6 +524,13 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   /**
    * {@inheritdoc}
    */
+  public function getReferences() {
+    return $this->references;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getActions() {
     $actions = [];
     $definitions = $this->getAvailableActions();
@@ -627,6 +646,31 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
         }
       }
       $fields = $this->alterAvailableFields($fields);
+      // Support field references.
+      foreach ($this->getReferences() as $reference_field_id => $reference) {
+        if (isset($fields[$reference_field_id])) {
+          $parent_field = $fields[$reference_field_id];
+          $reference_fields = array_intersect_key($this->getReferenceFields($parent_field), array_flip($reference['fields']));
+          foreach ($reference_fields as $reference_field) {
+            $reference_field['id'] = $reference_field_id . ':' . $reference_field['id'];
+            $reference_field['label'] = $parent_field['label'] . ' (' . $reference_field['label'] . ')';
+            $reference_field['reference_field'] = $reference_field_id;
+            // Disable sorting on referenced fields.
+            $reference_field['sort_field'] = NULL;
+            if (!empty($reference_field['definition']) && !$reference_field['definition']->isComputed()) {
+              $field_storage = $reference_field['definition']->getFieldStorageDefinition();
+              $property_name = $field_storage->getMainPropertyName();
+              if (!$property_name) {
+                // If we have no main property, default to first property.
+                $property_names = $field_storage->getPropertyNames();
+                $property_name = reset($property_names);
+              }
+              $reference_field['sort_field'] = str_replace(':', '.entity.', $reference_field['id']) . '.' . $property_name;
+            }
+            $fields[$reference_field['id']] = $reference_field;
+          }
+        }
+      }
       // Support field aliases.
       foreach ($fields as $field_id => &$field) {
         if (!empty($field['alias_field']) && isset($fields[$field['alias_field']])) {
@@ -644,6 +688,28 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       $this->fieldDefinitions = $fields;
     }
     return $this->fieldDefinitions;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function getReferenceFields(array $field) {
+    $fields = [];
+    if (!empty($field['definition']) && $field['type'] == 'entity_reference') {
+      /** @var \Drupal\Core\Field\FieldDefinitionInterface $definition */
+      $definition = $field['definition'];
+      $target_type = $definition->getSetting('target_type');
+      $target_bundles = $definition->getSetting('handler_settings')['target_bundles'] ?? [$target_type];
+
+      /** @var \Drupal\exo_list_builder\EntityListInterface $temp_entity_list */
+      $temp_entity_list = $this->entityTypeManager()->getStorage('exo_entity_list')->create([
+        'target_entity_type' => $target_type,
+        'target_bundles_include' => $target_bundles,
+      ]);
+
+      $fields = $temp_entity_list->getAvailableFields();
+    }
+    return $fields;
   }
 
   /**

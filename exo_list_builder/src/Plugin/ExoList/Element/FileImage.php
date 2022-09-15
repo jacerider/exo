@@ -28,6 +28,15 @@ class FileImage extends ExoListElementContentBase {
   /**
    * {@inheritdoc}
    */
+  public function getConfiguration() {
+    return [
+      'separator' => '',
+    ] + parent::getConfiguration();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   protected function viewItem(EntityInterface $entity, FieldItemInterface $field_item, array $field) {
     /** @var \Drupal\file\FileInterface $file */
     $file = $field_item->entity;

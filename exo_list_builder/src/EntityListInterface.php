@@ -229,6 +229,14 @@ interface EntityListInterface extends ConfigEntityInterface {
   public function getSortPluginValue($sort = NULL);
 
   /**
+   * Get enabled references.
+   *
+   * @return array
+   *   The references.
+   */
+  public function getReferences();
+
+  /**
    * Get enabled field definitions.
    *
    * @return array
@@ -253,6 +261,17 @@ interface EntityListInterface extends ConfigEntityInterface {
    *   The field definitions.
    */
   public function getAvailableFields();
+
+  /**
+   * Get reference field definitions.
+   *
+   * @param array $field
+   *   The field definition.
+   *
+   * @return array
+   *   The field definitions.
+   */
+  public function getReferenceFields(array $field);
 
   /**
    * Check if field is enabled.

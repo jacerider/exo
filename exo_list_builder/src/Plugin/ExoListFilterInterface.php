@@ -198,11 +198,13 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
    *   The entity list.
    * @param array $field
    *   The field definition.
+   * @param string $input
+   *   The input.
    *
    * @return array
    *   The filtered options.
    */
-  public function getFilteredValueOptions(EntityListInterface $entity_list, array $field);
+  public function getFilteredValueOptions(EntityListInterface $entity_list, array $field, $input = NULL);
 
   /**
    * Should query be altered.

@@ -20,6 +20,13 @@ class ExoListManager extends DefaultPluginManager implements ExoListManagerInter
   protected $type;
 
   /**
+   * {@inheritDoc}
+   */
+  protected $defaults = [
+    'weight' => 0,
+  ];
+
+  /**
    * Constructs a new ExoListManager object.
    *
    * @param string $type
@@ -112,7 +119,7 @@ class ExoListManager extends DefaultPluginManager implements ExoListManagerInter
    * {@inheritdoc}
    */
   public function removeExcludeDefinitions(array $definitions) {
-    $definitions = isset($definitions) ? $definitions : $this->getDefinitions();
+    $definitions = $definitions ?? $this->getDefinitions();
     // Exclude 'broken' fallback plugin.
     unset($definitions['broken']);
     return $definitions;

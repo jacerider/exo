@@ -40,7 +40,7 @@ class ConfigProperty extends ExoListFilterMatchBase implements ExoListFieldValue
     $entities = \Drupal::entityTypeManager()->getStorage($entity_list->getTargetEntityTypeId())->loadMultiple();
     $options = [];
     foreach ($entities as $entity) {
-      $value = $entity->get('target_entity_type');
+      $value = $entity->get($field['field_name']);
       if (is_string($value)) {
         $options[$value] = $value;
       }

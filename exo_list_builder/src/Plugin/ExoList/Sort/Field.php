@@ -33,7 +33,7 @@ class Field extends ExoListSortBase {
       if (empty($direction)) {
         $direction = $field['view']['sort'];
       }
-      $query->sort($field_name, $direction);
+      $query->sort($field['sort_field'], $direction);
     }
   }
 

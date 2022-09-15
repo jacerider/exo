@@ -47,3 +47,32 @@ function exo_list_builder_update_8002() {
     }
   }
 }
+
+/**
+ * Convert filter widget to plugin system.
+ */
+function exo_list_builder_update_8003() {
+  foreach (\Drupal::entityTypeManager()->getStorage('exo_entity_list')->loadMultiple() as $exo_entity_list) {
+    /** @var \Drupal\exo_list_builder\EntityListInterface $exo_entity_list */
+    $fields = $exo_entity_list->get('fields');
+    foreach ($fields as &$field) {
+      if (!empty($field['filter']['type'])) {
+        if (!empty($field['filter']['settings']['select'])) {
+          $field['filter']['settings']['widget'] = 'select';
+        }
+        if (!empty($field['filter']['settings']['autocomplete'])) {
+          $field['filter']['settings']['widget'] = 'autocomplete';
+        }
+        if (isset($field['filter']['settings']['options'])) {
+          $field['filter']['settings']['widget_settings']['options'] = $field['filter']['settings']['options'];
+        }
+        unset($field['filter']['settings']['select']);
+        unset($field['filter']['settings']['autocomplete']);
+        unset($field['filter']['settings']['links']);
+        unset($field['filter']['settings']['options']);
+      }
+    }
+    $exo_entity_list->set('fields', $fields);
+    $exo_entity_list->save();
+  }
+}

@@ -111,13 +111,6 @@ class StateMachine extends ExoListFilterBase implements ContainerFactoryPluginIn
   /**
    * {@inheritdoc}
    */
-  public function validateConfigurationForm(array $form, FormStateInterface $form_state) {
-    parent::validateConfigurationForm($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function buildForm(array $form, FormStateInterface $form_state, $value, EntityListInterface $entity_list, array $field) {
     $form = parent::buildForm($form, $form_state, $value, $entity_list, $field);
     $form['state'] = [

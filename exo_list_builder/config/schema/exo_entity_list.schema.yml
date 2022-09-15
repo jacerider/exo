@@ -58,6 +58,18 @@ exo_list_builder.exo_entity_list.*:
     sort:
       type: string
       label: Default sort field
+    references:
+      type: sequence
+      label: 'References'
+      sequence:
+        type: mapping
+        mapping:
+          status:
+            type: boolean
+            label: 'Status'
+          fields:
+            type: sequence
+            label: 'Fields'
     fields:
       type: sequence
       label: Fields
