@@ -373,6 +373,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $key = $entity_list->getKey();
     unset($query[$key]);
     $query['m'] = 1;
+    unset($query['check_logged_in']);
     unset($options['order']);
     unset($options['sort']);
     unset($options['page']);
