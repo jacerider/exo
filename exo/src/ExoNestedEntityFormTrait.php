@@ -73,7 +73,7 @@ trait ExoNestedEntityFormTrait {
    */
   protected function getInnerForm($parents) {
     $key = implode(':', $parents);
-    return isset($this->innerForms[$key]) ? $this->innerForms[$key] : NULL;
+    return $this->innerForms[$key] ?? NULL;
   }
 
   /**
@@ -142,7 +142,7 @@ trait ExoNestedEntityFormTrait {
    *
    * @see \Drupal\Core\Form\FormBuilder::doBuildForm()
    */
-  public function processInnerForms(array &$element, FormStateInterface &$form_state, array &$complete_form) {
+  public function processInnerForms(array $element, FormStateInterface &$form_state, array &$complete_form) {
     foreach ($this->innerForms as $key => $entity_form) {
       $inner_form_state = static::getInnerFormState($entity_form->innerFormParents, $form_state);
       foreach ($inner_form_state->get('#process') as $callback) {
