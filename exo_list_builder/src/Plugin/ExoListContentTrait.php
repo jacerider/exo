@@ -161,7 +161,7 @@ trait ExoListContentTrait {
     $faceted = !empty($field['filter']['settings']['widget_settings']['facet']);
     $group_property = $field['filter']['settings']['widget_settings']['group'] ?? NULL;
     $do_cache = empty($faceted) && empty($condition);
-    if (FALSE && $do_cache && ($cache = \Drupal::cache()->get($cid))) {
+    if ($do_cache && ($cache = \Drupal::cache()->get($cid))) {
       $values = $cache->data;
     }
     else {
@@ -179,11 +179,12 @@ trait ExoListContentTrait {
         $query = $this->getAvailableFieldValuesQuery($entity_list, $field, $property, $condition, $cacheable_metadata);
         if ($query) {
           if ($faceted && ($base_alias = $query->getMetaData('base_alias')) && ($base_id_key = $query->getMetaData('base_id_key'))) {
-            $ids = $entity_list->getHandler()->getQuery()->execute();
+            $handler = $entity_list->getHandler();
+            $ids = $handler->getQuery('options')->execute();
             if (empty($ids)) {
               return [];
             }
-            $query->condition($base_alias . '.' . $base_id_key, $entity_list->getHandler()->getQuery()->execute(), 'IN');
+            $query->condition($base_alias . '.' . $base_id_key, $ids, 'IN');
           }
           $results = $query->execute();
           if ($group_property) {
@@ -281,7 +282,6 @@ trait ExoListContentTrait {
         else {
           $field_id_key = reset($field_columns);
         }
-        kint($base_table);
         // If we are fetching from a non-base table, we need to join the base.
         $query->join($base_table, 'b', 'b.' . $base_id_key . ' = f.' . $field_id_key);
         $base_alias = 'b';
