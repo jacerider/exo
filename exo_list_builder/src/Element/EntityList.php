@@ -38,7 +38,7 @@ class EntityList extends RenderElement {
     if (!isset($element['#entity_list'])) {
       $list = EntityEntityList::load($element['#list_id']);
       if (!$list) {
-        throw new \Exception("Invalid View name ({$element['#list_id']}) given.");
+        throw new \Exception("Invalid list name ({$element['#list_id']}) given.");
       }
     }
     else {
