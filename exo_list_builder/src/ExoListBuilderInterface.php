@@ -87,10 +87,13 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
   /**
    * Get the query.
    *
+   * @param string $context
+   *   Can be used to alter the query.
+   *
    * @return \Drupal\Core\Entity\Query\QueryInterface
    *   The query.
    */
-  public function getQuery();
+  public function getQuery($context = 'default');
 
   /**
    * Get the total.

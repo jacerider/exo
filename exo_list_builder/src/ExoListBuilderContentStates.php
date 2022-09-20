@@ -4,7 +4,6 @@ namespace Drupal\exo_list_builder;
 
 use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
 
 /**
  * Provides a list builder the will allow confirmation of empty records.
@@ -90,7 +89,7 @@ class ExoListBuilderContentStates extends ExoListBuilderContent implements ExoLi
   /**
    * {@inheritDoc}
    */
-  protected function buildQuery() {
+  protected function buildQuery($context = 'default') {
     $query = parent::buildQuery();
 
     if ($state = $this->getState()) {
