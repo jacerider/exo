@@ -76,14 +76,16 @@ class Links extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
       $groups = array_filter($groups);
       foreach ($groups as $group => $values) {
         asort($values);
-        $list = [
-          '#theme' => 'item_list',
-          '#title' => $group,
-          '#items' => $this->buildLinks($entity_list, $field, $values, $current, $multiple),
-        ];
+        if ($groupItems = $this->buildLinks($entity_list, $field, $values, $current, $multiple)) {
+          $list = [
+            '#theme' => 'item_list',
+            '#title' => $group,
+            '#items' => $groupItems,
+          ];
 
-        if (count($groups) > 1) {
-          $items[] = $list;
+          if (count($groups) > 1) {
+            $items[] = $list;
+          }
         }
       }
     }
@@ -102,6 +104,7 @@ class Links extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
    */
   protected function buildLinks(EntityListInterface $entity_list, array $field, $values, $current, $multiple) {
     $items = [];
+    $has_current = FALSE;
     foreach ($values as $value) {
       $is_current = in_array($value, $current);
       $url_value = $multiple ? array_merge($current, [$value]) : $value;
@@ -109,6 +112,7 @@ class Links extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
         $url_value = $multiple ? array_filter($current, function ($item) use ($value) {
           return $item != $value;
         }) : $value;
+        $has_current = TRUE;
       }
       $filters = !empty($url_value) ? [
         $field['id'] => $url_value,
@@ -126,6 +130,9 @@ class Links extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
         ],
         '#url' => $entity_list->toFilteredUrl($filters),
       ];
+    }
+    if (!$has_current && count($items) <= 1) {
+      return [];
     }
     return $items;
   }
