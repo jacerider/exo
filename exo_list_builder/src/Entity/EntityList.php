@@ -871,6 +871,14 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   /**
    * {@inheritdoc}
    */
+  public function setSetting($key, $value) {
+    NestedArray::setValue($this->settings, (array) $key, $value);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getCacheTags() {
     $cache = Cache::mergeTags(parent::getCacheTags(), $this->getTargetEntityType()->getListCacheTags());
     foreach ($this->getTargetBundleIds() as $bundle) {
