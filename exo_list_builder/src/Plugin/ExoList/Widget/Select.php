@@ -22,9 +22,11 @@ class Select extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
    * {@inheritDoc}
    */
   public function alterElement(array &$element, EntityListInterface $entity_list, ExoListFilterInterface $filter, array $field) {
+    $options = $filter->getFilteredValueOptions($entity_list, $field);
     $element['#type'] = 'select';
-    $element['#options'] = ['' => $this->t('- All -')] + $filter->getFilteredValueOptions($entity_list, $field);
+    $element['#options'] = ['' => $this->t('- All -')] + $options;
     $element['#multiple'] = $filter->allowsMultiple($field);
+    $element['#access'] = count($options) > 1;
   }
 
 }
