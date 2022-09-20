@@ -48,7 +48,7 @@ class ExoListFilterBlock extends BlockBase implements ContainerFactoryPluginInte
    * @param \Drupal\Core\Entity\EntityFormBuilderInterface $entity_form_builder
    *   The entity form builder.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityStorageInterface $entity_list_storage, EntityFormBuilderInterface $entity_form_builder) {
+  public function __construct(array $configuration, $plugin_id, array $plugin_definition, EntityStorageInterface $entity_list_storage, EntityFormBuilderInterface $entity_form_builder) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityListStorage = $entity_list_storage;
     $this->entityFormBuilder = $entity_form_builder;
@@ -73,14 +73,14 @@ class ExoListFilterBlock extends BlockBase implements ContainerFactoryPluginInte
   public function build() {
     $build = [];
     $entity_list_id = ltrim($this->getDerivativeId(), 'exo_entity_list_');
-    /** @var \Drupal\exo_list_builder\EntityListInterface $entity_list */
+    /** @var \Drupal\exo_list_builder\EntityListInterface $entity */
     $entity = $this->entityListStorage->load($entity_list_id);
     if (!$entity) {
       return $build;
     }
 
-    // $form = \Drupal::formBuilder()->getForm('\Drupal\exo_list_builder\Form\EntityListFilterForm', $entity_list);
     $build['form'] = $this->entityFormBuilder->getForm($entity, 'filter');
+    $build['#cache']['contexts'][] = 'url.query_args:' . $entity->getKey();
     return $build;
   }
 
