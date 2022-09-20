@@ -410,7 +410,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $query = $this->getQuery();
 
     // Only add the pager if a limit is specified.
-    if ($limit = $this->getOption('limit')) {
+    if ($limit = $this->getLimit()) {
       $query = clone $query;
       $query->pager($limit);
     }
@@ -421,9 +421,30 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   /**
    * {@inheritDoc}
    */
-  protected function buildQuery() {
+  public function getQuery($context = 'default') {
+    if (!isset($this->query)) {
+      $this->query = $this->buildQuery($context);
+    }
+    return $this->query;
+  }
+
+  /**
+   * Get the entity query object.
+   *
+   * @return \Drupal\Core\Entity\Query\QueryInterface
+   *   The query object.
+   */
+  protected function getEntityQuery($context = 'default') {
+    return $this->getStorage()->getQuery();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  protected function buildQuery($context = 'default') {
     $entity_list = $this->getEntityList();
-    $query = $this->getStorage()->getQuery()->accessCheck(TRUE);
+    $query = $this->getEntityQuery($context);
+    $query->accessCheck(TRUE);
     $query->addTag('exo_list_query');
     $query->addMetaData('exo_list_builder', $this);
 
@@ -516,16 +537,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   }
 
   /**
-   * {@inheritDoc}
-   */
-  public function getQuery() {
-    if (!isset($this->query)) {
-      $this->query = $this->buildQuery();
-    }
-    return $this->query;
-  }
-
-  /**
    * Add the sort query.
    *
    * This only impacts non-table lists.
@@ -570,7 +581,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   public function getTotal() {
     if (!isset($this->total)) {
-      $query = clone $this->getQuery();
+      $query = clone $this->getQuery('all');
+      $query->addTag('exo_list_count');
       $this->total = $query->count()->execute();
     }
     return $this->total;
@@ -1074,8 +1086,10 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       $order = $this->getOption('order') ?: $this->entityList->getSort();
       $sort = $this->getOption('sort');
       $sort_fields = $this->getSortFields();
+      $sort_plugin_id = $entity_list->getSortPluginId($order);
+      $is_table_format = $entity_list->getFormat() === 'table';
       $active = NULL;
-      if ($entity_list->getSortPluginId($order) === 'field') {
+      if ($sort_plugin_id === 'field' && $is_table_format) {
         $field_name = $entity_list->getSortPluginValue($order);
         if (isset($sort_fields[$field_name])) {
           $order = $sort_fields[$field_name]['display_label'];
@@ -1093,7 +1107,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           'title' => $this->icon($sort_plugin['label'])->setIcon('regular-sort')->toMarkup(),
           'url' => $url,
         ];
-        if ($entity_list->getSortPluginId($order) === $sort_id) {
+        if ($sort_plugin_id === $sort_id) {
           $active = [
             'title' => $this->icon('Sorted by @label', [
               '@label' => $sort_plugin['label'],
@@ -1104,7 +1118,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
       foreach ($sort_fields as $field_id => $field) {
         if (!empty($field['view']['sort'])) {
-          $new_order = $entity_list->getFormat() === 'table' ? $field['display_label'] : 'field:' . $field['id'];
+          $new_order = $is_table_format ? $field['display_label'] : 'field:' . $field['id'];
           $asc_url = $this->getOptionsUrl([], [], [
             'order' => $new_order,
             'sort' => 'asc',
@@ -1255,6 +1269,23 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   }
 
   /**
+   * Get the limit.
+   *
+   * @return int
+   *   The limit.
+   */
+  protected function getLimit() {
+    $limit = $this->getOption('limit');
+    if ($limit) {
+      $options = $this->entityList->getLimitOptions();
+      if (!isset($options[$limit])) {
+        $limit = $this->entityList->getLimit();
+      }
+    }
+    return $limit;
+  }
+
+  /**
    * Build form pager.
    */
   protected function buildPager(array $form) {
@@ -1264,8 +1295,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       '#tag' => 'div',
       '#attributes' => ['class' => ['exo-list-pager']],
     ];
-    $limit = $this->getOption('limit');
-    $total = $this->getTotal();
+    $limit = $this->getLimit();
 
     if ($limit && $entity_list->getSetting('limit_status')) {
       $form['limit'] = [
@@ -1287,13 +1317,13 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         '#value' => $this->t('Go'),
         '#states' => [
           '!visible' => [
-            ':input[name="limit"]' => ['value' => $this->getOption('limit')],
+            ':input[name="limit"]' => ['value' => $limit],
           ],
         ],
       ];
 
       $page = (int) $this->getOption('page') + 1;
-      if ($pages = ceil((int) $total / (int) $limit)) {
+      if ($pages = ceil((int) $this->getTotal() / (int) $limit)) {
         $form['pages']['#markup'] = '<div class="exo-list-pages">' . $this->t('Page @page of @pages', [
           '@page' => $page,
           '@pages' => $pages,
@@ -1303,7 +1333,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
     if ($entity_list->getSetting('result_status')) {
       $form['total']['#markup'] = '<div class="exo-list-total">' . $this->t('@total items', [
-        '@total' => $total,
+        '@total' => $this->getTotal(),
       ]) . '</div>';
     }
 
@@ -1623,14 +1653,20 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected function getFormFilterOverviewValues(array $form, FormStateInterface $form_state) {
     $filter_values = $this->getOption('filter');
     $filters = $this->getExposedFilters();
+    $values = [];
+    foreach ($filters as $field_id => $field) {
+      if (isset($filter_values[$field_id])) {
+        $values[$field_id] = $filter_values[$field_id];
+      }
+    }
     if (!$this->isModified()) {
       foreach ($filters as $field_id => $field) {
-        if (!isset($filter_values[$field_id]) && !empty($field['filter']['settings']['default']['value'])) {
-          $filter_values[$field_id] = $field['filter']['settings']['default']['value'];
+        if (!isset($values[$field_id]) && !empty($field['filter']['settings']['default']['value'])) {
+          $values[$field_id] = $field['filter']['settings']['default']['value'];
         }
       }
     }
-    return $filter_values;
+    return $values;
   }
 
   /**
