@@ -8,7 +8,6 @@ use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Url;
 use Drupal\exo_icon\ExoIconMimeManager;
 use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\exo_list_builder\EntityListInterface;
@@ -168,15 +167,17 @@ class FileLink extends ExoListElementContentBase implements ContainerFactoryPlug
       default:
         $link_title = $entity->label();
     }
-    $options = [];
+
     if ($configuration['target']) {
+      $options = $url->getOptions();
       $options['attributes']['target'] = '_blank';
+      $url->setOptions($options);
     }
 
     if ($package = $configuration['package']) {
       $link_title = $this->icon($link_title)->setIcon($this->mimeManager->getMimeIcon($file->getMimeType(), $package));
     }
-    return Link::fromTextAndUrl($link_title, $url, $options)->toString();
+    return Link::fromTextAndUrl($link_title, $url)->toString();
   }
 
   /**
