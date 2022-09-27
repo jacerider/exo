@@ -102,7 +102,11 @@ class ExoListManager extends DefaultPluginManager implements ExoListManagerInter
           }
         }
         if (isset($definition['exclusive']) && $definition['exclusive'] === TRUE) {
-          return [$plugin_id => $definition['label']];
+          $exclusive = [$plugin_id => $definition['label']];
+          if (isset($definitions['_hidden'])) {
+            $exclusive = ['_hidden' => $definitions['_hidden']['label']] + $exclusive;
+          }
+          return $exclusive;
         }
         if ($field_type === 'custom') {
           if ($field_name && !in_array($field_name, $definition['field_name'])) {
