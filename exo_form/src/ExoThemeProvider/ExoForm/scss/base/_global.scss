@@ -44,11 +44,6 @@
 
   &.exo-form-wrap {
 
-    // > .exo-form-inline {
-    //   margin-top: $global-margin * -1;
-    //   margin-bottom: $global-margin * -1;
-    // }
-
     &.exo-modal {
       margin-bottom: 0;
       padding: 0 !important;
@@ -64,6 +59,13 @@
       box-shadow: none;
       background: inherit;
       padding: 0;
+    }
+
+    > div {
+
+      &:last-child {
+        margin-bottom: 0;
+      }
     }
   }
 
