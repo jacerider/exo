@@ -126,8 +126,7 @@ trait ExoEntityReferenceSelectionTrait {
     if ($cardinality > 0 && $field_settings['offset'] > $offset_maximum) {
       $form_state->setError(
         $element,
-        $this->t(
-          'The maximal offset for the submitted amount is @offset',
+        t('The maximal offset for the submitted amount is @offset',
           ['@offset' => $offset_maximum]
         )
       );
