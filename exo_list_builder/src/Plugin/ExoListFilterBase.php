@@ -436,6 +436,18 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
   }
 
   /**
+   * {@inheritDoc}
+   */
+  public function getOptionTotal($value, EntityListInterface $entity_list, array $field) {
+    $handler = $entity_list->getHandler();
+    $options = $handler->getOption(['filter']);
+    $handler->setOption(['filter', $field['id']], $value);
+    $total = $handler->getRawTotal();
+    $handler->setOption(['filter'], $options);
+    return $total;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function applies(array $field) {

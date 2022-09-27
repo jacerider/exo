@@ -250,6 +250,21 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
   public function queryRawAlter(SelectInterface $query, $value, EntityListInterface $entity_list, array $field);
 
   /**
+   * Get result total for a given field value.
+   *
+   * @param mixed $value
+   *   The filter value.
+   * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
+   *   The entity list.
+   * @param array $field
+   *   The field definition.
+   *
+   * @return int
+   *   The total.
+   */
+  public function getOptionTotal($value, EntityListInterface $entity_list, array $field);
+
+  /**
    * Whether this theme negotiator should be used to set the theme.
    *
    * @param array $field
