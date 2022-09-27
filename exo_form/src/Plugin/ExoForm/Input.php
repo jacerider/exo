@@ -26,6 +26,7 @@ use Drupal\exo_form\Plugin\ExoFormBase;
  *     "exo_icon",
  *     "linkit",
  *     "webform_users",
+ *     "price_number",
  *   }
  * )
  */
