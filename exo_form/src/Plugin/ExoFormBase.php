@@ -124,7 +124,7 @@ abstract class ExoFormBase extends PluginBase implements ExoFormInterface, Trust
    * {@inheritdoc}
    */
   public function preRender($element) {
-    $exo_wrapper_supported = isset($element['#exo_wrapper_supported']) ? $element['#exo_wrapper_supported'] : $this->wrapperSupported;
+    $exo_wrapper_supported = $element['#exo_wrapper_supported'] ?? $this->wrapperSupported;
     if ($exo_wrapper_supported) {
       $element['#theme_wrappers'][] = 'exo_form_element_container';
     }
