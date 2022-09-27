@@ -60,6 +60,10 @@ class ImageStyleDownloadController extends CoreImageStyleDownloadController {
       $target = $target_sans_extension . 'jpg';
       $image_uri = $uri_sans_extension . 'jpg';
     }
+    elseif (file_exists($uri_sans_extension . 'jpeg')) {
+      $target = $target_sans_extension . 'jpeg';
+      $image_uri = $uri_sans_extension . 'jpeg';
+    }
     elseif (file_exists($uri_sans_extension . 'png')) {
       $target = $target_sans_extension . 'png';
       $image_uri = $uri_sans_extension . 'png';
