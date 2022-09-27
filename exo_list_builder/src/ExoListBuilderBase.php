@@ -582,10 +582,19 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   public function getTotal() {
     if (!isset($this->total)) {
       $query = clone $this->getQuery('all');
-      $query->addTag('exo_list_count');
+      $query->addTag('exo_list_total');
       $this->total = $query->count()->execute();
     }
     return $this->total;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRawTotal() {
+    $query = clone $this->buildQuery('all');
+    $query->addTag('exo_list_raw_total');
+    return $query->count()->execute();
   }
 
   /**
@@ -800,7 +809,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
     if ($entities || $this->isFiltered()) {
       $pager = $this->buildPager($build);
-      $build['header']['second']['pager'] = $pager;
+      $build['header']['second']['pager'] = [
+        '#access' => !empty(Element::getVisibleChildren($pager)),
+      ] + $pager;
       // Remove pages from header.
       unset($build['header']['second']['pager']['pages']);
       unset($build['header']['second']['pager']['pager_footer']);
@@ -863,7 +874,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     if ($entities || !$render_status || $this->isFiltered()) {
       // Filter.
       if ($subform = $this->buildFormFilters($form, $form_state)) {
-        $form['header']['first']['filters'] = $subform;
+        $form['header']['first']['filters'] = [
+          '#access' => !empty(Element::getVisibleChildren($subform)),
+        ] + $subform;
       }
     }
 
@@ -1554,7 +1567,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
     $form = [];
     if ($show_inline) {
-      $form['inline'] = $inline;
+      $form['inline'] = [
+        '#access' => !empty(Element::getVisibleChildren($inline)),
+      ] + $inline;
       $form['inline']['actions'] = [
         '#type' => 'actions',
         '#attributes' => [
@@ -1585,11 +1600,13 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           ],
         ],
         '#use_close' => FALSE,
+        '#access' => !empty(Element::getVisibleChildren($modal)),
       ] + $modal;
     }
     if (!empty($form)) {
       return [
         '#tree' => TRUE,
+        '#access' => !empty(Element::getVisibleChildren($form)),
       ] + $form;
     }
   }
@@ -1610,6 +1627,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         $form[$field_id] = [];
         $form[$field_id] = $instance->buildForm($form[$field_id], $form_state, $value, $this->entityList, $field);
         $form[$field_id] = $instance->buildFormAfter($form[$field_id], $form_state, $value, $this->entityList, $field);
+        $form[$field_id]['#access'] = !empty(Element::getVisibleChildren($form[$field_id]));
       }
     }
     return $form;
