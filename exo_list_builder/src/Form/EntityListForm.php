@@ -431,13 +431,13 @@ class EntityListForm extends EntityForm {
 
     $fields = NestedArray::mergeDeep($exo_entity_list->getFields(), $exo_entity_list->getAvailableFields(), $exo_entity_list->getFields());
     foreach ($fields as $field_id => $field) {
-      $elements = $this->elementManager->getFieldOptions($field['type'], $exo_entity_list->getTargetEntityTypeId(), $exo_entity_list->getTargetBundleIds(), $field_id);
+      $elements = $this->elementManager->getFieldOptions($field['alias_type'] ?? $field['type'], $exo_entity_list->getTargetEntityTypeId(), $exo_entity_list->getTargetBundleIds(), $field_id);
       $elements = array_filter($elements, function ($element) use ($field) {
         /** @var \Drupal\exo_list_builder\Plugin\ExoListElementInterface $instance */
         $instance = $this->elementManager->createInstance($element);
         return $instance->applies($field);
       }, ARRAY_FILTER_USE_KEY);
-      $filters = $this->filterManager->getFieldOptions($field['type'], $exo_entity_list->getTargetEntityTypeId(), $exo_entity_list->getTargetBundleIds(), $field_id);
+      $filters = $this->filterManager->getFieldOptions($field['alias_type'] ?? $field['type'], $exo_entity_list->getTargetEntityTypeId(), $exo_entity_list->getTargetBundleIds(), $field_id);
       $filters = array_filter($filters, function ($filter) use ($field) {
         /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
         $instance = $this->filterManager->createInstance($filter);
@@ -464,7 +464,7 @@ class EntityListForm extends EntityForm {
       ];
       if (!empty($field['definition'])) {
         $row['name']['#markup'] .= '<br><small>' . $this->t('Type: %value', [
-          '%value' => $field['definition']->getType(),
+          '%value' => $field['type'],
         ]) . '</small>';
       }
       $row['display_label'] = [
