@@ -96,12 +96,24 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
   public function getQuery($context = 'default');
 
   /**
-   * Get the total.
+   * Get the cached total.
+   *
+   * If not cached, will load the total.
    *
    * @return int
    *   The total results.
    */
   public function getTotal();
+
+  /**
+   * Get the raw total.
+   *
+   * The raw total will rebuild the query and return the total.
+   *
+   * @return int
+   *   The total results.
+   */
+  public function getRawTotal();
 
   /**
    * Get actions.
