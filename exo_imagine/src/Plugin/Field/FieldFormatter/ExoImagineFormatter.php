@@ -465,4 +465,13 @@ class ExoImagineFormatter extends ImageFormatter {
     return FALSE;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  protected function getEntitiesToView(EntityReferenceFieldItemListInterface $items, $langcode) {
+    $entities = parent::getEntitiesToView($items, $langcode);
+    $entities = $this->filterSelectionEntities($entities);
+    return $entities;
+  }
+
 }
