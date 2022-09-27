@@ -136,3 +136,52 @@ function exo_list_builder_query_exo_entity_list_moderation_state_alter(Alterable
     }
   }
 }
+
+/**
+ * Implements hook_exo_list_builder_fields_alter().
+ */
+function exo_list_builder_exo_list_builder_fields_alter(array &$fields, $entity_type_id) {
+  foreach ($fields as $field_id => $field) {
+    if ($field['type'] === 'address') {
+      $new_field = $field;
+      $new_field['label'] .= ': ' . t('Full Name');
+      $new_field['alias_field'] = $field_id;
+      $new_field['alias_type'] = 'address__name';
+      $fields[$field_id . '__name'] = $new_field;
+
+      $new_field = $field;
+      $new_field['label'] .= ': ' . t('Organization (Company)');
+      $new_field['alias_field'] = $field_id;
+      $new_field['alias_type'] = 'content_alias_property';
+      $new_field['alias_property'] = 'organization';
+      $fields[$field_id . '__organization'] = $new_field;
+
+      $new_field = $field;
+      $new_field['label'] .= ': ' . t('Street');
+      $new_field['alias_field'] = $field_id;
+      $new_field['alias_type'] = 'address__street';
+      $fields[$field_id . '__street'] = $new_field;
+
+      $new_field = $field;
+      $new_field['label'] .= ': ' . t('Locality (City)');
+      $new_field['alias_field'] = $field_id;
+      $new_field['alias_type'] = 'content_alias_property';
+      $new_field['alias_property'] = 'locality';
+      $fields[$field_id . '__locality'] = $new_field;
+
+      $new_field = $field;
+      $new_field['label'] .= ': ' . t('Administrative Area (State)');
+      $new_field['alias_field'] = $field_id;
+      $new_field['alias_type'] = 'content_alias_property';
+      $new_field['alias_property'] = 'administrative_area';
+      $fields[$field_id . '__administrative_area'] = $new_field;
+
+      $new_field = $field;
+      $new_field['label'] .= ': ' . t('Postal Code');
+      $new_field['alias_field'] = $field_id;
+      $new_field['alias_type'] = 'content_alias_property';
+      $new_field['alias_property'] = 'postal_code';
+      $fields[$field_id . '__postal_code'] = $new_field;
+    }
+  }
+}
