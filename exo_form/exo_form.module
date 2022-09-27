@@ -56,6 +56,13 @@ function exo_form_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     exo_form_form_alter_process($form);
     $form['#after_build'][] = 'exo_form_after_build';
 
+    foreach (Element::children($form) as $key) {
+      // Move hidden to end of form.
+      if (isset($form[$key]['#type']) && ($form[$key]['#type'] === 'hidden' || $form[$key]['#type'] === 'token')) {
+        $form[$key]['#weight'] = 10000;
+      }
+    }
+
     if (isset($form['moderation_state']) && isset($form['meta'])) {
       $form['moderation_state']['#group'] = 'meta';
       if (isset($form['meta']['published'])) {
