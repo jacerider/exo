@@ -12,6 +12,7 @@ use Drupal\exo_form\Plugin\ExoFormBase;
  *   label = @Translation("Commerce Price"),
  *   element_types = {
  *     "commerce_price",
+ *     "price_price",
  *   }
  * )
  */
