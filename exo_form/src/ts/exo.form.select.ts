@@ -81,7 +81,7 @@
           this.$dropdownWrapper = $('<div id="exo-form-select-dropdown-wrapper" class="exo-form"></div>');
           Drupal.Exo.getBodyElement().append(this.$dropdownWrapper);
         }
-        this.$dropdown = $('<div class="exo-form-select-dropdown exo-form-input" role="combobox" aria-owns="exo-form-select-list-' + this.uniqueId + '" aria-expanded="false"></div>');
+        this.$dropdown = $('<div class="exo-form-select-dropdown exo-form-input ' + this.$field.data('drupal-selector') + '" role="combobox" aria-owns="exo-form-select-list-' + this.uniqueId + '" aria-expanded="false"></div>');
         this.$dropdownScroll = $('<div class="exo-form-select-scroll"></div>').appendTo(this.$dropdown);
         this.$dropdownList = $('<ul id="exo-form-select-list-' + this.uniqueId + '" class="exo-form-select-list" role="listbox" aria-labelledby="exo-form-select-label-' + this.uniqueId + '" tabindex="-1"></ul>').appendTo(this.$dropdownScroll);
         this.$dropdownWrapper.append(this.$dropdown);
