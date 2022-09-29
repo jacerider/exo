@@ -681,3 +681,15 @@
     }
   }
 }
+
+.exo-list-draggable {
+  @include flex;
+
+  > * {
+    margin: 0 !important;
+  }
+
+  .form-submit {
+    margin: 0 $global-margin 0 0;
+  }
+}

@@ -924,17 +924,38 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           'group' => 'list-weight',
         ],
       ];
+
       $form['draggable'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => [
+          'class' => [
+            'exo-list-draggable',
+          ],
+        ],
+      ];
+      $form['draggable']['draggable_save'] = [
         '#type' => 'submit',
         '#value' => $this->t('Save Order'),
-        '#exo_form_default' => TRUE,
         '#op' => 'action',
         '#submit' => ['::submitDraggable'],
+        '#button_type' => 'primary',
         '#attributes' => [
           'style' => 'display:none',
           'class' => ['exo-list-draggable-submit'],
         ],
       ];
+
+      $weight_field = $this->getWeightField();
+      if ($weight_field && !empty($weight_field['view']['settings']['allow_reset'])) {
+        $form['draggable']['draggable_reset'] = [
+          '#type' => 'submit',
+          '#value' => $this->t('Reset to alphabetical'),
+          '#weight_field' => $weight_field['id'],
+          '#op' => 'action',
+          '#submit' => ['::submitDraggableReset'],
+        ];
+      }
     }
     if ($action_settings_action && isset($actions[$action_settings_action])) {
       foreach (Element::children($form) as $key) {
@@ -943,9 +964,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       if ($subform = $this->buildBatchForm($form, $form_state)) {
         $form['action_settings'] = $subform;
       }
-      // $form['header']['#access'] = FALSE;
-      // $form['footer']['#access'] = FALSE;
-      // $form[$this->entitiesKey]['#access'] = FALSE;
     }
 
     return $form;
@@ -1952,6 +1970,19 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function submitDraggableReset(array &$form, FormStateInterface $form_state) {
+    $trigger = $form_state->getTriggeringElement();
+    $field = $this->entityList->getField($trigger['#weight_field']);
+
+    /** @var \Drupal\exo_list_builder\Plugin\ExoList\Element\Weight $instance */
+    $instance = $this->elementManager->createInstance($field['view']['type'], $field['view']['settings']);
+    $instance->resetWeights($this->entityList, $field);
+    ksm('hit', $trigger, $field);
+  }
+
+  /**
    * {@inheritDoc}
    */
   public function buildHeader() {
@@ -2145,6 +2176,18 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       return !empty($field['view']['sort']);
     });
     return $fields;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function getWeightField() {
+    foreach ($this->getShownFields() as $field) {
+      if (!empty($field['view']['type']) && $field['view']['type'] === 'weight') {
+        return $field;
+      }
+    }
+    return NULL;
   }
 
   /**

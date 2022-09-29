@@ -132,6 +132,14 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
   public function getFilters();
 
   /**
+   * Get weight field.
+   *
+   * @return array
+   *   The weight field.
+   */
+  public function getWeightField();
+
+  /**
    * Check if the entity list is filtered.
    *
    * @param bool $include_defaults

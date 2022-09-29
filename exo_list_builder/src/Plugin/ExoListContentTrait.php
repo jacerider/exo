@@ -220,8 +220,9 @@ trait ExoListContentTrait {
             }
             else {
               $values = array_combine($values, $values);
+              // WE DO NOT WANT SORTING HERE
+              // asort($values);
             }
-            asort($values);
           }
         }
       }
@@ -393,7 +394,6 @@ trait ExoListContentTrait {
       /** @var \Drupal\Core\Field\FieldConfigInterface $reference_field_definition */
       $reference_field_definition = $reference_field_definitions[$reference_field_name];
       $reference_field_storage_definition = $reference_field_definition->getFieldStorageDefinition();
-      // $reference_field_storage_definition = $entity_field_manager->getFieldStorageDefinitions($reference_entity_type_id)[$reference_field_name];
       $reference_id_key = $reference_entity_type->getKey('id');
       $reference_data_table = $reference_table_mapping->getDataTable() ?: $reference_table_mapping->getBaseTable();
       $reference_field_table = $reference_table_mapping->getFieldTableName($reference_field_name);
@@ -440,6 +440,14 @@ trait ExoListContentTrait {
         }
       }
       else {
+        // Use weight field if available.
+        if (isset($reference_field_definitions['weight'])) {
+          // Currently only supports weight fields on the data table.
+          // @todo Support weights set in other fields.
+          if ($reference_table_mapping->getFieldTableName('weight') === $reference_data_table) {
+            $query->orderBy($query->getMetaData('base_alias') . '.weight');
+          }
+        }
         if ($label_key = $reference_entity_type->getKey('label')) {
           $query->orderBy($query->getMetaData('base_alias') . '.' . $label_key);
         }
