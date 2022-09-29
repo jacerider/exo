@@ -460,7 +460,7 @@ class ExoModal extends ExoData {
           const onClick = (e, $original) => {
             const text = $original.text().toLowerCase();
             if ($original.is('a')) {
-              if (text === 'cancel') {
+              if (text === 'cancel' || $original.is('[data-' + this.name + '-close]')) {
                 this.close();
               }
               else {
