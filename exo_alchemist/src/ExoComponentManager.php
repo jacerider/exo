@@ -203,7 +203,7 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
   public function getAlphabeticalDefinitions(array $definitions = NULL, $label_key = 'label') {
     // Sort the plugins by label.
     /** @var \Drupal\Core\Plugin\CategorizingPluginManagerTrait|\Drupal\Component\Plugin\PluginManagerInterface $this */
-    $definitions = isset($definitions) ? $definitions : $this->getDefinitions();
+    $definitions = $definitions ?? $this->getDefinitions();
     uasort($definitions, function ($a, $b) use ($label_key) {
       return strnatcasecmp($a[$label_key], $b[$label_key]);
     });
@@ -483,7 +483,7 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
         ->andIf(AccessResult::allowedIfHasPermission($account, 'administer exo alchemist'));
     }
     if (substr($operation, 0, 6) === 'field.') {
-      list($operation, $field_name) = explode('.', $operation);
+      [$operation, $field_name] = explode('.', $operation);
       $field = $definition->getFieldBySafeId($field_name);
       if (!$field) {
         return AccessResult::forbidden('The definition does not contain a field with the safe id of ' . $field_name . '.');
@@ -816,7 +816,7 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
               break;
 
             case 'content':
-              list($entity_id,, $uuid) = explode(':', $name);
+              [$entity_id,, $uuid] = explode(':', $name);
               $entity = $this->entityRepository->loadEntityByConfigTarget($entity_id, $uuid);
               if ($entity) {
                 $entity->delete();
