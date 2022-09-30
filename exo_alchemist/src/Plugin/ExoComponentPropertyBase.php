@@ -34,7 +34,7 @@ abstract class ExoComponentPropertyBase extends PluginBase implements ExoCompone
    *   The value of the property.
    */
   protected function getValue() {
-    return isset($this->configuration['value']) ? $this->configuration['value'] : $this->getPropertyDefinition()->getDefault();
+    return $this->configuration['value'] ?? $this->getPropertyDefinition()->getDefault();
   }
 
   /**
