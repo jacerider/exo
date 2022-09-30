@@ -311,7 +311,7 @@ class ExoComponentPropertyManager extends DefaultPluginManager implements ExoCom
           $modifier_attributes[$modifier_name]['class'][] = 'exo-modifier';
         }
         foreach ($modifier->getProperties() as $property) {
-          $value = isset($values[$modifier_name][$property->getName()]) ? $values[$modifier_name][$property->getName()] : NULL;
+          $value = $values[$modifier_name][$property->getName()] ?? NULL;
           if ($instance = $this->getModifierAttribute($property, $value)) {
             $modifier_attributes[$modifier_name] = NestedArray::mergeDeep($modifier_attributes[$modifier_name], $instance->asAttributeArray());
           }
@@ -384,7 +384,7 @@ class ExoComponentPropertyManager extends DefaultPluginManager implements ExoCom
       static::$entityModifierValues[$entity->uuid()] = $clean_values;
     }
     if (!empty($modifier_name)) {
-      return isset(static::$entityModifierValues[$entity->uuid()][$modifier_name]) ? static::$entityModifierValues[$entity->uuid()][$modifier_name] : [];
+      return static::$entityModifierValues[$entity->uuid()][$modifier_name] ?? [];
     }
     return static::$entityModifierValues[$entity->uuid()];
   }
@@ -403,7 +403,7 @@ class ExoComponentPropertyManager extends DefaultPluginManager implements ExoCom
    */
   public function buildForm(array &$form, FormStateInterface $form_state, ExoComponentDefinition $definition, ContentEntityInterface $entity) {
     if (($modifiers = $definition->getModifiers()) && $entity->hasField(self::MODIFIERS_FIELD_NAME)) {
-      $form['modifiers'] = isset($form['modifiers']) ? $form['modifiers'] : [];
+      $form['modifiers'] = $form['modifiers'] ?? [];
       $form['modifiers'] = $form['modifiers'] + [
         '#type' => 'container',
         '#tree' => TRUE,
@@ -435,7 +435,7 @@ class ExoComponentPropertyManager extends DefaultPluginManager implements ExoCom
           $name = $property->getName();
           if ($this->hasDefinition($property->getType())) {
             $instance = $this->createPropertyInstance($property, [
-              'value' => isset($modifier_values[$modifier_name][$name]) ? $modifier_values[$modifier_name][$name] : NULL,
+              'value' => $modifier_values[$modifier_name][$name] ?? NULL,
             ]);
             $plugin_form = [
               '#tree' => TRUE,
