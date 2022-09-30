@@ -63,7 +63,6 @@ class ExoOptionsButtonsWidget extends OptionsButtonsWidget {
     $form['hide_empty'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Hide empty option'),
-      '#description' => $this->t('Hide empty option'),
       '#default_value' => $this->getSetting('hide_empty'),
     ];
     return $form;
@@ -95,6 +94,10 @@ class ExoOptionsButtonsWidget extends OptionsButtonsWidget {
     $element = parent::formElement($items, $delta, $element, $form, $form_state);
     $element['#exo_style'] = $this->getSetting('style');
     $selected = $this->getSelectedOptions($items);
+
+    if ($this->required && $this->getSetting('hide_empty') && $items->getEntity()->isNew()) {
+      $selected = NULL;
+    }
 
     if ($this->multiple) {
       $element['#type'] = 'exo_checkboxes';
