@@ -95,7 +95,7 @@ class ExoOptionsButtonsWidget extends OptionsButtonsWidget {
     $element['#exo_style'] = $this->getSetting('style');
     $selected = $this->getSelectedOptions($items);
 
-    if ($this->required && $this->getSetting('hide_empty') && $items->getEntity()->isNew()) {
+    if ($this->required && $this->getSetting('hide_empty') && $items->getEntity()->isNew() && count($selected) === 1) {
       $selected = NULL;
     }
 
