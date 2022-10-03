@@ -5,6 +5,7 @@ namespace Drupal\exo_list_builder;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Batch\BatchBuilder;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -223,15 +224,22 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   public function loadFields() {
     if (!isset($this->fields)) {
-      $entity_list = $this->getEntityList();
-      $fields = [];
-      foreach ($entity_list->getTargetBundleIds() as $bundle) {
-        $fields += $this->fieldManager->getFields($entity_list->getTargetEntityTypeId(), $bundle);
+      $cid = 'exo_list_builder:fields:' . $this->entityList->id();
+      if ($cache = \Drupal::cache()->get($cid)) {
+        $fields = $cache->data;
       }
-      $fields += $this->discoverFields();
-      $this->alterFields($fields);
-      $this->moduleHandler->alter('exo_list_builder_fields', $fields, $this->entityTypeId);
-      $this->moduleHandler->alter('exo_list_builder_fields_' . $entity_list->id(), $fields, $this->entityTypeId);
+      else {
+        $entity_list = $this->getEntityList();
+        $fields = [];
+        foreach ($entity_list->getTargetBundleIds() as $bundle) {
+          $fields += $this->fieldManager->getFields($entity_list->getTargetEntityTypeId(), $bundle);
+        }
+        $fields += $this->discoverFields();
+        $this->alterFields($fields);
+        $this->moduleHandler->alter('exo_list_builder_fields', $fields, $this->entityTypeId);
+        $this->moduleHandler->alter('exo_list_builder_fields_' . $entity_list->id(), $fields, $this->entityTypeId);
+        \Drupal::cache()->set($cid, $fields, Cache::PERMANENT, ['entity_field_info']);
+      }
       $this->fields = $fields;
     }
     return $this->fields;
