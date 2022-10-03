@@ -483,8 +483,9 @@
           continue;
         }
         const checkboxId = 'exo-form-option-' + this.uniqueId + '-' + i;
+        const liClass = 'exo-form-option-' + option.text.replace(/\W/g, '-').toLowerCase();
 
-        var li = $('<li role="option" role="listitem" tabindex="-1"></li>');
+        var li = $('<li role="option" class="' + liClass + '" role="listitem" tabindex="-1"></li>');
 
         if (option.group) {
           li.addClass('optgroup');
