@@ -254,7 +254,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * {@inheritdoc}
    */
   public function getFormId() {
-    return $this->entityTypeId . '_list';
+    return 'exo_entity_list_' . $this->entityList->id() . '_form';
   }
 
   /**
