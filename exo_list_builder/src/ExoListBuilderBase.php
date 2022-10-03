@@ -1979,7 +1979,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     /** @var \Drupal\exo_list_builder\Plugin\ExoList\Element\Weight $instance */
     $instance = $this->elementManager->createInstance($field['view']['type'], $field['view']['settings']);
     $instance->resetWeights($this->entityList, $field);
-    ksm('hit', $trigger, $field);
   }
 
   /**
