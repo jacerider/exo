@@ -68,7 +68,7 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
     parent::processDefinition();
     $field = $this->getFieldDefinition();
     if (!$field->hasAdditionalValue('exo_entity_list_id')) {
-      throw new PluginException(sprintf('eXo Component Field plugin (%s) requires [view_id] be set.', $field->getType()));
+      throw new PluginException(sprintf('eXo Component Field plugin (%s) requires [exo_entity_list_id] be set.', $field->getType()));
     }
   }
 
@@ -95,19 +95,16 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
     $entity = $this->entityTypeManager->getStorage('exo_entity_list')->load($field->getAdditionalValue('exo_entity_list_id'));
     if ($entity) {
       $handler = $entity->getHandler();
-      if ($this->isLayoutBuilder($contexts)) {
-        $render = $this->entityTypeManager->getViewBuilder($entity->getEntityTypeId())->view($entity);
-        $render = $this->getFormAsPlaceholder($render);
+      $filters = $field->getAdditionalValue('exo_entity_list_filters') ?? [];
+      foreach ($filters as $key => $filter) {
+        $handler->setOption(['filter', $key], $filter);
       }
-      else {
-        $filters = $field->getAdditionalValue('exo_entity_list_filters') ?? [];
-        foreach ($filters as $key => $filter) {
-          $handler->setOption(['filter', $key], $filter);
-        }
-        $render = [
-          '#type' => 'exo_entity_list',
-          '#entity_list' => $entity,
-        ];
+      $render = [
+        '#type' => 'exo_entity_list',
+        '#entity_list' => $entity,
+      ];
+      if ($this->isLayoutBuilder($contexts)) {
+        $render = $this->getFormAsPlaceholder($render);
       }
       if ($field->hasAdditionalValue('exo_entity_list_hide_if_empty') && !$handler->isModified() && empty($handler->getTotal())) {
         $value['#component_access'] = FALSE;
