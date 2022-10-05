@@ -24,14 +24,19 @@
       // Disable on click.
       $(context).find('.exo-form-button-disable-on-click').once('exo.form.disable').on('click', e => {
         const $button = $(e.target);
-        if ($button.data('exo-form-button-disable-message')) {
-          $button.text($button.data('exo-form-button-disable-message'));
-        }
-        if ($button.data('exo-form-button-disable-form')) {
-          $button.closest('form.exo-form').addClass('is-disabled');
-        }
-        else {
-          $button.prop('disabled', true).addClass('is-disabled');
+        const $form = $button.closest('form.exo-form');
+        if ($form.length && $form[0].checkValidity()) {
+          if ($button.data('exo-form-button-disable-message')) {
+            $button.text($button.data('exo-form-button-disable-message'));
+          }
+          if ($button.data('exo-form-button-disable-form')) {
+            $form.addClass('is-disabled');
+          }
+          else {
+            setTimeout(() => {
+              $button.prop('disabled', true).addClass('is-disabled');
+            }, 100);
+          }
         }
       });
 
