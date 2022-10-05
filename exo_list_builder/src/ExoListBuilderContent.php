@@ -37,9 +37,17 @@ class ExoListBuilderContent extends ExoListBuilderBase {
    */
   protected function alterFields(&$fields) {
     parent::alterFields($fields);
-    $label_key = $this->entityList->getTargetEntityType()->getKey('label');
-    if ($label_key && isset($fields[$label_key]['definition']) && !$fields[$label_key]['definition']->isComputed()) {
-      $fields['_label']['sort_field'] = $label_key;
+    switch ($this->entityList->getTargetEntityTypeId()) {
+      case 'user':
+        $fields['_label']['sort_field'] = 'name';
+        break;
+
+      default:
+        $label_key = $this->entityList->getTargetEntityType()->getKey('label');
+        if ($label_key && isset($fields[$label_key]['definition']) && !$fields[$label_key]['definition']->isComputed()) {
+          $fields['_label']['sort_field'] = $label_key;
+        }
+        break;
     }
   }
 
