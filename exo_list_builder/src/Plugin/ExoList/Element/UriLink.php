@@ -123,10 +123,11 @@ class UriLink extends ExoListElementContentBase {
       $options['attributes']['target'] = '_blank';
       $url->setOptions($options);
     }
+    $link = Link::fromTextAndUrl($link_title, $url)->toString();
     if ($configuration['icon']) {
-      $link_title = exo_icon($link_title)->setIcon($configuration['icon']);
+      $link = exo_icon($link_title)->setIcon($configuration['icon'])->setIconOnly() . $link;
     }
-    return Link::fromTextAndUrl($link_title, $url)->toString();
+    return $link;
   }
 
   /**
