@@ -200,6 +200,11 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
           'wrapper' => $form['#id'] . '--widget-settings',
           'callback' => [__CLASS__, 'ajaxReplaceWidget'],
         ],
+        '#states' => [
+          'visible' => [
+            ':input[name="fields[' . $field['id'] . '][filter][settings][expose]"]' => ['checked' => TRUE],
+          ],
+        ],
       ];
       $form['widget_settings'] = [
         '#type' => 'container',
