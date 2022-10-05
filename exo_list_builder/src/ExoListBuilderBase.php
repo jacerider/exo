@@ -456,7 +456,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $query->addTag('exo_list_query');
     $query->addMetaData('exo_list_builder', $this);
 
-    if ($entity_list->getFormat() === 'table') {
+    if ($entity_list->getFormat() === 'table' && $context !== 'all') {
       $header = $this->buildHeader();
       foreach ($header as $field => $info) {
         if (is_array($info) && !empty($info['sort'])) {
@@ -599,10 +599,19 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   /**
    * {@inheritdoc}
    */
-  public function getRawTotal() {
+  public function getRawTotal($ignoreFilters = FALSE) {
     $query = clone $this->buildQuery('all');
     $query->addTag('exo_list_raw_total');
-    return $query->count()->execute();
+    if ($ignoreFilters) {
+      $options = $this->getOption(['filter']);
+      $this->setOption(['filter'], []);
+      $total = $query->count()->execute();
+      $this->setOption(['filter'], $options);
+    }
+    else {
+      $total = $query->count()->execute();
+    }
+    return $total;
   }
 
   /**
@@ -743,7 +752,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $format_build = [];
     if ($render_status) {
       $format_build = [
-        '#type' => 'container',
+        '#type' => 'html_tag',
+        '#tag' => 'div',
         '#attributes' => [
           'class' => [
             'exo-list-content',
@@ -2033,6 +2043,12 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       $row[$field_id]['data'] = $this->renderField($entity, $field);
       $row[$field_id]['#wrapper_attributes']['class'][] = Html::getClass('exo-list-builder-field-id--' . $field_id);
       $row[$field_id]['#wrapper_attributes']['class'][] = Html::getClass('exo-list-builder-field-type--' . $field['view']['type']);
+      if (!empty($field['view']['align'])) {
+        $row[$field_id]['#wrapper_attributes']['class'][] = Html::getClass('exo-list-builder-align--' . $field['view']['align']);
+      }
+      if (!empty($field['view']['size'])) {
+        $row[$field_id]['#wrapper_attributes']['class'][] = Html::getClass('exo-list-builder-size--' . $field['view']['size']);
+      }
       if (isset($row[$field_id]['data']['#list_weight'])) {
         $row[$field_id]['data']['#parents'] = ['weight', $entity->id()];
         $row['#attributes']['class'][] = 'draggable';
@@ -2043,7 +2059,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     if ($this->entityList->showOperations()) {
       $row['operations']['data'] = $this->buildOperations($entity);
       $row['operations']['#wrapper_attributes']['class'][] = 'exo-list-builder-field-id--operations';
-      $row['operations']['#wrapper_attributes']['class'][] = 'exo-list-builder--compact';
+      $row['operations']['#wrapper_attributes']['class'][] = 'exo-list-builder-size--compact';
     }
     if ($entity instanceof EntityPublishedInterface) {
       if ($entity->isPublished()) {

@@ -110,10 +110,13 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
    *
    * The raw total will rebuild the query and return the total.
    *
+   * @param bool $ignoreFilters
+   *   Ignore filters.
+   *
    * @return int
    *   The total results.
    */
-  public function getRawTotal();
+  public function getRawTotal($ignoreFilters = FALSE);
 
   /**
    * Get actions.
