@@ -4,6 +4,7 @@ namespace Drupal\exo_list_builder\Plugin;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -195,6 +196,7 @@ trait ExoListContentTrait {
             $values = $results->fetchCol();
             $parts = explode('.', $property);
             $column = $parts[1] ?? NULL;
+            $entities = [];
             // When referencing a target entity, we will fetch the entity
             // labels.
             if ($column === 'target_id') {
@@ -202,26 +204,38 @@ trait ExoListContentTrait {
               if ($reference_field_definition = $this->getReferenceFieldDefinition($field_definition)) {
                 $nested_reference_entity_type_id = $reference_field_definition->getSetting('target_type');
                 $entities = $this->entityTypeManager()->getStorage($nested_reference_entity_type_id)->loadMultiple($values);
-                uasort($entities, function (EntityInterface $a, EntityInterface $b) {
-                  if ($a instanceof TermInterface && $b instanceof TermInterface) {
-                    return $a->getWeight() <=> $b->getWeight();
-                  }
-                  return strnatcasecmp($a->label(), $b->label());
-                });
-                $values = [];
-                foreach ($entities as $entity) {
-                  if ($entity->getEntityType()->hasKey('bundle')) {
-                    $cacheable_metadata->addCacheTags([$entity->getEntityTypeId() . '_list:' . $entity->bundle()]);
-                  }
-                  $cacheable_metadata->addCacheableDependency($entity);
-                  $values[$entity->id()] = $entity->label();
-                }
               }
+            }
+            elseif ($property === 'target_id') {
+              $entities = $this->entityTypeManager()->getStorage($field['definition']->getSetting('target_type'))->loadMultiple($values);
             }
             else {
               $values = array_combine($values, $values);
               // WE DO NOT WANT SORTING HERE
               // asort($values);
+            }
+            // Reference fields load the actual entities and we want to use
+            // the label and order of those entities.
+            if (!empty($entities)) {
+              uasort($entities, function (EntityInterface $a, EntityInterface $b) {
+                if ($a instanceof ConfigEntityInterface && $b instanceof ConfigEntityInterface) {
+                  if ($a->get('weight') && $b->get('weight')) {
+                    return $a->get('weight') <=> $b->get('weight');
+                  }
+                }
+                elseif ($a instanceof TermInterface && $b instanceof TermInterface) {
+                  return $a->getWeight() <=> $b->getWeight();
+                }
+                return strnatcasecmp($a->label(), $b->label());
+              });
+              $values = [];
+              foreach ($entities as $entity) {
+                if ($entity->getEntityType()->hasKey('bundle')) {
+                  $cacheable_metadata->addCacheTags([$entity->getEntityTypeId() . '_list:' . $entity->bundle()]);
+                }
+                $cacheable_metadata->addCacheableDependency($entity);
+                $values[$entity->id()] = $entity->label();
+              }
             }
           }
         }
