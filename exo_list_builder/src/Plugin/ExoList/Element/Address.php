@@ -70,33 +70,9 @@ class Address extends ExoListElementContentBase {
     }
     return [
       '#type' => 'inline_template',
-      '#template' => '
-        {% if given_name or family_name %}
-          {{ given_name }} {{ family_name }},
-        {% endif %}
-        {% if organization %}
-          {{ organization }},
-        {% endif %}
-        {% if address_line1 %}
-          {{ address_line1 }},
-        {% endif %}
-        {% if address_line2 %}
-          {{ address_line2 }},
-        {% endif %}
-        {% if dependent_locality.code %}
-          {{ dependent_locality.code }},
-        {% endif %}
-        {% if locality or administrative_area.code or postal_code %}
-          {{ locality }}{% if administrative_area.code %}, {{ administrative_area.code }}{% endif %}{% if postal_code %}, {{ postal_code }}{% endif %}
-        {% endif %}
-      ',
+      '#template' => '{% if given_name or family_name %}{{ given_name }} {{ family_name }}, {% endif %}{% if organization %}{{ organization }}, {% endif %}{% if address_line1 %}{{ address_line1 }}, {% endif %}{% if address_line2 %}{{ address_line2 }}, {% endif %}{% if dependent_locality.code %}{{ dependent_locality.code }}, {% endif %}{% if locality or administrative_area.code or postal_code %}{{ locality }}{% if administrative_area.code %}, {{ administrative_area.code }}{% endif %}{% if postal_code %}{% if locality or administrative_area.code %}, {% endif %}{{ postal_code }}{% endif %}{% endif %}',
       '#context' => $value,
     ];
-    // return implode(' ', array_filter([
-    //   $value['given_name'],
-    //   $value['additional_name'],
-    //   $value['family_name'],
-    // ]));
   }
 
 }
