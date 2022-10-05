@@ -113,7 +113,6 @@ class Links extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
   protected function buildLinks(EntityListInterface $entity_list, ExoListFilterInterface $filter, array $field, $values, $current, $multiple, $total) {
     $items = [];
     $configuration = $this->getConfiguration();
-    // $value_current = $entity_list->getHandler()->getOption(['filter', $field['id']]);
     foreach ($values as $value) {
       $value_total = !empty($configuration['total']) ? $filter->getOptionTotal(array_unique(array_merge($current, [$value])), $entity_list, $field) : 0;
       $is_current = in_array($value, $current);
