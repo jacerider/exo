@@ -1,12 +1,50 @@
 .exo-form {
   margin-bottom: -$global-margin;
 
+  > .exo-form {
+    margin-bottom: 0;
+  }
+
   > *,
   > div.exo-form-element {
 
     &:last-child {
       // Works with .exo-form which has a negative bottom margin.
       margin-bottom: $global-margin;
+    }
+  }
+
+  &.exo-form-wrap {
+
+    > div.exo-form-element {
+
+      &:last-of-type {
+        margin-bottom: 0;
+      }
+    }
+
+    &.exo-modal {
+      margin-bottom: 0;
+      padding: 0 !important;
+      border: 0 !important;
+
+      .exo-modal-container {
+        margin-bottom: 0;
+      }
+    }
+
+    .exo-modal & {
+      border: 0;
+      box-shadow: none;
+      background: inherit;
+      padding: 0;
+    }
+
+    > div {
+
+      &:last-child {
+        margin-bottom: 0;
+      }
     }
   }
 
@@ -40,33 +78,6 @@
 
   .exo-form-hide {
     display: none;
-  }
-
-  &.exo-form-wrap {
-
-    &.exo-modal {
-      margin-bottom: 0;
-      padding: 0 !important;
-      border: 0 !important;
-
-      .exo-modal-container {
-        margin-bottom: 0;
-      }
-    }
-
-    .exo-modal & {
-      border: 0;
-      box-shadow: none;
-      background: inherit;
-      padding: 0;
-    }
-
-    > div {
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-    }
   }
 
   .messages {
