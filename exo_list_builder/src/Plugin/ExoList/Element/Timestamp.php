@@ -121,7 +121,7 @@ class Timestamp extends ExoListElementContentBase implements ContainerFactoryPlu
    */
   protected function viewItem(EntityInterface $entity, FieldItemInterface $field_item, array $field) {
     $value = $field_item->value;
-    return $this->formatTimestamp($value);
+    return $value ? $this->formatTimestamp($value) : NULL;
   }
 
   /**
