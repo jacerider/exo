@@ -35,6 +35,7 @@ class EntityReferenceLabel extends ExoListElementContentBase {
     return [
       'entity_icon' => FALSE,
       'entity_id' => TRUE,
+      'override_label' => '',
       'link_reference' => FALSE,
     ] + parent::defaultConfiguration();
   }
@@ -54,6 +55,11 @@ class EntityReferenceLabel extends ExoListElementContentBase {
       '#title' => $this->t('Show entity ID'),
       '#default_value' => $configuration['entity_id'],
     ];
+    $form['override_label'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Override label'),
+      '#default_value' => $configuration['override_label'],
+    ];
     $form['link_reference'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Link to the referenced entity'),
@@ -70,9 +76,9 @@ class EntityReferenceLabel extends ExoListElementContentBase {
   protected function viewItem(EntityInterface $entity, FieldItemInterface $field_item, array $field) {
     /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $field_item */
     $reference_entity = $field_item->entity;
-    $label = $reference_entity->label();
-    $icon = '';
     $configuration = $this->getConfiguration();
+    $label = $configuration['override_label'] ?: ($reference_entity->label() ?: $reference_entity->id());
+    $icon = '';
     if ($configuration['link_reference'] && $reference_entity->getEntityType()->hasLinkTemplate('canonical')) {
       $label = Link::fromTextAndUrl($label, $reference_entity->toUrl('canonical'))->toString();
     }
