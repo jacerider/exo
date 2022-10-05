@@ -242,6 +242,8 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       'toggle' => FALSE,
       'show' => FALSE,
       'wrapper' => 'small',
+      'align' => 'left',
+      'size' => 'compact',
       'sort' => NULL,
       'sort_asc_label' => '@label: Up',
       'sort_desc_label' => '@label: Down',
@@ -525,7 +527,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * {@inheritdoc}
    */
   public function getReferences() {
-    return $this->references;
+    return $this->references ?? [];
   }
 
   /**
@@ -635,6 +637,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    */
   public function getAvailableFields() {
     if (!isset($this->fieldDefinitions)) {
+      $this->fieldDefinitions = [];
       $fields = $this->getHandler()->loadFields();
       foreach ($fields as $field_id => &$field) {
         $defaults = static::getFieldDefaults();
@@ -720,6 +723,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
     if (isset($fields['_label'])) {
       // Label field should not wrap in small tag by default.
       $fields['_label']['view']['wrapper'] = '';
+      $fields['_label']['view']['size'] = 'stretch';
       $fields['_label']['view']['sort_asc_label'] = '@label A-Z';
       $fields['_label']['view']['sort_desc_label'] = '@label Z-A';
       $fields['_label']['filter']['settings']['position'] = 'header';
@@ -732,6 +736,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       if (in_array($field['type'], ['boolean', 'image'])) {
         // Fields of this type should not wrap in small tag by default.
         $field['view']['wrapper'] = '';
+        $field['view']['align'] = 'center';
       }
       if (in_array($field['type'], [
         'created',

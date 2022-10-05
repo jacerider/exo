@@ -15,11 +15,32 @@
     }
   }
 
-  .exo-list-builder--compact,
-  .exo-form-table-compact {
-    width: 1%;
-    white-space: nowrap;
-    text-align: center;
+  td {
+
+    &.exo-list-builder-size--stretch {
+      width: 100%;
+    }
+
+    &.exo-list-builder-size--compact {
+      width: 1%;
+      white-space: nowrap;
+    }
+
+    &.exo-list-builder-size--nowrap {
+      white-space: nowrap;
+    }
+
+    &.exo-list-builder-align--left {
+      text-align: left;
+    }
+
+    &.exo-list-builder-align--center {
+      text-align: center;
+    }
+
+    &.exo-list-builder-align--right {
+      text-align: right;
+    }
   }
 
   .exo-list-header {

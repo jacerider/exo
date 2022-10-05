@@ -579,7 +579,7 @@ class EntityListForm extends EntityForm {
       }
       $row['view']['options']['wrapper'] = [
         '#type' => 'select',
-        '#title' => $this->t('Wrapping element'),
+        '#title' => $this->t('Wrapper'),
         '#options' => [
           '' => $this->t('- None -'),
           'small' => '<small>',
@@ -587,6 +587,27 @@ class EntityListForm extends EntityForm {
           'em' => '<em>',
         ],
         '#default_value' => $field['view']['wrapper'],
+      ];
+      $row['view']['options']['align'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Align'),
+        '#options' => [
+          'left' => $this->t('Left'),
+          'right' => $this->t('Right'),
+          'center' => $this->t('Center'),
+        ],
+        '#default_value' => $field['view']['align'],
+      ];
+      $row['view']['options']['size'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Size'),
+        '#options' => [
+          '' => $this->t('Auto'),
+          'compact' => $this->t('Compact'),
+          'stretch' => $this->t('Stretch'),
+          'nowrap' => $this->t('No Wrap'),
+        ],
+        '#default_value' => $field['view']['size'],
       ];
       $row['view']['settings'] = [
         '#type' => 'details',
