@@ -34,6 +34,7 @@ class EntityLabel extends ExoListElementBase {
     return [
       'entity_icon' => TRUE,
       'entity_id' => TRUE,
+      'override_label' => '',
       'link_label' => TRUE,
     ] + parent::defaultConfiguration();
   }
@@ -53,6 +54,11 @@ class EntityLabel extends ExoListElementBase {
       '#title' => $this->t('Show entity ID'),
       '#default_value' => $configuration['entity_id'],
     ];
+    $form['override_label'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Override label'),
+      '#default_value' => $configuration['override_label'],
+    ];
     $form['link_label'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Link to the entity'),
@@ -67,9 +73,9 @@ class EntityLabel extends ExoListElementBase {
    * {@inheritdoc}
    */
   protected function view(EntityInterface $entity, array $field) {
-    $label = $entity->label() ?: $entity->id();
-    $icon = '';
     $configuration = $this->getConfiguration();
+    $label = $configuration['override_label'] ?: ($entity->label() ?: $entity->id());
+    $icon = '';
     if ($configuration['link_label'] && $entity->getEntityType()->hasLinkTemplate('canonical') && $entity->access('view')) {
       $label = Link::fromTextAndUrl($label, $entity->toUrl('canonical'))->toString();
     }
