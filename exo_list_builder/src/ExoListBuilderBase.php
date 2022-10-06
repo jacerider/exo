@@ -512,7 +512,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         }
       }
       if ($instance->allowQueryAlter($filter_value, $entity_list, $field)) {
-        if (is_array($filter_value)) {
+        if (is_array($filter_value) && $instance->supportsMultiple()) {
           $group = NULL;
           switch ($instance->getMultipleJoin($field)) {
             case 'and':
@@ -1735,7 +1735,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       if ($field['filter']['instance']) {
         /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
         $instance = $field['filter']['instance'];
-        if (is_array($filter_value)) {
+        if (is_array($filter_value) && $instance->supportsMultiple()) {
           $value = [];
           foreach ($filter_value as $filter_val) {
             $value[] = $instance->toPreview($filter_val, $entity_list, $field);

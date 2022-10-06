@@ -90,12 +90,12 @@ class TimestampRange extends ExoListFilterBase implements ContainerFactoryPlugin
     $form['date']['s'] = [
       '#type' => 'date',
       '#title' => $this->t('Start'),
-      '#default_value' => !empty($value['s']) ? $this->dateFormatter->format($value['s'], 'custom', 'm/d/Y') : NULL,
+      '#default_value' => !empty($value['s']) ? $this->dateFormatter->format($value['s'], 'custom', 'Y-m-d') : NULL,
     ];
     $form['date']['e'] = [
       '#type' => 'date',
       '#title' => $this->t('End'),
-      '#default_value' => !empty($value['e']) ? $this->dateFormatter->format($value['e'], 'custom', 'm/d/Y') : NULL,
+      '#default_value' => !empty($value['e']) ? $this->dateFormatter->format($value['e'], 'custom', 'Y-m-d') : NULL,
     ];
     return $form;
   }
