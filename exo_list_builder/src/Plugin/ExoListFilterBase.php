@@ -397,6 +397,13 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function supportsMultiple() {
+    return !empty($this->supportsMultiple);
+  }
+
+  /**
    * Utility function to check if mixed is empty.
    *
    * @param string|array $value
