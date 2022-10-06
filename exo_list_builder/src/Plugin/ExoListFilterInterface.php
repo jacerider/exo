@@ -124,6 +124,14 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
   public function isEmpty($raw_value);
 
   /**
+   * Check if filter supports multiple.
+   *
+   * @return bool
+   *   Returns TRUE if filter supports multiple.
+   */
+  public function supportsMultiple();
+
+  /**
    * Check if field allows multiple.
    *
    * @param array $field
