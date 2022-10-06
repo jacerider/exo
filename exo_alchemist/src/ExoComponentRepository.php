@@ -4,11 +4,13 @@ namespace Drupal\exo_alchemist;
 
 use Drupal\block_content\Access\RefinableDependentAccessInterface;
 use Drupal\block_content\Access\RefinableDependentAccessTrait;
+use Drupal\block_content\Entity\BlockContent;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\layout_builder\Plugin\Block\InlineBlock;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\Context\ContextDefinition;
 use Drupal\Core\Plugin\Context\EntityContext;
@@ -182,7 +184,10 @@ class ExoComponentRepository {
   }
 
   /**
-   * Get all field items within a component entity by type.
+   * Get all field items within a component entity by type given an entity.
+   *
+   * Given an entity, it will get all components attached to the entity and
+   * then crawl each one.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity.
@@ -195,21 +200,39 @@ class ExoComponentRepository {
    *   The component entities.
    */
   public function getComponentItemsByFieldType(EntityInterface $entity, $field_type, $use_tempstore = FALSE) {
-    /** @var \Drupal\Core\Field\FieldItemListInterface $items */
     $items = NULL;
     foreach ($this->getComponentsWithFieldType($entity, $field_type, $use_tempstore) as $component) {
-      $definition = $this->exoComponentManager->getEntityComponentDefinition($component);
-      foreach ($definition->getFieldsByType($field_type) as $field) {
-        $field_name = $field->safeId();
-        if ($component->hasField($field_name)) {
-          if ($items) {
-            foreach ($component->get($field_name) as $item) {
-              $items->appendItem($item->getValue());
-            }
+      $items = $this->getComponentItemsByEntityFieldType($component, $field_type, $items);
+    }
+    return $items;
+  }
+
+  /**
+   * Get all field items within a component entity by type.
+   *
+   * @param \Drupal\block_content\Entity\BlockContent $component
+   *   The entity.
+   * @param string $field_type
+   *   The field type.
+   * @param \Drupal\Core\Field\FieldItemListInterface $items
+   *   The items.
+   *
+   * @return \Drupal\Core\Field\FieldItemListInterface
+   *   The component entities.
+   */
+  public function getComponentItemsByEntityFieldType(BlockContent $component, $field_type, FieldItemListInterface $items = NULL) {
+    $items = NULL;
+    $definition = $this->exoComponentManager->getEntityComponentDefinition($component);
+    foreach ($definition->getFieldsByType($field_type) as $field) {
+      $field_name = $field->safeId();
+      if ($component->hasField($field_name)) {
+        if ($items) {
+          foreach ($component->get($field_name) as $item) {
+            $items->appendItem($item->getValue());
           }
-          else {
-            $items = clone $component->get($field_name);
-          }
+        }
+        else {
+          $items = clone $component->get($field_name);
         }
       }
     }

@@ -142,6 +142,18 @@ function exo_alchemist_smart_data(ContentEntityInterface $entity, $alchemist_fie
         $data = exo_alchemist_smart_find($items, $field_type);
       }
     }
+    if (empty($data)) {
+      /** @var \Drupal\exo_alchemist\ExoComponentRepository $repository */
+      $repository = \Drupal::service('exo_alchemist.repository');
+      $items = $repository->getComponentItemsByFieldType($entity, 'sequence');
+      if ($items) {
+        $entity = $items->first()->entity;
+        $items = $repository->getComponentItemsByEntityFieldType($entity, $alchemist_field_type);
+        if ($items) {
+          $data = exo_alchemist_smart_find($items, $field_type);
+        }
+      }
+    }
     $cache[$key] = $data;
   }
   return $cache[$key];
