@@ -99,6 +99,12 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
       foreach ($filters as $key => $filter) {
         $handler->setOption(['filter', $key], $filter);
       }
+      if ($this->isPreview($contexts)) {
+        if (!$handler->getLimit()) {
+          $handler->setLimit(40);
+          \Drupal::messenger()->addMessage($this->t('Entity list preview is limited to 40 items.'));
+        }
+      }
       $render = [
         '#type' => 'exo_entity_list',
         '#entity_list' => $entity,

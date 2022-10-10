@@ -111,14 +111,11 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected $total;
 
   /**
-   * The number of entities to list per page, or FALSE to list all entities.
-   *
-   * For example, set this to FALSE if the list uses client-side filters that
-   * require all entities to be listed (like the views overview).
+   * The number of entities to list per page.
    *
    * @var int|false
    */
-  protected $limit = 20;
+  protected $limit;
 
   /**
    * Use custom sort.
@@ -1330,20 +1327,31 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function setLimit($limit) {
+    $this->limit = $limit;
+    return $this;
+  }
+
+  /**
    * Get the limit.
    *
    * @return int
    *   The limit.
    */
-  protected function getLimit() {
-    $limit = $this->getOption('limit');
-    if ($limit) {
-      $options = $this->entityList->getLimitOptions();
-      if (!isset($options[$limit])) {
-        $limit = $this->entityList->getLimit();
+  public function getLimit() {
+    if (!isset($this->limit)) {
+      $limit = $this->getOption('limit');
+      if ($limit) {
+        $options = $this->entityList->getLimitOptions();
+        if (!isset($options[$limit])) {
+          $limit = $this->entityList->getLimit();
+        }
       }
+      $this->limit = $limit;
     }
-    return $limit;
+    return $this->limit;
   }
 
   /**

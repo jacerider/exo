@@ -45,6 +45,24 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
   public function setOption($key, $value);
 
   /**
+   * Get limit.
+   *
+   * @return int
+   *   The limit.
+   */
+  public function getLimit();
+
+  /**
+   * Set limit. This will override configuration.
+   *
+   * @param int $limit
+   *   The limit.
+   *
+   * @return $this
+   */
+  public function setLimit($limit);
+
+  /**
    * Load available entity fields.
    *
    * @return array
