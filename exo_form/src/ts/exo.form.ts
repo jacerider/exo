@@ -25,7 +25,8 @@
       $(context).find('.exo-form-button-disable-on-click').once('exo.form.disable').on('click', e => {
         const $button = $(e.target);
         const $form = $button.closest('form.exo-form');
-        if ($form.length && $form[0].checkValidity()) {
+        const form = $form[0] as HTMLFormElement;
+        if ($form.length && form.checkValidity()) {
           if ($button.data('exo-form-button-disable-message')) {
             $button.text($button.data('exo-form-button-disable-message'));
           }
