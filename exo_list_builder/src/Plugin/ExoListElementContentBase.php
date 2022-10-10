@@ -31,7 +31,7 @@ abstract class ExoListElementContentBase extends ExoListElementBase {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state, EntityListInterface $entity_list, array $field) {
     $form = parent::buildConfigurationForm($form, $form_state, $entity_list, $field);
-    $cardinality = $field['definition']->getFieldStorageDefinition()->getCardinality();
+    $cardinality = !empty($field['definition']) ? $field['definition']->getFieldStorageDefinition()->getCardinality() : 1;
     if ($cardinality !== 1) {
       $id = $form['#id'] . '-display';
       $form['display_mode'] = [
