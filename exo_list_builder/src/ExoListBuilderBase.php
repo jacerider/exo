@@ -427,6 +427,18 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function load() {
+    $entity_list = $this->entityList;
+    $entity_ids = $this->getEntityIds();
+    $entities = $this->storage->loadMultiple($entity_ids);
+    $this->moduleHandler->alter('exo_list_builder_entities', $entities, $this->entityList);
+    $this->moduleHandler->alter('exo_list_builder_entities_' . $entity_list->id(), $entities, $entity_list);
+    return $entities;
+  }
+
+  /**
    * {@inheritDoc}
    */
   public function getQuery($context = 'default') {
@@ -593,7 +605,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       $query->addTag('exo_list_total');
       $this->total = $query->count()->execute();
     }
-    return $this->total;
+    return (int) $this->total;
   }
 
   /**
@@ -790,12 +802,12 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         if ($row = $this->buildRow($target_entity)) {
           switch ($format) {
             case 'table';
-              $build[$this->entitiesKey][$target_entity->id()] = $row;
+              $build[$this->entitiesKey][] = $row;
               $build['#draggable'] = !empty($row['#draggable']);
               break;
 
             default:
-              $build[$this->entitiesKey][$target_entity->id()] = [
+              $build[$this->entitiesKey][] = [
                 '#type' => 'html_tag',
                 '#tag' => 'div',
                 '#attributes' => [
@@ -825,7 +837,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
     $build[$this->entitiesKey]['#entities'] = $entities;
 
-    if ($entities || $this->isFiltered()) {
+    if (($entities || $this->isFiltered()) && count($entities) < $this->getTotal()) {
       $pager = $this->buildPager($build);
       $build['header']['second']['pager'] = [
         '#access' => !empty(Element::getVisibleChildren($pager)),
