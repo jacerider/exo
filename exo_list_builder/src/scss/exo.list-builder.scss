@@ -584,9 +584,7 @@
   }
 
   td.table-select {
-    @include flex;
-    @include flex-align(left, middle);
-    flex-wrap: nowrap;
+    white-space: nowrap;
     width: 1px;
 
     > * {
