@@ -473,14 +473,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           break;
         }
       }
-      $order = $this->getOption('order') ?: $this->entityList->getSort();
-      if ($this->sortManager->hasDefinition($order)) {
-        $this->addQuerySort($query);
-      }
     }
-    else {
-      $this->addQuerySort($query);
-    }
+    $this->addQuerySort($query);
 
     if ($entity_list->getTargetEntityType()->hasKey('bundle')) {
       $query->condition($entity_list->getTargetEntityType()->getKey('bundle'), $entity_list->getTargetBundleIds(), 'IN');
@@ -561,22 +555,19 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected function addQuerySort(QueryInterface $query) {
     $entity_list = $this->entityList;
     $order = $this->getOption('order');
-    $sort_plugin_id = NULL;
-    $sort_plugin_value = NULL;
+    if (!$order) {
+      $order = $entity_list->getSort();
+    }
     if ($order) {
       $sort_plugin_id = $entity_list->getSortPluginId($order);
       $sort_plugin_value = $entity_list->getSortPluginValue($order);
-    }
-    elseif ($order = $entity_list->getSort()) {
-      $sort_plugin_id = $entity_list->getSortPluginId($order);
-      $sort_plugin_value = $entity_list->getSortPluginValue($order);
-    }
-    if ($sort_plugin_id && $this->sortManager->hasDefinition($sort_plugin_id)) {
-      $sort = $this->getOption('sort');
-      $instance = $this->sortManager->createInstance($sort_plugin_id);
-      $instance->sort($query, $entity_list, $sort, $sort_plugin_value);
-      $this->setOption('order', $order);
-      $this->setOption('sort', $sort);
+      if ($sort_plugin_id && $this->sortManager->hasDefinition($sort_plugin_id)) {
+        $sort = $this->getOption('sort');
+        $instance = $this->sortManager->createInstance($sort_plugin_id);
+        $instance->sort($query, $entity_list, $sort, $sort_plugin_value);
+        $this->setOption('order', $order);
+        $this->setOption('sort', $sort);
+      }
     }
   }
 
@@ -795,10 +786,11 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $entities = $render_status ? $this->load() : [];
     $build['#draggable'] = FALSE;
     if ($entities) {
-      foreach ($entities as $target_entity) {
+      foreach ($entities as $entity_id => $target_entity) {
         if ($row = $this->buildRow($target_entity)) {
           switch ($format) {
             case 'table';
+            //asdf
               $build[$this->entitiesKey][] = $row;
               $build['#draggable'] = !empty($row['#draggable']);
               break;
@@ -1902,7 +1894,15 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
     $entity_list = $this->getEntityList();
     $action = $entity_list->getAvailableActions()[$form_state->getValue('action')];
-    $selected = array_filter($form_state->getValue($this->entitiesKey) ?? []);
+    $selected = [];
+    $selected_keys = array_filter($form_state->getValue($this->entitiesKey) ?? [], function ($item) {
+      return $item !== 0;
+    });
+    foreach ($selected_keys as $key) {
+      if (isset($form[$this->entitiesKey][$key]['#entity_id'])) {
+        $selected[$form[$this->entitiesKey][$key]['#entity_id']] = $form[$this->entitiesKey][$key]['#entity_id'];
+      }
+    }
     /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
     $instance = $this->getActions()[$action['id']];
     if ($instance instanceof ExoListActionSettingsInterface && empty($form_state->get('action_settings_status'))) {
@@ -2025,8 +2025,23 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   public function buildHeader() {
     $order = $this->getOption('order') ?: $this->entityList->getSort();
     $initialize_table_sort = !$this->sortManager->hasDefinition($order);
-    foreach ($this->getShownFields() as $field_id => $field) {
+    $fields = $this->getShownFields();
+    $order = $this->getOption('order');
+
+    if (!$order && $this->entityList->getSortPluginId() === 'field') {
+      $sort_default = $this->entityList->getSortPluginValue();
+      if (!isset($fields[$sort_default])) {
+        $initialize_table_sort = FALSE;
+      }
+      else {
+        \Drupal::request()->query->set('order', $fields[$sort_default]['display_label']);
+      }
+    }
+
+    foreach ($fields as $field_id => $field) {
       $row[$field_id]['data'] = $field['display_label'];
+      $row[$field_id]['class'][] = Html::getClass('exo-list-builder-field-id--' . $field_id);
+      $row[$field_id]['class'][] = Html::getClass('exo-list-builder-field-type--' . $field['view']['type']);
       if (!empty($field['view']['sort']) && !empty($field['sort_field'])) {
         $row[$field_id] += [
           'specifier' => $field['sort_field'],
@@ -2034,8 +2049,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           'sort' => $initialize_table_sort ? $field['view']['sort'] : NULL,
         ];
       }
-      $row[$field_id]['class'][] = Html::getClass('exo-list-builder-field-id--' . $field_id);
-      $row[$field_id]['class'][] = Html::getClass('exo-list-builder-field-type--' . $field['view']['type']);
     }
     $row['operations'] = [
       'data' => $this->t('Operations'),
@@ -2045,13 +2058,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       ],
     ];
 
-    if (!$this->getOption('order') && $this->entityList->getSortPluginId() === 'field') {
-      $sort_default = $this->entityList->getSortPluginValue();
-      if (isset($row[$sort_default]['data'])) {
-        \Drupal::request()->query->set('order', $row[$sort_default]['data']);
-      }
-    }
-
     return $row;
   }
 
@@ -2059,6 +2065,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * {@inheritDoc}
    */
   public function buildRow(EntityInterface $entity) {
+    $row = [];
+    $row['#entity_id'] = $entity->id();
     foreach ($this->getShownFields() as $field_id => $field) {
       $row[$field_id]['data'] = $this->renderField($entity, $field);
       $row[$field_id]['#wrapper_attributes']['class'][] = Html::getClass('exo-list-builder-field-id--' . $field_id);
@@ -2218,6 +2226,12 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $fields = array_filter($fields, function ($field) {
       return !empty($field['view']['sort']);
     });
+    $sort_default = $this->entityList->getSortPluginValue();
+    if (!isset($fields[$sort_default])) {
+      if ($field = $this->getEntityList()->getField($sort_default)) {
+        $fields = [$sort_default => $field] + $fields;
+      }
+    }
     return $fields;
   }
 
