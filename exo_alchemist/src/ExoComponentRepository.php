@@ -242,13 +242,13 @@ class ExoComponentRepository {
   /**
    * Loads the component entity of the block.
    *
-   * @param \Drupal\layout_builder\Plugin\Block\InlineBlock $block_plugin
+   * @param \Drupal\layout_builder\Plugin\Block\InlineBlock|\Drupal\layout_builder\SectionComponent $block_plugin
    *   The block plugin.
    *
    * @return \Drupal\block_content\BlockContentInterface
    *   The block content entity.
    */
-  protected function extractBlockEntity(InlineBlock $block_plugin) {
+  protected function extractBlockEntity($block_plugin) {
     $entity = NULL;
     $configuration = $block_plugin->getConfiguration();
     if (!empty($configuration['block_serialized'])) {
