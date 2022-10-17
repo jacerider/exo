@@ -309,13 +309,27 @@ class SiteSettingsGeneralForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     /** @var \Drupal\Core\Form\FormSubmitterInterface $form_submitter */
     $form_submitter = \Drupal::service('form_submitter');
+    $success = TRUE;
     foreach ($this->innerForms as $key => $inner_form) {
       $inner_form_state = static::getInnerFormState($form_state, $key);
       // The form state needs to be set as submitted before executing the
       // doSubmitForm method.
       $inner_form_state->setSubmitted();
       $form_submitter->doSubmitForm($form[$key]['form'], $inner_form_state);
+      /** @var Drupal\Core\Entity\EntityFormInterface $inner_form_object */
+      $inner_form_object = $inner_form_state->getFormObject();
+      if (!$inner_form_object->getEntity()->exoSiteSettingsStatus) {
+        $success = FALSE;
+      }
     }
+    \Drupal::messenger()->deleteByType('status');
+    if ($success) {
+      \Drupal::messenger()->addMessage($this->t('Settings have been saved successfully.'));
+    }
+    else {
+      \Drupal::messenger()->addError($this->t('There was an error when trying to save the settings.'));
+    }
+
   }
 
   /**

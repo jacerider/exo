@@ -72,15 +72,16 @@ class SiteSettingsForm extends ContentEntityForm {
     switch ($status) {
       case SAVED_NEW:
         \Drupal::messenger()->addMessage($this->t('Created the %label config page.', [
-          '%label' => $entity->label(),
+          '%label' => $entity->type->entity->label(),
         ]));
         break;
 
       default:
         \Drupal::messenger()->addMessage($this->t('Saved the %label config page.', [
-          '%label' => $entity->label(),
+          '%label' => $entity->type->entity->label(),
         ]));
     }
+    $entity->exoSiteSettingsStatus = $status;
     $form_state->setRedirect('entity.exo_site_settings.collection');
   }
 
