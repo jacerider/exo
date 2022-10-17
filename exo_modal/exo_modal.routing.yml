@@ -142,3 +142,4 @@ exo_modal.api.account.register:
     _access_user_register: 'TRUE'
   options:
     _maintenance_access: TRUE
+    no_cache: TRUE

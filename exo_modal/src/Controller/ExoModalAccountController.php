@@ -50,6 +50,7 @@ class ExoModalAccountController extends ControllerBase {
    * Alter the register form.
    */
   public function registerFormAlter(array &$form, FormStateInterface $form_state) {
+    $form['#id'] = 'exo-modal-account-register-form';
     if ($form_state->get('exo_modal_account') && $this->isAjax()) {
       $form['actions']['submit']['#ajax'] = [
         'callback' => [get_class($this), 'registerFormAjaxSubmit'],
@@ -73,7 +74,7 @@ class ExoModalAccountController extends ControllerBase {
       ];
       $form['#sorted'] = FALSE;
       $response = new AjaxResponse();
-      $response->addCommand(new ReplaceCommand('[data-drupal-selector="' . $form['#attributes']['data-drupal-selector'] . '"]', $form));
+      $response->addCommand(new ReplaceCommand('#' . $form['#id'], $form));
     }
     else {
       $response = new AjaxResponse();
