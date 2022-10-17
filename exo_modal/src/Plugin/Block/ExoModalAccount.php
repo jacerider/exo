@@ -157,8 +157,7 @@ class ExoModalAccount extends ExoModalBlockBase {
    */
   public function getCacheContexts() {
     $contexts = parent::getCacheContexts();
-    $contexts[] = 'url.path';
-    $contexts[] = 'url.query_args';
+    $contexts[] = 'user';
     return $contexts;
   }
 
