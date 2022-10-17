@@ -2,7 +2,6 @@
 
 namespace Drupal\exo_list_builder\Plugin\ExoList\Widget;
 
-use Drupal\Component\Utility\SortArray;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\exo_list_builder\EntityListInterface;
