@@ -118,7 +118,7 @@ function exo_modal_exo_modal_setting_presets($config_id) {
  */
 function exo_modal_library_info_alter(&$libraries, $extension) {
   if ($extension == 'core') {
-    $path = '/' . drupal_get_path('module', 'exo_modal') . '/js';
+    $path = '/' . \Drupal::service('extension.list.module')->getPath('exo_modal') . '/js';
     // Exo Modal overrides all dialog functionality.
     $libraries['drupal.dialog']['js'] = [];
     $libraries['drupal.dialog']['dependencies'][] = 'exo_modal/theme';
@@ -131,10 +131,11 @@ function exo_modal_library_info_alter(&$libraries, $extension) {
     ];
   }
   if ($extension == 'ckeditor') {
-    $path = '/' . drupal_get_path('module', 'exo_modal') . '/js';
+    $path = '/' . \Drupal::service('extension.list.module')->getPath('exo_modal') . '/js';
     $libraries['drupal.ckeditor']['js'][$path . '/exo.modal.ckeditor.js'] = [
       'minified' => TRUE,
     ];
+    $libraries['drupal.ckeditor']['dependencies'][] = 'core/drupal.dialog.ajax';
   }
 }
 
