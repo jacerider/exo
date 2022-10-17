@@ -146,6 +146,7 @@ class ExoModalAccount extends ExoModalBlockBase {
         '@title' => $this->configuration['modal']['trigger']['text'],
         '@name' => $account->getDisplayName(),
       ]));
+      $modal->addCacheContexts(['user']);
       $modal->setModalSetting('title', $this->t('My Account'));
       $modal->setTriggerAttribute('href', Url::fromRoute('user.page')->toString());
     }
