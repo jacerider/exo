@@ -7,6 +7,7 @@ use Drupal\Core\Ajax\RedirectCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\exo_modal\Ajax\ExoModalCloseCommand;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -51,6 +52,7 @@ class ExoModalAccountController extends ControllerBase {
    */
   public function registerFormAlter(array &$form, FormStateInterface $form_state) {
     $form['#id'] = 'exo-modal-account-register-form';
+    $form['actions']['submit']['#attributes']['class'][] = 'exo-form-button-disable-on-click';
     if ($form_state->get('exo_modal_account') && $this->isAjax()) {
       $form['actions']['submit']['#ajax'] = [
         'callback' => [get_class($this), 'registerFormAjaxSubmit'],
@@ -78,6 +80,7 @@ class ExoModalAccountController extends ControllerBase {
     }
     else {
       $response = new AjaxResponse();
+      $response->addCommand(new ExoModalCloseCommand());
       if ($destination = \Drupal::destination()->get()) {
         $response->addCommand(new RedirectCommand($destination));
       }
