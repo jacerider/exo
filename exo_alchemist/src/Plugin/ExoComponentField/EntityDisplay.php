@@ -166,11 +166,14 @@ class EntityDisplay extends ExoComponentFieldComputedBase implements ContextAwar
    */
   protected function getReferencedEntity(array $contexts) {
     $entity = $this->getParentEntity();
+    $entity_type_id = static::getEntityTypeIdFromPluginId($this->getPluginId());
+    $bundle = static::getBundleFromPluginId($this->getPluginId());
+    if ($entity && ($entity->getEntityTypeId() !== $entity_type_id || $entity->bundle() !== $bundle)) {
+      return NULL;
+    }
     if ($this->isPreview($contexts) || $this->isDefaultStorage($contexts)) {
       // Always use plugin id for entity type id and bundle as these will be
       // the root entity.
-      $entity_type_id = static::getEntityTypeIdFromPluginId($this->getPluginId());
-      $bundle = static::getBundleFromPluginId($this->getPluginId());
       if ($entity = $this->getPreviewEntity($entity_type_id, $bundle)) {
         \Drupal::messenger()->addMessage($this->t('This component is being previewed using <a href="@url">@label</a>.', [
           '@url' => $entity->toUrl()->toString(),
