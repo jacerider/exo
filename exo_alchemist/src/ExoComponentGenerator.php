@@ -385,18 +385,21 @@ class ExoComponentGenerator {
           }
           else {
             /** @var \Drupal\block_content\BlockContentInterface $stored_block */
-            foreach ($stored_block->getFields(FALSE) as $key => $items) {
-              if (in_array($key, ['id', 'revision_id', 'revision_user'])) {
-                continue;
+            if ($stored_block->getChangedTime() > $block->getChangedTime()) {
+              foreach ($stored_block->getFields(FALSE) as $key => $items) {
+                if (in_array($key, ['id', 'revision_id', 'revision_user'])) {
+                  continue;
+                }
+                $block->set($key, $items->getValue());
               }
-              $block->set($key, $items->getValue());
+              $do_save = TRUE;
             }
-            $do_save = TRUE;
           }
           if ($do_save) {
             $block->save();
           }
           $configuration['block_uuid'] = $block->uuid();
+          $configuration['block_revision_id'] = $block->get('revision_id')->value;
           $component->setConfiguration($configuration);
         }
         else {
@@ -555,7 +558,7 @@ class ExoComponentGenerator {
   /**
    * Called before component entity has been saved.
    *
-   * @param \Drupal\Core\Entity\ConfigEntityInterface $entity
+   * @param \Drupal\Core\Config\Entity\ConfigEntityInterface $entity
    *   The component entity.
    *
    * @return $this
@@ -628,7 +631,7 @@ class ExoComponentGenerator {
   /**
    * Called after component entity type has been deleted.
    *
-   * @param \Drupal\Core\Entity\ConfigEntityInterface $entity
+   * @param \Drupal\Core\Config\Entity\ConfigEntityInterface $entity
    *   The component entity.
    *
    * @return $this
