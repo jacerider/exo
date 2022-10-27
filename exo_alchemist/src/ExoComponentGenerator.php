@@ -310,7 +310,9 @@ class ExoComponentGenerator {
   protected function handleEntityViewDisplayPreSave(EntityViewDisplayInterface $entity) {
     if ($entity instanceof LayoutEntityDisplayInterface && empty($entity->handleEntityViewDisplayPreSaveSkip)) {
       $storage = [];
-      $this->handleEntityViewDisplayPreSaveRecursive($entity->getSections(), $entity, $storage);
+      if ($sections = $entity->getSections()) {
+        $this->handleEntityViewDisplayPreSaveRecursive($sections, $entity, $storage);
+      }
       foreach ($entity->getThirdPartySettings('exo_alchemist') as $key => $serialized_block) {
         $entity->unsetThirdPartySetting('exo_alchemist', $key);
       }
