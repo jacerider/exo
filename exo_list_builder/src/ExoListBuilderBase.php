@@ -23,6 +23,7 @@ use Drupal\Core\Routing\RedirectDestinationTrait;
 use Drupal\Core\Url;
 use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\exo_list_builder\Plugin\ExoListActionSettingsInterface;
+use Drupal\exo_list_builder\Plugin\ExoListFilterInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -790,7 +791,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         if ($row = $this->buildRow($target_entity)) {
           switch ($format) {
             case 'table';
-            //asdf
               $build[$this->entitiesKey][] = $row;
               $build['#draggable'] = !empty($row['#draggable']);
               break;
@@ -1668,16 +1668,24 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       if ($field['filter']['instance']) {
         /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
         $instance = $field['filter']['instance'];
-        $value = $this->getOption([
-          'filter',
-          $field_id,
-        ], ($this->isModified() ? NULL : $instance->getDefaultValue($this->entityList, $field) ?? $instance->defaultValue()));
-        $form[$field_id] = [];
-        $form[$field_id] = $instance->buildForm($form[$field_id], $form_state, $value, $this->entityList, $field);
-        $form[$field_id] = $instance->buildFormAfter($form[$field_id], $form_state, $value, $this->entityList, $field);
-        $form[$field_id]['#access'] = !empty(Element::getVisibleChildren($form[$field_id]));
+        $form[$field_id] = $this->buildFormFilterField($field, $instance, $form_state);
       }
     }
+    return $form;
+  }
+
+  /**
+   * Build filter field.
+   */
+  protected function buildFormFilterField(array $field, ExoListFilterInterface $instance, FormStateInterface $form_state) {
+    $form = [];
+    $value = $this->getOption([
+      'filter',
+      $field['id'],
+    ], ($this->isModified() ? NULL : $instance->getDefaultValue($this->entityList, $field) ?? $instance->defaultValue()));
+    $form = $instance->buildForm($form, $form_state, $value, $this->entityList, $field);
+    $form = $instance->buildFormAfter($form, $form_state, $value, $this->entityList, $field);
+    $form['#access'] = !empty(Element::getVisibleChildren($form));
     return $form;
   }
 
