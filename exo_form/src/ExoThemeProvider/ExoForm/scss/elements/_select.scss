@@ -204,7 +204,6 @@
       text-align: left;
       font-size: $select-font-size;
       text-transform: none;
-      // transition: all $form-item-speed;
 
       > span {
         display: block;
@@ -218,17 +217,21 @@
     }
 
     &.column--3 {
-      column-count: 3;
-      column-gap: 0;
-      // @include flex;
-      // flex-wrap: wrap;
+      @include flex;
+      flex-wrap: wrap;
 
       > .selector {
-        page-break-inside: avoid;
-        will-change: transform;
-        // transform: translateX(0);
-      //   width: 33.33%;
+        width: 33.33%;
       }
+    }
+
+    .selector-disabled {
+      color: gray(50);
+      font-size: rem-calc(10);
+      text-transform: uppercase;
+      padding-top: $global-padding * 0.5;
+      padding-bottom: $global-padding * 0.5;
+      pointer-events: none;
     }
   }
 
@@ -296,6 +299,11 @@
     &.hide {
       max-height: 0;
       transition-duration: 0;
+    }
+
+    &.disabled {
+      opacity: 0.5;
+      pointer-events: none;
     }
   }
 

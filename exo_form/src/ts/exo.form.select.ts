@@ -477,6 +477,9 @@
       }
       this.$dropdown.find('.search-input').attr('placeholder', 'Search...');
       var options = this.getAllOptions();
+      var optionsEnabled = this.$field.data('options-enabled') || [];
+      var optionsDisabled = this.$field.data('options-disabled') || [];
+      var $disabled = $('<ul />');
       for (var i = 0; i < options.length; i++) {
         var option = options[i];
         if (option['value'] === '' && this.multiple === true) {
@@ -510,7 +513,27 @@
         }
 
         li.data('option', option);
+
+        if (option.value && optionsEnabled.length && !optionsEnabled.includes(option.value) && option.value !== '_none' && option.value !== '_all') {
+          li.addClass('disabled');
+          $disabled.append(li);
+          continue;
+        }
+
+        if (option.value && optionsDisabled.length && optionsDisabled.includes(option.value)) {
+          li.addClass('disabled');
+          $disabled.append(li);
+          continue;
+        }
+
         this.$dropdownList.append(li);
+      }
+      if ($disabled.children().length) {
+        var optionsDisabledLabel = this.$field.data('options-disabled-label');
+        if (optionsDisabledLabel) {
+          this.$dropdownList.append($('<li class="selector-disabled" role="listitem" tabindex="-1"><span>' + optionsDisabledLabel + '</span></li>'));
+        }
+        this.$dropdownList.append($disabled.children());
       }
 
       if (this.multiple) {

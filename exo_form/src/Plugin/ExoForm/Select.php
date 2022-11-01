@@ -53,6 +53,16 @@ class Select extends ExoFormBase {
     $element['#children_suffix']['hidden']['#markup'] = Markup::create('<button type="button" class="exo-form-select-hidden" aria-haspopup="listbox" aria-label="Toggle Options">Toggle Options</button>');
     $element['#children_suffix']['text']['#markup'] = Markup::create('<input class="exo-form-input-item exo-form-input-item-js exo-form-select-trigger" readonly tabindex="-1" data-exo-auto-submit-exclude' . ($label ? ' aria-label="' . $label . '"' : '') . '></input>');
     $element['#children_suffix']['wrapper']['#markup'] = '</div>';
+
+    if (!empty($element['#options_enabled'])) {
+      $element['#attributes']['data-options-enabled'] = json_encode($element['#options_enabled']);
+    }
+    if (!empty($element['#options_disabled'])) {
+      $element['#attributes']['data-options-disabled'] = json_encode($element['#options_disabled']);
+    }
+    if (!empty($element['#options_disabled_label'])) {
+      $element['#attributes']['data-options-disabled-label'] = $element['#options_disabled_label'];
+    }
     return $element;
   }
 
