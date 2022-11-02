@@ -24,6 +24,7 @@ class MegaVertical extends ExoMenuBase {
     return parent::defaultConfiguration() + [
       'itemDelayInterval' => 60,
       'width' => '50%',
+      'width2' => '',
       'transitionIn' => 'fadeIn',
       'transitionOut' => 'fadeOut',
       'itemIcon' => '',
@@ -52,6 +53,12 @@ class MegaVertical extends ExoMenuBase {
       '#title' => $this->t('Width'),
       '#description' => $this->t('The width of each part of the menu. Should be in "px" or "%".'),
       '#default_value' => $this->configuration['width'],
+    ];
+    $form['width2'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Width for Second Level'),
+      '#description' => $this->t('The optional width of the second level of the menu. Should be in "px" or "%".'),
+      '#default_value' => $this->configuration['width2'],
     ];
     $form['transitionIn'] = [
       '#type' => 'select',

@@ -76,7 +76,15 @@
       switch (unit) {
         case 'px':
           if (this.open === true) {
-            level1Width = level0Width;
+            let width2 = Drupal.Exo.getMeasurementValue(this.get('width2')) || width;
+            var $active = this.$element.find('.expand').first();
+            if (Drupal.Exo.breakpoint.name === 'large' && $active.length && $active.attr('data-exo-menu-width')) {
+              let widthCustom = $active.attr('data-exo-menu-width');
+              level1Width = Drupal.Exo.getMeasurementValue(widthCustom);
+            }
+            else {
+              level1Width = width2;
+            }
           }
           else {
             level0Width += width;
@@ -159,8 +167,8 @@
         animate = animate !== false;
         if ($submenu.length) {
           this.open = true;
-          this.resize();
           $item.addClass('expand');
+          this.resize();
           if (animate && this.get('transitionIn') !== '' && Drupal.Exo.animationEvent !== undefined) {
             $submenu.off(Drupal.Exo.animationEvent + '.exo.menu.hide');
             $item.removeClass('exo-animate exo-animate-out');
