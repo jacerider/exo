@@ -78,7 +78,7 @@
           if (this.open === true) {
             let width2 = Drupal.Exo.getMeasurementValue(this.get('width2')) || width;
             var $active = this.$element.find('.expand').first();
-            if (Drupal.Exo.breakpoint.name === 'large' && $active.length && $active.attr('data-exo-menu-width')) {
+            if ((Drupal.Exo.breakpoint.name === 'large' || Drupal.Exo.breakpoint.name === 'xlarge') && $active.length && $active.attr('data-exo-menu-width')) {
               let widthCustom = $active.attr('data-exo-menu-width');
               level1Width = Drupal.Exo.getMeasurementValue(widthCustom);
             }
