@@ -787,16 +787,16 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $entities = $render_status ? $this->load() : [];
     $build['#draggable'] = FALSE;
     if ($entities) {
-      foreach ($entities as $entity_id => $target_entity) {
+      foreach ($entities as $key => $target_entity) {
         if ($row = $this->buildRow($target_entity)) {
           switch ($format) {
             case 'table';
-              $build[$this->entitiesKey][] = $row;
+              $build[$this->entitiesKey][$key] = $row;
               $build['#draggable'] = !empty($row['#draggable']);
               break;
 
             default:
-              $build[$this->entitiesKey][] = [
+              $build[$this->entitiesKey][$key] = [
                 '#type' => 'html_tag',
                 '#tag' => 'div',
                 '#attributes' => [
@@ -826,7 +826,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
     $build[$this->entitiesKey]['#entities'] = $entities;
 
-    if (($entities || $this->isFiltered()) && count($entities) < $this->getTotal()) {
+    if (($entities || $this->isFiltered()) && (count($entities) < $this->getTotal() || $this->getOption('limit'))) {
       $pager = $this->buildPager($build);
       $build['header']['second']['pager'] = [
         '#access' => !empty(Element::getVisibleChildren($pager)),
@@ -1022,6 +1022,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           if (empty($context['job_finish'])) {
             $show_action_status_column = TRUE;
             foreach ($entities as $entity_id => $entity) {
+              $form['entities'][$entity_id]['_action_status']['#wrapper_attributes']['class'][] = 'exo-list-builder-size--compact';
               if (!isset($form['entities'][$entity_id]['_action_status']['data'][$action_id])) {
                 $form['entities'][$entity_id]['_action_status']['data'][$action_id] = [
                   '#theme' => 'item_list',
