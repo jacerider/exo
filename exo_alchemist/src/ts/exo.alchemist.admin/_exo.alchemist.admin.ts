@@ -550,7 +550,8 @@ class ExoAlchemistAdmin {
     const offsets = $element.offset();
     let outerWidth = $element.outerWidth(true);
     let outerHeight = $element.outerHeight(true);
-    let top = offsets.top - displace.offsets.top;
+    let elementTop = offsets.top - displace.offsets.top;
+    let top = elementTop;
     let marginTop = parseInt($element.css('marginTop').replace('px', ''));
     if (marginTop > 0) {
       top -= marginTop;
@@ -559,11 +560,38 @@ class ExoAlchemistAdmin {
       top += marginTop;
       outerHeight -= marginTop * 2;
     }
-    let left = offsets.left - displace.offsets.left - $element.css('marginLeft').replace('px', '');
+    const elementLeft =offsets.left - displace.offsets.left;
+    let left = elementLeft - $element.css('marginLeft').replace('px', '');
+    const elementBottom = elementTop + outerHeight;
+    const elementRight = elementLeft + outerWidth;
     if (this.$activeComponent) {
       // If we have an active component, account for overlap.
       const componentOffsets = this.$activeComponent.offset();
+      const componentWidth = this.$activeComponent.outerWidth();
+      const componentHeight = this.$activeComponent.outerHeight();
       const componentMarginTop = parseInt(this.$activeComponent.css('marginTop').replace('px', ''));
+      const componentTop = componentOffsets.top - displace.offsets.top;
+      const componentBottom = componentTop + componentHeight;
+      const componentLeft = componentOffsets.left - displace.offsets.left;
+      const componentRight = componentLeft + componentWidth;
+      // Overlaps top.
+      if (componentTop > elementTop) {
+        top += componentTop - elementTop;
+        outerHeight -= componentTop - elementTop;
+      }
+      // Overlaps bottom.
+      if (componentBottom < elementBottom) {
+        outerHeight -= elementBottom - componentBottom;
+      }
+      // Overlaps left.
+      if (componentLeft > elementLeft) {
+        left += componentLeft - elementLeft;
+        outerWidth -= componentLeft - elementLeft;
+      }
+      // Overlaps right.
+      if (componentRight < elementRight) {
+        outerWidth -= elementRight - componentRight;
+      }
       if (componentOffsets.top - componentMarginTop >= offsets.top) {
         top += this.overlapOffset;
         left += this.overlapOffset;
