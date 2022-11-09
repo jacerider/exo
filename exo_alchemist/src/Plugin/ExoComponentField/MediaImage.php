@@ -107,6 +107,8 @@ class MediaImage extends MediaFileBase {
         if ($file_item) {
           $field = $this->getFieldDefinition();
           $settings = [];
+          // Can set visible, blur and animate.
+          $settings['display'] = $field->getAdditionalValue('imagine_display') ?? [];
           foreach ($field->getAdditionalValue('styles') as $breakpoint => $data) {
             $settings['breakpoints'][$breakpoint] = [
               'width' => $data['width'] ?? NULL,
