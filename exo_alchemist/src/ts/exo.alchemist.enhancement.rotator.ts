@@ -236,6 +236,10 @@
       const currentIndex = this.$current.data('ee--rotator-index')
       speed = typeof speed !== 'undefined' ? speed : 1000;
       const $from = this.$current;
+      $from.css({
+        zIndex: 2,
+        position: 'relative',
+      });
       $to = $to || this.getNext();
       const index = $to.data('ee--rotator-index');
       if (this.lock === true || index === currentIndex) {
