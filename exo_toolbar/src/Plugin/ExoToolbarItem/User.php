@@ -198,7 +198,9 @@ class User extends ExoToolbarItemDialogBase implements ContainerFactoryPluginInt
    */
   protected function getGravatar($email, $s = 50, $d = 'mm', $r = 'g') {
     $url = 'https://www.gravatar.com/avatar/';
-    $url .= md5(strtolower(trim($email)));
+    if (!empty($email)) {
+      $url .= md5(strtolower(trim($email)));
+    }
     $url .= "?s=$s&d=$d&r=$r";
     return $url;
   }
