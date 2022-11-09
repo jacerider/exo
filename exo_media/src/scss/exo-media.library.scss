@@ -1,18 +1,8 @@
 @import 'exo-common';
 
-// .exo-body .media-library-wrapper {
-//   margin: 0;
-
-//   .media-library-content {
-//     box-shadow: none;
-//   }
-// }
-
 .media-library-wrapper {
   margin: 0;
-  padding: $global-padding;
-  // display: block !important;
-  // margin: 0 !important;
+  padding: 0;
 
   .exo-form-wrap {
     border: 0 !important;
@@ -188,8 +178,8 @@
     > .view-filters {
       flex: 1 1 auto !important;
       order: 1;
-      margin-bottom: $global-margin !important;
-      margin-top: 0 !important;
+      margin-top: ($global-margin * 0.5) !important;
+      margin-bottom: 0 !important;
 
       > .views-exposed-form {
         background: none;
@@ -205,7 +195,7 @@
     > .view-content {
       flex: 0 0 100%;
       order: 3;
-      margin-top: $global-margin * 0.5;
+      // margin-top: $global-margin * 0.5;
 
       .views-table {
         width: 100%;
@@ -216,6 +206,25 @@
       flex: 0 0 100%;
       order: 4;
       margin-top: $global-margin;
+
+      > ul {
+        @include flex;
+        @include flex-align(center, middle);
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        > li {
+          padding: 0;
+          margin: 0;
+
+          > a {
+            padding: $global-padding;
+            font-weight: 700;
+            font-size: rem-calc(14);
+          }
+        }
+      }
     }
 
     .media-library-views-form {
