@@ -12,8 +12,7 @@
     protected $current:JQuery;
     protected id:string = '';
     protected speed:number = 5000;
-    protected interval:number;
-    protected active:boolean = true;
+    protected timeout:number;
     protected lock:boolean = false;
 
     constructor(id:string, $wrapper:JQuery) {
@@ -31,14 +30,13 @@
           position: 'relative',
         });
         this.$items.each((index, element) => {
-          $(element).data('ee--rotator-index', index);
+          $(element).data('ee--rotator-index', index).trigger('exoAlchemistRotatorHide');
         }).hide();
         this.$current.show();
-        this.interval = setInterval(() => {
-          if (this.active === true) {
-            this.cycle();
-          }
-        }, this.$wrapper.data('ee--rotator-speed') || this.speed);
+        setTimeout(() => {
+          this.$current.trigger('exoAlchemistRotatorShow');
+        });
+        this.setTimeout();
 
         this.$wrapper.on('keydown', e => {
           switch (e.which) {
@@ -122,6 +120,13 @@
       }
     }
 
+    protected setTimeout() {
+      clearTimeout(this.timeout);
+      this.timeout = setTimeout(() => {
+        this.cycle();
+      }, this.$wrapper.data('ee--rotator-speed') || this.speed);
+    }
+
     protected buildForLayoutBuilder():void {
       if (this.$prev.length) {
         this.$prev.on('click', e => {
@@ -193,11 +198,11 @@
     }
 
     public pause():void {
-      this.active = false;
+      clearTimeout(this.timeout);
     }
 
     public play():void {
-      this.active = true;
+      this.setTimeout();
     }
 
     public prev():void {
@@ -233,6 +238,7 @@
     }
 
     public cycle($to?:JQuery, speed?:number):void {
+      this.setTimeout();
       const currentIndex = this.$current.data('ee--rotator-index')
       speed = typeof speed !== 'undefined' ? speed : 1000;
       const $from = this.$current;
@@ -259,12 +265,13 @@
         $(this.$navItems.get(index)).addClass('active');
       }
       setTimeout(() => {
-        $to.show();
+        $to.show().trigger('exoAlchemistRotatorShow');
         Drupal.Exo.checkElementPosition();
         this.$itemsWrapper.height($to.outerHeight());
         $from.css('z-index', 2);
         setTimeout(() => {
           $from.fadeOut(speed, 'swing', () => {
+            $from.trigger('exoAlchemistRotatorHide');
             this.$itemsWrapper.height('');
             $to.css({
               position: 'relative',
