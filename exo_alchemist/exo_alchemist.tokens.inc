@@ -57,6 +57,7 @@ function exo_alchemist_tokens($type, $tokens, array $data, array $options, Bubbl
           'field_body',
         ],
         'truncate' => 160,
+        'fallback' => 'exo_alchemist_smart_description_fallback',
       ],
     ];
     foreach ($lookup as $prefix => $info) {
@@ -101,9 +102,19 @@ function exo_alchemist_smart_image_fallback($replacements, array $found_tokens) 
     $favicon = real_favicon_load_by_theme();
     if ($favicon) {
       foreach ($found_tokens as $key => $value) {
-        $replacements[$value] = file_create_url($favicon->getManifestLargeImage());
+        $replacements[$value] = \Drupal::service('file_url_generator')->generateAbsoluteString($favicon->getManifestLargeImage());
       }
     }
+  }
+  return $replacements;
+}
+
+/**
+ * Smart description fallback.
+ */
+function exo_alchemist_smart_description_fallback($replacements, array $found_tokens) {
+  foreach ($found_tokens as $key => $value) {
+    $replacements[$value] = \Drupal::config('system.site')->get('slogan');
   }
   return $replacements;
 }
@@ -137,7 +148,7 @@ function exo_alchemist_smart_data(ContentEntityInterface $entity, $alchemist_fie
     if (empty($data)) {
       /** @var \Drupal\exo_alchemist\ExoComponentRepository $repository */
       $repository = \Drupal::service('exo_alchemist.repository');
-      $items = $repository->getComponentItemsByFieldType($entity, $alchemist_field_type);
+      $items = $repository->getComponentItemsByFieldType($entity, $alchemist_field_type, FALSE, TRUE);
       if ($items) {
         $data = exo_alchemist_smart_find($items, $field_type);
       }
@@ -145,7 +156,7 @@ function exo_alchemist_smart_data(ContentEntityInterface $entity, $alchemist_fie
     if (empty($data)) {
       /** @var \Drupal\exo_alchemist\ExoComponentRepository $repository */
       $repository = \Drupal::service('exo_alchemist.repository');
-      $items = $repository->getComponentItemsByFieldType($entity, 'sequence');
+      $items = $repository->getComponentItemsByFieldType($entity, 'sequence', FALSE, TRUE);
       if ($items) {
         $entity = $items->first()->entity;
         $items = $repository->getComponentItemsByEntityFieldType($entity, $alchemist_field_type);

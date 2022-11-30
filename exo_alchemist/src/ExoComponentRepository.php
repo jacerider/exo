@@ -195,14 +195,16 @@ class ExoComponentRepository {
    *   The field type.
    * @param bool $use_tempstore
    *   Flag indicating if the tempstore storage should be used.
+   * @param bool $visible_only
+   *   Flag indicating if we should only return visible fields.
    *
    * @return \Drupal\Core\Field\FieldItemListInterface
    *   The component entities.
    */
-  public function getComponentItemsByFieldType(EntityInterface $entity, $field_type, $use_tempstore = FALSE) {
+  public function getComponentItemsByFieldType(EntityInterface $entity, $field_type, $use_tempstore = FALSE, $visible_only = FALSE) {
     $items = NULL;
     foreach ($this->getComponentsWithFieldType($entity, $field_type, $use_tempstore) as $component) {
-      $items = $this->getComponentItemsByEntityFieldType($component, $field_type, $items);
+      $items = $this->getComponentItemsByEntityFieldType($component, $field_type, $items, $visible_only);
     }
     return $items;
   }
@@ -216,14 +218,23 @@ class ExoComponentRepository {
    *   The field type.
    * @param \Drupal\Core\Field\FieldItemListInterface $items
    *   The items.
+   * @param bool $visible_only
+   *   Flag indicating if we should only return visible fields.
    *
    * @return \Drupal\Core\Field\FieldItemListInterface
    *   The component entities.
    */
-  public function getComponentItemsByEntityFieldType(BlockContent $component, $field_type, FieldItemListInterface $items = NULL) {
+  public function getComponentItemsByEntityFieldType(BlockContent $component, $field_type, FieldItemListInterface $items = NULL, $visible_only = FALSE) {
     $items = NULL;
     $definition = $this->exoComponentManager->getEntityComponentDefinition($component);
+    $hidden = [];
+    if ($visible_only) {
+      $hidden = ExoComponentFieldManager::getHiddenFieldNames($component);
+    }
     foreach ($definition->getFieldsByType($field_type) as $field) {
+      if (isset($hidden[$field->getName()])) {
+        continue;
+      }
       $field_name = $field->safeId();
       if ($component->hasField($field_name)) {
         if ($items) {
