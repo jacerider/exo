@@ -118,6 +118,9 @@
           }
         }
       }
+      else {
+        this.$items.first().trigger('exoAlchemistRotatorShow');
+      }
     }
 
     protected setTimeout() {
