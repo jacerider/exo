@@ -206,7 +206,7 @@ class ExoModalSettings extends ExoSettingsBase {
       '#type' => 'checkbox',
       '#title' => $this->t('Focus input.'),
       '#description' => $this->t('If enabled, when modal is opened, the first visible field is active.'),
-      '#default_value' => $this->getSetting(['modal', 'overlay']),
+      '#default_value' => $this->getSetting(['modal', 'focusInput']),
     ];
 
     $form['modal']['features']['overlay'] = [
