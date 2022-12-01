@@ -30,7 +30,7 @@
 
       .exo-toolbar-element {
         color: color-fix($base, $offset);
-        text-shadow: 0 1px 2px color-scale-direct($base, 10);
+        text-shadow: 0 1px 2px color-scale-direct($base, 10%);
 
         &.as-link {
 
@@ -65,7 +65,7 @@
           &.is-primary {
             color: color-pick-contrast(color($primary));
             background: color($primary);
-            text-shadow: 0 1px 2px color-scale-direct($primary, 10);
+            text-shadow: 0 1px 2px color-scale-direct($primary, 10%);
           }
 
           &.is-primary {
@@ -114,7 +114,7 @@
 
         .exo-toolbar-element-mark {
           color: color-pick-contrast(color($primary));
-          text-shadow: 0 1px 2px color-scale-direct($primary, 10);
+          text-shadow: 0 1px 2px color-scale-direct($primary, 10%);
           background: color-fix($base, $primary, 3%, 40%, 2);
           transition: background 300ms;
         }
