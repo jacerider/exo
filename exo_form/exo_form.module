@@ -618,6 +618,7 @@ function exo_form_preprocess_field_multiple_value_form(&$variables) {
       '#type' => 'fieldset',
       '#id' => '',
       '#attributes' => [],
+      '#description_display' => NULL,
       '#exo_wrapper_supported' => TRUE,
     ];
     if (isset($variables['table'])) {
