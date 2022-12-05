@@ -76,6 +76,9 @@ class EntityReferenceLabel extends ExoListElementContentBase {
   protected function viewItem(EntityInterface $entity, FieldItemInterface $field_item, array $field) {
     /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $field_item */
     $reference_entity = $field_item->entity;
+    if (!$reference_entity) {
+      return NULL;
+    }
     $configuration = $this->getConfiguration();
     $label = $configuration['override_label'] ?: ($reference_entity->label() ?: $reference_entity->id());
     $icon = '';
