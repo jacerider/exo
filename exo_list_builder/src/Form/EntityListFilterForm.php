@@ -3,12 +3,10 @@
 namespace Drupal\exo_list_builder\Form;
 
 use Drupal\Component\Utility\Html;
-use Drupal\Core\Cache\Cache;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\exo_list_builder\EntityListInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Builds the form to delete eXo Entity List entities.
