@@ -1082,7 +1082,11 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    *   The cache tags.
    */
   protected function getCacheTags() {
-    return array_merge($this->getEntityList()->getEntityType()->getListCacheTags(), $this->entityType->getListCacheTags());
+    $list_cache_tags = [];
+    foreach ($this->entityList->getTargetBundleIds() as $id) {
+      $list_cache_tags[] = $this->entityList->getTargetEntityTypeId() . '_list:' . $id;
+    }
+    return array_merge($this->getEntityList()->getEntityType()->getListCacheTags(), $list_cache_tags);
   }
 
   /**
