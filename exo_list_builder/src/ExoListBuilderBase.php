@@ -1066,30 +1066,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   }
 
   /**
-   * Get cache contexts.
-   *
-   * @return array
-   *   The cache contexts.
-   */
-  protected function getCacheContexts() {
-    return array_merge($this->getEntityList()->getEntityType()->getListCacheContexts(), $this->entityType->getListCacheContexts(), ['url.query_args']);
-  }
-
-  /**
-   * Get cache tags.
-   *
-   * @return array
-   *   The cache tags.
-   */
-  protected function getCacheTags() {
-    $list_cache_tags = [];
-    foreach ($this->entityList->getTargetBundleIds() as $id) {
-      $list_cache_tags[] = $this->entityList->getTargetEntityTypeId() . '_list:' . $id;
-    }
-    return array_merge($this->getEntityList()->getEntityType()->getListCacheTags(), $list_cache_tags);
-  }
-
-  /**
    * Build form pager.
    */
   protected function buildEmpty(array $build) {
@@ -2341,6 +2317,24 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       $this->queues[$action_id] = $queue_factory->get('exo_list_action:' . $this->getEntityList()->id() . ':' . $action_id, TRUE);
     }
     return $this->queues[$action_id];
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function getCacheContexts() {
+    return Cache::mergeContexts(
+      $this->getEntityList()->getEntityType()->getListCacheContexts(),
+      $this->entityType->getListCacheContexts(),
+      ['url.query_args:' . $this->getEntityList()->getKey()]
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function getCacheTags() {
+    return $this->getEntityList()->getCacheTags();
   }
 
   /**

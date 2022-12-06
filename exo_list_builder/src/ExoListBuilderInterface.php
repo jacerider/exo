@@ -189,4 +189,20 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
    */
   public function getQueue($action_id);
 
+  /**
+   * Get cache contexts.
+   *
+   * @return array
+   *   The cache contexts.
+   */
+  public function getCacheContexts();
+
+  /**
+   * Get cache tags.
+   *
+   * @return array
+   *   The cache tags.
+   */
+  public function getCacheTags();
+
 }

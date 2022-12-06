@@ -28,7 +28,6 @@ use Drupal\exo_list_builder\Plugin\ExoListFilterInterface;
  *       "add" = "Drupal\exo_list_builder\Form\EntityListAddForm",
  *       "edit" = "Drupal\exo_list_builder\Form\EntityListForm",
  *       "delete" = "Drupal\exo_list_builder\Form\EntityListDeleteForm",
- *       "filter" = "Drupal\exo_list_builder\Form\EntityListFilterForm",
  *       "duplicate" = "Drupal\exo_list_builder\Form\EntityListForm",
  *       "action_cancel" = "Drupal\exo_list_builder\Form\EntityListActionCancelForm",
  *     },
@@ -885,7 +884,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * {@inheritdoc}
    */
   public function getCacheTags() {
-    $cache = Cache::mergeTags(parent::getCacheTags(), $this->getTargetEntityType()->getListCacheTags());
+    $cache = $this->getEntityType()->getListCacheTags();
     foreach ($this->getTargetBundleIds() as $bundle) {
       $cache = Cache::mergeTags($cache, [$this->getTargetEntityTypeId() . '_list:' . $bundle]);
     }
