@@ -2,6 +2,7 @@
 
 namespace Drupal\exo_list_builder\Form;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -42,6 +43,7 @@ class EntityListFilterForm extends FormBase {
     $form['actions'] = ['#type' => 'actions'];
     $form['actions']['submit'] = [
       '#type' => 'submit',
+      '#id' => Html::getId($this->getFormId() . '_' . $entity->id() . '_submit'),
       '#value' => $this->t('Save'),
       '#submit' => ['::submitForm'],
     ];
