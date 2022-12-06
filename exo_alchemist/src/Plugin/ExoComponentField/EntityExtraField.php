@@ -145,9 +145,22 @@ class EntityExtraField extends ExoComponentFieldComputedBase implements ContextA
       $display->setComponent($this->fieldName);
       $view_hook = "{$parent_entity->getEntityTypeId()}_view";
       $module_handler = \Drupal::moduleHandler();
-      $entity_build = [];
-      $module_handler->invokeAll($view_hook, [&$entity_build, $parent_entity, $display, $view_mode]);
-      $module_handler->invokeAll('entity_view', [&$entity_build, $entity, $display, $view_mode]);
+      $entity_build = [
+        '#view_mode' => $view_mode,
+      ];
+      $module_handler->invokeAll($view_hook, [
+        &$entity_build,
+        $parent_entity,
+        $display,
+        $view_mode,
+      ]);
+      $module_handler->invokeAll('entity_view', [
+        &$entity_build,
+        $entity,
+        $display,
+        $view_mode,
+      ]);
+      $module_handler->alter([$view_hook, 'entity_view'], $entity_build, $entity, $display);
       $build = [];
       if (isset($entity_build[$this->fieldName])) {
         $build = $entity_build[$this->fieldName];
