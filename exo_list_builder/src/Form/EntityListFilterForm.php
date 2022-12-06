@@ -2,14 +2,17 @@
 
 namespace Drupal\exo_list_builder\Form;
 
-use Drupal\Core\Entity\EntityForm;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
+use Drupal\exo_list_builder\EntityListInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Builds the form to delete eXo Entity List entities.
  */
-class EntityListFilterForm extends EntityForm {
+class EntityListFilterForm extends FormBase {
 
   /**
    * The entity being used by this form.
@@ -17,6 +20,33 @@ class EntityListFilterForm extends EntityForm {
    * @var \Drupal\exo_list_builder\EntityListInterface
    */
   protected $entity;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFormId() {
+    return 'entity_list_filter_form';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state, EntityListInterface $entity = NULL) {
+    $this->entity = $entity;
+    $form = $this->form($form, $form_state);
+    $form['#cache'] = [
+      'tags' => $this->entity->getHandler()->getCacheTags(),
+      'contexts' => $this->entity->getHandler()->getCacheContexts(),
+    ];
+    $form['#attributes']['class'][] = 'exo-entity-list-filter-form';
+    $form['actions'] = ['#type' => 'actions'];
+    $form['actions']['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Save'),
+      '#submit' => ['::submitForm'],
+    ];
+    return $form;
+  }
 
   /**
    * {@inheritdoc}
@@ -32,18 +62,6 @@ class EntityListFilterForm extends EntityForm {
       $form['filters'] = ['#tree' => TRUE] + $subform;
     }
     return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function actions(array $form, FormStateInterface $form_state) {
-    $actions['submit'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Save'),
-      '#submit' => ['::submitForm'],
-    ];
-    return $actions;
   }
 
   /**
