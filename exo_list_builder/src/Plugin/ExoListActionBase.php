@@ -68,15 +68,31 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
   /**
    * {@inheritdoc}
    */
-  public function asJobQueue() {
+  public function supportsJobQueue() {
     return !empty($this->getPluginDefinition()['queue']);
   }
 
   /**
    * {@inheritdoc}
    */
+  public function runAsJobQueue(int $count = 0) {
+    if (!$this->supportsJobQueue()) {
+      return FALSE;
+    }
+    $configuration = $this->getConfiguration();
+    return $count >= (int) $configuration['queue_limit'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function defaultConfiguration() {
-    return [];
+    $defaults = [];
+    if ($this->supportsJobQueue()) {
+      $defaults['queue_limit'] = 1000;
+      $defaults['queue_email'] = '';
+    }
+    return $defaults;
   }
 
   /**
@@ -97,6 +113,21 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state, EntityListInterface $entity_list, array $action) {
+    $configuration = $this->getConfiguration();
+    if ($this->supportsJobQueue()) {
+      $form['queue_limit'] = [
+        '#type' => 'number',
+        '#title' => $this->t('Queue: Limit'),
+        '#description' => $this->t('When acting on this number of records or greater, the operation will run in the background.'),
+        '#default_value' => $configuration['queue_limit'],
+      ];
+      $form['queue_email'] = [
+        '#type' => 'email',
+        '#title' => $this->t('Queue: Email'),
+        '#description' => $this->t('Email address to notify when job is finished.'),
+        '#default_value' => $configuration['queue_email'],
+      ];
+    }
     return $form;
   }
 
@@ -121,7 +152,7 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
    * {@inheritdoc}
    */
   public function executeStart(EntityListInterface $entity_list, array &$context) {
-    if ($this->asJobQueue()) {
+    if (!empty($context['results']['queue'])) {
       if ($email = $this->getNotifyEmail()) {
         \Drupal::messenger()->addMessage($this->t('Started action "@action". This process will continue in the background. When finished, a notification email will be sent to %email.', [
           '@action' => $this->label(),
@@ -146,9 +177,15 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
    * {@inheritdoc}
    */
   public function executeFinish(EntityListInterface $entity_list, array &$results) {
-    if ($this->asJobQueue() && ($email = $this->getNotifyEmail())) {
+    if (!empty($results['queue']) && ($email = $this->getNotifyEmail())) {
       $this->notifyEmailFinish($entity_list, $results, $email);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function overview(array $context) {
   }
 
   /**
@@ -158,7 +195,7 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
    *   The email to notify.
    */
   protected function getNotifyEmail() {
-    return NULL;
+    return $this->getConfiguration()['queue_email'] ?? NULL;
   }
 
   /**

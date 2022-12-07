@@ -21,6 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   weight = 0,
  *   entity_type = {},
  *   bundle = {},
+ *   queue = true,
  * )
  */
 class ExportCsv extends ExoListActionBase {
@@ -136,7 +137,7 @@ class ExportCsv extends ExoListActionBase {
     parent::executeFinish($entity_list, $results);
     // Hide default message.
     $results['entity_list_hide_message'] = TRUE;
-    if (!$this->asJobQueue() && isset($results['csv_file_uri']) && file_exists($results['csv_file_uri'])) {
+    if (empty($results['queue']) && isset($results['csv_file_uri']) && file_exists($results['csv_file_uri'])) {
       $file_uri = $results['csv_file_uri'];
       /** @var \Drupal\Core\Access\CsrfTokenGenerator $csrf_token */
       $csrf_token = \Drupal::service('csrf_token');
@@ -161,7 +162,7 @@ class ExportCsv extends ExoListActionBase {
    * {@inheritdoc}
    */
   protected function notifyEmailFinish(EntityListInterface $entity_list, array $results, $email, $subject = NULL, $message = NULL, $link_text = NULL, $link_url = NULL) {
-    if ($this->asJobQueue()) {
+    if ($this->supportsJobQueue()) {
       $link_text = $link_text ?: $this->t('Download CSV');
       $link_url = \Drupal::service('file_url_generator')->generateAbsoluteString($results['csv_file_uri']);
     }
@@ -193,6 +194,9 @@ class ExportCsv extends ExoListActionBase {
     if (static::CSV_MANAGED) {
       /** @var \Drupal\file\FileRepositoryInterface $file_repository */
       $file_repository = \Drupal::service('file.repository');
+      if (file_exists($file_uri)) {
+        $file_system->delete($file_uri);
+      }
       $file = $file_repository->writeData('', $file_uri, FileSystemInterface::EXISTS_ERROR);
       if (static::CSV_PRESERVE) {
         $file->setPermanent();
@@ -201,6 +205,7 @@ class ExportCsv extends ExoListActionBase {
         $file->setTemporary();
       }
       $file->save();
+      \Drupal::service('file.usage')->add($file, 'file', $entity_list->getEntityTypeId(), $entity_list->id());
       // URI may have changed.
       $file_uri = $file->getFileUri();
     }
@@ -294,6 +299,20 @@ class ExportCsv extends ExoListActionBase {
       $row[$field_id] = $instance->buildPlainView($entity, $field);
     }
     return $row;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function overview(array $context) {
+    if (!empty($context['job_finish'])) {
+      return [
+        '#type' => 'link',
+        '#title' => $this->t('Download CSV'),
+        '#url' => \Drupal::service('file_url_generator')->generate($context['results']['csv_file_uri']),
+      ];
+    }
+    return parent::overview($context);
   }
 
 }

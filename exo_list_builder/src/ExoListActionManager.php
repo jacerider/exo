@@ -149,6 +149,7 @@ class ExoListActionManager extends DefaultPluginManager implements ExoListAction
     $context['results']['entity_ids'] = $entity_ids;
     $context['results']['entity_ids_complete'] = [];
     $context['results']['action_settings'] = $settings;
+    $context['results']['queue'] = !empty($context['results']['queue']);
     // Start.
     $instance->executeStart($entity_list, $context);
   }
@@ -178,7 +179,7 @@ class ExoListActionManager extends DefaultPluginManager implements ExoListAction
     $fields = array_intersect_key($entity_list->getFields(), array_flip($field_ids));
     $entity_list->setFields($fields);
     $instance->execute($entity_id, $entity_list, $selected, $context);
-    $context['results']['entity_ids_complete'][$entity_id] = \Drupal::time()->getRequestTime();
+    $context['results']['entity_ids_complete'][$entity_id] = time();
   }
 
   /**

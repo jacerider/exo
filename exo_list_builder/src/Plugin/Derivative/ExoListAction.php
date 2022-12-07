@@ -51,7 +51,7 @@ class ExoListAction extends DeriverBase implements ContainerDeriverInterface {
         // the available actions and we need all enabled actions.
         /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
         $instance = \Drupal::service('plugin.manager.exo_list_action')->createInstance($action['id'], $action['settings']);
-        if ($instance->asJobQueue()) {
+        if ($instance->supportsJobQueue()) {
           $this->derivatives[$id . ':' . $instance->getPluginId()] = $base_plugin_definition;
           $this->derivatives[$id . ':' . $instance->getPluginId()]['title'] = t('Action Queue Worker for @action in @label', [
             '@action' => $action['label'],

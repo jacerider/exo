@@ -998,15 +998,18 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $entities = $form[$this->entitiesKey]['#entities'];
     $actions_status_list = [];
     foreach ($actions as $action_id => $action) {
-      if ($action->asJobQueue()) {
+      if ($action->supportsJobQueue()) {
+        $message = [
+          '#markup' => '<strong>Hi</strong> Hello!',
+        ];
         /** @var \Drupal\exo_list_builder\QueueWorker\ExoListActionProcess $queue_worker */
         $queue_worker = \Drupal::service('plugin.manager.queue_worker')->createInstance('exo_list_action:' . $entity_list->id() . ':' . $action_id);
-        $date_formatter = \Drupal::service('date.formatter');
         $context = $queue_worker->getContext();
         if (!empty($context['results']['entity_list_id'])) {
+          $date_formatter = \Drupal::service('date.formatter');
           $actions_status_list[$action_id] = [
             '#type' => 'inline_template',
-            '#template' => '<strong>{{ title }}</strong> | <em>Started:</em> {{ started }}{% if finished %} | <em>Finished:</em> {{ finished }} | <em>Processed:</em> {{ processed }}{% else %} | <em>Processed:</em> {{ processed }} | <em>Remaining:</em> {{ remaining }} | <a href="{{ cancel_url }}">{{ cancel }}</a>{% endif %}',
+            '#template' => '<strong>{{ title }}</strong> | <em>Started:</em> {{ started }}{% if finished %} | <em>Finished:</em> {{ finished }} | <em>Processed:</em> {{ processed }} | <a href="{{ cancel_url }}">{{ clear }}</a>{% else %} | <em>Processed:</em> {{ processed }} | <em>Remaining:</em> {{ remaining }} | <a href="{{ cancel_url }}">{{ cancel }}</a>{% endif %}{% if overview %} | {{ overview }}{% endif %}',
             '#context' => [
               'title' => $action->label(),
               'started' => $date_formatter->format($context['job_start'], 'medium'),
@@ -1014,9 +1017,11 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
               'processed' => count($context['results']['entity_ids_complete']),
               'remaining' => count($context['results']['entity_ids']) - count($context['results']['entity_ids_complete']),
               'cancel' => $this->icon('Cancel')->setIcon('regular-times-circle'),
+              'clear' => $this->icon('Clear')->setIcon('regular-times-circle'),
               'cancel_url' => $entity_list->toUrl('action-cancel-form', [
-                'query' => \Drupal::destination()->getAsArray(),
+                'query' => \Drupal::destination()->getAsArray() + ['op' => 'clear'],
               ])->setRouteParameter('exo_entity_list_action', $action_id)->toString(),
+              'overview' => $action->overview($context),
             ],
           ];
           if (empty($context['job_finish'])) {
@@ -1900,11 +1905,12 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       $form_state->setRebuild();
       return;
     }
+    $action['settings'] = $instance->getConfiguration();
     $settings = $form_state->getValue(['action_settings']) ?? [];
     $ids = $instance->getEntityIds($selected, $this);
     $ids = array_combine($ids, $ids);
     $shown_field_ids = array_keys($this->getShownFields());
-    if ($instance->asJobQueue()) {
+    if ($instance->runAsJobQueue(count($ids))) {
       $queue = $this->getQueue($instance->getPluginId());
       $queue->deleteQueue();
       /** @var \Drupal\exo_list_builder\QueueWorker\ExoListActionProcess $queue_worker */
@@ -1924,21 +1930,17 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         'field_ids' => $shown_field_ids,
         'entity_ids' => $ids,
         'settings' => $settings,
+        'total' => count($ids),
+        'queue' => TRUE,
       ]);
-      foreach ($ids as $id) {
-        $queue->createItem([
-          'op' => 'process',
-          'action' => $action,
-          'id' => $id,
-          'list_id' => $this->getEntityList()->id(),
-          'field_ids' => $shown_field_ids,
-          'selected' => isset($selected[$id]),
-        ]);
-      }
       $queue->createItem([
-        'op' => 'finish',
+        'op' => 'run',
         'action' => $action,
         'list_id' => $this->getEntityList()->id(),
+        'field_ids' => $shown_field_ids,
+        'settings' => $settings,
+        'selected' => $selected,
+        'queue' => TRUE,
       ]);
     }
     else {

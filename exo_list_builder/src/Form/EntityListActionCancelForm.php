@@ -42,6 +42,9 @@ class EntityListActionCancelForm extends EntityConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
+    if (\Drupal::request()->query->get('op') === 'clear') {
+      return $this->t('Are you sure you want to clear the finished %name record?', ['%name' => $this->action['label']]);
+    }
     return $this->t('Are you sure you want to cancel pending %name actions?', ['%name' => $this->action['label']]);
   }
 
@@ -63,6 +66,9 @@ class EntityListActionCancelForm extends EntityConfirmFormBase {
    * {@inheritdoc}
    */
   public function getConfirmText() {
+    if (\Drupal::request()->query->get('op') === 'clear') {
+      return $this->t('Clear Finished Record');
+    }
     return $this->t('Cancel Pending Actions');
   }
 
@@ -80,12 +86,20 @@ class EntityListActionCancelForm extends EntityConfirmFormBase {
       $queue_worker->deleteContext();
       $queue->deleteQueue();
     }
-    $this->messenger()->addMessage(
-      $this->t('The pending %action actions have been canceled.', [
+
+    if (\Drupal::request()->query->get('op') === 'clear') {
+      $message = $this->t('The finished %action record has been cleared.', [
         '@label' => $this->entity->label(),
         '%action' => $this->action['label'],
-      ])
-    );
+      ]);
+    }
+    else {
+      $message = $this->t('The pending %action actions have been canceled.', [
+        '@label' => $this->entity->label(),
+        '%action' => $this->action['label'],
+      ]);
+    }
+    $this->messenger()->addMessage($message);
 
     $form_state->setRedirectUrl($this->getCancelUrl());
   }

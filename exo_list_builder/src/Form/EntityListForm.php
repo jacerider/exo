@@ -808,7 +808,7 @@ class EntityListForm extends EntityForm {
           '#tree' => TRUE,
         ];
         /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
-        $instance = $this->actionManager->createInstance($action_id, $action['settings']);
+        $instance = $this->actionManager->createInstance($action_id, $actions[$action_id]['settings']);
         $subform_state = SubformState::createForSubform($row['settings'], $form, $form_state);
         $row['settings'] = $instance->buildConfigurationForm($row['settings'], $subform_state, $exo_entity_list, $action);
       }

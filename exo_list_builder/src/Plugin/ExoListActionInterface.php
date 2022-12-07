@@ -27,7 +27,18 @@ interface ExoListActionInterface extends PluginInspectionInterface, Configurable
    * @returb bool
    *   TRUE if action should be run in a job queue.
    */
-  public function asJobQueue();
+  public function supportsJobQueue();
+
+  /**
+   * Check if action should be run as a background job.
+   *
+   * @param int $count
+   *   The total number of items being processed.
+   *
+   * @return bool
+   *   Returns TRUE if action should be run as a background job.
+   */
+  public function runAsJobQueue(int $count = 0);
 
   /**
    * Build the configuration form.
@@ -99,6 +110,17 @@ interface ExoListActionInterface extends PluginInspectionInterface, Configurable
    *   The batch results.
    */
   public function executeFinish(EntityListInterface $entity_list, array &$results);
+
+  /**
+   * Get overview.
+   *
+   * @param array $context
+   *   The context.
+   *
+   * @return string|array
+   *   The overview.
+   */
+  public function overview(array $context);
 
   /**
    * Whether this theme negotiator should be used on the current list.

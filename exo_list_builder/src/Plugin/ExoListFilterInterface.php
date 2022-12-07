@@ -163,8 +163,8 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
    * @param array $field
    *   The field definition.
    *
-   * @return array
-   *   The form structure.
+   * @return string|array
+   *   The url value.
    */
   public function toUrlQuery(array $raw_value, EntityListInterface $entity_list, array $field);
 
