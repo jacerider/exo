@@ -56,7 +56,10 @@ function exo_list_builder_mail($key, &$message, $params) {
 
   /** @var \Drupal\Core\Render\RendererInterface $renderer */
   $renderer = \Drupal::service('renderer');
-  $message['body'][] = (string) $renderer->renderPlain($params['message']);
+  $message['body'][] = [
+    '#type' => 'markup',
+    '#markup' => (string) $renderer->renderPlain($params['message']),
+  ];
 
   /**
    * PDF attachments.
@@ -184,4 +187,27 @@ function exo_list_builder_exo_list_builder_fields_alter(array &$fields, $entity_
       $fields[$field_id . '__postal_code'] = $new_field;
     }
   }
+}
+
+/**
+ * Implements hook_file_download().
+ */
+function exo_list_builder_file_download($uri) {
+  if (!preg_match('#private:\/\/exo-entity-list/([^/]+)/#', $uri, $match)) {
+    return NULL;
+  }
+  // Get the file record based on the URI. If not in the database just return.
+  /** @var \Drupal\file\FileRepositoryInterface $file_repository */
+  $file_repository = \Drupal::service('file.repository');
+  $file = $file_repository->loadByUri($uri);
+  if (!$file) {
+    return;
+  }
+
+  // Temporarily set the file to permanent so that it can be downloaded.
+  $file->isPermanent();
+
+  // Access is granted.
+  $headers = file_get_content_headers($file);
+  return $headers;
 }
