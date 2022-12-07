@@ -53,7 +53,7 @@ class ReferenceEntityDisplay extends EntityDisplay {
   protected function getReferencedEntity(array $contexts) {
     $parent_entity = parent::getReferencedEntity($contexts);
     $target_entity = NULL;
-    if ($parent_entity->hasField($this->fieldName)) {
+    if ($parent_entity && $parent_entity->hasField($this->fieldName)) {
       $target_entity = $parent_entity->get($this->fieldName)->entity;
       // Use cached entity so that changes are preserved.
       if ($target_entity && isset($parent_entity->_exoComponentReferenceSave[$target_entity->uuid()])) {

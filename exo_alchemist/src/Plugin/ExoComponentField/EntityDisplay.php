@@ -168,9 +168,6 @@ class EntityDisplay extends ExoComponentFieldComputedBase implements ContextAwar
     $entity = $this->getParentEntity();
     $entity_type_id = static::getEntityTypeIdFromPluginId($this->getPluginId());
     $bundle = static::getBundleFromPluginId($this->getPluginId());
-    if ($entity && ($entity->getEntityTypeId() !== $entity_type_id || $entity->bundle() !== $bundle)) {
-      return NULL;
-    }
     if ($this->isPreview($contexts) || $this->isDefaultStorage($contexts)) {
       // Always use plugin id for entity type id and bundle as these will be
       // the root entity.
@@ -186,6 +183,9 @@ class EntityDisplay extends ExoComponentFieldComputedBase implements ContextAwar
           '@bundle' => $bundle,
         ]));
       }
+    }
+    elseif ($entity && ($entity->getEntityTypeId() !== $entity_type_id || $entity->bundle() !== $bundle)) {
+      return NULL;
     }
     return $entity;
   }
