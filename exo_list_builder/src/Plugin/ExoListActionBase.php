@@ -124,7 +124,7 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
       $form['queue_email'] = [
         '#type' => 'email',
         '#title' => $this->t('Queue: Email'),
-        '#description' => $this->t('Email address to notify when job is finished.'),
+        '#description' => $this->t('Email address to notify when job is finished. The user initiating the action will be notified by default.'),
         '#default_value' => $configuration['queue_email'],
       ];
     }
@@ -195,7 +195,17 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
    *   The email to notify.
    */
   protected function getNotifyEmail() {
-    return $this->getConfiguration()['queue_email'] ?? NULL;
+    $emails = [];
+    if ($email = \Drupal::currentUser()->getEmail()) {
+      $emails[] = $email;
+    }
+    if ($email = $this->getConfiguration()['queue_email'] ?? NULL) {
+      $emails[] = $email;
+    }
+    if (!empty($emails)) {
+      return implode(',', $emails);
+    }
+    return NULL;
   }
 
   /**

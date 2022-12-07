@@ -15,6 +15,7 @@ use Drupal\exo_list_builder\Plugin\ExoListActionBase;
  *   weight = 0,
  *   entity_type = {},
  *   bundle = {},
+ *   queue = TRUE,
  * )
  */
 class Save extends ExoListActionBase {
