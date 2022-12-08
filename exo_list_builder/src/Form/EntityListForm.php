@@ -1062,12 +1062,14 @@ class EntityListForm extends EntityForm {
     $form_state->setValue('sorts', $sorts);
 
     $references = $form_state->getValue('references');
-    foreach ($references as $reference_id => &$reference) {
-      if (empty($reference['status'])) {
-        unset($references[$reference_id]);
-      }
-      else {
-        $references[$reference_id]['fields'] = array_values($reference['fields']);
+    if ($references) {
+      foreach ($references as $reference_id => &$reference) {
+        if (empty($reference['status'])) {
+          unset($references[$reference_id]);
+        }
+        else {
+          $references[$reference_id]['fields'] = array_values($reference['fields']);
+        }
       }
     }
     $form_state->setValue('references', $references);
