@@ -190,7 +190,7 @@ function exo_alchemist_form_alter(&$form, FormStateInterface $form_state, $form_
   // forms inserted into content.
   if (substr($form['#form_id'], 0, 15) == 'layout_builder_') {
     foreach (['drupal_ajax', 'drupal_modal', 'drupal_dialog'] as $wrapper) {
-      if (strpos(\Drupal::request()->get(MainContentViewSubscriber::WRAPPER_FORMAT), $wrapper) !== FALSE) {
+      if (strpos(\Drupal::request()->get(MainContentViewSubscriber::WRAPPER_FORMAT) ?? '', $wrapper) !== FALSE) {
         $form['#exo_theme'] = 'black';
       }
     }
