@@ -2,7 +2,6 @@
 
 namespace Drupal\exo_list_builder;
 
-use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Config\Entity\ConfigEntityTypeInterface;
 use Drupal\Core\Entity\EntityInterface;
 
