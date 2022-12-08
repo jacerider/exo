@@ -501,20 +501,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
       /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
       $instance = $field['filter']['instance'];
-      $default_value = $instance->getDefaultValue($entity_list, $field);
-      // Non-exposed fields that have a default value set.
-      if (empty($field['filter']['settings']['expose']) && !is_null($default_value)) {
-        $filter_value = $this->getOption(['filter', $field_id]) ?? $default_value;
-      }
-      // Exposed fields.
-      else {
-        $filter_value = $this->getOption(['filter', $field_id]);
-        // Provide default filters when filter value is empty, list has not been
-        // modified and field provides a default.
-        if (empty($filter_value) && !$this->isModified() && !is_null($default_value)) {
-          $filter_value = $default_value;
-        }
-      }
+      $filter_value = $this->getFilterValue($field_id);
       if ($instance->allowQueryAlter($filter_value, $entity_list, $field)) {
         if (is_array($filter_value) && $instance->supportsMultiple()) {
           $group = NULL;
@@ -546,6 +533,34 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $this->moduleHandler->alter('exo_list_builder_query', $query, $entity_list);
     $this->moduleHandler->alter('exo_list_builder_query_' . $entity_list->id(), $query, $entity_list);
     return $query;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function getFilterValue($field_id) {
+    $filter_value = NULL;
+    $field = $this->getFilters()[$field_id] ?? NULL;
+    if ($field && $field['filter']['instance']) {
+      $entity_list = $this->getEntityList();
+      /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
+      $instance = $field['filter']['instance'];
+      $default_value = $instance->getDefaultValue($entity_list, $field);
+      // Non-exposed fields that have a default value set.
+      if (empty($field['filter']['settings']['expose']) && !is_null($default_value)) {
+        $filter_value = $this->getOption(['filter', $field_id]) ?? $default_value;
+      }
+      // Exposed fields.
+      else {
+        $filter_value = $this->getOption(['filter', $field_id]);
+        // Provide default filters when filter value is empty, list has not been
+        // modified and field provides a default.
+        if (empty($filter_value) && !$this->isModified() && !is_null($default_value)) {
+          $filter_value = $default_value;
+        }
+      }
+    }
+    return $filter_value;
   }
 
   /**

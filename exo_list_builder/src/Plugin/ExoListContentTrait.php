@@ -211,8 +211,6 @@ trait ExoListContentTrait {
             }
             else {
               $values = array_combine($values, $values);
-              // WE DO NOT WANT SORTING HERE
-              // asort($values);
             }
             // Reference fields load the actual entities and we want to use
             // the label and order of those entities.
@@ -464,6 +462,18 @@ trait ExoListContentTrait {
         }
         if ($label_key = $reference_entity_type->getKey('label')) {
           $query->orderBy($query->getMetaData('base_alias') . '.' . $label_key);
+        }
+        if ($status_key = $reference_entity_type->getKey('status')) {
+          // Take into account a status filter that is not exposed.
+          if ($entity_list->hasField($status_key)) {
+            $status_field = $entity_list->getField($status_key);
+            if (empty($status_field['filter']['settings']['expose']) && !empty($status_field['filter']['settings']['default']['status'])) {
+              $filter_value = $entity_list->getHandler()->getFilterValue($status_key);
+              if (!is_null($filter_value)) {
+                $query->condition($query->getMetaData('base_alias') . '.' . $status_key, !empty($filter_value));
+              }
+            }
+          }
         }
       }
 
