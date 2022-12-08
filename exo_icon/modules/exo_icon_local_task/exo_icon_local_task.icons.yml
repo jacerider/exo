@@ -50,6 +50,10 @@ local_task.devel:
   text: devel
   icon: regular-code
   prefix: local_task
+local_task.test:
+  text: test
+  icon: regular-code
+  prefix: local_task
 local_task.settings:
   smart: settings
   icon: regular-cog
@@ -68,6 +72,10 @@ local_task.uninstall:
   prefix: local_task
 local_task.list:
   text: list
+  icon: regular-list-alt
+  prefix: local_task
+local_task.results:
+  text: results
   icon: regular-list-alt
   prefix: local_task
 local_task.packages:
@@ -137,6 +145,10 @@ local_task.variations:
 local_task.duplicate:
   text: duplicate
   icon: regular-clone
+  prefix: local_task
+local_task.build:
+  text: build
+  icon: regular-tools
   prefix: local_task
 local_task.dashboard:
   text: dashboard
