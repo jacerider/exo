@@ -23,6 +23,7 @@ class Weight extends ExoListSortBase {
    * {@inheritdoc}
    */
   public function sort($query, EntityListInterface $entity_list, &$direction = NULL) {
+    $direction = $direction ?? 'asc';
     $fields = $entity_list->getAvailableFields();
     if (isset($fields['weight'])) {
       $query->sort('weight', $direction);
