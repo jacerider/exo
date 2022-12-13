@@ -18,6 +18,13 @@ abstract class ExoListElementBase extends PluginBase implements ExoListElementIn
   use StringTranslationTrait;
 
   /**
+   * Allow field to be linked to entity.
+   *
+   * @var bool
+   */
+  protected $allowEntityLink = TRUE;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition) {
@@ -50,11 +57,13 @@ abstract class ExoListElementBase extends PluginBase implements ExoListElementIn
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state, EntityListInterface $entity_list, array $field) {
-    $form['link'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Link to the entity'),
-      '#default_value' => $this->configuration['link'],
-    ];
+    if ($this->allowEntityLink === TRUE) {
+      $form['link'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Link to the entity'),
+        '#default_value' => $this->configuration['link'],
+      ];
+    }
     $form['empty'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Empty value'),
@@ -74,7 +83,7 @@ abstract class ExoListElementBase extends PluginBase implements ExoListElementIn
    */
   public function buildView(EntityInterface $entity, array $field) {
     $view = $this->view($entity, $field);
-    if ($this->getConfiguration()['link']) {
+    if ($this->allowEntityLink === TRUE && $this->getConfiguration()['link']) {
       $view = [
         '#type' => 'link',
         '#url' => $entity->toUrl('canonical'),
