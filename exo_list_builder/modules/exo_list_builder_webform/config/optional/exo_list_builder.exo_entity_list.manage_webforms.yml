@@ -1,0 +1,138 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - webform
+    - exo_list_builder_webform
+id: manage_webforms
+label: 'Manage Webforms'
+key: q
+target_entity_type: webform
+target_bundles_include:
+  webform: webform
+target_bundles_exclude: {  }
+override: true
+format: table
+url: ''
+limit: 10
+limit_options:
+  - 10
+  - 20
+  - 50
+  - 100
+actions: {  }
+sorts: {  }
+sort: null
+references: null
+fields:
+  _label:
+    display_label: Name
+    view:
+      type: entity_label
+      settings:
+        entity_icon: '1'
+        entity_id: '1'
+        override_label: ''
+        link_label: '1'
+        empty: '-'
+      toggle: false
+      show: true
+      wrapper: ''
+      sort: ''
+      sort_asc_label: '@label A-Z'
+      sort_desc_label: '@label Z-A'
+      align: left
+      size: stretch
+    filter:
+      type: entity_label
+      settings:
+        expose: '1'
+        position: header
+        match_operator: CONTAINS
+        expose_block: 0
+        allow_zero: 0
+        default:
+          status: 0
+    weight: -10
+  description:
+    display_label: Description
+    view:
+      type: config_property
+      settings:
+        empty: '-'
+        link: 0
+      toggle: false
+      show: true
+      wrapper: small
+      sort: ''
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
+      align: left
+      size: compact
+    filter:
+      type: ''
+    weight: -9
+  category:
+    display_label: Category
+    view:
+      type: config_property
+      settings:
+        empty: '-'
+        link: 0
+      toggle: false
+      show: true
+      wrapper: small
+      sort: ''
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
+      align: left
+      size: compact
+    filter:
+      type: ''
+    weight: -8
+  _webform_results:
+    display_label: Results
+    view:
+      type: _webform_results
+      settings:
+        empty: '-'
+        link: 0
+      toggle: false
+      show: true
+      wrapper: small
+      align: center
+      size: compact
+    filter:
+      type: ''
+    weight: -7
+  status:
+    display_label: Status
+    view:
+      type: status_icon
+      settings:
+        empty: '-'
+        link: 0
+      toggle: false
+      show: true
+      wrapper: small
+      sort: ''
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
+      align: center
+      size: compact
+    filter:
+      type: ''
+    weight: -6
+settings:
+  limit_status: 1
+  pagerer_header: ''
+  pagerer_footer: ''
+  render_status: 1
+  operations_status: 1
+  result_status: 1
+  sort_status: 1
+  filter_overview_status: 1
+  block_status: 0
+  first_page_only_status: 0
+  hide_no_results: 0
+weight: 0

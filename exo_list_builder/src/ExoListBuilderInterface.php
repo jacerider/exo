@@ -153,6 +153,17 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
   public function getFilters();
 
   /**
+   * Get the current value of a filter.
+   *
+   * @param string $field_id
+   *   The field id.
+   *
+   * @return mixed
+   *   The value of the filter.
+   */
+  public function getFilterValue($field_id);
+
+  /**
    * Get weight field.
    *
    * @return array
