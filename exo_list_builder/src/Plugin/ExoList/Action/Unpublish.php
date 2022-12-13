@@ -13,7 +13,7 @@ use Drupal\exo_list_builder\Plugin\ExoListActionBase;
  *   id = "unpublish",
  *   label = @Translation("Unpublish"),
  *   description = @Translation("Unpublish the entity."),
- *   weight = 0,
+ *   weight = 5,
  *   entity_type = {},
  *   bundle = {},
  *   queue = TRUE,
