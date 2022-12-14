@@ -88,7 +88,7 @@ class MediaImage extends MediaFileBase {
    */
   public function getDefaultValue($delta = 0) {
     return [
-      'path' => drupal_get_path('module', 'exo_alchemist') . '/images/default.png',
+      'path' => \Drupal::service('extension.list.module')->getPath('exo_alchemist') . '/images/default.png',
     ];
   }
 
@@ -109,7 +109,8 @@ class MediaImage extends MediaFileBase {
           $settings = [];
           // Can set visible, blur and animate.
           $settings['display'] = $field->getAdditionalValue('imagine_display') ?? [];
-          foreach ($field->getAdditionalValue('styles') as $breakpoint => $data) {
+          $styles = $field->getAdditionalValue('styles') ?? [];
+          foreach ($styles as $breakpoint => $data) {
             $settings['breakpoints'][$breakpoint] = [
               'width' => $data['width'] ?? NULL,
               'height' => $data['height'] ?? NULL,

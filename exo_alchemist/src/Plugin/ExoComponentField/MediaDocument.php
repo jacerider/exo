@@ -56,7 +56,7 @@ class MediaDocument extends MediaFileBase {
   public function getDefaultValue($delta = 0) {
     return [
       'name' => 'Example File',
-      'path' => drupal_get_path('module', 'exo_alchemist') . '/documents/default.pdf',
+      'path' => \Drupal::service('extension.list.module')->getPath('exo_alchemist') . '/documents/default.pdf',
     ];
   }
 

@@ -129,7 +129,7 @@ class Image extends EntityReferenceBase {
    */
   public function getDefaultValue($delta = 0) {
     return [
-      'path' => drupal_get_path('module', 'exo_alchemist') . '/images/default.png',
+      'path' => \Drupal::service('extension.list.module')->getPath('exo_alchemist') . '/images/default.png',
     ];
   }
 

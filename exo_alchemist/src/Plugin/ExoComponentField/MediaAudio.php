@@ -67,7 +67,7 @@ class MediaAudio extends MediaFileBase {
   public function getDefaultValue($delta = 0) {
     return [
       'name' => 'Example File',
-      'path' => drupal_get_path('module', 'exo_alchemist') . '/audio/default.mp3',
+      'path' => \Drupal::service('extension.list.module')->getPath('exo_alchemist') . '/audio/default.mp3',
     ];
   }
 
