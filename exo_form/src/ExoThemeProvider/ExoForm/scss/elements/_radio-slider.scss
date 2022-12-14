@@ -11,5 +11,13 @@
     border-width: 1px;
     border-style: solid;
     padding: $global-padding $global-padding * 1.5 ($global-padding + rem-calc(30));
+
+    .noUi-value {
+      font-size: rem-calc(11);
+
+      &.noUi-value-sub {
+        font-size: rem-calc(9);
+      }
+    }
   }
 }
