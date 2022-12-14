@@ -312,6 +312,9 @@ class ExoComponentPropertyManager extends DefaultPluginManager implements ExoCom
         }
         foreach ($modifier->getProperties() as $property) {
           $value = $values[$modifier_name][$property->getName()] ?? NULL;
+          if (!$value && $property->isRequired()) {
+            $value = $property->getDefault();
+          }
           if ($instance = $this->getModifierAttribute($property, $value)) {
             $modifier_attributes[$modifier_name] = NestedArray::mergeDeep($modifier_attributes[$modifier_name], $instance->asAttributeArray());
           }
@@ -373,8 +376,12 @@ class ExoComponentPropertyManager extends DefaultPluginManager implements ExoCom
       $clean_values = [];
       foreach ($definition->getModifiers() as $modifier_id => $modifier) {
         foreach ($modifier->getProperties() as $property_id => $property) {
-          if (isset($values[$modifier_id][$property_id])) {
-            $clean_values[$modifier_id][$property_id] = $values[$modifier_id][$property_id];
+          $value = $values[$modifier_id][$property_id] ?? NULL;
+          if (!$value && $property->isRequired()) {
+            $value = $property->getDefault();
+          }
+          if ($value) {
+            $clean_values[$modifier_id][$property_id] = $value;
           }
           if (!$property->isEditable()) {
             $clean_values[$modifier_id][$property_id] = $property->getDefault();
