@@ -12,6 +12,7 @@
     protected speed:number = 5000;
     protected interval:number;
     protected history:boolean = false;
+    protected require:boolean = false;
 
     constructor(id:string, $wrapper:JQuery) {
       this.$wrapper = $wrapper;
@@ -21,6 +22,7 @@
       this.$triggers = $wrapper.find('.ee--accordion-trigger[' + this.idSelector + ']');
       this.$contents = $wrapper.find('.ee--accordion-content[' + this.idSelector + ']');
       this.history = typeof $wrapper.data('ee--accordion-history') !== 'undefined';
+      this.require = typeof $wrapper.data('ee--accordion-require') !== 'undefined';
       const collapse = typeof $wrapper.data('ee--accordion-collapse') !== 'undefined';
       this.$contents.hide();
       let $show = this.$triggers.first();
@@ -49,7 +51,6 @@
         }
       });
 
-      //
       Drupal.Exo.$window.on('popstate.exo.alchemist.enhancement.tabs.' + this.id, e => {
         const hashTab = Drupal.ExoAlchemistEnhancement.getHashForKey('ee--accordion');
         if (hashTab && typeof hashTab[this.id] !== 'undefined') {
@@ -79,7 +80,7 @@
       }
       this.$triggers.on('click.exo.alchemist.enhancement.accordion', e => {
         e.preventDefault();
-        this.show($(e.currentTarget), true, this.isLayoutBuilder(), this.history);
+        this.show($(e.currentTarget), true, this.keepOpen(), this.history);
       }).on('keydown.exo.alchemist.enhancement.accordion', e => {
         let $goto;
         switch (e.which) {
@@ -87,14 +88,14 @@
           case 32: // space
             e.preventDefault();
             e.stopPropagation();
-            this.show($(e.currentTarget), true, this.isLayoutBuilder(), this.history);
+            this.show($(e.currentTarget), true, this.keepOpen(), this.history);
             break;
           case 40: // down
             e.preventDefault();
             e.stopPropagation();
             $goto = $(e.currentTarget).closest('.ee--accordion-item[' + this.idSelector + ']').next().find('.ee--accordion-trigger[' + this.idSelector + ']');
             if ($goto.length) {
-              this.show($goto, true, this.isLayoutBuilder(), this.history);
+              this.show($goto, true, this.keepOpen(), this.history);
               $goto.focus();
             }
             break;
@@ -103,7 +104,7 @@
             e.stopPropagation();
             $goto = $(e.currentTarget).closest('.ee--accordion-item[' + this.idSelector + ']').prev().find('.ee--accordion-trigger[' + this.idSelector + ']');
             if ($goto.length) {
-              this.show($goto, true, this.isLayoutBuilder(), this.history);
+              this.show($goto, true, this.keepOpen(), this.history);
               $goto.focus();
             }
             break;
@@ -117,6 +118,10 @@
         });
         this.show($show, false, true, false);
       }
+    }
+
+    protected keepOpen() {
+      return this.require || this.isLayoutBuilder();
     }
 
     public show($trigger:JQuery, animate?:boolean, keepOpen?:boolean, doHash?:boolean):void {
@@ -154,6 +159,7 @@
         }
         if (!current) {
           $item.addClass('show');
+          this.$wrapper.attr('data-ee--accordion-show', itemId);
           $trigger.attr('aria-expanded', 'true');
           if (animate) {
             $contents.slideToggle(350, 'swing', () => {

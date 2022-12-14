@@ -44,6 +44,9 @@ class Accordion extends ExoComponentEnhancementBase {
     if ($this->getEnhancementDefinition()->getAdditionalValue('history')) {
       $attributes['data-ee--accordion-history'] = 1;
     }
+    if ($this->getEnhancementDefinition()->getAdditionalValue('require')) {
+      $attributes['data-ee--accordion-require'] = 1;
+    }
 
     $view = [
       '#attached' => [
