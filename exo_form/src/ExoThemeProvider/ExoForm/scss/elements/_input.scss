@@ -137,6 +137,10 @@ div.exo-form-input {
     width: 100%;
   }
 
+  .ck-editor__editable {
+    color: color(theme-black);
+  }
+
   // Message area.
   &:after {
     display: block;
