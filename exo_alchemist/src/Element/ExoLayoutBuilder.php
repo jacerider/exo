@@ -69,59 +69,6 @@ class ExoLayoutBuilder extends LayoutBuilder {
   protected $contexts;
 
   /**
-   * The section storage manager.
-   *
-   * @var \Drupal\layout_builder\SectionStorage\SectionStorageManagerInterface
-   */
-  protected $sectionStorageManager;
-
-  /**
-   * The current user.
-   *
-   * @var \Drupal\Core\Session\AccountInterface
-   */
-  protected $currentUser;
-
-  /**
-   * Constructs a new LayoutBuilder.
-   *
-   * @param array $configuration
-   *   A configuration array containing information about the plugin instance.
-   * @param string $plugin_id
-   *   The plugin ID for the plugin instance.
-   * @param mixed $plugin_definition
-   *   The plugin implementation definition.
-   * @param \Drupal\layout_builder\LayoutTempstoreRepositoryInterface $layout_tempstore_repository
-   *   The layout tempstore repository.
-   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
-   *   The messenger service.
-   * @param \Drupal\layout_builder\SectionStorage\SectionStorageManagerInterface $section_storage_manager
-   *   The section storage manager.
-   * @param \Drupal\Core\Session\AccountInterface $current_user
-   *   The current user.
-   */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, LayoutTempstoreRepositoryInterface $layout_tempstore_repository, MessengerInterface $messenger, SectionStorageManagerInterface $section_storage_manager, AccountInterface $current_user) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $layout_tempstore_repository, $messenger);
-    $this->sectionStorageManager = $section_storage_manager;
-    $this->currentUser = $current_user;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('layout_builder.tempstore_repository'),
-      $container->get('messenger'),
-      $container->get('plugin.manager.layout_builder.section_storage'),
-      $container->get('current_user')
-    );
-  }
-
-  /**
    * The exo icon prefixes to use for icon lookup.
    *
    * @var array
@@ -153,8 +100,9 @@ class ExoLayoutBuilder extends LayoutBuilder {
     if ($section_storage instanceof ExoComponentSectionNestedStorageInterface) {
       // We always defer back to parent layout storage.
       $section_storage = $section_storage->getParentEntityStorage();
-      if ($this->layoutTempstoreRepository->has($section_storage)) {
-        $section_storage = $this->layoutTempstoreRepository->get($section_storage);
+      $tempstore = \Drupal::service('layout_builder.tempstore_repository');
+      if ($tempstore->has($section_storage)) {
+        $section_storage = $tempstore->get($section_storage);
       }
     }
     $build = parent::layout($section_storage);
@@ -651,7 +599,7 @@ class ExoLayoutBuilder extends LayoutBuilder {
         return FALSE;
       }
       // Do not allow if permission is set and user does not have access.
-      elseif ($permission && !$this->currentUser->hasPermission($permission)) {
+      elseif ($permission && !\Drupal::currentUser()->hasPermission($permission)) {
         return FALSE;
       }
     }
@@ -671,7 +619,7 @@ class ExoLayoutBuilder extends LayoutBuilder {
     $section = $section ?: $this->section;
     $locked = !empty($section->getLayoutSettings()['exo_section_lock']);
     if (!$locked && $permission = $this->getSectionPermission($section)) {
-      $locked = !$this->currentUser->hasPermission($permission);
+      $locked = !\Drupal::currentUser()->hasPermission($permission);
     }
     return $locked;
   }
