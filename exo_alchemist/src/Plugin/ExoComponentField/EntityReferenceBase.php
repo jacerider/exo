@@ -12,6 +12,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\Context\EntityContext;
 use Drupal\exo_alchemist\ExoComponentManager;
 use Drupal\exo_alchemist\ExoComponentValue;
+use Drupal\exo_alchemist\ExoComponentValues;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldDisplayInterface;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldDisplayTrait;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldFieldableBase;
@@ -495,6 +496,27 @@ class EntityReferenceBase extends ExoComponentFieldFieldableBase implements Cont
     }
     $this->addCacheableDependency($contexts, $entity);
     return $entity;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function onFieldRestore(ExoComponentValues $values, FieldItemListInterface $items) {
+    $field_values = parent::onFieldRestore($values, $items);
+    if (empty($field_values) && !$items->isEmpty()) {
+      $restore = FALSE;
+      foreach ($items as $delta => $item) {
+        if (!$item->entity) {
+          // We have an entity reference but no entity. This means the entity
+          // no longer exists and we need to replace it.
+          $restore = TRUE;
+        }
+      }
+      if ($restore) {
+        $field_values = $this->populateValues($values, $items);
+      }
+    }
+    return $field_values;
   }
 
   /**
