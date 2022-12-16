@@ -17,47 +17,83 @@ $sizes: 10, 20, 30, 60, 90, 120, 150, 180;
   .exo-modifier--padding-v {
 
     &-#{$size} {
-      padding-top: max($global-padding, rem-calc($size * 0.6));
-      padding-bottom: max($global-padding, rem-calc($size * 0.6));
+
+      &,
+      .exo-modifier--padding-v {
+        padding-top: max($global-padding, rem-calc($size * 0.6));
+        padding-bottom: max($global-padding, rem-calc($size * 0.6));
+      }
     }
 
     &-top-#{$size} {
-      padding-top: max($global-padding, rem-calc($size * 0.6));
+
+      &,
+      .exo-modifier--padding-v-top {
+        padding-top: max($global-padding, rem-calc($size * 0.6));
+      }
     }
 
     &-bottom-#{$size} {
-      padding-bottom: max($global-padding, rem-calc($size * 0.6));
+
+      &,
+      .exo-modifier--padding-v-bottom {
+        padding-bottom: max($global-padding, rem-calc($size * 0.6));
+      }
     }
 
     @include breakpoint(medium) {
 
       &-#{$size} {
-        padding-top: max($global-padding, rem-calc($size * 0.8));
-        padding-bottom: max($global-padding, rem-calc($size * 0.8));
+
+        &,
+        .exo-modifier--padding-v {
+          padding-top: max($global-padding, rem-calc($size * 0.8));
+          padding-bottom: max($global-padding, rem-calc($size * 0.8));
+        }
       }
 
       &-top-#{$size} {
-        padding-top: max($global-padding, rem-calc($size * 0.8));
+
+        &,
+        .exo-modifier--padding-v-top {
+          padding-top: max($global-padding, rem-calc($size * 0.8));
+        }
       }
 
       &-bottom-#{$size} {
-        padding-bottom: max($global-padding, rem-calc($size * 0.8));
+
+        &,
+        .exo-modifier--padding-v-bottom {
+          padding-bottom: max($global-padding, rem-calc($size * 0.8));
+        }
       }
     }
 
     @include breakpoint(large) {
 
       &-#{$size} {
-        padding-top: rem-calc($size);
-        padding-bottom: rem-calc($size);
+
+        &,
+        .exo-modifier--padding-v {
+          padding-top: rem-calc($size);
+          padding-bottom: rem-calc($size);
+        }
       }
 
       &-top-#{$size} {
-        padding-top: rem-calc($size);
+
+        &,
+        .exo-modifier--padding-v-top {
+          padding-top: rem-calc($size);
+        }
       }
 
       &-bottom-#{$size} {
-        padding-bottom: rem-calc($size);
+
+        &,
+        .exo-modifier--padding-v-bottom {
+          padding-bottom: rem-calc($size);
+        }
       }
     }
   }
