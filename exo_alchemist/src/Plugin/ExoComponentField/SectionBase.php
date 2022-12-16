@@ -30,6 +30,20 @@ abstract class SectionBase extends ExoComponentFieldComputedBase implements Cont
   protected $entityTypeManager;
 
   /**
+   * The section storage manager.
+   *
+   * @var \Drupal\layout_builder\SectionStorage\SectionStorageManagerInterface
+   */
+  protected $sectionStorageManager;
+
+  /**
+   * The layout tempstore repository.
+   *
+   * @var \Drupal\layout_builder\LayoutTempstoreRepositoryInterface
+   */
+  protected $layoutTempstoreRepository;
+
+  /**
    * The layout id.
    *
    * @var string
