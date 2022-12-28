@@ -63,8 +63,11 @@ trait ExoComponentFieldFileTrait {
     $file_data = file_get_contents($value->get('path'));
     $file_uri = $this->getFileUri($value);
     $file_directory = $this->getFileDirectory($value);
-    \Drupal::service('file_system')->prepareDirectory($file_directory, FileSystemInterface::CREATE_DIRECTORY);
-    $file = file_save_data($file_data, $file_uri, FileSystemInterface::EXISTS_REPLACE);
+    $file_system = \Drupal::service('file_system');
+    /** @var \Drupal\file\FileRepositoryInterface $file_repository */
+    $file_repository = \Drupal::service('file.repository');
+    $file_system->prepareDirectory($file_directory, FileSystemInterface::CREATE_DIRECTORY);
+    $file = $file_repository->writeData($file_data, $file_uri, FileSystemInterface::EXISTS_REPLACE);
     return $file;
   }
 
