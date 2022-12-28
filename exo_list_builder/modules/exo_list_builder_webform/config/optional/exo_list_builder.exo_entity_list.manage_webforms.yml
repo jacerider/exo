@@ -3,7 +3,6 @@ status: true
 dependencies:
   module:
     - webform
-    - exo_list_builder_webform
 id: manage_webforms
 label: 'Manage Webforms'
 key: q
@@ -14,7 +13,7 @@ target_bundles_exclude: {  }
 override: true
 format: table
 url: ''
-limit: 10
+limit: 50
 limit_options:
   - 10
   - 20
@@ -38,7 +37,7 @@ fields:
       toggle: false
       show: true
       wrapper: ''
-      sort: ''
+      sort: asc
       sort_asc_label: '@label A-Z'
       sort_desc_label: '@label Z-A'
       align: left
@@ -96,7 +95,6 @@ fields:
       type: _webform_results
       settings:
         empty: '-'
-        link: 0
       toggle: false
       show: true
       wrapper: small
@@ -125,8 +123,6 @@ fields:
     weight: -6
 settings:
   limit_status: 1
-  pagerer_header: ''
-  pagerer_footer: ''
   render_status: 1
   operations_status: 1
   result_status: 1
