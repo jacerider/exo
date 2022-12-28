@@ -591,19 +591,18 @@
     > * {
       display: block;
     }
-
-    .tabledrag-handle {
-      margin: 0 !important;
-      overflow: visible;
-      order: 2;
-      margin-right: $global-margin;
-    }
   }
 
   tr.draggable {
 
     td.table-select {
       width: 1%;
+    }
+
+    .tabledrag-handle {
+      margin: 0 $global-margin * 0.5 0 0 !important;
+      overflow: visible;
+      order: 2;
     }
   }
 
