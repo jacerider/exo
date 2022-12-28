@@ -2,21 +2,24 @@
 
 namespace Drupal\exo_alchemist\Plugin;
 
-use Drupal\Core\Plugin\ContextAwarePluginBase;
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Plugin\ContextAwarePluginTrait;
 use Drupal\exo_alchemist\Command\ExoComponentCommand;
 use Drupal\exo_alchemist\ExoComponentContextTrait;
 use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\field\FieldConfigInterface;
 use Drupal\field\FieldStorageConfigInterface;
+use Drupal\Core\Plugin\ContextAwarePluginInterface;
+use Drupal\Core\Plugin\PluginBase;
 
 /**
  * Base class for Component Field plugins.
  */
-abstract class ExoComponentFieldBase extends ContextAwarePluginBase implements ExoComponentFieldInterface {
+abstract class ExoComponentFieldBase extends PluginBase implements ExoComponentFieldInterface, ContextAwarePluginInterface {
 
   use ExoIconTranslationTrait;
+  use ContextAwarePluginTrait;
   use ExoComponentContextTrait;
 
   /**
