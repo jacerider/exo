@@ -49,12 +49,42 @@ abstract class MediaBase extends EntityReferenceBase implements ExoComponentFiel
     parent::cleanValue($item, $delta, $update);
     if ($item->entity) {
       $entity = $item->entity;
-      $this->componentMediaSourceFieldClean($entity);
       if (!$update) {
-        // Delete the media entity when uninstalling.
-        $entity->delete();
+        $count = $this->mediaUsageDecrement($entity);
+        if ($count < 1) {
+          // Delete the media entity when uninstalling.
+          $this->componentMediaSourceFieldClean($entity);
+          $entity->delete();
+        }
+      }
+      else {
+        $this->componentMediaSourceFieldClean($entity);
       }
     }
+  }
+
+  /**
+   * Incremement media usage.
+   */
+  protected function mediaUsageIncrement(MediaInterface $entity) {
+    $state = \Drupal::state();
+    $stateKey = 'exo_alchemist.usage.media.' . $entity->id();
+    $count = $state->get($stateKey, 0);
+    $count++;
+    $state->set($stateKey, $count);
+    return $count;
+  }
+
+  /**
+   * Decrement media usage.
+   */
+  protected function mediaUsageDecrement(MediaInterface $entity) {
+    $state = \Drupal::state();
+    $stateKey = 'exo_alchemist.usage.media.' . $entity->id();
+    $count = $state->get($stateKey, 1);
+    $count--;
+    $state->set($stateKey, $count);
+    return $count;
   }
 
   /**
@@ -126,12 +156,14 @@ abstract class MediaBase extends EntityReferenceBase implements ExoComponentFiel
     $this->componentMediaSourceFieldClean($media);
     /** @var \Drupal\media\MediaTypeInterface $media_type */
     $media_type = \Drupal::entityTypeManager()->getStorage('media_type')->load($value->get('bundle'));
+    /** @var \Drupal\media\MediaInterface $media */
     $media->setName($this->getMediaName($value));
     $media_field_name = $media_type->getSource()->getSourceFieldDefinition($media_type)->getName();
     $media->get($media_field_name)->setValue($this->setMediaValue($value, $item));
     $media->get('alchemist_key')->setValue($key);
     $media->setPublished(TRUE);
     $media->save();
+    $this->mediaUsageIncrement($media);
     return $media;
   }
 

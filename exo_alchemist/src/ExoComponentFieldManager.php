@@ -267,7 +267,7 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
           $changes['orphan'][$id] = $definition;
         }
       }
-      foreach ($to_definition->getFields() as $id => $field) {
+      foreach ($to_fields as $id => $field) {
         unset($changes['orphan'][$field->safeId()]);
       }
     }
@@ -1049,7 +1049,7 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
   public function viewEntityValues(ExoComponentDefinition $definition, array &$values, ContentEntityInterface $entity, array $default_contexts) {
     $is_layout_builder = $this->isLayoutBuilder($default_contexts);
     $is_preview = $this->isPreview($default_contexts);
-    $is_locked = $is_layout_builder ? $definition->isLocked() : FALSE;
+    $is_component_locked = $is_layout_builder ? $definition->isLocked() : FALSE;
     $hidden_fields = self::getHiddenFieldNames($entity);
     foreach ($definition->getFields() as $field) {
       if ($this->hasDefinition($field->getType())) {
@@ -1057,7 +1057,8 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
         $contexts = $default_contexts;
         $component_field->alterContexts($entity, $contexts);
         $component_field->addCacheableDependency($contexts, $entity);
-        $is_hidden = isset($hidden_fields[$field->getName()]);
+        $is_locked = $is_component_locked ?: $component_field->isComputed($contexts) ?: $component_field->isLocked($contexts) && !$this->isDefaultStorage($contexts);
+        $is_hidden = isset($hidden_fields[$field->getName()]) && $component_field->isHideable($contexts);
         $field_name = $field->getFieldName();
         $attribute_type = $field->getType();
         $attribute_name = $field->getName();
@@ -1100,6 +1101,11 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
         }
 
         $output = [];
+        $ops = [];
+        $ops_allow = [];
+        $config = [
+          'path' => $component_field->getParentsAsPath(),
+        ];
         if ($is_layout_builder && !$is_locked) {
           $ops = $this->getOperations();
           $values['#attached']['drupalSettings']['exoAlchemist']['fieldOps'] = $ops;
@@ -1139,8 +1145,7 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
           $config = [
             'label' => $field->getLabel(),
             'description' => $description,
-            'path' => $component_field->getParentsAsPath(),
-          ];
+          ] + $config;
         }
         // When empty, make sure we have an empty field so that attributes
         // are generated.
@@ -1198,7 +1203,8 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
             $field_attributes['data-exo-field'] = json_encode($delta_config);
           }
           $value['attributes'] = new ExoComponentAttribute($field_attributes);
-          $value['attributes']->setAsLayoutBuilder($is_layout_builder);
+          // If the field is locked, we need to make sure it is not editable.
+          $value['attributes']->setAsLayoutBuilder(!$is_locked && $is_layout_builder);
           $is_editable = $is_layout_builder && empty($field->getGroup()) && !empty($ops_allow);
           $value['attributes']->editable($is_editable);
           // Expose attributes so that they can be used even when field is
@@ -1229,7 +1235,7 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
           }
           $attributes = new ExoComponentAttribute($attributes);
           $attributes->setAsLayoutBuilder($is_layout_builder);
-          if ($is_layout_builder && $component_field->isHideable($contexts)) {
+          if (!empty($ops) && $is_layout_builder && $component_field->isHideable($contexts)) {
             $attributes->addFieldOp('hide', $this->t('Hide All'), $ops['hide']['icon'], $ops['hide']['description'], $ops['hide']['url']);
           }
           $output = [

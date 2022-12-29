@@ -66,7 +66,7 @@ class Sequence extends EntityReferenceBase {
       $temp_component_definition = clone $component_definition;
       foreach ($field->getAdditionalValue('sequence_fields') as $sequence_field_name => $sequence_field) {
         $default_value = $default->getValue($sequence_field_name);
-        $sequence_default_value = isset($sequence_field['default']) ? $sequence_field['default'] : NULL;
+        $sequence_default_value = $sequence_field['default'] ?? NULL;
         $temp_component_definition->getField($sequence_field_name)->setDefaults($default_value);
         // Make sure field is valid.
         if ($sequence_field_name === 'value') {
@@ -112,6 +112,7 @@ class Sequence extends EntityReferenceBase {
    */
   public function onFieldInstall() {
     parent::onFieldInstall();
+
     $component = $this->getComponentDefinition();
     $this->exoComponentManager()->installEntityType($component);
   }
@@ -423,6 +424,25 @@ class Sequence extends EntityReferenceBase {
    */
   protected function getEntityTypeBundles() {
     return [$this->getFieldDefinition()->safeId()];
+  }
+
+  /**
+   * Create a sequence entity.
+   *
+   * @param array $values
+   *   Values should be an array of component field name => value.
+   */
+  public function createSequenceEntity(array $values) {
+    $sequence_definition = $this->getComponentDefinition();
+    $new_values = [
+      'type' => $sequence_definition->safeId(),
+    ];
+    foreach ($values as $key => $value) {
+      if ($field = $sequence_definition->getField($key)) {
+        $new_values[$field->getFieldName()] = $value;
+      }
+    }
+    return $this->entityTypeManager()->getStorage(ExoComponentManager::ENTITY_TYPE)->create($new_values);
   }
 
 }

@@ -347,7 +347,7 @@ class ExoComponentGenerator {
           }
           $key = 'component_' . $component->getUuid();
           $existing_block = $entity->getThirdPartySetting('exo_alchemist', $key, NULL);
-          $stored_block = unserialize($existing_block);
+          $stored_block = unserialize($existing_block ?? '');
           $configuration = $component->get('configuration');
           $is_updated = !empty($configuration['block_serialized']);
           $do_save = FALSE;
@@ -359,7 +359,7 @@ class ExoComponentGenerator {
             // This is a serious issue as we have no way to build this entity.
             continue;
           }
-          if (!$block) {
+          if (!$block && $stored_block) {
             $block = $stored_block->createDuplicate();
             $block->set('uuid', $stored_block->uuid());
             $do_save = TRUE;

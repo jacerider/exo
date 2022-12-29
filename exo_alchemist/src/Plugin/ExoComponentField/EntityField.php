@@ -134,6 +134,7 @@ class EntityField extends ExoComponentFieldFieldableBase implements ContextAware
    */
   public function propertyInfo() {
     $properties = [
+      'value' => $this->t('Boolean indicating if entity has value.'),
       'render' => $this->t('The rendered field.'),
     ];
     return $properties;
@@ -186,6 +187,7 @@ class EntityField extends ExoComponentFieldFieldableBase implements ContextAware
       $items->appendItem();
     }
     $placeholder = [
+      'value' => FALSE,
       'render' => $this->componentPlaceholderDefault($this->t('@label Placeholder', [
         '@label' => $field->getLabel(),
       ]), $this->t('This box will be replaced with the actual field content if it has been set.')),
@@ -195,7 +197,11 @@ class EntityField extends ExoComponentFieldFieldableBase implements ContextAware
         if ($this->isLayoutBuilder($contexts)) {
           return [$placeholder];
         }
-        return [];
+        return [
+          [
+            'value' => FALSE,
+          ],
+        ];
       }
       return parent::view($items, $contexts);
     }
@@ -208,10 +214,9 @@ class EntityField extends ExoComponentFieldFieldableBase implements ContextAware
         $sample_entity = \Drupal::service('layout_builder.sample_entity_generator')->get($this->entityTypeId, $bundle);
         $this->setContext('entity', EntityContext::fromEntity($sample_entity));
         $build = parent::view($items, $contexts);
-        if (empty($build[0]['render'])) {
-          return [];
+        if (!empty($build[0]['value'])) {
+          return $build;
         }
-        return $build;
       }
       return [$placeholder];
     }
@@ -232,7 +237,10 @@ class EntityField extends ExoComponentFieldFieldableBase implements ContextAware
       }
       $field = $parent_entity->get($this->fieldName);
       if ($field->isEmpty()) {
-        return [];
+        return [
+          'value' => FALSE,
+          'render' => NULL,
+        ];
       }
       $build = $field->view($display_settings);
     }
@@ -251,6 +259,7 @@ class EntityField extends ExoComponentFieldFieldableBase implements ContextAware
     }
     CacheableMetadata::createFromRenderArray($build)->addCacheableDependency($this)->applyTo($build);
     return [
+      'value' => TRUE,
       'render' => $build,
     ];
   }

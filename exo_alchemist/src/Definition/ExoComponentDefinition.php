@@ -7,9 +7,7 @@ use Drupal\Component\Plugin\Definition\ContextAwarePluginDefinitionTrait;
 use Drupal\Component\Plugin\Definition\PluginDefinition;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\exo\Shared\ExoArrayAccessDefinitionTrait;
-use Psr\Container\ContainerInterface;
 
 /**
  * Class ExoComponentDefinition.
@@ -219,6 +217,13 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function extendId() {
+    return $this->getAdditionalValue('extend_id');
+  }
+
+  /**
    * A string that is 32 characters long and can be used for entity ids.
    *
    * @return string
@@ -284,21 +289,41 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
   /**
    * Getter.
    *
+   * @return string
+   *   Property value.
+   */
+  public function getHandlerPath() {
+    return $this->getAdditionalValue('handler_path') ?? ltrim($this->getPath(), '/');
+  }
+
+  /**
+   * Getter.
+   *
+   * @return string
+   *   Property value.
+   */
+  public function getHandlerName() {
+    return $this->getAdditionalValue('handler_name') ?? str_replace('_', '', ucwords($this->getName(), '_'));
+  }
+
+  /**
+   * Getter.
+   *
    * @return \Drupal\exo_alchemist\ExoComponentHandlerInterface
    *   Property value.
    */
   public function getHandler() {
     if (!isset($this->handler) || !is_object($this->handler)) {
       $this->handler = NULL;
-      $camel = str_replace('_', '', ucwords($this->getName(), '_'));
-      $filepath = ltrim($this->getPath(), '/') . '/' . $camel . '.php';
-      if (!class_exists($camel)) {
+      $name = $this->getHandlerName();
+      $filepath = $this->getHandlerPath() . '/' . $name . '.php';
+      if (!class_exists($name)) {
         if (file_exists($filepath)) {
           include $filepath;
         }
       }
-      if (class_exists($camel)) {
-        $this->handler = new $camel();
+      if (class_exists($name)) {
+        $this->handler = new $name();
         $this->handler->_serviceIds = TRUE;
       }
     }
@@ -363,6 +388,22 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
    */
   public function getFields() {
     return $this->definition['fields'];
+  }
+
+  /**
+   * Getter.
+   *
+   * @return \Drupal\exo_alchemist\Definition\ExoComponentDefinitionField[]
+   *   Property value.
+   */
+  public function getManagedFields() {
+    $fields = [];
+    foreach ($this->getFields() as $key => $field) {
+      if (!$field->isExtended()) {
+        $fields[$key] = $field;
+      }
+    }
+    return $fields;
   }
 
   /**
@@ -725,6 +766,16 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
       $locked = TRUE;
     }
     return $locked;
+  }
+
+  /**
+   * Getter.
+   *
+   * @return mixed
+   *   Property value.
+   */
+  public function isExtended() {
+    return !empty($this->extendId());
   }
 
   /**

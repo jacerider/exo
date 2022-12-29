@@ -92,7 +92,7 @@ abstract class ExoComponentFieldBase extends PluginBase implements ExoComponentF
    * {@inheritdoc}
    */
   public function getParents() {
-    if ($this->getFieldDefinition()->isComputed()) {
+    if ($this->isComputed()) {
       // If this is a computed field, direct to parent.
       return array_merge($this->getFieldDefinition()->getComponent()->getParents(), [
         $this->getFieldDefinition()->getName(),
@@ -174,7 +174,14 @@ abstract class ExoComponentFieldBase extends PluginBase implements ExoComponentF
     if ($this->isRequired()) {
       return FALSE;
     }
-    return !$this->getFieldDefinition()->getComponent()->isComputed() && $this->getFieldDefinition()->isHideable();
+    return !$this->getFieldDefinition()->getComponent()->isComputed() && !$this->isComputed() && $this->getFieldDefinition()->isHideable();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isComputed() {
+    return $this->getFieldDefinition()->isComputed();
   }
 
   /**

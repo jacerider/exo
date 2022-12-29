@@ -946,6 +946,7 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
         $entity = $storage->loadUnchanged($entity->id());
       }
     }
+    $entity->alchemistDefinition = $definition;
     return $entity;
   }
 
@@ -1188,6 +1189,14 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
     $build['#preview_field_attributes'] = [];
     if ($definition->hasLibrary()) {
       $build['#attached']['library'][] = 'exo_alchemist/' . $definition->getLibraryId();
+    }
+    if ($definition->isExtended()) {
+      $extend_definition = $this->getDefinition($definition->extendId());
+      $build['#wrapper_attributes']['class'][] = Html::getClass('exo-component-wrapper-' . $extend_definition->getName());
+      $build['#attributes']['class'][] = Html::getClass('exo-component-' . $extend_definition->getName());
+      if ($extend_definition->hasLibrary()) {
+        $build['#attached']['library'][] = 'exo_alchemist/' . $extend_definition->getLibraryId();
+      }
     }
     $values = $this->viewEntityValues($definition, $entity, $contexts);
     foreach ($values as $key => $value) {

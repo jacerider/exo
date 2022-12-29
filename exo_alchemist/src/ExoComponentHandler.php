@@ -12,6 +12,7 @@ use Drupal\exo_alchemist\Plugin\ExoComponentFieldInterface;
  */
 class ExoComponentHandler implements ExoComponentHandlerInterface {
   use StringTranslationTrait;
+  use ExoComponentContextTrait;
 
   /**
    * {@inheritdoc}

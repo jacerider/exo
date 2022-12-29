@@ -38,6 +38,19 @@ class ExoComponentDefinitionField implements \ArrayAccess {
     'filter' => FALSE,
     'default' => [],
     'modifier' => '',
+    // Use fields from parent entity as component value.
+    //
+    // Example:
+    // -  entity_field: field_title.
+    'entity_field' => NULL,
+    // Use complex field values from parent entity as component value. Requires
+    // entity_field to be set.
+    //
+    // Example:
+    // -  entity_field_match:
+    // -    accordion_title: title
+    // -    accordion_description: content.
+    'entity_field_match' => [],
     'additional' => [],
   ];
 
@@ -76,8 +89,8 @@ class ExoComponentDefinitionField implements \ArrayAccess {
         }
       }
       $this->definition['name'] = !isset($values['name']) ? $name : $values['name'];
-      $this->definition['label'] = isset($values['label']) ? $values['label'] : ucwords(str_replace('_', ' ', $this->definition['name']));
-      if (!empty($values['default'])) {
+      $this->definition['label'] = $values['label'] ?? ucwords(str_replace('_', ' ', $this->definition['name']));
+      if (isset($values['default']) && !is_null($values['default']) && $values['default'] !== FALSE) {
         $this->setDefaults($values['default']);
       }
       elseif (!empty($values['preview'])) {
@@ -108,7 +121,8 @@ class ExoComponentDefinitionField implements \ArrayAccess {
    * {@inheritdoc}
    */
   public function id() {
-    return $this->getComponent()->id() . '_' . $this->getType() . '_' . $this->getName();
+    $component = $this->getComponent();
+    return ($this->extendId() ?? $component->id()) . '_' . $this->getType() . '_' . $this->getName();
   }
 
   /**
@@ -119,6 +133,13 @@ class ExoComponentDefinitionField implements \ArrayAccess {
    */
   public function safeId() {
     return 'exo_field_' . substr(hash('sha256', $this->id()), 0, 22);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function extendId() {
+    return $this->getAdditionalValue('extend_id');
   }
 
   /**
@@ -210,8 +231,29 @@ class ExoComponentDefinitionField implements \ArrayAccess {
    * @return mixed
    *   Property value.
    */
+  public function isExtended() {
+    return !empty($this->extendId());
+  }
+
+  /**
+   * Getter.
+   *
+   * @return mixed
+   *   Property value.
+   */
   public function isComputed() {
     return !empty($this->definition['computed']);
+  }
+
+  /**
+   * Get Provider property.
+   *
+   * @return bool
+   *   Property value.
+   */
+  public function setComputed($computed = TRUE) {
+    $this->definition['computed'] = $computed === TRUE;
+    return $this;
   }
 
   /**
@@ -245,6 +287,26 @@ class ExoComponentDefinitionField implements \ArrayAccess {
   public function setCardinality($cardinality) {
     $this->definition['cardinality'] = $cardinality;
     return $this;
+  }
+
+  /**
+   * Get entity field property.
+   *
+   * @return mixed
+   *   Property value.
+   */
+  public function getEntityField() {
+    return $this->definition['entity_field'] ?? NULL;
+  }
+
+  /**
+   * Get entity field match property.
+   *
+   * @return mixed
+   *   Property value.
+   */
+  public function getEntityFieldMatch() {
+    return $this->definition['entity_field_match'] ?? [];
   }
 
   /**
@@ -452,7 +514,7 @@ class ExoComponentDefinitionField implements \ArrayAccess {
    *   Property value.
    */
   public function getDefaults() {
-    return $this->definition['default'];
+    return $this->definition['default'] ?: [];
   }
 
   /**
@@ -479,7 +541,7 @@ class ExoComponentDefinitionField implements \ArrayAccess {
    */
   public function setDefaults($defaults) {
     $this->definition['default'] = [];
-    if (!empty($defaults)) {
+    if (!is_null($defaults) && $defaults !== FALSE) {
       if (!is_array($defaults)) {
         $defaults = [['value' => $defaults]];
       }

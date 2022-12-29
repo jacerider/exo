@@ -195,6 +195,14 @@ interface ExoComponentFieldInterface extends PluginInspectionInterface, ContextA
   public function isHideable(array $contexts);
 
   /**
+   * Check if field is computed.
+   *
+   * @return bool
+   *   Returns TRUE if field is computed.
+   */
+  public function isComputed();
+
+  /**
    * Check if field is required.
    *
    * @return bool

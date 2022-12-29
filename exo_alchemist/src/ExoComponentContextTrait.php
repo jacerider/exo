@@ -54,7 +54,11 @@ trait ExoComponentContextTrait {
     else {
       $entity_context = $contexts['layout_builder.entity'];
     }
-    return $entity_context->getContextValue();
+    $entity = $entity_context->getContextValue();
+    if ($entity && !$entity->isNew() && $this->isLayoutBuilder($contexts)) {
+      $entity = \Drupal::entityTypeManager()->getStorage($entity->getEntityTypeId())->loadUnchanged($entity->id());
+    }
+    return $entity;
   }
 
   /**

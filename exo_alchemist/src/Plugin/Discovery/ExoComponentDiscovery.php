@@ -4,6 +4,7 @@ namespace Drupal\exo_alchemist\Plugin\Discovery;
 
 use Drupal\Component\Plugin\Discovery\DiscoveryInterface;
 use Drupal\Component\Plugin\Discovery\DiscoveryTrait;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Site\Settings;
@@ -115,44 +116,89 @@ class ExoComponentDiscovery implements DiscoveryInterface {
 
     // Traverse directories looking for pattern definitions.
     foreach ($this->directories as $provider => $directory) {
+      $extend = [];
       foreach ($this->scanDirectory($directory) as $file_path => $file) {
         $absolute_path = dirname($file_path);
         $relative_path = str_replace($root, '', $absolute_path);
         $id = $file->name;
         $content = file_get_contents($file_path);
         $content = Yaml::decode($content);
-
-        // Component definition needs to have some valid content.
-        if (empty($content)) {
-          continue;
+        $content['id'] = ltrim(str_replace("-", "_", $provider . '_' . $id), "0..9_");
+        $content['path'] = $relative_path;
+        $content['absolute_path'] = $absolute_path;
+        if (!empty($content['extend'])) {
+          $content['extend_id'] = ltrim(str_replace("-", "_", $provider . '_' . $content['extend']), "0..9_");
+          $extend[$id] = $content;
         }
-
-        // We need a Twig file to have a valid component.
-        if (!$this->templateExists($content, $relative_path, $absolute_path, $id)) {
-          continue;
+        elseif ($definition = $this->buildDefinition($provider, $id, $content)) {
+          $all[$provider][$definition['id']] = $definition;
         }
-
-        // Skip component if overriden and set to ignore.
-        if (isset($content['ignore']) && $content['ignore'] == TRUE) {
-          continue;
+      }
+      // Extend definitions.
+      // - Extending will use the extended component and changes can be made.
+      foreach ($extend as $id => $content) {
+        if (isset($all[$provider][$content['extend_id']])) {
+          $extend_definition = $all[$provider][$content['extend_id']];
+          $content['template'] = $extend_definition['template'];
+          $definition = $this->buildDefinition($provider, $id, $content);
+          $definition = NestedArray::mergeDeep($extend_definition, $definition);
+          // Reset fields after merge.
+          $definition['fields'] = $content['fields'];
+          foreach ($extend_definition['fields'] as $field_id => $field) {
+            // Allow default values to be overwritten.
+            foreach (['default', 'hide', 'edit', 'computed', 'invisible'] as $key) {
+              if (isset($definition['fields'][$field_id][$key])) {
+                $field[$key] = $definition['fields'][$field_id][$key];
+              }
+            }
+            $definition['fields'][$field_id] = $field;
+            if (!in_array($field['type'], ['sequence'])) {
+              // Reuse all extended fields except sequences.
+              $definition['fields'][$field_id]['extend_id'] = $content['extend_id'];
+            }
+          }
+          $all['provider'][$definition['id']] = $definition;
         }
-
-        // Set component meta.
-        $definition = $content;
-        $definition['provider'] = $provider;
-        $definition['id'] = ltrim(str_replace("-", "_", $definition['provider'] . '_' . $id), "0..9_");
-        $definition['name'] = $id;
-        $definition['path'] = $relative_path;
-        $definition['template'] = $this->getTemplatePath($content, $relative_path, $absolute_path, $id);
-        $definition['thumbnail'] = $this->getThumbnailPath($content, $relative_path, $absolute_path, $id);
-        $definition['css'] = $this->getCss($content, $relative_path, $absolute_path, $id);
-        $definition['js'] = $this->getJs($content, $relative_path, $absolute_path, $id);
-        // Add pattern to collection.
-        $all[$provider][$definition['id']] = $definition;
       }
     }
 
     return $all;
+  }
+
+  /**
+   * Build a single definition.
+   */
+  private function buildDefinition($provider, $id, $content) {
+    // Component definition needs to have some valid content.
+    if (empty($content)) {
+      return;
+    }
+
+    $absolute_path = $content['absolute_path'];
+    // We do not the absolute path in the definition.
+    unset($content['absolute_path']);
+    $relative_path = $content['path'];
+
+    // Skip component if overriden and set to ignore.
+    if (isset($content['ignore']) && $content['ignore'] == TRUE) {
+      return;
+    }
+
+    // We need a Twig file to have a valid component.
+    if (empty($content['template']) && !$this->templateExists($content, $relative_path, $absolute_path, $id)) {
+      return;
+    }
+
+    // Set component meta.
+    $definition = $content;
+    $definition['provider'] = $provider;
+    $definition['name'] = $id;
+    $definition['path'] = $relative_path;
+    $definition['template'] = $content['template'] ?? $this->getTemplatePath($content, $relative_path, $absolute_path, $id);
+    $definition['thumbnail'] = $this->getThumbnailPath($content, $relative_path, $absolute_path, $id);
+    $definition['css'] = $this->getCss($content, $relative_path, $absolute_path, $id);
+    $definition['js'] = $this->getJs($content, $relative_path, $absolute_path, $id);
+    return $definition;
   }
 
   /**
@@ -168,7 +214,11 @@ class ExoComponentDiscovery implements DiscoveryInterface {
   private function getTemplatePath($content, $relative_path, $absolute_path, $id) {
     $glob_paths = glob($absolute_path . "/*" . ltrim($id, "0..9_-") . ".html.twig");
     $closest_template = array_shift($glob_paths);
-    return str_replace([$absolute_path . '/', '.html', '.twig'], '', $closest_template);
+    return $closest_template ? str_replace([
+      $absolute_path . '/',
+      '.html',
+      '.twig',
+    ], '', $closest_template) : NULL;
   }
 
   /**
