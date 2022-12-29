@@ -79,11 +79,13 @@ class BlockComponentRenderArrayAfterCore implements EventSubscriberInterface {
     $entity = NULL;
     if (isset($build['content']['#block_content'])) {
       $entity = $build['content']['#block_content'];
-
-      /** @var \Drupal\exo_alchemist\ExoComponentManager $exo_component_manager */
-      $plugin_id = $this->exoComponentManager->getPluginIdFromSafeId($entity->bundle());
-      if ($definition = $this->exoComponentManager->getInstalledDefinition($plugin_id, FALSE)) {
-
+      $definition = $entity->alchemistDefinition ?? NULL;
+      if (empty($definition)) {
+        /** @var \Drupal\exo_alchemist\ExoComponentManager $exo_component_manager */
+        $plugin_id = $this->exoComponentManager->getPluginIdFromSafeId($entity->bundle());
+        $definition = $this->exoComponentManager->getInstalledDefinition($plugin_id, FALSE);
+      }
+      if ($definition) {
         // Only check access if the component is not being previewed.
         if ($event->inPreview()) {
           $access = AccessResult::allowed()->setCacheMaxAge(0);
