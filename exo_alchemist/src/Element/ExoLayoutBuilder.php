@@ -7,11 +7,9 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\SortArray;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\Context\ContextDefinition;
 use Drupal\Core\Render\Element;
-use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\exo_alchemist\Definition\ExoComponentDefinitionField;
 use Drupal\exo_alchemist\ExoComponentFieldManager;
@@ -22,11 +20,8 @@ use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\layout_builder\DefaultsSectionStorageInterface;
 use Drupal\layout_builder\Element\LayoutBuilder;
 use Drupal\layout_builder\LayoutEntityHelperTrait;
-use Drupal\layout_builder\LayoutTempstoreRepositoryInterface;
 use Drupal\layout_builder\Section;
 use Drupal\layout_builder\SectionStorageInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\layout_builder\SectionStorage\SectionStorageManagerInterface;
 
 /**
  * Defines a render element for building the Layout Builder UI.
