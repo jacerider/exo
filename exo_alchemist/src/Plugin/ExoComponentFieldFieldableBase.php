@@ -11,6 +11,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\exo_alchemist\ExoComponentFieldManager;
 use Drupal\exo_alchemist\ExoComponentValue;
 use Drupal\exo_alchemist\ExoComponentValues;
+use Drupal\exo_alchemist\Plugin\ExoComponentField\Sequence;
 
 /**
  * Base class for Component Field plugins.
@@ -200,6 +201,74 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
   }
 
   /**
+   * Swap entity field items.
+   *
+   * Support entity field overrides. For a component, if entity_field has been
+   * defined for a given field, get the parent entity, see if the parent
+   * has the field, make sure the types match, and then set the value.
+   */
+  protected function entityFieldValuesSwap(FieldItemListInterface $items, array $contexts) {
+    $parent_context = $contexts['layout_builder.entity'] ?? $contexts['entity'] ?? NULL;
+    if ($parent_context) {
+      $entity_field_name = $this->getFieldDefinition()->getEntityField();
+      if ($entity_field_name) {
+        $parent = $parent_context->getContextValue();
+        if ($parent->isNew()) {
+          return;
+        }
+        $field_name = $this->getFieldDefinition()->safeId();
+        if ($parent->hasField($entity_field_name)) {
+          if ($this->isLayoutBuilder($contexts)) {
+            // Do not use cached parent.
+            $parent = \Drupal::entityTypeManager()->getStorage($parent->getEntityTypeId())->loadUnchanged($parent->id());
+          }
+          if ($parent->get($entity_field_name)->isEmpty()) {
+            $items->setValue(NULL);
+            return;
+          }
+          $value = [];
+          $field_type = $items->getEntity()->getFieldDefinition($field_name)->getType();
+          $parent_field_type = $parent->getFieldDefinition($entity_field_name)->getType();
+          $match = $this->getFieldDefinition()->getEntityFieldMatch();
+          if ($match) {
+            // Handle sequence support with match.
+            if ($this instanceof Sequence) {
+              $settings = $items->getSettings();
+              $values = [];
+              foreach ($parent->get($entity_field_name) as $item) {
+                $component_definition = $this->getComponentDefinition();
+                $value = [
+                  'type' => $component_definition->safeId(),
+                ];
+                foreach ($match as $to => $from) {
+                  $val = $parent_field_type === 'fieldception' ? $item->getFieldValue($from) : $item->{$from} ?? NULL;
+                  $value[$component_definition->getField($to)->getFieldName()] = $val;
+                }
+                $values[] = \Drupal::entityTypeManager()->getStorage($settings['target_type'])->create($value);
+              }
+              $items->setValue($values);
+            }
+          }
+          else {
+            if ($field_type === $parent_field_type) {
+              $value = $parent->get($entity_field_name)->getValue();
+            }
+            else {
+              $string_types = ['string', 'string_long'];
+              if (in_array($field_type, $string_types) && in_array($parent_field_type, $string_types)) {
+                $value = $parent->get($entity_field_name)->getValue();
+              }
+            }
+            if ($value) {
+              $items->getEntity()->set($field_name, $value);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function view(FieldItemListInterface $items, array $contexts) {
@@ -207,6 +276,9 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
     if ($handler = $this->getFieldDefinition()->getComponent()->getHandler()) {
       $handler->fieldPreViewAlter($this, $items->getEntity(), $contexts);
     }
+
+    $this->entityFieldValuesSwap($items, $contexts);
+
     $output = [];
     if ($items->count()) {
       foreach ($items as $delta => $item) {
