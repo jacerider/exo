@@ -21,6 +21,7 @@ use Drupal\exo_list_builder\Plugin\ExoListElementBase;
  *   weight = 0,
  *   field_type = {
  *     "integer",
+ *     "weight",
  *     "config",
  *   },
  *   entity_type = {},
