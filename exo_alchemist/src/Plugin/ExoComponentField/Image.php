@@ -141,8 +141,10 @@ class Image extends EntityReferenceBase {
     $file = $item->entity;
     if ($file) {
       $field = $this->getFieldDefinition();
+      /** @var \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator */
+      $file_url_generator = \Drupal::service('file_url_generator');
       $value = [
-        'url' => file_create_url($file->getFileUri()),
+        'url' => $file_url_generator->generateString($file->getFileUri()),
         'width' => $item->width,
         'height' => $item->height,
         'title' => $file->label(),
