@@ -216,7 +216,7 @@ class ExoComponentAppearanceForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $trigger = $form_state->getTriggeringElement();
-    $op = isset($trigger['#op']) ? $trigger['#op'] : 'submit';
+    $op = $trigger['#op'] ?? 'submit';
     $definition = $this->exoComponentManager->getEntityBundleComponentDefinition($this->entity->type->entity);
     switch ($op) {
       case 'submit':
