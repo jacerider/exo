@@ -18,7 +18,6 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\exo_alchemist\Definition\ExoComponentDefinition;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\Context\ContextAwarePluginManagerInterface;
 use Drupal\Core\Plugin\FilteredPluginManagerTrait;
