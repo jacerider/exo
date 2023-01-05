@@ -8,6 +8,8 @@ use Drupal\Component\Plugin\Definition\PluginDefinition;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\exo\Shared\ExoArrayAccessDefinitionTrait;
+use Drupal\Core\Plugin\Context\ContextDefinition;
+use Drupal\Core\Plugin\Context\EntityContextDefinition;
 
 /**
  * Class ExoComponentDefinition.
@@ -38,6 +40,8 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
     'version' => '0.0.0',
     'category' => '',
     'permission' => '',
+    'entity_type' => '',
+    'bundle' => '',
     'ignore' => FALSE,
     'hidden' => FALSE,
     'computed' => FALSE,
@@ -171,6 +175,10 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
   public function __construct(array $definition = []) {
     // Allow installed to be passed in to the definition but do not store it
     // as part of the definition.
+    if (isset($definition['context_definitions'])) {
+      // $this->contextDefinitions
+      unset($definition['context_definitions']);
+    }
     if (isset($definition['installed'])) {
       $this->setInstalled($definition['installed']);
       unset($definition['installed']);
@@ -190,6 +198,14 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
     $this->setModifiers($this->definition['modifiers']);
     $this->setEnhancements($this->definition['enhancements']);
     $this->setAnimations($this->definition['animations']);
+    if ($entity_type_id = $this->definition['entity_type']) {
+      $context_definition = EntityContextDefinition::fromEntityTypeId($entity_type_id)->setLabel('Entity');
+      if ($bundle = $this->definition['bundle']) {
+        $context_definition->addConstraint('Bundle', [$bundle]);
+      }
+      $this->addContextDefinition('entity', $context_definition);
+      $this->addContextDefinition('view_mode', new ContextDefinition('string'));
+    }
   }
 
   /**
@@ -213,6 +229,7 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
     foreach ($this->getAnimations() as $animation) {
       $definition['animations'][$animation->getName()] = $animation->toArray();
     }
+    unset($definition['context_definitions']);
     return $definition;
   }
 
