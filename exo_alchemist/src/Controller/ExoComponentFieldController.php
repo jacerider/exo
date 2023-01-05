@@ -72,7 +72,6 @@ class ExoComponentFieldController extends ControllerBase {
 
       $delta++;
     }
-    $field_definitions = $this->exoComponentFieldManager->getDefinitions();
 
     return $build;
   }
