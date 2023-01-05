@@ -23,6 +23,13 @@ abstract class ExoComponentFieldBase extends PluginBase implements ExoComponentF
   use ExoComponentContextTrait;
 
   /**
+   * Editable flag.
+   *
+   * @var bool
+   */
+  protected $editable;
+
+  /**
    * {@inheritdoc}
    */
   public function getFieldDefinition() {
@@ -141,6 +148,9 @@ abstract class ExoComponentFieldBase extends PluginBase implements ExoComponentF
    * {@inheritdoc}
    */
   public function isEditable(array $contexts) {
+    if (isset($this->editable)) {
+      return $this->editable === TRUE;
+    }
     // Never allow when we are locked and not on the default storage.
     if ($this->isLocked($contexts) && !$this->isDefaultStorage($contexts)) {
       return FALSE;
@@ -149,6 +159,14 @@ abstract class ExoComponentFieldBase extends PluginBase implements ExoComponentF
       return FALSE;
     }
     return $this->getFieldDefinition()->isEditable();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setEditable($editable = TRUE) {
+    $this->editable = $editable === TRUE;
+    return $this;
   }
 
   /**
@@ -166,6 +184,10 @@ abstract class ExoComponentFieldBase extends PluginBase implements ExoComponentF
    * {@inheritdoc}
    */
   public function isHideable(array $contexts) {
+    // Never hide when in preview.
+    if ($this->isPreview($contexts)) {
+      return FALSE;
+    }
     // Never allow when we are locked and not on the default storage.
     if ($this->isLocked($contexts) && !$this->isDefaultStorage($contexts)) {
       return FALSE;
