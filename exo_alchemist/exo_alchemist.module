@@ -687,6 +687,10 @@ function exo_alchemist_preprocess_page(&$variables) {
       $variables['attributes']['class'][] = 'component-enabled';
       if (!empty($node->exoAlchemistFirst)) {
         $variables['attributes']['class'][] = Html::getClass('component-first--' . $node->exoAlchemistFirst['component']->id());
+        if ($node->exoAlchemistFirst['component']->isExtended()) {
+          $extend_definition = \Drupal::service('plugin.manager.exo_component')->getDefinition($node->exoAlchemistFirst['component']->extendId());
+          $variables['attributes']['class'][] = Html::getClass('component-first--' . $extend_definition->id());
+        }
         /** @var \Drupal\exo_alchemist\Definition\ExoComponentDefinition $definition */
         $definition = $node->exoAlchemistFirst['component'];
         /** @var \Drupal\exo_alchemist\Definition\ExoComponentDefinitionModifier $modifiers */
@@ -706,6 +710,10 @@ function exo_alchemist_preprocess_page(&$variables) {
       }
       if (!empty($node->exoAlchemistLast)) {
         $variables['attributes']['class'][] = Html::getClass('component-last--' . $node->exoAlchemistLast['component']->id());
+        if ($node->exoAlchemistLast['component']->isExtended()) {
+          $extend_definition = \Drupal::service('plugin.manager.exo_component')->getDefinition($node->exoAlchemistLast['component']->extendId());
+          $variables['attributes']['class'][] = Html::getClass('component-last--' . $extend_definition->id());
+        }
       }
       $route_name = \Drupal::routeMatch()->getRouteName();
       switch (TRUE) {
