@@ -12,6 +12,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Render\Element;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Template\Attribute;
@@ -317,7 +318,8 @@ class ExoImagineFormatter extends ImageFormatter {
       $files = $this->getEntitiesToView($items, $langcode);
       $breakpoint_settings = $this->getBreakpointSettings();
       $blur = $this->exoImagineSettings->getSetting('blur');
-      foreach ($elements as $delta => &$element) {
+      foreach (Element::children($elements) as $delta) {
+        $element = &$elements[$delta];
         /** @var \Drupal\file\FileInterface $file */
         $file = $files[$delta];
         $item = $element['#item'];
@@ -362,6 +364,7 @@ class ExoImagineFormatter extends ImageFormatter {
             ];
             $cache['tags'] = Cache::mergeTags($cache['tags'], $file->getCacheTags());
             $cache['contexts'] = Cache::mergeTags($cache['contexts'], $file->getCacheContexts());
+            $elements['#attributes']['class'][] = 'exo-imagine--svg';
           }
         }
         else {
