@@ -13,6 +13,7 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\exo_toolbar\Entity\ExoToolbarItemInterface;
 use Drupal\exo_toolbar\Ajax\ExoToolbarDialogCommand;
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Plugin\PluginDependencyTrait;
 
 /**
@@ -54,7 +55,7 @@ abstract class ExoToolbarDialogTypeBase extends PluginBase implements ExoToolbar
    * {@inheritdoc}
    */
   public function getProvider() {
-    return isset($this->pluginDefinition['provider']) ? $this->pluginDefinition['provider'] : FALSE;
+    return $this->pluginDefinition['provider'] ?? FALSE;
   }
 
   /**
