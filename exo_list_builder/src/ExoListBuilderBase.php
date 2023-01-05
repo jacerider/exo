@@ -222,11 +222,14 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   public function loadFields() {
     if (!isset($this->fields)) {
-      $cid = 'exo_list_builder:fields:' . $this->entityList->id();
-      if ($cache = \Drupal::cache()->get($cid)) {
-        $fields = $cache->data;
+      $use_cache = !$this->entityList->isNew();
+      if ($use_cache) {
+        $cid = 'exo_list_builder:fields:' . $this->entityList->id();
+        if ($cache = \Drupal::cache()->get($cid)) {
+          $fields = $cache->data;
+        }
       }
-      else {
+      if (!isset($fields)) {
         $entity_list = $this->getEntityList();
         $fields = [];
         foreach ($entity_list->getTargetBundleIds() as $bundle) {
@@ -236,7 +239,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         $this->alterFields($fields);
         $this->moduleHandler->alter('exo_list_builder_fields', $fields, $this->entityTypeId);
         $this->moduleHandler->alter('exo_list_builder_fields_' . $entity_list->id(), $fields, $this->entityTypeId);
-        \Drupal::cache()->set($cid, $fields, Cache::PERMANENT, ['entity_field_info']);
+        if ($use_cache) {
+          \Drupal::cache()->set($cid, $fields, Cache::PERMANENT, ['entity_field_info']);
+        }
       }
       $this->fields = $fields;
     }
