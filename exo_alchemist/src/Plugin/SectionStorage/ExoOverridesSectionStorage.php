@@ -39,9 +39,10 @@ class ExoOverridesSectionStorage extends OverridesSectionStorage implements ExoC
     $sections = $this->getEntity()->get(static::FIELD_NAME);
     // Layout settings are always inherited from the parent.
     $default_section_storage = $this->getDefaultSectionStorage();
+    $default_sections = $default_section_storage->getSections();
     foreach ($sections->getSections() as $delta => $section) {
-      if ($default_section = $default_section_storage->getSection($delta)) {
-        $section->setLayoutSettings($default_section->getLayoutSettings());
+      if (isset($default_sections[$delta])) {
+        $section->setLayoutSettings($default_sections[$delta]->getLayoutSettings());
       }
     }
     return $sections;
