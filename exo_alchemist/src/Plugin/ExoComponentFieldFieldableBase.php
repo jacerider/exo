@@ -3,6 +3,7 @@
 namespace Drupal\exo_alchemist\Plugin;
 
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -11,7 +12,6 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\exo_alchemist\ExoComponentFieldManager;
 use Drupal\exo_alchemist\ExoComponentValue;
 use Drupal\exo_alchemist\ExoComponentValues;
-use Drupal\exo_alchemist\Plugin\ExoComponentField\Sequence;
 
 /**
  * Base class for Component Field plugins.
@@ -216,8 +216,18 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
         if ($parent->isNew()) {
           return;
         }
-        $field_name = $this->getFieldDefinition()->safeId();
         if ($parent->hasField($entity_field_name)) {
+          $this->setEditable(FALSE);
+          if (in_array($parent->getFieldDefinition($entity_field_name)->getType(), [
+            'entity_reference',
+            'entity_reference_revisions',
+          ])) {
+            $parent_items = $parent->get($entity_field_name);
+            if (!empty($parent_items->entity) && $parent_items->entity->hasField($entity_field_name)) {
+              $parent = $parent_items->entity;
+            }
+          }
+          $parent_items = $parent->get($entity_field_name);
           if ($this->isLayoutBuilder($contexts)) {
             // Do not use cached parent.
             $parent = \Drupal::entityTypeManager()->getStorage($parent->getEntityTypeId())->loadUnchanged($parent->id());
@@ -226,46 +236,50 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
             $items->setValue(NULL);
             return;
           }
-          $value = [];
-          $field_type = $items->getEntity()->getFieldDefinition($field_name)->getType();
-          $parent_field_type = $parent->getFieldDefinition($entity_field_name)->getType();
-          $match = $this->getFieldDefinition()->getEntityFieldMatch();
-          if ($match) {
-            // Handle sequence support with match.
-            if ($this instanceof Sequence) {
-              $settings = $items->getSettings();
-              $values = [];
-              foreach ($parent->get($entity_field_name) as $item) {
-                $component_definition = $this->getComponentDefinition();
-                $value = [
-                  'type' => $component_definition->safeId(),
-                ];
-                foreach ($match as $to => $from) {
-                  $val = $parent_field_type === 'fieldception' ? $item->getFieldValue($from) : $item->{$from} ?? NULL;
-                  $value[$component_definition->getField($to)->getFieldName()] = $val;
-                }
-                $values[] = \Drupal::entityTypeManager()->getStorage($settings['target_type'])->create($value);
-              }
-              $items->setValue($values);
-            }
-          }
-          else {
-            if ($field_type === $parent_field_type) {
-              $value = $parent->get($entity_field_name)->getValue();
-            }
-            else {
-              $string_types = ['string', 'string_long'];
-              if (in_array($field_type, $string_types) && in_array($parent_field_type, $string_types)) {
-                $value = $parent->get($entity_field_name)->getValue();
-              }
-            }
-            if ($value) {
-              $items->getEntity()->set($field_name, $value);
-            }
+          $entity_field_match = $this->getFieldDefinition()->getEntityFieldMatch();
+          if ($values = $this->entityFieldValuesMatch($entity_field_match, $parent, $parent_items, $items, $contexts)) {
+            $items->setValue($values);
           }
         }
       }
     }
+  }
+
+  /**
+   * Instances can use this method to match values.
+   */
+  protected function entityFieldValuesMatch($entity_field_match, ContentEntityInterface $parent, FieldItemListInterface $parent_items, FieldItemListInterface $items, array $contexts) {
+    $parent_field_type = $parent_items->getFieldDefinition()->getType();
+    $field_name = $this->getFieldDefinition()->safeId();
+    $field_type = $items->getEntity()->getFieldDefinition($field_name)->getType();
+    $values = [];
+    if (is_string($entity_field_match)) {
+      // If explicitly calling 'title', we assume entity title.
+      if ($entity_field_match === 'entity_label') {
+        $entity = $parent_items->first()->entity;
+        if ($entity) {
+          $values[] = $entity->label();
+        }
+        return $values;
+      }
+      foreach ($parent_items as $parent_item) {
+        $entity = $parent_item->entity;
+        if ($entity && $entity->hasField($entity_field_match) && $entity->get($entity_field_match)->entity) {
+          $values[] = $entity->get($entity_field_match)->entity;
+        }
+      }
+      return $values;
+    }
+    if ($field_type === $parent_field_type) {
+      $values = $parent_items->getValue();
+    }
+    else {
+      $string_types = ['string', 'string_long'];
+      if (in_array($field_type, $string_types) && in_array($parent_field_type, $string_types)) {
+        $values = $parent_items->getValue();
+      }
+    }
+    return $values;
   }
 
   /**

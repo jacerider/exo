@@ -3,6 +3,7 @@
 namespace Drupal\exo_alchemist\Plugin\ExoComponentField;
 
 use Drupal\Component\Plugin\Exception\PluginException;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Field\FieldItemInterface;
@@ -198,6 +199,28 @@ class Sequence extends EntityReferenceBase {
       return $value;
     }
     return NULL;
+  }
+
+  /**
+   * Instances can use this method to match values.
+   */
+  protected function entityFieldValuesMatch($entity_field_match, ContentEntityInterface $parent, FieldItemListInterface $parent_items, FieldItemListInterface $items, array $contexts) {
+    $parent_field_name = $parent_items->getName();
+    $parent_field_type = $parent_items->getFieldDefinition()->getType();
+    $settings = $items->getSettings();
+    $values = [];
+    foreach ($parent->get($parent_field_name) as $item) {
+      $component_definition = $this->getComponentDefinition();
+      $value = [
+        'type' => $component_definition->safeId(),
+      ];
+      foreach ($entity_field_match as $to => $from) {
+        $val = $parent_field_type === 'fieldception' ? $item->getFieldValue($from) : $item->{$from} ?? NULL;
+        $value[$component_definition->getField($to)->getFieldName()] = $val;
+      }
+      $values[] = \Drupal::entityTypeManager()->getStorage($settings['target_type'])->create($value);
+    }
+    return $values;
   }
 
   /**
