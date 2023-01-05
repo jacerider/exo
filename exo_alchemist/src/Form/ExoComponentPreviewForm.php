@@ -198,6 +198,27 @@ class ExoComponentPreviewForm extends FormBase {
         '#tree' => TRUE,
       ];
 
+      if (\Drupal::request()->query->get('show-hidden')) {
+        $form['all'] = [
+          '#type' => 'link',
+          '#title' => exo_icon('Hide Hidden Fields')->setIcon('regular-eye-slash'),
+          '#url' => Url::fromRoute('<current>'),
+          '#attributes' => ['class' => ['exo-component-modify-button']],
+        ];
+      }
+      else {
+        $form['all'] = [
+          '#type' => 'link',
+          '#title' => exo_icon('Show Hidden Fields')->setIcon('regular-eye'),
+          '#url' => Url::fromRoute('<current>', [], [
+            'query' => [
+              'show-hidden' => TRUE,
+            ],
+          ]),
+          '#attributes' => ['class' => ['exo-component-modify-button']],
+        ];
+      }
+
       $this->exoComponentPropertyManager->buildForm($form, $form_state, $definition, $entity);
       $form['modifiers']['#attributes']['data-exo-alchemist-refresh'] = '';
 
