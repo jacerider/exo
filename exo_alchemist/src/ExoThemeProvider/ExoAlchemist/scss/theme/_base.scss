@@ -80,7 +80,7 @@ $palette: map-merge($global-colors, $colors);
     }
 
     a {
-      transition: color $global-speed, background-color $global-speed;
+      transition: all $global-speed;
       color: color(theme-primary);
 
       &:hover {
