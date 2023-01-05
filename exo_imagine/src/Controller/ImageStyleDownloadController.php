@@ -55,23 +55,19 @@ class ImageStyleDownloadController extends CoreImageStyleDownloadController {
     $target = NULL;
     $image_uri = NULL;
 
-    // Find parent.
-    if (file_exists($uri_sans_extension . 'jpg')) {
-      $target = $target_sans_extension . 'jpg';
-      $image_uri = $uri_sans_extension . 'jpg';
+    foreach ([
+      'jpg',
+      'jpeg',
+      'png',
+      'gif',
+    ] as $extention) {
+      if (file_exists($uri_sans_extension . $extention)) {
+        $target = $target_sans_extension . $extention;
+        $image_uri = $uri_sans_extension . $extention;
+        break;
+      }
     }
-    elseif (file_exists($uri_sans_extension . 'jpeg')) {
-      $target = $target_sans_extension . 'jpeg';
-      $image_uri = $uri_sans_extension . 'jpeg';
-    }
-    elseif (file_exists($uri_sans_extension . 'png')) {
-      $target = $target_sans_extension . 'png';
-      $image_uri = $uri_sans_extension . 'png';
-    }
-    elseif (file_exists($uri_sans_extension . 'gif')) {
-      $target = $target_sans_extension . 'gif';
-      $image_uri = $uri_sans_extension . 'gif';
-    }
+
     if (!$target) {
       throw new NotFoundHttpException();
     }
