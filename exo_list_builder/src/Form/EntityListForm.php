@@ -1067,7 +1067,7 @@ class EntityListForm extends EntityForm {
         if (empty($reference['status'])) {
           unset($references[$reference_id]);
         }
-        else {
+        elseif (!empty($reference['fields'])) {
           $references[$reference_id]['fields'] = array_values($reference['fields']);
         }
       }
