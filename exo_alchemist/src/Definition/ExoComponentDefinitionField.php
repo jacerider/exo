@@ -46,7 +46,10 @@ class ExoComponentDefinitionField implements \ArrayAccess {
     // Use complex field values from parent entity as component value. Requires
     // entity_field to be set.
     //
-    // Example:
+    // Example for entity reference field:
+    // -  entity_field_match: field_image
+    //
+    // Example for sequence field:
     // -  entity_field_match:
     // -    accordion_title: title
     // -    accordion_description: content.
