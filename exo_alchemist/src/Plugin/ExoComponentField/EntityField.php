@@ -208,7 +208,7 @@ class EntityField extends ExoComponentFieldFieldableBase implements ContextAware
         ]));
       }
     }
-    elseif ($entity && ($entity->getEntityTypeId() !== $entity_type_id || $entity->bundle() !== $bundle)) {
+    elseif ($entity && ($entity->getEntityTypeId() !== $entity_type_id || ($bundle && $entity->bundle() !== $bundle))) {
       return NULL;
     }
     return $entity;
