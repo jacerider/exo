@@ -184,10 +184,6 @@ abstract class ExoComponentFieldBase extends PluginBase implements ExoComponentF
    * {@inheritdoc}
    */
   public function isHideable(array $contexts) {
-    // Never hide when in preview.
-    if ($this->isPreview($contexts)) {
-      return FALSE;
-    }
     // Never allow when we are locked and not on the default storage.
     if ($this->isLocked($contexts) && !$this->isDefaultStorage($contexts)) {
       return FALSE;
@@ -196,7 +192,15 @@ abstract class ExoComponentFieldBase extends PluginBase implements ExoComponentF
     if ($this->isRequired()) {
       return FALSE;
     }
-    return !$this->getFieldDefinition()->getComponent()->isComputed() && !$this->isComputed() && $this->getFieldDefinition()->isHideable();
+
+    // Be careful here. We used to have logic to check if the field is computed
+    // and if it was, we would not allow it to be hidden. This was causing
+    // issues with sequence fields that have subfields that are optional.
+    if ($this->getFieldDefinition()->getComponent()->isComputed() || $this->isComputed()) {
+      return FALSE;
+    }
+
+    return $this->getFieldDefinition()->isHideable();
   }
 
   /**
