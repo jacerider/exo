@@ -85,7 +85,7 @@ class ExoComponentChooseController implements ContainerInjectionInterface {
       'all' => $this->t('All'),
     ];
 
-    $contexts = $this->getAvailableContexts($section_storage);
+    $contexts = $this->getPopulatedContexts($section_storage);
     if ($section_storage instanceof ExoComponentSectionStorageInterface) {
       $region_sizes = ['all'];
       $region_sizes[] = $section_storage->getRegionSize($delta, $region);
