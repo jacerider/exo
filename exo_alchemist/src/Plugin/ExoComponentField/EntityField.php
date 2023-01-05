@@ -18,6 +18,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\exo_alchemist\ExoComponentValue;
 use Drupal\exo_alchemist\Form\ExoFieldUpdateForm;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldFieldableBase;
+use Drupal\exo_alchemist\Plugin\ExoComponentFieldPreviewEntityTrait;
 use Drupal\exo_alchemist\Plugin\Field\FieldWidget\EntityFieldWidget;
 use Drupal\exo_alchemist\Plugin\SectionStorage\ExoOverridesSectionStorage;
 use Drupal\layout_builder\DefaultsSectionStorageInterface;
@@ -34,6 +35,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class EntityField extends ExoComponentFieldFieldableBase implements ContextAwarePluginInterface, ContainerFactoryPluginInterface {
 
+  use ExoComponentFieldPreviewEntityTrait;
   /**
    * The entity type manager.
    *
@@ -178,11 +180,48 @@ class EntityField extends ExoComponentFieldFieldableBase implements ContextAware
   }
 
   /**
+   * Get the entity of the display.
+   *
+   * @param \Drupal\Core\Plugin\Context\Context[] $contexts
+   *   An array of current contexts.
+   *
+   * @return \Drupal\Core\Entity\FieldableEntityInterface
+   *   The entity.
+   */
+  protected function getReferencedEntity(array $contexts) {
+    $entity = $this->getParentEntity();
+    $entity_type_id = static::getEntityTypeIdFromPluginId($this->getPluginId());
+    $bundle = static::getBundleFromPluginId($this->getPluginId());
+    if ($this->isPreview($contexts) || $this->isDefaultStorage($contexts)) {
+      // Always use plugin id for entity type id and bundle as these will be
+      // the root entity.
+      if ($entity = $this->getPreviewEntity($entity_type_id, $bundle)) {
+        \Drupal::messenger()->addMessage($this->t('This component is being previewed using <a href="@url">@label</a>.', [
+          '@url' => $entity->toUrl()->toString(),
+          '@label' => $entity->getEntityType()->getLabel() . ': ' . $entity->label(),
+        ]), 'alchemist');
+      }
+      else {
+        \Drupal::messenger()->addWarning($this->t('Please create a @entity_type_id:@bundle entity to improve preview.', [
+          '@entity_type_id' => $entity_type_id,
+          '@bundle' => $bundle,
+        ]));
+      }
+    }
+    elseif ($entity && ($entity->getEntityTypeId() !== $entity_type_id || $entity->bundle() !== $bundle)) {
+      return NULL;
+    }
+    return $entity;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function view(FieldItemListInterface $items, array $contexts) {
     $field = $this->getFieldDefinition();
-    $parent_entity = $this->getParentEntity();
+    $entity = $this->getReferencedEntity($contexts);
+    $contexts['layout_builder.entity'] = EntityContext::fromEntity($entity);
+    unset($contexts['layout_entity']);
     if ($items->isEmpty()) {
       $items->appendItem();
     }
@@ -192,8 +231,8 @@ class EntityField extends ExoComponentFieldFieldableBase implements ContextAware
         '@label' => $field->getLabel(),
       ]), $this->t('This box will be replaced with the actual field content if it has been set.')),
     ];
-    if ($parent_entity && $parent_entity->hasField($this->fieldName)) {
-      if ($parent_entity->get($this->fieldName)->isEmpty()) {
+    if ($entity && $entity->hasField($this->fieldName)) {
+      if ($entity->get($this->fieldName)->isEmpty()) {
         if ($this->isLayoutBuilder($contexts)) {
           return [$placeholder];
         }
