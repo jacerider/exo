@@ -19,7 +19,7 @@ abstract class ExoDataToolbar extends ExoData {
   }
 
   public getElement():JQuery {
-    if (!this.$element) {
+    if (!this.$element || !this.$element.length) {
       this.$element = jQuery(this.getSelector());
     }
     return this.$element;
