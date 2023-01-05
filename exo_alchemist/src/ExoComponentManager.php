@@ -55,6 +55,13 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
   const ENTITY_TYPE = 'block_content';
 
   /**
+   * The object that discovers plugins managed by this manager.
+   *
+   * @var \Drupal\Component\Plugin\Discovery\DiscoveryInterface
+   */
+  protected $installedDiscovery;
+
+  /**
    * The entity type manager.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
@@ -946,7 +953,9 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
         $entity = $storage->loadUnchanged($entity->id());
       }
     }
-    $entity->alchemistDefinition = $definition;
+    if ($entity) {
+      $entity->alchemistDefinition = $definition;
+    }
     return $entity;
   }
 
