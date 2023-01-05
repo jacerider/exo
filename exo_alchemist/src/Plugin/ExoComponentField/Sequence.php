@@ -51,6 +51,13 @@ class Sequence extends EntityReferenceBase {
   protected $parentModifierAttributes;
 
   /**
+   * The component manager.
+   *
+   * @var \Drupal\exo_alchemist\ExoComponentManager
+   */
+  protected $exoComponentManager;
+
+  /**
    * {@inheritdoc}
    */
   public function processDefinition() {
