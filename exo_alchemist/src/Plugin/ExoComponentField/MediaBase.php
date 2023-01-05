@@ -49,8 +49,8 @@ abstract class MediaBase extends EntityReferenceBase implements ExoComponentFiel
     parent::cleanValue($item, $delta, $update);
     if ($item->entity) {
       $entity = $item->entity;
+      $count = $this->decrementMediaUsage($entity);
       if (!$update) {
-        $count = $this->mediaUsageDecrement($entity);
         if ($count < 1) {
           // Delete the media entity when uninstalling.
           $this->componentMediaSourceFieldClean($entity);
@@ -64,9 +64,18 @@ abstract class MediaBase extends EntityReferenceBase implements ExoComponentFiel
   }
 
   /**
+   * Get media usage.
+   */
+  protected function getMediaUsage(MediaInterface $entity) {
+    $state = \Drupal::state();
+    $stateKey = 'exo_alchemist.usage.media.' . $entity->id();
+    return $state->get($stateKey, 0);
+  }
+
+  /**
    * Incremement media usage.
    */
-  protected function mediaUsageIncrement(MediaInterface $entity) {
+  protected function incrementMediaUsage(MediaInterface $entity) {
     $state = \Drupal::state();
     $stateKey = 'exo_alchemist.usage.media.' . $entity->id();
     $count = $state->get($stateKey, 0);
@@ -78,11 +87,12 @@ abstract class MediaBase extends EntityReferenceBase implements ExoComponentFiel
   /**
    * Decrement media usage.
    */
-  protected function mediaUsageDecrement(MediaInterface $entity) {
+  protected function decrementMediaUsage(MediaInterface $entity) {
     $state = \Drupal::state();
     $stateKey = 'exo_alchemist.usage.media.' . $entity->id();
-    $count = $state->get($stateKey, 1);
+    $count = $state->get($stateKey, 0);
     $count--;
+    $count = max(0, $count);
     $state->set($stateKey, $count);
     return $count;
   }
@@ -135,6 +145,15 @@ abstract class MediaBase extends EntityReferenceBase implements ExoComponentFiel
         ]);
         $media->enforceIsNew(FALSE);
       }
+      else {
+        /** @var \Drupal\media\MediaInterface $media */
+        $count = $this->getMediaUsage($media);
+        if ($count > 1 && $media->get('alchemist_key')->value !== $key) {
+          // We need a new media entity as this one is being used by other
+          // components and the key has changed.
+          $media = NULL;
+        }
+      }
     }
     // Support lookup by key.
     if (empty($media) && $key) {
@@ -163,7 +182,7 @@ abstract class MediaBase extends EntityReferenceBase implements ExoComponentFiel
     $media->get('alchemist_key')->setValue($key);
     $media->setPublished(TRUE);
     $media->save();
-    $this->mediaUsageIncrement($media);
+    $count = $this->incrementMediaUsage($media);
     return $media;
   }
 
