@@ -2,7 +2,6 @@
 
 namespace Drupal\exo_alchemist\Plugin\ExoComponentField;
 
-use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 
 /**
