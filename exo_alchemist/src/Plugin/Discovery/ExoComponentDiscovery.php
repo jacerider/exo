@@ -143,10 +143,18 @@ class ExoComponentDiscovery implements DiscoveryInterface {
           $definition = $this->buildDefinition($provider, $id, $content);
           $definition = NestedArray::mergeDeep($extend_definition, $definition);
           // Reset fields after merge.
-          $definition['fields'] = $content['fields'];
+          $definition['fields'] = $content['fields'] ?? [];
           foreach ($extend_definition['fields'] as $field_id => $field) {
             // Allow default values to be overwritten.
-            foreach (['default', 'hide', 'edit', 'computed', 'invisible'] as $key) {
+            foreach ([
+              'default',
+              'hide',
+              'edit',
+              'computed',
+              'invisible',
+              'entity_field',
+              'entity_field_match',
+            ] as $key) {
               if (isset($definition['fields'][$field_id][$key])) {
                 $field[$key] = $definition['fields'][$field_id][$key];
               }
