@@ -1,1 +1,1 @@
-!function(s,r){"use strict";r.AjaxCommands.prototype.embed_insert=function(t,e,n){var a=s(t.element);a.html(e.data),r.runEmbedBehaviors("attach",a.get(0),e.settings||t.settings)}}(jQuery,Drupal);
+!function(n,r){"use strict";r.AjaxCommands.prototype.embed_insert=function(t,e,i){var a=n(t.element);a.html(e.data),r.runEmbedBehaviors("attach",a.get(0),e.settings||t.settings),void 0!==r.drimage&&r.drimage.init(a.get(0))}}(jQuery,Drupal);

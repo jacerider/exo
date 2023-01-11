@@ -32,6 +32,11 @@
     // $target.addClass($child.attr('class'));
     // $child.removeAttr('class');
     Drupal.runEmbedBehaviors('attach', $target.get(0), response.settings || ajax.settings);
+
+    // Drimage support.
+    if (typeof Drupal.drimage !== 'undefined') {
+      Drupal.drimage.init($target.get(0));
+    }
   };
 
 })(jQuery, Drupal);
