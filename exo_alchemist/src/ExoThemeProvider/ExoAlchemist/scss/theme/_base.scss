@@ -184,8 +184,8 @@ $palette: map-merge($global-colors, $colors);
         background-color: color($name) !important;
       }
 
-      .exo-modifier--color-border-light {
-        border-color: color($name) !important;
+      .exo-modifier--color-border-light:not([class^='exo-modifier--color-border-theme-']):not([class*=' exo-modifier--color-border-theme-']) {
+        border-color: color($name);
       }
     }
   }
