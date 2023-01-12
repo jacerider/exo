@@ -848,9 +848,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
     if (($entities || $this->isFiltered()) && (count($entities) < $this->getTotal() || $this->getOption('limit'))) {
       $pager = $this->buildPager($build);
-      $build['header']['second']['pager'] = [
-        '#access' => !empty(Element::getVisibleChildren($pager)),
-      ] + $pager;
+      $build['header']['second']['pager'] = $pager;
       // Remove pages from header.
       unset($build['header']['second']['pager']['pages']);
       unset($build['header']['second']['pager']['pager_footer']);
@@ -1363,6 +1361,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       '#attributes' => ['class' => ['exo-list-pager']],
     ];
     $limit = $this->getLimit();
+    $page = (int) $this->getOption('page') + 1;
+    $pages = ceil((int) $this->getTotal() / (int) $limit);
 
     if ($limit && $entity_list->getSetting('limit_status')) {
       $form['limit'] = [
@@ -1389,8 +1389,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         ],
       ];
 
-      $page = (int) $this->getOption('page') + 1;
-      if ($pages = ceil((int) $this->getTotal() / (int) $limit)) {
+      if ($pages && $pages != 1) {
         $form['pages']['#markup'] = '<div class="exo-list-pages">' . $this->t('Page @page of @pages', [
           '@page' => $page,
           '@pages' => $pages,
@@ -1404,7 +1403,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       ]) . '</div>';
     }
 
-    if ($limit) {
+    if ($limit && $pages && $pages != 1) {
       $form['pager_header'] = $form['pager_footer'] = [
         '#type' => 'pager',
         '#quantity' => 3,
@@ -1438,6 +1437,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         }
       }
     }
+
+    $form['#access'] = !empty(Element::getVisibleChildren($form));
 
     return $form;
   }

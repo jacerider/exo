@@ -282,37 +282,37 @@ class EntityListForm extends EntityForm {
       $delta++;
     }
 
+    $default_label = (string) $this->t('Default:');
+    $options = [
+      $default_label => [
+        '' => $this->t('Drupal core pager'),
+        '_hide' => $this->t('Hide pager'),
+      ],
+    ];
     if ($this->moduleHandler->moduleExists('pagerer')) {
       /** @var \Drupal\pagerer\PagererPresetListBuilder $pagerer_preset_list */
       $pagerer_preset_list = $this->entityTypeManager->getListBuilder('pagerer_preset');
-      $default_label = (string) $this->t('Default:');
       $replace_label = (string) $this->t('Replace with:');
-      $options = [
-        $default_label => [
-          '' => $this->t('Drupal core pager'),
-          '_hide' => $this->t('Hide pager'),
-        ],
-        $replace_label => $pagerer_preset_list->listOptions(),
-      ];
-      $form['pager']['pagerer_header'] = [
-        '#type' => 'select',
-        '#title' => $this->t('Header pager'),
-        '#description' => $this->t("Core pager theme requests can be overridden. Select whether they need to be fulfilled by Drupal core pager, or the Pagerer pager to use."),
-        '#options' => $options,
-        '#parents' => ['settings', 'pagerer_header'],
-        '#default_value' => $exo_entity_list->getSetting('pagerer_header'),
-        '#states' => $states,
-      ];
-      $form['pager']['pagerer_footer'] = [
-        '#type' => 'select',
-        '#title' => $this->t('Footer pager'),
-        '#description' => $this->t("Core pager theme requests can be overridden. Select whether they need to be fulfilled by Drupal core pager, or the Pagerer pager to use."),
-        '#options' => $options,
-        '#parents' => ['settings', 'pagerer_footer'],
-        '#default_value' => $exo_entity_list->getSetting('pagerer_footer'),
-        '#states' => $states,
-      ];
+      $options[$replace_label] = $pagerer_preset_list->listOptions();
     }
+    $form['pager']['pagerer_header'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Header pager'),
+      '#description' => $this->t("Core pager theme requests can be overridden. Select whether they need to be fulfilled by Drupal core pager, or the Pagerer pager to use."),
+      '#options' => $options,
+      '#parents' => ['settings', 'pagerer_header'],
+      '#default_value' => $exo_entity_list->getSetting('pagerer_header'),
+      '#states' => $states,
+    ];
+    $form['pager']['pagerer_footer'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Footer pager'),
+      '#description' => $this->t("Core pager theme requests can be overridden. Select whether they need to be fulfilled by Drupal core pager, or the Pagerer pager to use."),
+      '#options' => $options,
+      '#parents' => ['settings', 'pagerer_footer'],
+      '#default_value' => $exo_entity_list->getSetting('pagerer_footer'),
+      '#states' => $states,
+    ];
 
     $this->buildFormActions($form, $form_state);
     $this->buildFormSorts($form, $form_state);
