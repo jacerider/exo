@@ -27,6 +27,9 @@ abstract class ExoMenuStyleBase implements ExoMenuStyleInterface {
   }
 
   public getElement():JQuery {
+    if (!this.$element || !this.$element.length) {
+      this.$element = jQuery(this.exoMenu.getSelector());
+    }
     return this.$element;
   }
 }
