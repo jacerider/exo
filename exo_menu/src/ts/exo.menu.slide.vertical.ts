@@ -88,7 +88,6 @@
     }
 
     protected buildElement() {
-      const submenus = [];
       let $wrapper:JQuery;
 
       this.$menus.each((index, element) => {
