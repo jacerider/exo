@@ -14,10 +14,13 @@ class ExoMenu extends ExoData {
             this.data = _.extend({}, this.handler.getDefaults(), this.getStyleDefaults(), this.data);
             if (this.handler.getElement().once('exo.menu').length) {
               this.handler.build();
+              resolve(data);
+            }
+            else {
+              reject();
             }
           }
         }
-        resolve(data);
       }, reject);
     });
   }
