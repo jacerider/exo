@@ -25,6 +25,10 @@ $gutter-sizes: 10, 20, 30, 60, 90, 120;
 
     > * {
 
+      @include breakpoint(medium) {
+        @include exo-cell(6, $gutters: 0, $gutter-output: false);
+      }
+
       @include breakpoint(large) {
         @include exo-cell($size, $gutters: 0, $gutter-output: false);
       }
@@ -35,6 +39,10 @@ $gutter-sizes: 10, 20, 30, 60, 90, 120;
         @include exo-gutters(top right bottom left, $gutters: rem-calc($gutter-size), $negative: true);
 
         > * {
+
+          @include breakpoint(medium) {
+            @include exo-cell(6, top right bottom left, $gutters: rem-calc($gutter-size));
+          }
 
           @include breakpoint(large) {
             @include exo-cell($size, top right bottom left, $gutters: rem-calc($gutter-size));
