@@ -563,7 +563,9 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
       foreach ($definition->getFields() as $field) {
         $field_name = $field->getFieldName();
         if ($entity->hasField($field_name) && !$entity->get($field_name)->isEmpty() && $entity_instance->hasField($field_name) && $entity_instance->get($field_name)->isEmpty()) {
-          static::setHiddenFieldName($entity_instance, $field->getName());
+          if ($field->isHideable()) {
+            static::setHiddenFieldName($entity_instance, $field->getName());
+          }
           $entity_instance->get($field_name)->setValue($entity->get($field_name)->getValue());
           $do_save = TRUE;
         }
@@ -571,7 +573,9 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
           // If a field is required but the default entity does not have a
           // default value for this field, we need to set it to hidden. A
           // field's view() method should handle this condition.
-          static::setHiddenFieldName($entity_instance, $field->getName());
+          if ($field->isHideable()) {
+            static::setHiddenFieldName($entity_instance, $field->getName());
+          }
           $do_save = TRUE;
         }
       }
