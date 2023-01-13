@@ -942,13 +942,15 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       // Filter overview.
       if ($entity_list->getSetting('filter_overview_status')) {
         $filter_overview = $this->buildFormFilterOverview($form, $form_state);
-        if (empty($form['header']['second']['batch'])) {
-          $form['header']['second']['filter_overview'] = [
-            '#weight' => -1000,
-          ] + $filter_overview;
-        }
-        else {
-          $form['header']['filter_overview'] = $filter_overview;
+        if (!empty($filter_overview)) {
+          if (empty($form['header']['second']['batch'])) {
+            $form['header']['second']['filter_overview'] = [
+              '#weight' => -1000,
+            ] + $filter_overview;
+          }
+          else {
+            $form['header']['filter_overview'] = $filter_overview;
+          }
         }
       }
     }
