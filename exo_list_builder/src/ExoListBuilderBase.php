@@ -1363,8 +1363,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       '#attributes' => ['class' => ['exo-list-pager']],
     ];
     $limit = $this->getLimit();
+    $total = (int) $this->getTotal();
     $page = (int) $this->getOption('page') + 1;
-    $pages = ceil((int) $this->getTotal() / (int) $limit);
+    $pages = $total > 0 ? ceil($total / (int) $limit) : 1;
 
     if ($limit && $entity_list->getSetting('limit_status')) {
       $form['limit'] = [
