@@ -600,10 +600,12 @@ class ExoImagineManager {
     if (!$this->exoImagineSettings->getSetting('webp')) {
       return FALSE;
     }
-    if (function_exists('imagewebp') || function_exists('imagick')) {
-      return in_array('image/webp', \Drupal::request()->getAcceptableContentTypes());
-    }
-    return FALSE;
+    // Assume webp is supported.
+    return TRUE;
+    // if (function_exists('imagewebp') || function_exists('imagick')) {
+    //   return in_array('image/webp', \Drupal::request()->getAcceptableContentTypes());
+    // }
+    // return FALSE;
   }
 
   /**
