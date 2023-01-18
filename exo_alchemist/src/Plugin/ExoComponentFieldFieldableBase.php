@@ -75,6 +75,9 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
         }
       }
     }
+    if ($field->isHiddenByDefault()) {
+      ExoComponentFieldManager::setHiddenFieldName($items->getEntity(), $field->getName());
+    }
     if ($field->getAdditionalValue('cleanup') === FALSE && !$items->isEmpty()) {
       return $items->getValue();
     }

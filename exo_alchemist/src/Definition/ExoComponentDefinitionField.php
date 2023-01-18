@@ -33,7 +33,10 @@ class ExoComponentDefinitionField implements \ArrayAccess {
     'max' => 0,
     'required' => FALSE,
     'edit' => TRUE,
+    // Should the field be hideable.
     'hide' => TRUE,
+    // Should the field be hidden by default.
+    'hide_default' => FALSE,
     'invisible' => FALSE,
     'filter' => FALSE,
     'default' => [],
@@ -419,6 +422,16 @@ class ExoComponentDefinitionField implements \ArrayAccess {
   public function setHideable($hideable = TRUE) {
     $this->definition['hide'] = $hideable === TRUE;
     return $this;
+  }
+
+  /**
+   * Check if field is hidden by default.
+   *
+   * @return bool
+   *   TRUE if field is hideable.
+   */
+  public function isHiddenByDefault() {
+    return $this->isHideable() && $this->definition['hide_default'] === TRUE;
   }
 
   /**
