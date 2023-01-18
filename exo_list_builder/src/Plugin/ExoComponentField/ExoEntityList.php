@@ -108,6 +108,10 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
       $render = [
         '#type' => 'exo_entity_list',
         '#entity_list' => $entity,
+        '#cache' => [
+          'tags' => $entity->getHandler()->getCacheTags(),
+          'contexts' => $entity->getHandler()->getCacheContexts(),
+        ],
       ];
       if ($this->isLayoutBuilder($contexts)) {
         $render = $this->getFormAsPlaceholder($render);
