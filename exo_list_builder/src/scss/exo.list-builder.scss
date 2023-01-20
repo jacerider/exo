@@ -603,6 +603,10 @@
       margin: 0 $global-margin * 0.5 0 0 !important;
       overflow: visible;
       order: 2;
+
+      .handle {
+        mask-position: 0 0;
+      }
     }
   }
 
