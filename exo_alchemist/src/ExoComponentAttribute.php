@@ -90,12 +90,14 @@ class ExoComponentAttribute extends Attribute {
     if ($attributes instanceof Attribute) {
       $attributes = $attributes->toArray();
     }
-    foreach ($attributes as $name => $value) {
-      if ($name === 'class') {
-        $this->addClass($value);
-      }
-      else {
-        $this->offsetSet($name, $value);
+    if ($attributes) {
+      foreach ($attributes as $name => $value) {
+        if ($name === 'class') {
+          $this->addClass($value);
+        }
+        else {
+          $this->offsetSet($name, $value);
+        }
       }
     }
     return $this;
