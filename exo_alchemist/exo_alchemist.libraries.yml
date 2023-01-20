@@ -89,6 +89,14 @@ enhancement.tabs:
   dependencies:
     - exo_alchemist/enhancement
 
+enhancement.slider:
+  version: VERSION
+  js:
+    js/exo.alchemist.enhancement.slider.js: { minified: true }
+  dependencies:
+    - exo_alchemist/enhancement
+    - exo/swiper
+
 
 ################################################################################
 ## eXo Theme Provider

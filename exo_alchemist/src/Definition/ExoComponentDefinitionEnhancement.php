@@ -6,7 +6,7 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\exo\Shared\ExoArrayAccessDefinitionTrait;
 
 /**
- * Class ExoComponentDefinitionEnhancement.
+ * The exo component enhancement definision.
  *
  * @package Drupal\exo_alchemist\Definition
  */
@@ -47,7 +47,10 @@ class ExoComponentDefinitionEnhancement implements \ArrayAccess {
       }
     }
     $this->definition['name'] = !isset($values['name']) ? $name : $values['name'];
-    $this->definition['label'] = !isset($values['label']) ? ucwords(str_replace(['-', '_'], ' ', $this->definition['name'])) : $values['label'];
+    $this->definition['label'] = !isset($values['label']) ? ucwords(str_replace([
+      '-',
+      '_',
+    ], ' ', $this->definition['name'])) : $values['label'];
   }
 
   /**
