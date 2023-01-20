@@ -236,6 +236,9 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
             $parent = \Drupal::entityTypeManager()->getStorage($parent->getEntityTypeId())->loadUnchanged($parent->id());
           }
           if ($parent->get($entity_field_name)->isEmpty()) {
+            if ($this->getFieldDefinition()->isEntityFieldOptional()) {
+              return;
+            }
             $items->setValue(NULL);
             return;
           }

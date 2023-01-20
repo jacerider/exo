@@ -46,6 +46,7 @@ class ExoComponentDefinitionField implements \ArrayAccess {
     // Example:
     // -  entity_field: field_title.
     'entity_field' => NULL,
+    'entity_field_optional' => NULL,
     // Use complex field values from parent entity as component value. Requires
     // entity_field to be set.
     //
@@ -303,6 +304,16 @@ class ExoComponentDefinitionField implements \ArrayAccess {
    */
   public function getEntityField() {
     return $this->definition['entity_field'] ?? NULL;
+  }
+
+  /**
+   * Is entity field optional.
+   *
+   * @return mixed
+   *   Property value.
+   */
+  public function isEntityFieldOptional() {
+    return $this->definition['entity_field_optional'] === TRUE;
   }
 
   /**

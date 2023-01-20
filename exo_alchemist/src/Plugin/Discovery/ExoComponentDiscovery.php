@@ -153,6 +153,7 @@ class ExoComponentDiscovery implements DiscoveryInterface {
               'computed',
               'invisible',
               'entity_field',
+              'entity_field_optional',
               'entity_field_match',
             ] as $key) {
               if (isset($definition['fields'][$field_id][$key])) {
