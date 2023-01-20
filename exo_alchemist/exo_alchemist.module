@@ -581,6 +581,7 @@ function exo_alchemist_entity_view(array &$build, EntityInterface $entity, Entit
       return;
     }
     $build['#attributes']['class'][] = 'alchemist';
+    $build['#attached']['library'][] = 'exo_alchemist/front';
     $first_key = key($keys);
     $last_key = end($keys);
     foreach (['first' => $first_key, 'last' => $last_key] as $position => $key) {
@@ -602,15 +603,12 @@ function exo_alchemist_entity_view(array &$build, EntityInterface $entity, Entit
         $component = $region[$component_id];
         /** @var \Drupal\exo_alchemist\Definition\ExoComponentDefinition $definition */
         $definition = $component['#exo_component'];
-        $property = 'exoAlchemist' . ucfirst($position);
-        $entity->{$property} = [
-          'component' => $definition,
-          'entity' => $component['#block_content'],
-        ];
         if ($definition && ($handler = $definition->getHandler())) {
           $method = 'view' . ucfirst($position) . 'PreRender';
           $handler->{$method}($build['_layout_builder'][$key][$region_id][$component_id], $definition, $component['#block_content']);
         }
+        $id = $definition->isExtended() ? $definition->extendId() : $definition->id();
+        $build['_layout_builder'][$key][$region_id][$component_id]['#wrapper_attributes']['data-component-' . $position] = $id;
         $build['_layout_builder'][$key][$region_id][$component_id]['#wrapper_attributes']['class'][] = 'exo-component-' . $position;
       }
 
@@ -681,66 +679,20 @@ function exo_alchemist_entity_view_alter(array &$build, EntityInterface $entity,
  * Implements hook_preprocess_page().
  */
 function exo_alchemist_preprocess_page(&$variables) {
-  if (isset($variables['node'])) {
-    $variables['#cache']['contexts'][] = 'url.path';
-    $node = $variables['node'];
-    if (isset($node->layoutBuilderEnabled) && $node->layoutBuilderEnabled == TRUE) {
+  $route_name = \Drupal::routeMatch()->getRouteName();
+  switch (TRUE) {
+    case $route_name == 'exo_alchemist.component.preview':
+    case substr($route_name, 0, 24) === 'layout_builder.defaults.';
+      // $variables['#cache']['contexts'][] = 'url.path';
       $variables['attributes']['class'][] = 'component-enabled';
-      if (!empty($node->exoAlchemistFirst)) {
-        $variables['attributes']['class'][] = Html::getClass('component-first--' . $node->exoAlchemistFirst['component']->id());
-        if ($node->exoAlchemistFirst['component']->isExtended()) {
-          $extend_definition = \Drupal::service('plugin.manager.exo_component')->getDefinition($node->exoAlchemistFirst['component']->extendId());
-          $variables['attributes']['class'][] = Html::getClass('component-first--' . $extend_definition->id());
-        }
-        /** @var \Drupal\exo_alchemist\Definition\ExoComponentDefinition $definition */
-        $definition = $node->exoAlchemistFirst['component'];
-        /** @var \Drupal\exo_alchemist\Definition\ExoComponentDefinitionModifier $modifiers */
-        $modifiers = $definition->getModifier('_global');
-        if ($modifiers) {
-          foreach ($modifiers->getProperties() as $property) {
-            if ($property->toBody()) {
-              $value = ExoComponentPropertyManager::getEntityModifierValues($node->exoAlchemistFirst['entity'], '_global', $definition)[$property->getName()];
-              $instance = \Drupal::service('plugin.manager.exo_component_property')->getModifierAttribute($property, $value);
-              if ($instance && $instance instanceof ExoComponentPropertyAsClassInterface) {
-                $instance->setPrefix('component-modifier');
-                $variables['attributes'] = NestedArray::mergeDeep($variables['attributes'], $instance->asAttributeArray());
-              }
-            }
-          }
-        }
+      $variables['attributes']['class'][] = 'component-builder';
+      if ($route_name == 'exo_alchemist.component.preview') {
+        $variables['attributes']['class'][] = 'component-preview';
       }
-      if (!empty($node->exoAlchemistLast)) {
-        $variables['attributes']['class'][] = Html::getClass('component-last--' . $node->exoAlchemistLast['component']->id());
-        if ($node->exoAlchemistLast['component']->isExtended()) {
-          $extend_definition = \Drupal::service('plugin.manager.exo_component')->getDefinition($node->exoAlchemistLast['component']->extendId());
-          $variables['attributes']['class'][] = Html::getClass('component-last--' . $extend_definition->id());
-        }
+      else {
+        $variables['attributes']['class'][] = 'component-default';
       }
-      $route_name = \Drupal::routeMatch()->getRouteName();
-      switch (TRUE) {
-        case substr($route_name, 0, 25) === 'layout_builder.overrides.';
-          $variables['attributes']['class'][] = 'component-override';
-          $variables['attributes']['class'][] = 'component-builder';
-          break;
-      }
-    }
-  }
-  else {
-    $route_name = \Drupal::routeMatch()->getRouteName();
-    switch (TRUE) {
-      case $route_name == 'exo_alchemist.component.preview':
-      case substr($route_name, 0, 24) === 'layout_builder.defaults.';
-        $variables['#cache']['contexts'][] = 'url.path';
-        $variables['attributes']['class'][] = 'component-enabled';
-        $variables['attributes']['class'][] = 'component-builder';
-        if ($route_name == 'exo_alchemist.component.preview') {
-          $variables['attributes']['class'][] = 'component-preview';
-        }
-        else {
-          $variables['attributes']['class'][] = 'component-default';
-        }
-        break;
-    }
+      break;
   }
 }
 

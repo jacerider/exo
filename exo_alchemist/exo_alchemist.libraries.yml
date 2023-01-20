@@ -1,3 +1,8 @@
+front:
+  version: VERSION
+  js:
+    js/exo.alchemist.js: { minified: true }
+
 admin:
   version: VERSION
   js:
