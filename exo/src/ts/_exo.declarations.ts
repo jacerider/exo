@@ -16,6 +16,7 @@ declare var onloadCSS:any;
 declare var bodyScrollLock:BodyScrollLock;
 declare var noUiSlider:any;
 declare var Sortable:any;
+declare var Swiper:any;
 
 interface JQuery {
   once(id?): JQuery;

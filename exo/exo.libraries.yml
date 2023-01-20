@@ -175,3 +175,11 @@ body-scroll-lock:
   version: VERSION
   js:
     lib/body-scroll-lock/body-scroll-lock.min.js: {minified: true}
+
+swiper:
+  version: VERSION
+  css:
+    component:
+      lib/swiper/swiper-bundle.min.css: { minified: true }
+  js:
+    lib/swiper/swiper-bundle.min.js: {minified: true}
