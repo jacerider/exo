@@ -682,6 +682,7 @@ function exo_alchemist_entity_view_alter(array &$build, EntityInterface $entity,
  */
 function exo_alchemist_preprocess_page(&$variables) {
   if (isset($variables['node'])) {
+    $variables['#cache']['contexts'][] = 'url.path';
     $node = $variables['node'];
     if (isset($node->layoutBuilderEnabled) && $node->layoutBuilderEnabled == TRUE) {
       $variables['attributes']['class'][] = 'component-enabled';
@@ -729,6 +730,7 @@ function exo_alchemist_preprocess_page(&$variables) {
     switch (TRUE) {
       case $route_name == 'exo_alchemist.component.preview':
       case substr($route_name, 0, 24) === 'layout_builder.defaults.';
+        $variables['#cache']['contexts'][] = 'url.path';
         $variables['attributes']['class'][] = 'component-enabled';
         $variables['attributes']['class'][] = 'component-builder';
         if ($route_name == 'exo_alchemist.component.preview') {
