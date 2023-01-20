@@ -43,29 +43,6 @@
       margin-top: 0 !important;
       margin-bottom: 0 !important;
     }
-
-    .exo-body:not(.theme-gin) & {
-
-      &.field-multiple-drag {
-        max-width: rem-calc(10);
-      }
-
-      .tabledrag-handle {
-        vertical-align: middle;
-        padding: 0;
-        margin: 0;
-        height: 16px;
-        width: 16px;
-
-        .handle {
-          height: 16px;
-          width: 16px;
-          margin: 0;
-          padding: 0;
-          background-position: 0 0;
-        }
-      }
-    }
   }
 
   td.exo-form-table-compact {
