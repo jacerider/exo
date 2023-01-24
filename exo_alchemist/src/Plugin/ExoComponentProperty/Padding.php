@@ -32,4 +32,15 @@ class Padding extends ClassAttribute {
     '180' => '180',
   ];
 
+  /**
+   * {@inheritdoc}
+   */
+  public function asAttributeArray() {
+    $attributes = parent::asAttributeArray();
+    if ($this->getPropertyDefinition()->getAdditionalValue('force')) {
+      $attributes['class'][] = 'exo-modifier--padding--force';
+    }
+    return $attributes;
+  }
+
 }
