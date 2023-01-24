@@ -38,7 +38,7 @@ class Custom extends ClassAttribute {
     if (!isset($this->options)) {
       $this->options = [];
       if ($definition = $this->getPropertyDefinition()) {
-        $this->options = $definition->getAdditionalValue('options');
+        $this->options = $definition->getAdditionalValue('options') ?: ['Enabled'];
         if (count($this->options) === 1) {
           $this->options = [
             '_none' => 'None',
