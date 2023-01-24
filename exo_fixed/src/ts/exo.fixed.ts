@@ -100,10 +100,12 @@
       this.floatStart = this.floatStart >= 0 ? this.floatStart : 0;
       // Settings to -1 means it will continue to be floated. This will only
       // apply to items that are flush to the top.
-      this.floatEnd = this.floatStart <= 0 ? 1 : this.floatStart;
+      this.floatEnd = this.floatStart === 0 ? -1 : this.floatStart;
       this.themeStart = Math.round(this.floatStart + this.height);
-      this.themeEnd = Math.round(this.floatEnd + 1);
+      this.themeEnd = Math.round(this.floatEnd + this.height);
       if (this.type === 'scroll') {
+        this.floatEnd = this.floatStart <= 0 ? 1 : this.floatStart;
+        this.themeEnd = Math.round(this.floatEnd + 1);
         this.floatStart = Math.round(this.floatEnd + this.height);
         this.themeStart = this.floatStart;
         this.themeEnd = Math.round(this.floatStart + 1);
