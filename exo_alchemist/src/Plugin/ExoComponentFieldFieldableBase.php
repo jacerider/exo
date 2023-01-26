@@ -21,6 +21,16 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
   use ExoComponentFieldFormTrait;
 
   /**
+   * Allow default values to be set to TRUE.
+   *
+   * If set to TRUE and a fields default value is TRUE, the actual field
+   * default value will be merged in.
+   *
+   * @var bool
+   */
+  protected $allowDefaultAsTrue = TRUE;
+
+  /**
    * {@inheritdoc}
    */
   public function getStorageConfig() {
@@ -151,6 +161,17 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
    * {@inheritdoc}
    */
   public function validateValue(ExoComponentValue $value) {
+    if ($this->allowDefaultAsTrue === TRUE) {
+      if ($base_value = $value->get('value')) {
+        // When base value is true, we want to set default.
+        if ($base_value === TRUE) {
+          foreach ($this->getDefaultValue($value->getDelta()) as $key => $val) {
+            $value->set($key, $val);
+          }
+          $value->unset('value');
+        }
+      }
+    }
   }
 
   /**

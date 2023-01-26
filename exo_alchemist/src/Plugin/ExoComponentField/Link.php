@@ -42,6 +42,7 @@ class Link extends ExoComponentFieldFieldableBase {
    * {@inheritdoc}
    */
   public function validateValue(ExoComponentValue $value) {
+    parent::validateValue($value);
     if (!$value->has('uri')) {
       throw new PluginException(sprintf('eXo Component Field plugin (%s) requires [default.uri] be set.', $value->getDefinition()->getType()));
     }

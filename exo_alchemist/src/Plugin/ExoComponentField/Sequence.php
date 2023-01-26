@@ -28,6 +28,11 @@ class Sequence extends EntityReferenceBase {
   use LayoutEntityHelperTrait;
 
   /**
+   * {@inheritDoc}
+   */
+  protected $allowDefaultAsTrue = FALSE;
+
+  /**
    * The entity type to reference.
    *
    * @var string

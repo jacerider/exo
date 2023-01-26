@@ -32,6 +32,7 @@ class Url extends ExoComponentFieldFieldableBase {
    * {@inheritdoc}
    */
   public function validateValue(ExoComponentValue $value) {
+    parent::validateValue($value);
     if ($value->has('value')) {
       $value->set('uri', $value->get('value'));
       $value->unset('value');

@@ -45,6 +45,7 @@ class Textarea extends ExoComponentFieldFieldableBase {
    * {@inheritdoc}
    */
   public function validateValue(ExoComponentValue $value) {
+    parent::validateValue($value);
     $value->setIfUnset('format', $value->getDefinition()->getAdditionalValue('textarea_format'));
   }
 

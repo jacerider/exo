@@ -19,20 +19,12 @@ abstract class MediaFileBase extends MediaBase {
    * {@inheritdoc}
    */
   public function validateValue(ExoComponentValue $value) {
+    parent::validateValue($value);
     if ($base_value = $value->get('value')) {
-      // When base value is true, we want to set default.
-      if ($base_value === TRUE) {
-        foreach ($this->getDefaultValue($value->getDelta()) as $key => $val) {
-          $value->set($key, $val);
-        }
-      }
-      else {
-        $value->set('path', $value->get('value'));
-      }
+      $value->set('path', $base_value);
       $value->unset('value');
     }
     $this->validateValueFile($value, TRUE);
-    parent::validateValue($value);
   }
 
   /**
