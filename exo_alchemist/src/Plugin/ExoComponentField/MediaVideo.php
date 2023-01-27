@@ -34,8 +34,6 @@ class MediaVideo extends MediaFileBase {
    */
   public function propertyInfo() {
     $properties = parent::propertyInfo();
-    // $properties['icon'] = $this->t('The file type icon.');
-    // $properties['icon_render'] = $this->t('The rendered file type icon.');
     return $properties;
   }
 
