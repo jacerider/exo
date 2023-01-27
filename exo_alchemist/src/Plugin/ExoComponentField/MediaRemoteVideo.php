@@ -161,6 +161,8 @@ class MediaRemoteVideo extends MediaBase {
               'iframeWidth' => $width . 'px',
               'iframeHeight' => $height . 'px',
               'iframeResponsive' => TRUE,
+              'closeButton' => FALSE,
+              'closeInBody' => 'isOuterRight',
             ],
           ];
           $modal = $this->exoModalGenerator()->generate($id, $settings);
