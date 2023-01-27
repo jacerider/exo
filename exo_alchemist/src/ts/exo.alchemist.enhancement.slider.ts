@@ -32,6 +32,11 @@
       }
       const settings = $.extend(true, {}, defaultSettings, this.$wrapper.data('ee--slider-settings') || {});
       this.swiper = new Swiper(this.$wrapper.get(0), settings);
+      if (typeof Drupal.behaviors.exoImagine != 'undefined') {
+        this.swiper.on('slideChange', () => {
+          Drupal.behaviors.exoImagine.render(this.$wrapper);
+        });
+      }
       if (this.isLayoutBuilder()) {
         this.buildForLayoutBuilder();
       }
