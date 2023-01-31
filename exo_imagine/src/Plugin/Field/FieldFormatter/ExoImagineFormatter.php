@@ -324,10 +324,11 @@ class ExoImagineFormatter extends ImageFormatter {
         $file = $files[$delta];
         $item = $element['#item'];
         $cache = $element['#cache'] + ['tags' => [], 'contexts' => []];
+        $entity = $items->getEntity();
 
         $element = [
           '#theme' => 'exo_imagine',
-          '#url' => $this->getLinkUrl($file, $items->getEntity()),
+          '#url' => $this->getLinkUrl($file, $entity),
           '#attributes' => [
             'class' => ['exo-imagine'],
             'data-exo-imagine' => Json::encode($settings),
@@ -419,16 +420,15 @@ class ExoImagineFormatter extends ImageFormatter {
             ]);
 
             if ($key === $first) {
-              $entity_print = \Drupal::request()->headers->get('X-Drupal-Entity-Print', 0);
               $element['#image_attributes'] = new Attribute([
-                'src' => $entity_print ? $image_definition['src'] : 'about:blank',
+                'src' => 'about:blank',
                 'class' => ['exo-imagine-image'],
                 'alt' => $item->getValue()['alt'],
                 'width' => $image_definition['width'],
                 'height' => $image_definition['height'],
               ]);
               $element['#preview_attributes'] = new Attribute([
-                'src' => $entity_print ? $preview_definition['src'] : 'about:blank',
+                'src' => 'about:blank',
                 'class' => ['exo-imagine-preview'],
                 'alt' => $item->getValue()['alt'],
                 'width' => $preview_definition['width'],

@@ -3,15 +3,23 @@
 namespace Drupal\exo_imagine\EventSubscriber;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\entity_print\Event\PreSendPrintEvent;
 use Drupal\entity_print\Event\PrintEvents;
+use Drupal\entity_print\Event\PrintHtmlAlterEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Masterminds\HTML5;
 
 /**
  * The PostRenderSubscriber class.
  */
 class EntityPrintSubscriber implements EventSubscriberInterface {
+
+  /**
+   * The Config Factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
 
   /**
    * The request stack.
@@ -23,25 +31,50 @@ class EntityPrintSubscriber implements EventSubscriberInterface {
   /**
    * PostRenderSubscriber constructor.
    *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The configuration factory.
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request stack.
    */
-  public function __construct(RequestStack $request_stack) {
+  public function __construct(ConfigFactoryInterface $config_factory, RequestStack $request_stack) {
+    $this->configFactory = $config_factory;
     $this->requestStack = $request_stack;
   }
 
   /**
-   * Before print.
+   * Post render.
    */
-  public function preSend(PreSendPrintEvent $event) {
-    $this->requestStack->getCurrentRequest()->headers->set('X-Drupal-Entity-Print', 1);
+  public function postRender(PrintHtmlAlterEvent $event) {
+    // We apply the fix to PHP Wkhtmltopdf and any engine when run in CLI.
+    $config = $this->configFactory->get('entity_print.settings');
+    if (
+      $config->get('print_engines.pdf_engine') !== 'phpwkhtmltopdf' &&
+      $event->getPhpSapi() !== 'cli'
+    ) {
+      return;
+    }
+
+    $html_string = &$event->getHtml();
+    $html5 = new HTML5();
+    $document = $html5->loadHTML($html_string);
+    foreach ($document->getElementsByTagName('img') as $node) {
+      $attribute_value = $node->getAttribute('src');
+      if ($attribute_value === 'about:blank') {
+        $node->setAttribute('src', '');
+      }
+    }
+
+    // Overwrite the HTML.
+    $html_string = $html5->saveHTML($document);
   }
 
   /**
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
-    return [PrintEvents::PRE_SEND => 'preSend'];
+    return [
+      PrintEvents::POST_RENDER => 'postRender',
+    ];
   }
 
 }
