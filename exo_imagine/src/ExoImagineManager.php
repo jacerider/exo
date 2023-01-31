@@ -139,8 +139,8 @@ class ExoImagineManager {
           $definition['webp'] .= '?' . $parts[1];
         }
       }
-      $definition['width'] = $width;
-      $definition['height'] = $height;
+      $definition['width'] = round($width, 2);
+      $definition['height'] = round($height, 2);
       $definition['mime'] = $mime;
       $definition['cache_tags'] = $image_style->getCacheTags();
     }
@@ -211,8 +211,8 @@ class ExoImagineManager {
             $definition['webp'] .= '?' . $parts[1];
           }
         }
-        $definition['width'] = $width;
-        $definition['height'] = $height;
+        $definition['width'] = round($width, 2);
+        $definition['height'] = round($height, 2);
         $definition['mime'] = $mime;
         $definition['cache_tags'] = $image_style->getCacheTags();
       }
