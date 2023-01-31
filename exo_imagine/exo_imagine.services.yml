@@ -9,6 +9,11 @@ services:
     class: Drupal\exo_imagine\Routing\RouteSubscriber
     tags:
       - { name: event_subscriber }
+  exo_imagine.entity_print_subscriber:
+    class: Drupal\exo_imagine\EventSubscriber\EntityPrintSubscriber
+    arguments: ['@request_stack']
+    tags:
+      - { name: event_subscriber }
   logger.channel.exo_imagine:
     parent: logger.channel_base
     arguments: ['exo_imagine']

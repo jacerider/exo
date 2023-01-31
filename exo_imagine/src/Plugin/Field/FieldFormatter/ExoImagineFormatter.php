@@ -371,7 +371,7 @@ class ExoImagineFormatter extends ImageFormatter {
           $valid_breakpoint_settings = array_filter($breakpoint_settings, function ($data) {
             return !empty($data['width']) || !empty($data['height']);
           });
-          $last = array_key_last($valid_breakpoint_settings);
+          $first = array_key_first($valid_breakpoint_settings);
           foreach ($valid_breakpoint_settings as $key => $data) {
             $image_definition = $this->exoImagineManager->getImageDefinition($file, $data['width'], $data['height'], $data['unique'], TRUE);
             $cache['tags'] = Cache::mergeTags($cache['tags'], $image_definition['cache_tags']);
@@ -418,16 +418,17 @@ class ExoImagineFormatter extends ImageFormatter {
               'type' => $preview_definition['mime'],
             ]);
 
-            if ($key === $last) {
+            if ($key === $first) {
+              $entity_print = \Drupal::request()->headers->get('X-Drupal-Entity-Print', 0);
               $element['#image_attributes'] = new Attribute([
-                'src' => 'about:blank',
+                'src' => $entity_print ? $image_definition['src'] : 'about:blank',
                 'class' => ['exo-imagine-image'],
                 'alt' => $item->getValue()['alt'],
                 'width' => $image_definition['width'],
                 'height' => $image_definition['height'],
               ]);
               $element['#preview_attributes'] = new Attribute([
-                'src' => 'about:blank',
+                'src' => $entity_print ? $preview_definition['src'] : 'about:blank',
                 'class' => ['exo-imagine-preview'],
                 'alt' => $item->getValue()['alt'],
                 'width' => $preview_definition['width'],
