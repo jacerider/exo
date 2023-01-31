@@ -13,7 +13,7 @@ services:
     class: Drupal\exo_imagine\EventSubscriber\EntityPrintSubscriber
     arguments: ['@config.factory', '@request_stack']
     tags:
-      - { name: event_subscriber }
+      - { name: event_subscriber, priority: 100 }
   logger.channel.exo_imagine:
     parent: logger.channel_base
     arguments: ['exo_imagine']

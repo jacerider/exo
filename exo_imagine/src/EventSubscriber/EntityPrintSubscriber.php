@@ -57,10 +57,26 @@ class EntityPrintSubscriber implements EventSubscriberInterface {
     $html_string = &$event->getHtml();
     $html5 = new HTML5();
     $document = $html5->loadHTML($html_string);
-    foreach ($document->getElementsByTagName('img') as $node) {
-      $attribute_value = $node->getAttribute('src');
+    foreach ($document->getElementsByTagName('picture') as $picture) {
+      $classes = $picture->getAttribute('class');
+      if (strpos($classes, 'exo-imagine-') === FALSE) {
+        continue;
+      }
+      $source = $picture->getElementsByTagName('source')->item(0);
+      if ($source->getAttribute('type') === 'image/webp') {
+        $source = $picture->getElementsByTagName('source')->item(1);
+      }
+      $srcset = $source->getAttribute('srcset');
+      if ($srcset) {
+        // Remove placeholder image.
+        $picture->remove();
+        continue;
+      }
+      $src = $source->getAttribute('data-srcset');
+      $image = $picture->getElementsByTagName('img')->item(0);
+      $attribute_value = $image->getAttribute('src');
       if ($attribute_value === 'about:blank') {
-        $node->setAttribute('src', '');
+        $image->setAttribute('src', $src);
       }
     }
 
