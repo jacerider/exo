@@ -57,26 +57,31 @@ class EntityPrintSubscriber implements EventSubscriberInterface {
     $html_string = &$event->getHtml();
     $html5 = new HTML5();
     $document = $html5->loadHTML($html_string);
-    foreach ($document->getElementsByTagName('picture') as $picture) {
+    $pictures = $document->getElementsByTagName('picture');
+    for ($i = $pictures->length; --$i >= 0;) {
+      /** @var \DOMElement $picture */
+      $picture = $pictures->item($i);
       $classes = $picture->getAttribute('class');
       if (strpos($classes, 'exo-imagine-') === FALSE) {
         continue;
       }
+      /** @var \DOMElement $source */
       $source = $picture->getElementsByTagName('source')->item(0);
       if ($source->getAttribute('type') === 'image/webp') {
         $source = $picture->getElementsByTagName('source')->item(1);
       }
+      /** @var \DOMElement $source */
       $srcset = $source->getAttribute('srcset');
       if ($srcset) {
         // Remove placeholder image.
-        $picture->remove();
-        continue;
+        $picture->parentNode->removeChild($picture);
       }
-      $src = $source->getAttribute('data-srcset');
+      $srcset = $source->getAttribute('data-srcset');
+      /** @var \DOMElement $image */
       $image = $picture->getElementsByTagName('img')->item(0);
       $attribute_value = $image->getAttribute('src');
-      if ($attribute_value === 'about:blank') {
-        $image->setAttribute('src', $src);
+      if ($attribute_value === 'about:blank' && $srcset) {
+        $image->setAttribute('src', $srcset);
       }
     }
 
