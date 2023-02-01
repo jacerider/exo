@@ -3,7 +3,6 @@
 namespace Drupal\exo_imagine\EventSubscriber;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\entity_print\Event\PrintEvents;
 use Drupal\entity_print\Event\PrintHtmlAlterEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -94,7 +93,7 @@ class EntityPrintSubscriber implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     return [
-      PrintEvents::POST_RENDER => 'postRender',
+      'entity_print.print.html_alter' => 'postRender',
     ];
   }
 
