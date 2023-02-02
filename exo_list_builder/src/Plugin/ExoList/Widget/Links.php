@@ -119,7 +119,7 @@ class Links extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
       if ($is_current) {
         $url_value = $multiple ? array_filter($current, function ($item) use ($value) {
           return $item != $value;
-        }) : $value;
+        }) : '';
       }
       $filters = !empty($url_value) ? [
         $field['id'] => $url_value,
