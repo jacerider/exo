@@ -211,6 +211,19 @@ class EntityListForm extends EntityForm {
       '#default_value' => $exo_entity_list->getFormat(),
     ];
 
+    $form['list_link'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Link List Item to Entity'),
+      '#description' => $this->t('May cause issues if any field contains a link.'),
+      '#default_value' => $exo_entity_list->getSetting('list_link'),
+      '#parents' => ['settings', 'list_link'],
+      '#states' => [
+        'visible' => [
+          ':input[name="format"]' => ['value' => 'list'],
+        ],
+      ]
+    ];
+
     $form['url'] = [
       '#type' => 'textfield',
       '#title' => $this->t('URL'),
@@ -585,6 +598,7 @@ class EntityListForm extends EntityForm {
           'small' => '<small>',
           'strong' => '<strong>',
           'em' => '<em>',
+          'div' => '<div class>',
         ],
         '#default_value' => $field['view']['wrapper'],
       ];

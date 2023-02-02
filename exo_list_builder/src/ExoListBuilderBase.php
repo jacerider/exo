@@ -826,6 +826,10 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
                 ],
                 'row' => $row,
               ];
+              if ($entity_list->getSetting('list_link')) {
+                $build[$this->entitiesKey][$key]['#tag'] = 'a';
+                $build[$this->entitiesKey][$key]['#attributes']['href'] = $target_entity->toUrl()->toString();
+              }
               break;
           }
         }
@@ -2145,6 +2149,11 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       ];
     }
     if (!empty($field['view']['wrapper'])) {
+      switch ($field['view']['wrapper']) {
+        case 'div':
+          $field['view']['wrapper'] .= ' class="' . Html::getClass('exo-list-field--' . $field['id']) . '"';
+          break;
+      }
       $build['#prefix'] = '<' . $field['view']['wrapper'] . '>';
       $build['#suffix'] = '</' . $field['view']['wrapper'] . '>';
     }
