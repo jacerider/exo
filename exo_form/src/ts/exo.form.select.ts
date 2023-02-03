@@ -925,7 +925,7 @@
       if (Drupal.Exo.isIE() === true) {
         return document.documentMode >= 8;
       }
-      return this.isIos !== true;
+      return this.isMobile !== true;
     }
   }
 
