@@ -26,9 +26,6 @@
     protected debug:boolean = false;
     protected open:boolean = false;
     protected supported:boolean;
-    protected isIos:boolean;
-    protected isIpadOs:boolean;
-    protected isMobile:boolean;
     protected isSafari:boolean;
     protected multiple:boolean;
     protected placeholder:string;
@@ -36,9 +33,6 @@
 
     constructor($element:JQuery) {
       this.uniqueId = Drupal.Exo.guid();
-      this.isIos = Drupal.Exo.isIos();
-      this.isIpadOs = Drupal.Exo.isIpadOs();
-      this.isMobile = Drupal.Exo.isMobile();
       this.isSafari = Drupal.Exo.isSafari();
       this.supported = this.isSupported();
       this.$element = $element;
@@ -73,7 +67,7 @@
           this.$hidden.attr('tabindex', this.$field.attr('tabindex'));
         }
         // Safari does not focus buttons by default with tab.
-        if (!this.isSafari && !this.isIpadOs) {
+        if (!this.isSafari) {
           this.$field.attr('tabindex', '-1');
         }
         this.$dropdownWrapper = $('#exo-form-select-dropdown-wrapper');
@@ -203,9 +197,6 @@
           if (this.isSafari) {
             this.$hidden.trigger('focus');
           }
-          if (this.isIpadOs) {
-            this.$hidden.trigger('click');
-          }
         }).on('change.exo.form.select', e => {
           this.loadOptionsFromSelect();
           this.updateTrigger();
@@ -225,17 +216,8 @@
         this.$field.on('change.exo.form.select', e => {
           this.loadOptionsFromSelect();
           this.updateTrigger();
-        }).on('focus.exo.form.select', e => {
-          // iOS allows this magic.
-          if (this.isIos) {
-            this.$wrapper.addClass('focused');
-          }
-        }).on('blur.exo.form.select', e => {
-          // iOS allows this magic.
-          if (this.isIos) {
-            this.$wrapper.removeClass('focused');
-          }
-        }).on('input.exo.form.select', e => {
+        })
+        .on('input.exo.form.select', e => {
           onInput();
         });
         onInput();
@@ -539,9 +521,6 @@
       if (this.multiple) {
         this.$dropdownList.find('.form-checkbox').on('change', e => {
           this.highlightOption($(e.currentTarget).closest('.selector'), false);
-          if (!this.isIos) {
-            this.$dropdown.find('.search-input').focus();
-          }
         });
       }
 
@@ -770,9 +749,6 @@
       this.$wrapper.addClass('focused');
       this.$dropdown.addClass('active').find('.search-input').focus();
       this.$dropdownWrapper.attr('class', this.$element.closest('form').attr('class')).addClass('exo-form-select-dropdown-wrapper').css({padding: 0, margin: 0});
-      if (this.isIos) {
-        this.$dropdown.find('.search-input').trigger('blur');
-      }
       this.$dropdownScroll.scrollTop(0);
       this.highlightScrollTo();
 
@@ -812,7 +788,7 @@
         let direction = 'top';
 
         // Check if dropdown can fit in available window.
-        if (windowHeight - fixedHeaderHeight < dropdownHeight || (this.isMobile && !this.isIos)) {
+        if (windowHeight - fixedHeaderHeight < dropdownHeight) {
           dropdownHeight = windowHeight - fixedHeaderHeight - this.$dropdown.find('.search-input').height() - 20;
           this.$dropdownList.css('max-height', dropdownHeight);
           Drupal.Exo.$window.scrollTop(dropdownTop - fixedHeaderHeight - 10);
@@ -895,10 +871,6 @@
             this.$dropdown.removeClass('active').removeAttr('style');
             this.$dropdownWrapper.removeAttr('class');
           }
-
-          if (this.isMobile === true) {
-            this.$dropdown.removeAttr('style');
-          }
         }, 350);
         if (focus) {
           setTimeout(() => {
@@ -925,7 +897,7 @@
       if (Drupal.Exo.isIE() === true) {
         return document.documentMode >= 8;
       }
-      return this.isMobile !== true;
+      return !Drupal.Exo.isTouch();
     }
   }
 
