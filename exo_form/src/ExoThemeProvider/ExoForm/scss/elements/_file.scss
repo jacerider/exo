@@ -40,7 +40,7 @@
     > .exo-form-inline {
       // flex-wrap: wrap;
       padding-top: $global-padding;
-      margin-right: 0;
+      // margin-right: 0;
       // padding-bottom: $global-padding;
     }
 
@@ -75,7 +75,7 @@
       }
 
       .exo-form-file-input {
-        width: 100%;
+        max-width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
       }
@@ -180,18 +180,20 @@
 .exo-form-file-button {
 
   &:before {
+    @include flex;
+    @include flex-align(center, middle);
     content: 'Upload';
     position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    display: block;
+    top: 4px;
+    right: 4px;
+    bottom: 4px;
     z-index: 2;
     font-size: rem-calc(14);
     padding: 0 $global-padding;
     text-transform: capitalize;
     pointer-events: none;
     box-sizing: border-box;
+    line-height: 1;
   }
 }
 

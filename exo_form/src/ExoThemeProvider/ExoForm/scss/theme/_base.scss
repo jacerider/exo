@@ -1360,7 +1360,7 @@
           border-width: theme-val($theme, border-width);
           font-weight: theme-val($theme, button-weight);
           text-decoration: none;
-          border-radius: 0 theme-val($theme, form-border-radius) theme-val($theme, form-border-radius) 0;
+          border-radius: theme-val($theme, form-border-radius);
           transition: color $global-speed, border-color $global-speed, background-color $global-speed;
         }
 
