@@ -91,8 +91,9 @@ class ExoListBuilderContentStates extends ExoListBuilderContent implements ExoLi
    */
   protected function buildQuery($context = 'default') {
     $query = parent::buildQuery($context);
+    $allow = $context !== 'all';
 
-    if ($state = $this->getState()) {
+    if ($allow && ($state = $this->getState())) {
       $this->alterQueryState($state, $query);
     }
     else {
