@@ -886,6 +886,9 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   public function getCacheTags() {
     $cache = $this->getEntityType()->getListCacheTags();
     foreach ($this->getTargetBundleIds() as $bundle) {
+      if ($this->getTargetEntityTypeId() === $bundle) {
+        $cache = Cache::mergeTags($cache, [$this->getTargetEntityTypeId() . '_list']);
+      }
       $cache = Cache::mergeTags($cache, [$this->getTargetEntityTypeId() . '_list:' . $bundle]);
     }
     return $cache;
