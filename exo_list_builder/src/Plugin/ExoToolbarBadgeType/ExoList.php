@@ -29,6 +29,15 @@ class ExoList extends ExoToolbarBadgeTypeBase implements ContainerFactoryPluginI
   protected $exoListStorage;
 
   /**
+   * The eXo list.
+   *
+   * @var \Drupal\exo_list_builder\EntityListInterface
+   *
+   * @var [type]
+   */
+  protected $list;
+
+  /**
    * Adds a LocalTasksEscort instance.
    *
    * @param array $configuration
@@ -123,7 +132,6 @@ class ExoList extends ExoToolbarBadgeTypeBase implements ContainerFactoryPluginI
     else {
       if ($list = $this->getList()) {
         $handler = $list->getHandler();
-        $handler->setOption('filter', []);
         $total = $handler->getRawTotal(TRUE);
       }
       \Drupal::cache()->set($cid, $total, Cache::PERMANENT, $item->getItem()->getCacheTags());
