@@ -59,22 +59,28 @@ class ExoDrushCommands extends DrushCommands {
    *   If no index or no server were passed or passed values are invalid.
    */
   public function exoScss() {
+    $root_path = $_ENV['DDEV_EXTERNAL_ROOT'] ?? DRUPAL_ROOT;
     $dirname = 'public://exo';
     $this->fileSystem->prepareDirectory($dirname, FileSystemInterface::CREATE_DIRECTORY);
 
+    /** @var \\Drupal\file\FileRepositoryInterface $file_service */
+    $file_service = \Drupal::service('file.repository');
+    $module_path = \Drupal::service('extension.list.module')->getPath('exo');
+
     // Generate exo-common.scss.
     $destination = $dirname . '/exo-common.scss';
-    $exo_path = DRUPAL_ROOT . '/' . drupal_get_path('module', 'exo');
-    $data = file_get_contents($exo_path . '/src/scss/_common.scss');
-    $data = str_replace("@import '", "@import '" . $exo_path . '/src/scss/', $data);
-    file_save_data($data, $destination, FileSystemInterface::EXISTS_REPLACE);
+    $internal_path = DRUPAL_ROOT . '/' . $module_path;
+    $external_path = $root_path . '/' . $module_path;
+    $data = file_get_contents($internal_path . '/src/scss/_common.scss');
+    $data = str_replace("@import '", "@import '" . $external_path . '/src/scss/', $data);
+    $file_service->writeData($data, $destination, FileSystemInterface::EXISTS_REPLACE);
 
     // Generate exo-theme.scss.
     $destination = $dirname . '/exo-theme.scss';
     $theme = \Drupal::service('plugin.manager.exo_theme')->getCurrentTheme();
-    $exo_path = DRUPAL_ROOT . '/' . $theme->getScssPath() . '/exo-theme';
-    $data = "@import '$exo_path';";
-    file_save_data($data, $destination, FileSystemInterface::EXISTS_REPLACE);
+    $external_path = $root_path . '/' . $theme->getScssPath() . '/exo-theme';
+    $data = "@import '$external_path';";
+    $file_service->writeData($data, $destination, FileSystemInterface::EXISTS_REPLACE);
 
     $this->logger()->info(dt('eXo utilities generated at @destination', ['@destination' => $dirname]));
   }
