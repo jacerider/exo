@@ -259,7 +259,7 @@
   Drupal.exoAutocomplete.Widget.prototype.generateValues = function (data) {
     var result = [];
     for (var index in data) {
-      if (data.hasOwnProperty(index)) {
+      if (typeof data[index] !== 'undefined') {
         result.push(data[index]);
       }
     }
@@ -378,7 +378,7 @@
     default_values = default_values.split(/"" +""/);
 
     for (var index in default_values) {
-      if (default_values.hasOwnProperty(index)) {
+      if (typeof default_values[index] !== 'undefined') {
         var value = default_values[index];
         if (value !== '') {
           // If a terms is encoded in double quotes, then the label should have

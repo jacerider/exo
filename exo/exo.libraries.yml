@@ -148,6 +148,11 @@ jquery.ui.sortable:
     - core/jquery.ui.widget
   deprecated: Restore "%library_id%" as it is removed from drupal:9.0.0. See https://www.drupal.org/node/3084730
 
+jquery.once:
+  version: VERSION
+  js:
+    lib/jquery.once/jquery.once.min.js: {minified: true}
+
 nouislider:
   version: 14.1.0
   css:

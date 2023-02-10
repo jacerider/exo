@@ -39,7 +39,7 @@
     var term = request.term;
 
     // Check if the term is already cached.
-    if (autocomplete.cache[elementId].hasOwnProperty(term)) {
+    if (typeof autocomplete.cache[elementId][term] !== 'undefined') {
       response(autocomplete.cache[elementId][term]);
     }
     else {
@@ -115,7 +115,7 @@
     var $wrapper = $('<div>').addClass('linkit-result-line-wrapper');
     $wrapper.append($('<span>').html(item.label).addClass('linkit-result-line--title'));
 
-    if (item.hasOwnProperty('description')) {
+    if (typeof item.description !== 'undefined') {
       $wrapper.append($('<span>').html(item.description).addClass('linkit-result-line--description'));
     }
     return $line.append($wrapper).appendTo(ul);
@@ -133,7 +133,7 @@
     var self = this.element.autocomplete('instance');
 
     var grouped_items = _.groupBy(items, function (item) {
-      return item.hasOwnProperty('group') ? item.group : '';
+      return typeof item.group !== 'undefined' ? item.group : '';
     });
 
     $.each(grouped_items, function (group, items) {

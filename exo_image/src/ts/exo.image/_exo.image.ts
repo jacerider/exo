@@ -283,7 +283,7 @@ class ExoImage {
     };
     return new Promise((resolve, reject) => {
       var img = new Image();
-      img.onload = function() { resolve(); };
+      img.onload = function() { resolve(true); };
       img.onerror = function() { reject(); };
       img.src = images[feature || 'basic'];
     });

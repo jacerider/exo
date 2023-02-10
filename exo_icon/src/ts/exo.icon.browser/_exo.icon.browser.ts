@@ -15,7 +15,7 @@ class ExoIconBrowser extends ExoData {
   protected $icons:JQuery;
   protected category:string = 'all';
   protected icons:Array<string>;
-  protected searchTimer:number;
+  protected searchTimer:ReturnType<typeof setTimeout>;
   protected searchQuery:string = '';
   protected limit:number = 80;
   protected page:number = 1;

@@ -176,7 +176,7 @@ class ExoIconPackage extends ConfigEntityBase implements ExoIconPackageInterface
    */
   public function getStylesheet() {
     $path = $this->getPath() . '/style.css';
-    return file_exists($path) ? file_url_transform_relative(file_create_url($path)) : NULL;
+    return file_exists($path) ? \Drupal::service('file_url_generator')->generateString($path) : NULL;
   }
 
   /**
@@ -206,7 +206,7 @@ class ExoIconPackage extends ConfigEntityBase implements ExoIconPackageInterface
         $default_definition = [
           'type' => $this->getType(),
           'prefix' => $this->getInfoPrefix(),
-          'path' => file_url_transform_relative(file_create_url($this->getPath())),
+          'path' => \Drupal::service('file_url_generator')->generateString($this->getPath()),
           'package_id' => $id,
           'status' => $this->status(),
         ];

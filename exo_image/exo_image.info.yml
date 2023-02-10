@@ -1,5 +1,7 @@
 name: 'eXo Image (deprecated)'
 type: module
 description: 'Provides image handling improvements.'
-core_version_requirement: ^8.8 || ^9
 package: 'eXo'
+core_version_requirement: ^8.8 || ^9
+lifecycle: deprecated
+lifecycle_link: 'https://www.merriam-webster.com/dictionary/deprecate'

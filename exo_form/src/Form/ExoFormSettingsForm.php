@@ -2,6 +2,7 @@
 
 namespace Drupal\exo_form\Form;
 
+use Drupal\Core\Extension\ModuleExtensionList;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\exo\ExoSettingsFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -49,7 +50,7 @@ class ExoFormSettingsForm extends ExoSettingsFormBase {
     $form = parent::buildForm($form, $form_state);
 
     $themes = $this->themeHandler->listInfo();
-    uasort($themes, 'system_sort_modules_by_info_name');
+    uasort($themes, [ModuleExtensionList::class, 'sortByName']);
     $theme_options = array_filter($themes, function ($theme) {
       return empty($theme->info['hidden']);
     });

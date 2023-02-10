@@ -48,7 +48,7 @@ function exo_media_theme($existing, $type, $theme, $path) {
  * Implements hook_theme_registry_alter().
  */
 function exo_media_theme_registry_alter(&$theme_registry) {
-  $path = drupal_get_path('module', 'exo_media');
+  $path = \Drupal::service('extension.list.module')->getPath('exo_media');
   $theme_registry['media__media_library']['path'] = $path . '/templates';
   $theme_registry['media_library_wrapper']['path'] = $path . '/templates';
   $theme_registry['container__media_library_content']['path'] = $path . '/templates';
@@ -80,11 +80,11 @@ function exo_media_form_alter(&$form, FormStateInterface $form_state, $form_id) 
 function exo_media_library_info_alter(&$libraries, $extension) {
   if ($extension == 'media_library') {
     if (isset($libraries['widget'])) {
-      $path = '/' . drupal_get_path('module', 'exo_media');
+      $path = '/' . \Drupal::service('extension.list.module')->getPath('exo_media');
       $libraries['widget']['css']['component'][$path . '/css/exo-media.library.css'] = ['minified' => TRUE];
     }
     if (isset($libraries['view'])) {
-      $path = '/' . drupal_get_path('module', 'exo_media');
+      $path = '/' . \Drupal::service('extension.list.module')->getPath('exo_media');
       $libraries['view']['css']['component'][$path . '/css/exo-media.library.css'] = ['minified' => TRUE];
     }
   }
@@ -94,7 +94,7 @@ function exo_media_library_info_alter(&$libraries, $extension) {
  * Implements hook_ckeditor_css_alter().
  */
 function exo_media_ckeditor_css_alter(array &$css, Editor $editor) {
-  $css[] = drupal_get_path('module', 'exo_media') . '/css/exo-media.library.css';
+  $css[] = \Drupal::service('extension.list.module')->getPath('exo_media') . '/css/exo-media.library.css';
 }
 
 /**

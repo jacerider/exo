@@ -158,7 +158,7 @@ class ExoToolbarRegion extends ExoDataToolbar {
         if (animate === true) {
           this.getElement().one(Drupal.Exo.transitionEvent, e => {
             this.shown();
-            resolve();
+            resolve(true);
           });
           css[this.getEdge()] = offset + (this.getSize() * -1);
           setTimeout(() => {
@@ -171,7 +171,7 @@ class ExoToolbarRegion extends ExoDataToolbar {
           this.shown();
           css[this.getEdge()] = offset;
           this.getElement().css(css);
-          resolve();
+          resolve(true);
         }
       }
     });

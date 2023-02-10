@@ -414,7 +414,7 @@ function exo_form_preprocess_region__content(&$variables) {
  */
 function exo_form_theme_registry_alter(&$theme_registry) {
   if (function_exists('drupal_get_path')) {
-    $module_path = drupal_get_path('module', 'exo_form');
+    $module_path = \Drupal::service('extension.list.module')->getPath('exo_form');
   }
   else {
     $path_resolver = \Drupal::service('extension.path.resolver');
@@ -450,8 +450,8 @@ if (version_compare(\Drupal::VERSION, 9.4) <= 0) {
       }
       if (function_exists('drupal_get_path')) {
         // Force form elements to use exo form template.
-        $info['theme path'] = drupal_get_path('module', 'exo_form');
-        $info['path'] = drupal_get_path('module', 'exo_form') . '/templates';
+        $info['theme path'] = \Drupal::service('extension.list.module')->getPath('exo_form');
+        $info['path'] = \Drupal::service('extension.list.module')->getPath('exo_form') . '/templates';
       }
       else {
         $path_resolver = \Drupal::service('extension.path.resolver');
@@ -834,7 +834,7 @@ function exo_form_library_info_alter(&$libraries, $extension) {
   }
 
   if (function_exists('drupal_get_path')) {
-    $module_path = drupal_get_path('module', 'exo_form');
+    $module_path = \Drupal::service('extension.list.module')->getPath('exo_form');
   }
   else {
     $path_resolver = \Drupal::service('extension.path.resolver');

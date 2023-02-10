@@ -19,47 +19,47 @@
 <{{ tag }}{{ attributes.addClass(classes) }}>
   <div class="exo-toolbar-element-mark before">
     {% if image and image_position == 'before' %}
-      {% spaceless %}
+      {% apply spaceless %}
         <div class="exo-toolbar-element-image">
           {{ image }}
         </div>
-      {% endspaceless %}
+      {% endapply %}
     {% elseif icon and icon_position == 'before' %}
-      {% spaceless %}
+      {% apply spaceless %}
         <div class="exo-toolbar-element-icon">
           {{ icon }}
         </div>
-      {% endspaceless %}
+      {% endapply %}
     {% endif %}
   </div>
   <div {{ inner_attributes.addClass('exo-toolbar-element-inner') }}>
     {% if title %}
-      {% spaceless %}
+      {% apply spaceless %}
         <div class="exo-toolbar-element-title">{{ title }}</div>
-      {% endspaceless %}
+      {% endapply %}
     {% endif %}
   </div>
   {% if (image and image_position == 'after') or (icon and icon_position == 'after') or (badge != NULL) %}
     <div class="exo-toolbar-element-mark after">
       {% if badge != NULL %}
-        {% spaceless %}
+        {% apply spaceless %}
           <div class="exo-toolbar-element-badge">
             {{ badge }}
           </div>
-        {% endspaceless %}
+        {% endapply %}
       {% endif %}
       {% if image and image_position == 'after' %}
-        {% spaceless %}
+        {% apply spaceless %}
           <div class="exo-toolbar-element-image">
             {{ image }}
           </div>
-        {% endspaceless %}
+        {% endapply %}
       {% elseif icon and icon_position == 'after' %}
-        {% spaceless %}
+        {% apply spaceless %}
           <div class="exo-toolbar-element-icon">
             {{ icon }}
           </div>
-        {% endspaceless %}
+        {% endapply %}
       {% endif %}
     </div>
   {% endif %}

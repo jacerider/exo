@@ -16,7 +16,7 @@ class ExoAlchemistAdmin {
   protected $targetTitle:JQuery;
   protected $targetClose:JQuery;
   protected $targetOps:JQuery;
-  protected targetTimer:number;
+  protected targetTimer:ReturnType<typeof setTimeout>;
   // protected fieldHoverTimer:number;
   protected $activeTarget:JQuery = null;
   protected $activeComponent:JQuery = null;

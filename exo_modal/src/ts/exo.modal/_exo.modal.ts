@@ -115,8 +115,9 @@ class ExoModal extends ExoData {
   protected state:string;
   protected width:number = 0;
   protected widthOffset:number = 0;
-  protected timer:number = null;
-  protected timerTimeout:number = null;
+  protected timer:ReturnType<typeof setTimeout> = null;
+  protected timerTimeout:ReturnType<typeof setTimeout> = null;
+  protected timerInterval:number = null;
   protected progressBar:ExoModalProcessBarInterface = null;
   protected isPaused:boolean = false;
   protected isFullscreen:boolean = false;
@@ -1173,6 +1174,7 @@ class ExoModal extends ExoData {
 
       clearTimeout(this.timer);
       clearTimeout(this.timerTimeout);
+      clearInterval(this.timerInterval);
 
       this.event('closing').trigger(this);
       this.callCallback('onClosing');
@@ -1373,6 +1375,7 @@ class ExoModal extends ExoData {
   protected startProgress(param?:any) {
     this.isPaused = false;
     clearTimeout(this.timerTimeout);
+    clearInterval(this.timerInterval);
 
     if (this.get('timeoutProgressbar') === true) {
 
@@ -1396,7 +1399,7 @@ class ExoModal extends ExoData {
         this.progressBar.maxHideTime = parseFloat(param);
         this.progressBar.hideEta = new Date()
           .getTime() + this.progressBar.maxHideTime;
-        this.timerTimeout = setInterval(this.progressBar.updateProgress, 10);
+        this.timerInterval = setInterval(this.progressBar.updateProgress, 10);
       }
 
     } else {
@@ -1416,6 +1419,7 @@ class ExoModal extends ExoData {
 
   protected resetProgress(param?:any) {
     clearTimeout(this.timerTimeout);
+    clearInterval(this.timerInterval);
     this.progressBar = {};
     this.$element.find('.' + this.name + '-progressbar > div').width('100%');
   }

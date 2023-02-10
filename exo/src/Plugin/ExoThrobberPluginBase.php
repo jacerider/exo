@@ -49,7 +49,7 @@ abstract class ExoThrobberPluginBase extends PluginBase implements ExoThrobberPl
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->path = '/' . drupal_get_path('module', 'exo');
+    $this->path = '/' . \Drupal::service('extension.list.module')->getPath('exo');
     $this->markup = $this->setMarkup();
     $this->cssFile = $this->setCssFile();
   }
@@ -87,11 +87,11 @@ abstract class ExoThrobberPluginBase extends PluginBase implements ExoThrobberPl
   /**
    * Sets markup for throbber.
    */
-  protected abstract function setMarkup();
+  abstract protected function setMarkup();
 
   /**
    * Sets css file for throbber.
    */
-  protected abstract function setCssFile();
+  abstract protected function setCssFile();
 
 }

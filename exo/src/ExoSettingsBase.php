@@ -93,7 +93,7 @@ abstract class ExoSettingsBase implements ExoSettingsInterface {
    */
   public function getDefaultSettings() {
     if (!isset($this->defaultSettings)) {
-      $file = drupal_get_path('module', $this->getModuleId()) . '/config/install/' . $this->getEditableConfigName() . '.yml';
+      $file = \Drupal::service('extension.list.module')->getPath($this->getModuleId()) . '/config/install/' . $this->getEditableConfigName() . '.yml';
       $this->defaultSettings = [];
       if (file_exists($file)) {
         $array1 = Yaml::decode(file_get_contents($file));

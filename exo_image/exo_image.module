@@ -34,7 +34,7 @@ function exo_image_theme() {
  */
 function exo_image_library_info_alter(&$libraries, $extension) {
   if ($extension == 'slick') {
-    $path = '/' . drupal_get_path('module', 'exo_image') . '/js';
+    $path = '/' . \Drupal::service('extension.list.module')->getPath('exo_image') . '/js';
     $libraries['slick']['js'][$path . '/exo.image.slick.js'] = [
       'minified' => TRUE,
     ];
@@ -46,7 +46,7 @@ function exo_image_library_info_alter(&$libraries, $extension) {
  */
 function exo_image_theme_registry_alter(&$theme_registry) {
   if (isset($theme_registry['drimage_formatter'])) {
-    $theme_registry['drimage_formatter']['path'] = drupal_get_path('module', 'exo_image') . '/templates';
+    $theme_registry['drimage_formatter']['path'] = \Drupal::service('extension.list.module')->getPath('exo_image') . '/templates';
     $theme_registry['drimage_formatter']['variables']['tag'] = 'div';
   }
 }

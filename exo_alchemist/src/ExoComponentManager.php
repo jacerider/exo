@@ -765,7 +765,7 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
           \Drupal::messenger()->addError($description);
         }
         else {
-          $file_system->copy(\Drupal::service('app.root') . $path->toString(), $definition->getThumbnailUri());
+          $file_system->copy(\Drupal::root() . $path->toString(), $definition->getThumbnailUri());
         }
       }
     }

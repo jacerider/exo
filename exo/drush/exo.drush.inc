@@ -88,7 +88,7 @@ function drush_exo_scss() {
 
   // Generate exo-common.scss.
   $destination = $dirname . '/exo-common.scss';
-  $exo_path = DRUPAL_ROOT . '/' . drupal_get_path('module', 'exo');
+  $exo_path = DRUPAL_ROOT . '/' . \Drupal::service('extension.list.module')->getPath('exo');
   $data = file_get_contents($exo_path . '/src/scss/_common.scss');
   $data = str_replace("@import '", "@import '" . $exo_path . '/src/scss/', $data);
   file_save_data($data, $destination, FILE_EXISTS_REPLACE);

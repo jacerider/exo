@@ -3,7 +3,6 @@
 namespace Drupal\exo_toolbar\Plugin;
 
 use Drupal\Component\Transliteration\TransliterationInterface;
-use Drupal\Core\Plugin\ContextAwarePluginBase;
 use Drupal\Core\Plugin\PluginWithFormsInterface;
 use Drupal\Core\Plugin\ContextAwarePluginAssignmentTrait;
 use Drupal\Core\Plugin\PluginWithFormsTrait;
@@ -21,19 +20,24 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Form\SubformState;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Form\SubformStateInterface;
+use Drupal\Core\Plugin\ContextAwarePluginInterface;
+use Drupal\Core\Plugin\ContextAwarePluginTrait;
 use Drupal\Core\Plugin\PluginDependencyTrait;
 use Drupal\exo_toolbar\Entity\ExoToolbarItemInterface;
+use Drupal\Core\Plugin\PluginBase;
 
 /**
  * Base class for eXo Toolbar Item plugins.
  */
-abstract class ExoToolbarItemBase extends ContextAwarePluginBase implements ExoToolbarItemPluginInterface, PluginWithFormsInterface, RefinableCacheableDependencyInterface, ContainerFactoryPluginInterface {
+abstract class ExoToolbarItemBase extends PluginBase implements ExoToolbarItemPluginInterface, PluginWithFormsInterface, RefinableCacheableDependencyInterface, ContainerFactoryPluginInterface, ContextAwarePluginInterface {
 
   use RefinableCacheableDependencyTrait;
   use ContextAwarePluginAssignmentTrait;
   use PluginWithFormsTrait;
   use PluginDependencyTrait;
   use ExoIconTranslationTrait;
+  use ContextAwarePluginTrait;
 
   /**
    * The eXo toolbar badge type manager.
@@ -504,7 +508,7 @@ abstract class ExoToolbarItemBase extends ContextAwarePluginBase implements ExoT
   /**
    * Get badge type instance.
    */
-  protected function getBadgeTypeInstance(array $form, FormStateInterface $form_state) {
+  protected function getBadgeTypeInstance(array $form, SubformStateInterface $form_state) {
     $badge_type = $form_state->getCompleteFormState()->getValue(['settings', 'badge_type'], $this->configuration['badge_type']);
     $badge_settings = $form_state->getCompleteFormState()->getValue(['settings', 'badge_settings'], $this->configuration['badge_settings']);
     return $badge_type ? $this->badgeTypeManager->createInstance($badge_type, $badge_settings) : NULL;

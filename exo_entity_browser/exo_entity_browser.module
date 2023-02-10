@@ -9,7 +9,7 @@
  * Implements hook_theme().
  */
 function exo_entity_browser_theme($existing, $type, $theme, $path) {
-  $entity_browser_path = drupal_get_path('module', 'entity_browser') . '/templates';
+  $entity_browser_path = \Drupal::service('extension.list.module')->getPath('entity_browser') . '/templates';
   return [
     // Render only the content area for entity browser modals.
     'html__entity_browser__exo_modal' => [

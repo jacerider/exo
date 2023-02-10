@@ -35,7 +35,7 @@ trait ExoComponentFieldFileTrait {
     }
     $url = Url::fromUri($uri);
     if (!$url->isExternal()) {
-      $path = \Drupal::service('app.root') . $url->toString();
+      $path = \Drupal::root() . $url->toString();
       // Bug https://www.drupal.org/project/drupal/issues/2956953
       $path = str_replace('/update.php', '', $path);
       if (!file_exists($path)) {

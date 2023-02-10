@@ -107,7 +107,7 @@ function exo_library_info_alter(&$libraries, $extension) {
   }
 
   // Throbber.
-  if ($extension == 'exo') {
+  if ($extension === 'exo') {
     /** @var \Drupal\exo\Plugin\ExoThrobberManagerInterface $throbber_manager */
     $throbber_manager = Drupal::service('exo.throbber.manager');
 
@@ -122,6 +122,16 @@ function exo_library_info_alter(&$libraries, $extension) {
       // Add css for chosen throbber.
       $throbber = $throbber_manager->loadThrobberInstance($settings->get('throbber'));
       $libraries['throbber']['css']['theme'][$throbber->getCssFile()] = [];
+    }
+  }
+
+  foreach ($libraries as &$library) {
+    if (isset($library['dependencies'])) {
+      foreach ($library['dependencies'] as $key => $dependency) {
+        if ($dependency === 'core/jquery.once') {
+          $library['dependencies'][$key] = 'exo/jquery.once';
+        }
+      }
     }
   }
 }

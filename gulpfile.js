@@ -1,99 +1,151 @@
-/**
- * @file
- * Gulp task definition.
- */
-
-"use strict";
-
-const fs = require('fs');
-const extend = require('extend');
-const browserSync = require('browser-sync').create();
 const gulp = require('gulp');
+const { parallel, series } = require('gulp');
 const gutil = require('gulp-util');
 const execSync = require('child_process').execSync;
-// Plugins.
-const sequence = require('gulp-sequence');
-const clean = require('gulp-clean');
-const sass = require('gulp-sass')(require('sass'));
-const sassLint = require('gulp-sass-lint');
-const plumber = require('gulp-plumber');
-const notify = require('gulp-notify');
 const cache = require('gulp-cached');
-const autoprefix = require('gulp-autoprefixer');
+const plumber = require('gulp-plumber');
+const sass = require('gulp-sass')(require('sass'));
+const glob = require('gulp-sass-glob');
+const autoprefixer = require('gulp-autoprefixer');
+const sourcemaps = require('gulp-sourcemaps');
 const rename = require('gulp-rename');
-// const sourcemaps = require('gulp-sourcemaps');
 const uglify = require('gulp-uglify');
-const eslint = require('gulp-eslint');
-const ts = require('gulp-typescript');
-const babel = require('gulp-babel');
+const typescript = require('gulp-typescript');
+const tsProject = typescript.createProject('./tsconfig.json');
 const fileinclude = require('gulp-file-include');
-// Typescript
-var tsProject = ts.createProject('./tsconfig.json');
-var root = gutil.env.root;
+const clean = require('gulp-clean');
+const eslint = require('gulp-eslint');
+const babel = require('gulp-babel');
+let drupalInfo;
+let drushCommand = 'drush';
+let root = gutil.env.root;
+let ddevStatus = false;
+let watchStatus = false;
+let config = {
+  css: {
+    src: ['exo*/src/scss/**/*.scss', 'exo*/src/ExoTheme/**/scss/**/*.scss', 'exo*/src/ExoThemeProvider/**/scss/**/*.scss'],
+    includePaths: [],
+  },
+  js: {
+    dest: 'js',
+    src: ['exo*/src/js/**/*.js'],
+  },
+  ts: {
+    dest: 'js',
+    src: ['exo*/src/ts/*.ts'],
+    watch: ['exo*/src/ts/**/*.ts'],
+  },
+};
 
-/**
- * Config init.
- */
-let originalConfig = require('./config.json');
-if (fs.existsSync('./config.local.json')) {
-  originalConfig = extend(true, originalConfig, require('./config.local'));
+function drupal(cb) {
+  let command = drushCommand;
+  if (root) {
+    command += ' --root=' + root;
+  }
+  drupalInfo = JSON.parse(execSync(command + ' status --format=json').toString());
+  cb();
 }
-let config = extend(true, {}, originalConfig);
 
-/**
- * Clean task.
- */
-gulp.task('clean', function () {
-  return gulp.src(config.clean.src, {read: false})
+function exo(cb) {
+  const root = process.env.DDEV_EXTERNAL_ROOT || drupalInfo['root'];
+  if (ddevStatus) {
+    execSync('ddev exec "export DDEV_EXTERNAL_ROOT=' + root + ' && drush exo-scss"');
+  }
+  else {
+    execSync(drushCommand + ' exo-scss');
+  }
+  config.css.includePaths.push(root + '/' + drupalInfo['site'] + '/files/exo');
+  cb();
+}
+
+function js(cb) {
+  gulp.src(config.js.src)
+    .pipe(plumber())
+    .pipe(eslint({
+      configFile: './.eslintrc',
+      useEslintrc: false
+    }))
+    .pipe(eslint.format())
+    .pipe(babel({
+        presets: ['@babel/preset-env']
+    }))
+    .pipe(uglify())
+    .pipe(rename(function(path) {
+      path.dirname = path.dirname.replace('/src/js', '/' + config.js.dest);
+    }))
+    .pipe(plumber.stop())
+    .pipe(gulp.dest('.'));
+
+  cb();
+}
+
+function ts(cb) {
+  series(tsPackage, tsCompile, tsLint, tsClean)(cb);
+}
+
+function tsPackage(cb) {
+  return gulp.src(config.ts.src)
+    .pipe(plumber())
+    .pipe(fileinclude({
+      prefix: 'TS',
+      basepath: '@file'
+    }))
+    .pipe(rename(function(path) {
+      path.dirname = path.dirname.replace('/src/ts', '/tmp');
+    }))
+    .pipe(plumber.stop())
+    .pipe(gulp.dest('.'));
+};
+
+let doTsLint = false;
+function tsCompile(cb) {
+  return gulp.src(['exo*/tmp/*.ts'])
+    .pipe(cache('ts'))
+    .pipe(plumber(() => {
+      doTsLint = true;
+    }))
+    .pipe(tsProject(typescript.reporter.nullReporter()))
+    .pipe(babel({
+      presets: ['@babel/preset-env']
+    }))
+    .pipe(uglify())
+    .pipe(rename(function(path) {
+      path.dirname = path.dirname.replace('/tmp', '/' + config.ts.dest);
+    }))
+    .pipe(plumber.stop())
+    .pipe(gulp.dest('.'));
+}
+
+function tsLint(cb) {
+  console.log(doTsLint);
+  return gulp.src(['exo*/src/ts/**/*.ts'])
+    .pipe(plumber())
+    .pipe(tsProject())
+    .pipe(plumber.stop());
+}
+
+function tsClean(cb) {
+  return gulp.src('exo*/tmp', {read: false})
     .pipe(clean());
-});
 
-/**
- * Run drush to clear the theme registry
- */
-let drupal;
-gulp.task('drupal', function() {
-  var command = 'drush exo-scss';
-  if (root) {
-    command += ' --root=' + root;
-  }
-  execSync(command);
-  command = 'drush status --format=json';
-  if (root) {
-    command += ' --root=' + root;
-  }
-  drupal = JSON.parse(execSync(command).toString());
-  config.scss.includePaths.push(drupal['root'] + '/' + drupal['site'] + '/files/exo');
-});
+  cb();
+};
 
-/**
- * SASS compiling.
- */
-gulp.task('scss', function () {
-  return gulp.src(config.scss.src)
-    .pipe(plumber({
-      errorHandler: function (error) {
-        notify.onError({
-          title: "Gulp",
-          subtitle: "Failure!",
-          message: "Error: <%= error.message %>",
-          sound: "Beep"
-        })(error);
-        this.emit('end');
-      }
+function css(cb) {
+  gulp.src(config.css.src)
+    .pipe(glob())
+    .pipe(sourcemaps.init())
+    .pipe(sass({
+      outputStyle: 'compressed',
+      includePaths: config.css.includePaths
+    }).on('error', sass.logError))
+    .pipe(autoprefixer({
+      browserlist: ['last 2 versions'],
+      cascade: false
     }))
-    // .pipe(sourcemaps.init())
-    .pipe(sass.sync({
-      outputStyle: config.scss.outputStyle,
-      errLogToConsole: false,
-      includePaths: config.scss.includePaths,
-      quietDeps: true
-    }))
-    .pipe(cache('scss'))
-    .pipe(autoprefix('last 2 versions', '> 1%', 'ie 9', 'ie 10'))
     .pipe(rename(function(path) {
       var matches;
-      path.dirname = path.dirname.replace('scss', config.scss.dest);
+      path.dirname = path.dirname.replace('scss', 'css');
       path.dirname = path.dirname.replace('/src', '');
       // exoTheme Support.
       matches = path.dirname.match(/ExoTheme\/(.*)\//);
@@ -110,150 +162,37 @@ gulp.task('scss', function () {
         path.dirname = path.dirname.replace('/' + exoThemeProvider, '');
       }
     }))
-    // .pipe(sourcemaps.write('./'))
+    .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('.'))
-    .on('finish', function () {
-      gulp.src(config.scss.src)
-        .pipe(sassLint({
-            configFile: '.sass-lint.yml'
-          }))
-        .pipe(sassLint.format());
-    });
-});
+    ;
+  cb();
+}
 
-/**
- * Javascript compiling.
- */
-gulp.task('js', function () {
-  return gulp.src(config.js.src)
-    .pipe(cache('js'))
-    .pipe(plumber())
-    .pipe(eslint({
-      configFile: '.eslintrc',
-      useEslintrc: false
-    }))
-    .pipe(eslint.format())
-    .pipe(uglify())
-    .pipe(rename(function(path) {
-      path.dirname = path.dirname.replace('/src/js', '/' + config.js.dest);
-    }))
-    .pipe(gulp.dest('.'));
-});
+function enableDdev(cb) {
+  drushCommand = 'ddev drush';
+  ddevStatus = true;
+  cb();
+}
 
-/**
- * Typescript task.
- */
-gulp.task('ts', function (callback) {
-  sequence('tsPackage', 'tsCompile', 'tsLint', 'tsClean')(callback);
-});
+function enableWatch(cb) {
+  watchStatus = true;
+  cb();
+}
 
-/**
- * Typescript package lint.
- */
-gulp.task('tsLint', function () {
-  return gulp.src(config.ts.watch)
-    .pipe(plumber())
-    .pipe(tsProject());
-});
-
-/**
- * Typescript pagacking.
- */
-gulp.task('tsPackage', function () {
-  return gulp.src(config.ts.src)
-    .pipe(plumber())
-    .pipe(fileinclude({
-      prefix: 'TS',
-      basepath: '@file'
-    }))
-    .pipe(rename(function(path) {
-      path.dirname = path.dirname.replace('/src/ts', '/' + config.ts.tmp);
-    }))
-    .pipe(gulp.dest('.'));
-});
-
-/**
- * Typescript package compiling.
- */
-gulp.task('tsCompile', function () {
-  return gulp.src(config.ts.tmpsrc)
-    .pipe(cache('ts'))
-    .pipe(plumber())
-    // .pipe(sourcemaps.init())
-    .pipe(tsProject(ts.reporter.nullReporter()))
-    .pipe(babel({
-      presets: [[
-        '@babel/env', {
-          "targets": {
-            "browsers": ["last 2 versions", "ie >= 11"]
-          },
-        }
-      ]]
-    }))
-    .pipe(uglify())
-    .pipe(rename(function(path) {
-      path.dirname = path.dirname.replace('/' + config.ts.tmp, '/' + config.ts.dest);
-    }))
-    // .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('.'));
-});
-
-/**
- * Clean task.
- */
-gulp.task('tsClean', function () {
-  return gulp.src(config.ts.clean, {read: false})
-    .pipe(clean());
-});
-
-/**
- * Build task.
- */
-gulp.task('build', sequence(['clean', 'drupal'], ['scss', 'js', 'ts']));
-
-/**
- * Watch task.
- */
-gulp.task('watch', ['build'], function () {
-  gulp.watch(config.scss.src, ['scss']);
-  gulp.watch(config.js.src, ['js']);
-  // gulp.watch(config.ts.watch, ['ts']);
-  // Magic project switching to ts compile only needed.
-  gulp.watch(config.ts.watch).on("change", function(file) {
-    const match = file.path.match(/exo\/([A-Za-z_]+)/);
-    const exoModule = match[1];
-    for (var i = 0; i < config.ts.src.length; i++) {
-      config.ts.src[i] = originalConfig.ts.src[i].replace('exo*', '*' + exoModule);
-    }
-    for (var i = 0; i < config.ts.tmpsrc.length; i++) {
-      config.ts.tmpsrc[i] = originalConfig.ts.tmpsrc[i].replace('exo*', '*' + exoModule);
-    }
-    config.ts.clean = originalConfig.ts.clean.replace('exo*', '*' + exoModule);
-    gulp.start('ts');
-  });
-  // Watch compiled files for changes.
-  gulp.watch(config.watch.src).on("change", function(file) {
-    if (config.browserSync.enabled) {
-      browserSync.reload(file.path);
-    }
-  });
-});
-
-/**
- * Static serve + watch.
- */
-gulp.task('serve', ['watch'], function () {
-  if (config.browserSync.enabled) {
-    browserSync.init({
-      proxy: config.browserSync.proxy,
-      port: config.browserSync.port,
-      open: config.browserSync.openAutomatically,
-      notify: config.browserSync.notify,
-    });
+function watch(cb) {
+  if (watchStatus) {
+    gulp.watch(config.css.src, css);
+    gulp.watch(config.js.src, js);
+    gulp.watch(config.ts.watch, ts);
   }
-});
+  else {
+    cb();
+  }
+}
 
-/**
- * Default task.
- */
-gulp.task('default', ['serve']);
+// exports.default = parallel(js, css, ts);
+exports.default = series(drupal, exo, parallel(css));
+exports.watch = series(enableWatch, parallel(js, css, ts), watch);
+
+exports.ddev = series(drupal, enableDdev, exo, parallel(css, js, ts));
+exports.ddevWatch = series(drupal, enableWatch, enableDdev, exo, parallel(css, js, ts), watch);

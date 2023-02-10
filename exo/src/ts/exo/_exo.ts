@@ -11,7 +11,7 @@ class Exo {
   protected $elementPositions:JQuery;
   protected resizeCallbacks:ExoCallbacks = {};
   protected resizeWidth:number;
-  protected exoShadowTimeout:number;
+  protected exoShadowTimeout:ReturnType<typeof setTimeout>;
   protected initPromises:Array<Promise<boolean>> = [];
   protected revealPromises:Array<Promise<boolean>> = [];
   protected initialized:boolean = false;

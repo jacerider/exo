@@ -80,7 +80,7 @@ function exo_icon_page_attachments(array &$attachments) {
         '#tag' => 'link',
         '#attributes' => [
           'rel' => 'preload',
-          'href' => file_url_transform_relative(file_create_url($exo_icon_package->getPath()) . '/fonts/icon-' . $exo_icon_package->id() . '.ttf'),
+          'href' =>  	\Drupal::service('file_url_generator')->generateString($exo_icon_package->getPath() . '/fonts/icon-' . $exo_icon_package->id() . '.ttf'),
           'as' => 'font',
           'type' => 'font/tff',
           'crossorigin' => TRUE,

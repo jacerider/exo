@@ -28,7 +28,7 @@
           _.each(instance.js_callbacks, function (callback:any) {
             // Get the callback.
             callback = callback.split('.');
-            var fn = window;
+            var fn:Window = window;
 
             for (var j = 0; j < callback.length; j++) {
               fn = fn[callback[j]];

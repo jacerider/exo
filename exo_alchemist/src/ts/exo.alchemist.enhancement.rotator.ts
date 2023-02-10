@@ -12,7 +12,7 @@
     protected $current:JQuery;
     protected id:string = '';
     protected speed:number = 5000;
-    protected timeout:number;
+    protected timeout:ReturnType<typeof setTimeout>;
     protected lock:boolean = false;
 
     constructor(id:string, $wrapper:JQuery) {

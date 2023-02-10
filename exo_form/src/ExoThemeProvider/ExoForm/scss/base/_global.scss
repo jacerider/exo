@@ -433,18 +433,18 @@
     }
 
     // Make sure all nested elements will fit. The parent will handle the margin.
+    .exo-form-element > .exo-form-element-type-fieldset.exo-form-element & {
+
+      .exo-form-element {
+        margin-top: $global-margin;
+      }
+    }
+
     .exo-form-element & {
 
       .exo-form-element {
         margin-top: 0;
         margin-bottom: 0;
-      }
-    }
-
-    > .exo-form-element-type-fieldset.exo-form-element & {
-
-      .exo-form-element {
-        margin-top: $global-margin;
       }
     }
 

@@ -112,7 +112,7 @@ class ExoComponentDiscovery implements DiscoveryInterface {
   public function findAll() {
     $all = [];
 
-    $root = \Drupal::service('app.root');
+    $root = \Drupal::root();
 
     // Traverse directories looking for pattern definitions.
     foreach ($this->directories as $provider => $directory) {

@@ -16,7 +16,7 @@ function exo_config_install() {
   // The base profile has config types that it defines. Since it loads its
   // config in before this module can, our config type config never gets loaded.
   // We manually override this below.
-  $config_path = drupal_get_path('module', 'exo_config') . '/config/optional';
+  $config_path = \Drupal::service('extension.list.module')->getPath('exo_config') . '/config/optional';
   $source = new FileStorage($config_path);
   $config_storage = \Drupal::service('config.storage');
   $files = $source->listAll('');

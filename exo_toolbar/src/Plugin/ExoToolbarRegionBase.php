@@ -2,7 +2,6 @@
 
 namespace Drupal\exo_toolbar\Plugin;
 
-use Drupal\Core\Plugin\ContextAwarePluginBase;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Plugin\ContextAwarePluginAssignmentTrait;
 use Drupal\Core\Plugin\PluginWithFormsTrait;
@@ -10,18 +9,23 @@ use Drupal\Core\Plugin\PluginWithFormsInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Plugin\ContextAwarePluginInterface;
+use Drupal\Core\Plugin\ContextAwarePluginTrait;
 use Drupal\exo_toolbar\ExoToolbarSectionInterface;
 use Drupal\exo_toolbar\ExoToolbarSection;
 use Drupal\exo_toolbar\ExoToolbarJsSettingsTrait;
+use Drupal\Core\Plugin\PluginBase;
+use Drupal\Core\Session\AccountInterface;
 
 /**
  * Base class for eXo theme plugins.
  */
-abstract class ExoToolbarRegionBase extends ContextAwarePluginBase implements ExoToolbarRegionPluginInterface, PluginWithFormsInterface {
+abstract class ExoToolbarRegionBase extends PluginBase implements ExoToolbarRegionPluginInterface, PluginWithFormsInterface, ContextAwarePluginInterface {
   use StringTranslationTrait;
   use ContextAwarePluginAssignmentTrait;
   use PluginWithFormsTrait;
   use ExoToolbarJsSettingsTrait;
+  use ContextAwarePluginTrait;
 
   /**
    * The module handler service.

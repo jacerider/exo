@@ -93,7 +93,7 @@
         .filter('form, select, input:not(:text, :submit)')
         .once('exo.auto-submit')
         .each((index, element) => {
-          let timeoutID = 0;
+          let timeoutID: ReturnType<typeof setTimeout> = null;
           $(element).on('change', e => {
             // don't trigger on text change for full-form
             if ($(e.target).is(':not(:text, :submit, [data-exo-auto-submit-exclude])')) {
