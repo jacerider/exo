@@ -38,22 +38,24 @@ let config = {
 };
 
 function drupal(cb) {
-  let command = drushCommand;
+  let command = drushCommand + ' status --format=json';
   if (root) {
-    command += ' --root=' + root;
+    command += ' --root="' + root + '"';
   }
-  drupalInfo = JSON.parse(execSync(command + ' status --format=json').toString());
+  drupalInfo = JSON.parse(execSync(command).toString());
   cb();
 }
 
 function exo(cb) {
   const root = process.env.DDEV_EXTERNAL_ROOT || drupalInfo['root'];
+  let command = drushCommand + ' exo-scss';
   if (ddevStatus) {
-    execSync('ddev exec "export DDEV_EXTERNAL_ROOT=' + root + ' && drush exo-scss"');
+    command = 'ddev exec "export DDEV_EXTERNAL_ROOT=' + root + ' && drush exo-scss"';
   }
-  else {
-    execSync(drushCommand + ' exo-scss');
+  else if (root) {
+    command += ' --root="' + root + '"';
   }
+  execSync(command);
   config.css.includePaths.push(root + '/' + drupalInfo['site'] + '/files/exo');
   cb();
 }
@@ -97,13 +99,10 @@ function tsPackage(cb) {
     .pipe(gulp.dest('.'));
 };
 
-let doTsLint = false;
 function tsCompile(cb) {
   return gulp.src(['exo*/tmp/*.ts'])
     .pipe(cache('ts'))
-    .pipe(plumber(() => {
-      doTsLint = true;
-    }))
+    .pipe(plumber(() => {}))
     .pipe(tsProject(typescript.reporter.nullReporter()))
     .pipe(babel({
       presets: ['@babel/preset-env']
@@ -117,7 +116,6 @@ function tsCompile(cb) {
 }
 
 function tsLint(cb) {
-  console.log(doTsLint);
   return gulp.src(['exo*/src/ts/**/*.ts'])
     .pipe(plumber())
     .pipe(tsProject())
@@ -192,7 +190,7 @@ function watch(cb) {
 
 // exports.default = parallel(js, css, ts);
 exports.default = series(drupal, exo, parallel(css));
-exports.watch = series(enableWatch, parallel(js, css, ts), watch);
+exports.watch = series(drupal, enableWatch, exo, parallel(css, js, ts), watch);
 
 exports.ddev = series(drupal, enableDdev, exo, parallel(css, js, ts));
 exports.ddevWatch = series(drupal, enableWatch, enableDdev, exo, parallel(css, js, ts), watch);

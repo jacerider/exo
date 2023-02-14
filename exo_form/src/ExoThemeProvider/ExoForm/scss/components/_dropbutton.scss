@@ -177,6 +177,10 @@
         border: 0;
         height: auto;
         min-height: 0;
+
+        .secondary-action {
+          display: none;
+        }
       }
 
       .dropbutton-widget {
@@ -185,6 +189,13 @@
       }
 
       &.open {
+
+        .dropbutton {
+
+          .secondary-action {
+            display: block;
+          }
+        }
 
         .dropbutton-action {
 

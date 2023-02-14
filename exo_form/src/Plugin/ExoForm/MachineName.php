@@ -24,6 +24,7 @@ class MachineName extends Input {
     $element['#wrapper_attributes']['class'][] = 'exo-form-machine-name';
     $element['#exo_form_attributes']['class'][] = 'js-form-item';
     $element['#exo_no_js_form_item'] = TRUE;
+    $element['#wrapper_attributes']['class'][] = 'value';
     return $element;
   }
 

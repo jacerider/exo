@@ -69,7 +69,7 @@ class ExoLinkit extends ExoLinkWidget {
    *   Null {@inheritdoc}.
    */
   protected static function getEntityFromUri($uri) {
-    list($entity_type, $entity_id) = explode('/', substr($uri, 7), 2);
+    [$entity_type, $entity_id] = explode('/', substr($uri, 7), 2);
     $entity_manager = \Drupal::entityTypeManager();
     if ($entity_manager->getDefinition($entity_type, FALSE)) {
       return $entity_manager->getStorage($entity_type)->load($entity_id);
@@ -177,7 +177,7 @@ class ExoLinkit extends ExoLinkWidget {
       '#type' => 'textfield',
       '#title' => $this->t('Link text'),
       '#placeholder' => $this->getSetting('placeholder_title'),
-      '#default_value' => isset($items[$delta]->title) ? $items[$delta]->title : NULL,
+      '#default_value' => $items[$delta]->title ?? NULL,
       '#maxlength' => 255,
       '#access' => $this->getFieldSetting('title') != DRUPAL_DISABLED,
     ];
@@ -280,7 +280,7 @@ class ExoLinkit extends ExoLinkWidget {
     $entity_uuid = (!empty($value['attributes']['data-entity-uuid'])) ? $value['attributes']['data-entity-uuid'] : NULL;
 
     if (!empty($entity_type) && !empty($entity_uuid)) {
-      /* @var \Drupal\Core\Entity\EntityInterface $entity */
+      /** @var \Drupal\Core\Entity\EntityInterface $entity */
       $entity = \Drupal::service('entity.repository')->loadEntityByUuid($entity_type, $entity_uuid);
       if ($entity) {
         return 'entity:' . $entity->GetEntityTypeId() . '/' . $entity->id();

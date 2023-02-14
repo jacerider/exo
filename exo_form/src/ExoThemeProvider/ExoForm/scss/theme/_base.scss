@@ -2311,6 +2311,7 @@
             a,
             button {
               color: theme-val($theme, dropbutton-color, true);
+              background-color: theme-val($theme, dropbutton-bg-color, true);
             }
           }
 
