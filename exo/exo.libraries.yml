@@ -153,6 +153,11 @@ jquery.once:
   js:
     lib/jquery.once/jquery.once.min.js: {minified: true}
 
+underscore:
+  version: VERSION
+  js:
+    lib/underscore/underscore-min.js:  { weight: -20, minified: true }
+
 nouislider:
   version: 14.1.0
   css:

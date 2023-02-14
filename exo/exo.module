@@ -131,6 +131,9 @@ function exo_library_info_alter(&$libraries, $extension) {
         if ($dependency === 'core/jquery.once') {
           $library['dependencies'][$key] = 'exo/jquery.once';
         }
+        if ($dependency === 'core/internal.underscore' || $dependency === 'core/underscore') {
+          $library['dependencies'][$key] = 'exo/underscore';
+        }
       }
     }
   }
