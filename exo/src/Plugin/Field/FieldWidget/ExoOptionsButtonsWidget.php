@@ -122,7 +122,9 @@ class ExoOptionsButtonsWidget extends OptionsButtonsWidget {
    * {@inheritdoc}
    */
   protected function getEmptyLabel() {
-    return $this->t($this->getSetting('empty_label'));
+    if (!$this->required && !$this->multiple) {
+      return $this->t($this->getSetting('empty_label'));
+    }
   }
 
 }
