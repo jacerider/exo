@@ -1,0 +1,22 @@
+<?php
+
+namespace Drupal\{{ machine_name }}\Controller;
+
+use Drupal\exo\ExoTheme\ExoThemeBase;
+
+/**
+ * Plugin implementation of the 'mace' eXo theme.
+ *
+ * @ExoTheme(
+ *   id = "{{ plugin_id }}",
+ *   label = @Translation("{{ label }}"),
+ *   colors = {
+{% for id, color in colors %}
+ *     "{{ id }}" = "{{ color }}",
+{% endfor %}
+ *   }
+ * )
+ */
+class {{ class }} extends ExoThemeBase {
+
+}

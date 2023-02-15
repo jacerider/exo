@@ -9,4 +9,12 @@ use Drupal\Component\Plugin\PluginManagerInterface;
  */
 interface ExoThemeProviderPluginManagerInterface extends PluginManagerInterface {
 
+  /**
+   * Get all definitions.
+   *
+   * @return array
+   *   An array of all definitions.
+   */
+  public function getAllDefinitions();
+
 }

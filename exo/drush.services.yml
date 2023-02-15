@@ -4,3 +4,8 @@ services:
     arguments: ['@plugin.manager.exo_theme', '@file_system']
     tags:
       - { name: drush.command }
+  exo.thtme:
+      class: Drupal\exo\Generators\ExoThemeGenerator
+      arguments: ['@extension.list.module', '@plugin.manager.exo_theme_provider']
+      tags:
+        -  { name: drush.generator.v2 }
