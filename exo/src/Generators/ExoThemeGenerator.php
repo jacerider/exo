@@ -105,6 +105,9 @@ class ExoThemeGenerator extends ModuleGenerator {
     $this->addFile('gulpfile.js', 'gulpfile.js.twig');
     $this->addFile('package.json', 'package.json.twig');
 
+    // Prepare includes.
+    $vars['includes'] = $this->getThemeIncludes();
+
     $module_path = $this->moduleExtensionList->getPath($vars['machine_name']);
     $plugin_path = $module_path . '/src/ExoTheme/' . $vars['plugin_id_camel_upper'];
     $plugin_asset_path = $plugin_path . '/scss';
@@ -117,6 +120,21 @@ class ExoThemeGenerator extends ModuleGenerator {
       $this->assets[] = $asset;
       // $this->addFile('src/ExoTheme/{plugin_id_camel_upper}/scss/' . str_replace('_', '-', $definition['id']) . '.scss', $definition['template']);
     }
+  }
+
+  /**
+   * Get theme includes for use in theme SCSS file.
+   *
+   * @return string
+   *   A string of theme includes.
+   */
+  protected function getThemeIncludes() {
+    // Prepare includes.
+    $includes = ['exo-theme'];
+    array_walk($includes, function (&$include) {
+      $include = "@import '$include';";
+    });
+    return implode("\n", $includes);
   }
 
   /**
