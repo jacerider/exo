@@ -3,6 +3,7 @@ const { series } = require('gulp');
 const gutil = require('gulp-util');
 const fs = require('fs');
 const extend = require('extend');
+const rename = require('gulp-rename');
 const execSync = require('child_process').execSync;
 const sass = require('gulp-sass')(require('sass'));
 const glob = require('gulp-sass-glob');
@@ -15,8 +16,8 @@ let ddevStatus = false;
 let watchStatus = false;
 let config = {
   css: {
-    dest: 'css',
-    src: ['src/ExoTheme/**/*.scss'],
+    dest: 'css/{{ plugin_id_camel_upper }}',
+    src: ['src/ExoTheme/**/scss/*.scss'],
     includePaths: [],
   },
 };
@@ -65,9 +66,14 @@ function css(cb) {
       browserlist: ['last 2 versions'],
       cascade: false
     }))
+    .pipe(rename(function(obj) {
+      obj.dirname = config.css.dest;
+    }))
     .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest(config.css.dest));
-  cb();
+    .pipe(gulp.dest('.'))
+    .on('finish', function () {
+      cb();
+    });
 }
 
 function enableDdev(cb) {

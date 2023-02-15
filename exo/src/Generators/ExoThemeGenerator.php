@@ -3,8 +3,6 @@
 namespace Drupal\exo\Generators;
 
 use Drupal\Core\Extension\ModuleExtensionList;
-use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\exo\ExoThemePluginManagerInterface;
 use Drupal\exo\ExoThemeProviderPluginManagerInterface;
 use DrupalCodeGenerator\Command\ModuleGenerator;
 use DrupalCodeGenerator\Utils;
