@@ -5,8 +5,6 @@
  * Contains exo_alchemist.module.
  */
 
-use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Config\Entity\ThirdPartySettingsInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
@@ -16,7 +14,6 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\EventSubscriber\MainContentViewSubscriber;
-use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\Context\ContextDefinition;
@@ -28,12 +25,12 @@ use Drupal\Core\Url;
 use Drupal\exo_alchemist\Cache\ExoCacheableContext;
 use Drupal\exo_alchemist\Element\ExoLayoutBuilder;
 use Drupal\exo_alchemist\Entity\ExoLayoutBuilderEntityViewDisplay;
+use Drupal\exo_alchemist\EntityTypeInfo;
 use Drupal\exo_alchemist\ExoComponentAnimationManager;
 use Drupal\exo_alchemist\ExoComponentManager;
 use Drupal\exo_alchemist\ExoComponentPropertyManager;
 use Drupal\exo_alchemist\Form\ExoOverridesEntityForm;
 use Drupal\exo_alchemist\Plugin\ExoComponentField\View;
-use Drupal\exo_alchemist\Plugin\ExoComponentPropertyAsClassInterface;
 use Drupal\exo_modal\ExoModalInterface;
 use Drupal\layout_builder\Entity\LayoutBuilderEntityViewDisplay;
 use Drupal\layout_builder\Entity\LayoutEntityDisplayInterface;
@@ -497,31 +494,9 @@ function exo_alchemist_entity_operation_alter(array &$operations, EntityInterfac
  * Implements hook_entity_base_field_info().
  */
 function exo_alchemist_entity_base_field_info(EntityTypeInterface $entity_type) {
-  $fields = [];
-
-  if ($entity_type->id() === ExoComponentManager::ENTITY_TYPE) {
-    $fields['alchemist_data'] = BaseFieldDefinition::create('exo_alchemist_map')
-      ->setLabel(t('Data'))
-      ->setDescription(t('Storage for component configuration.'))
-      ->setRevisionable(TRUE);
-    $fields['alchemist_path'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Path'))
-      ->setDescription(t('Storage for component path.'))
-      ->setSetting('max_length', 255);
-    $fields['alchemist_default'] = BaseFieldDefinition::create('boolean')
-      ->setLabel(t('Default'))
-      ->setDescription(t('A flag indicating whether this is the default entity.'))
-      ->setDefaultValue(TRUE);
-  }
-
-  if ($entity_type->id() === 'media') {
-    $fields['alchemist_key'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Key'))
-      ->setDescription(t('A key that can be used to prevent duplicate entity creation.'))
-      ->setReadOnly(TRUE);
-  }
-
-  return $fields;
+  return \Drupal::service('class_resolver')
+    ->getInstanceFromDefinition(EntityTypeInfo::class)
+    ->entityBaseFieldInfo($entity_type);
 }
 
 /**
