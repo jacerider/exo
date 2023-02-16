@@ -37,6 +37,23 @@
   }
 }
 
+.theme-claro {
+
+  a,
+  .link,
+  .sortable-heading.is-active > a {
+    color: theme-val(map-get($themes, default), primary, true);
+
+    &:hover {
+      color: lighten(theme-val(map-get($themes, default), primary, true), 10%);
+    }
+  }
+
+  .sortable-heading.is-active > a::before {
+    border-bottom-color: theme-val(map-get($themes, default), primary, true);
+  }
+}
+
 .exo-form {
 
   @each $key, $theme in $themes {

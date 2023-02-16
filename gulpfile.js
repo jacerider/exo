@@ -76,9 +76,10 @@ function js(cb) {
       path.dirname = path.dirname.replace('/src/js', '/' + config.js.dest);
     }))
     .pipe(plumber.stop())
-    .pipe(gulp.dest('.'));
-
-  cb();
+    .pipe(gulp.dest('.'))
+    .on('finish', function () {
+      cb();
+    });
 }
 
 function ts(cb) {
@@ -125,8 +126,6 @@ function tsLint(cb) {
 function tsClean(cb) {
   return gulp.src('exo*/tmp', {read: false})
     .pipe(clean());
-
-  cb();
 };
 
 function css(cb) {
@@ -162,8 +161,9 @@ function css(cb) {
     }))
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('.'))
-    ;
-  cb();
+    .on('finish', function () {
+      cb();
+    });
 }
 
 function enableDdev(cb) {

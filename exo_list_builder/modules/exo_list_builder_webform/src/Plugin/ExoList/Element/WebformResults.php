@@ -37,6 +37,7 @@ class WebformResults extends ExoListElementBase {
   protected function view(EntityInterface $entity, array $field) {
     $query = $this->entityTypeManager()->getStorage('webform_submission')->getQuery();
     $query->condition('webform_id', $entity->id());
+    $query->accessCheck(TRUE);
     return [
       '#type' => 'link',
       '#url' => $entity->toUrl('results-submissions'),

@@ -131,7 +131,7 @@
     }
 
     @include breakpoint(medium) {
-      @include flex-align(right, stretch);
+      @include flex-align(right, bottom);
     }
 
     .exo-form-element {
@@ -212,6 +212,10 @@
     select {
       padding: rem-calc(2);
       font-size: rem-calc(14);
+      background: none;
+      min-height: 0;
+      line-height: inherit;
+      appearance: auto;
     }
 
     .button {

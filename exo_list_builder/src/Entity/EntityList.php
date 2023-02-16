@@ -334,7 +334,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       if (!empty($options['query'][$key])) {
         $options['query'][$key] = $this->optionsEncode($options['query'][$key]);
       }
-      if ($this->getUrl()) {
+      if ($this->getUrl() || $this->isOverride()) {
         return Url::fromRoute($this->getRouteName(), [], $options);
       }
       return Url::fromRoute('<current>', [], $options);
