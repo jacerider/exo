@@ -2,7 +2,7 @@
 
 namespace Drupal\exo_site_settings\Event;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Event that is fired before a settings type is loaded.

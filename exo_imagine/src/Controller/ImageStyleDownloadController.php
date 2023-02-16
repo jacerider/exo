@@ -3,10 +3,8 @@
 namespace Drupal\exo_imagine\Controller;
 
 use Drupal\Component\Utility\Crypt;
-use Drupal\Core\File\FileSystemInterface;
 use Drupal\image\Controller\ImageStyleDownloadController as CoreImageStyleDownloadController;
 use Drupal\image\ImageStyleInterface;
-use Drupal\system\Plugin\ImageToolkit\GDToolkit;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

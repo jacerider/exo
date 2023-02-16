@@ -566,20 +566,6 @@ class ExoImagineManager {
     if ($toolkit instanceof GDToolkit) {
       $success = @imagewebp($toolkit->getResource(), $derivative_uri, $quality);
     }
-    // Support imagick when needed.
-    // elseif (extension_loaded('imagick')) {
-    //   // phpcs:disable
-    //   $image = new \Imagick($derivative_uri);
-    //   $image->setImageFormat('webp');
-    //   $image->setImageCompressionQuality($quality);
-    //   $image->setImageAlphaChannel(\Imagick::ALPHACHANNEL_ACTIVATE);
-    //   $image->setBackgroundColor(new \ImagickPixel('transparent'));
-    //   // phpcs:enable
-    // $image->writeImage(\Drupal::service('file_system')->realpath($derivative_uri));
-    // }
-    // if (function_exists('imagewebp')) {
-    //   @imagewebp($image, NULL, 2);
-    // }
     if (!$success) {
       if (file_exists($derivative_uri)) {
         \Drupal::logger('exo_imagine')->error('Cached image file %destination already exists. There may be an issue with your rewrite configuration.', ['%destination' => $derivative_uri]);
@@ -602,10 +588,6 @@ class ExoImagineManager {
     }
     // Assume webp is supported.
     return TRUE;
-    // if (function_exists('imagewebp') || function_exists('imagick')) {
-    //   return in_array('image/webp', \Drupal::request()->getAcceptableContentTypes());
-    // }
-    // return FALSE;
   }
 
   /**
@@ -618,14 +600,8 @@ class ExoImagineManager {
    *   The full url.
    */
   protected function generateUrl($url) {
-    if (\Drupal::hasService('file_url_generator')) {
-      $generator = \Drupal::service('file_url_generator');
-      $url = $generator->transformRelative($generator->generateAbsoluteString($url));
-    }
-    else {
-      $url = file_url_transform_relative(file_create_url($url));
-    }
-    return $url;
+    $generator = \Drupal::service('file_url_generator');
+    return $generator->transformRelative($generator->generateAbsoluteString($url));
   }
 
 }

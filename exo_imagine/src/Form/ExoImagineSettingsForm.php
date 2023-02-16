@@ -7,7 +7,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\exo\ExoSettingsFormBase;
 
 /**
- * Class ExoImagineSettingsForm.
+ * The eXo imagine settings form.
  */
 class ExoImagineSettingsForm extends ExoSettingsFormBase {
 

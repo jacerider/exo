@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -23,7 +24,6 @@ use Drupal\exo\Plugin\Field\FieldFormatter\ExoEntityReferenceLinkTrait;
 use Drupal\exo_imagine\ExoImagineManager;
 use Drupal\file\FileInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface;
 
 /**
  * Plugin implementation of the 'eXo Image' formatter.
@@ -55,6 +55,13 @@ class ExoImagineFormatter extends ImageFormatter {
   protected $exoImagineSettings;
 
   /**
+   * The logger.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   */
+  protected $logger;
+
+  /**
    * Constructs an ImageFormatter object.
    *
    * @param string $plugin_id
@@ -75,20 +82,19 @@ class ExoImagineFormatter extends ImageFormatter {
    *   The current user.
    * @param \Drupal\Core\Entity\EntityStorageInterface $image_style_storage
    *   The image style storage.
+   * @param \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator
+   *   The file URL generator.
    * @param \Drupal\exo\ExoSettingsInterface $exo_imagine_settings
    *   The exo image settings.
    * @param \Drupal\exo_imagine\ExoImagineManager $exo_imagine_manager
    *   The exo image stype manager.
-   * @param \Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface $mime_type_guesser
-   *   The MIME type guesser.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    *   The logger factory.
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, AccountInterface $current_user, EntityStorageInterface $image_style_storage, ExoSettingsInterface $exo_imagine_settings, ExoImagineManager $exo_imagine_manager, MimeTypeGuesserInterface $mime_type_guesser, LoggerChannelFactoryInterface $logger_factory) {
-    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings, $current_user, $image_style_storage);
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, AccountInterface $current_user, EntityStorageInterface $image_style_storage, FileUrlGeneratorInterface $file_url_generator, ExoSettingsInterface $exo_imagine_settings, ExoImagineManager $exo_imagine_manager, LoggerChannelFactoryInterface $logger_factory) {
+    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings, $current_user, $image_style_storage, $file_url_generator);
     $this->exoImagineSettings = $exo_imagine_settings->createInstance($this->getSetting('display'));
     $this->exoImagineManager = $exo_imagine_manager;
-    $this->mimeTypeGuesser = $mime_type_guesser;
     $this->logger = $logger_factory->get('exo_imagine');
   }
 
@@ -106,9 +112,9 @@ class ExoImagineFormatter extends ImageFormatter {
       $configuration['third_party_settings'],
       $container->get('current_user'),
       $container->get('entity_type.manager')->getStorage('image_style'),
+      $container->get('file_url_generator'),
       $container->get('exo_imagine.settings'),
       $container->get('exo_imagine.manager'),
-      $container->get('file.mime_type.guesser'),
       $container->get('logger.factory')
     );
   }

@@ -21,7 +21,7 @@ class ExoLinkLinkitHelper {
   public static function getEntityFromUri($uri) {
     // Stripe out potential query and fragment from the uri.
     $uri = strtok(strtok($uri, "?"), "#");
-    list($entity_type, $entity_id) = explode('/', substr($uri, 7), 2);
+    [$entity_type, $entity_id] = explode('/', substr($uri, 7), 2);
     $entity_manager = \Drupal::entityTypeManager();
     if ($entity_manager->getDefinition($entity_type, FALSE)) {
       if ($entity = $entity_manager->getStorage($entity_type)->load($entity_id)) {
@@ -52,7 +52,7 @@ class ExoLinkLinkitHelper {
       $entity_type = $value['attributes']['data-entity-type'];
       $entity_uuid = $value['attributes']['data-entity-uuid'];
 
-      /* @var \Drupal\Core\Entity\EntityInterface $entity */
+      /** @var \Drupal\Core\Entity\EntityInterface $entity */
       $entity = \Drupal::service('entity.repository')->loadEntityByUuid($entity_type, $entity_uuid);
       if ($entity) {
         $entity_uri = 'entity:' . $entity->getEntityTypeId() . '/' . $entity->id();

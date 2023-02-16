@@ -20,6 +20,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ImageStyleQualityImageEffect extends ConfigurableImageEffectBase {
 
   /**
+   * GD config.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
+   */
+  protected $gdConfig;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, LoggerInterface $logger, $gdConfig) {
@@ -41,13 +48,6 @@ class ImageStyleQualityImageEffect extends ConfigurableImageEffectBase {
   }
 
   /**
-   * The GD image config object.
-   *
-   * @var null
-   */
-  public $gdConfig = NULL;
-
-  /**
    * {@inheritdoc}
    */
   public function applyEffect(ImageInterface $image) {
@@ -61,7 +61,7 @@ class ImageStyleQualityImageEffect extends ConfigurableImageEffectBase {
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    $existing_quality = isset($this->configuration['quality']) ? $this->configuration['quality'] : '75';
+    $existing_quality = $this->configuration['quality'] ?? '75';
     $form['quality'] = [
       '#type' => 'number',
       '#title' => t('Quality'),

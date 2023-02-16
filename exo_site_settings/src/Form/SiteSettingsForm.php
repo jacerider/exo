@@ -100,7 +100,7 @@ class SiteSettingsForm extends ContentEntityForm {
     $delimiter = $field->getThirdPartySetting('exo_site_settings', 'config_delimiter');
     $event = new SiteSettingsConfigCloneEvent($field, $name, $key, $delimiter);
     $event_dispatcher = \Drupal::service('event_dispatcher');
-    $event_dispatcher->dispatch(SiteSettingsConfigCloneEvent::EVENT_NAME, $event);
+    $event_dispatcher->dispatch($event, SiteSettingsConfigCloneEvent::EVENT_NAME);
     return [
       'name' => $event->getName(),
       'key' => $event->getKey(),

@@ -89,14 +89,14 @@ class ExoLinkWidget extends LinkWidget {
 
     $item = $items[$delta];
     $options = $item->get('options')->getValue();
-    $attributes = isset($options['attributes']) ? $options['attributes'] : [];
+    $attributes = $options['attributes'] ?? [];
 
     if ($this->getSetting('icon')) {
       $class_name = Html::getUniqueId('exo-link-widget-' . $this->fieldDefinition->getName() . '-' . $delta);
       $element['options']['attributes']['data-icon'] = [
         '#type' => 'exo_icon',
         '#title' => $this->t('Icon'),
-        '#default_value' => isset($attributes['data-icon']) ? $attributes['data-icon'] : NULL,
+        '#default_value' => $attributes['data-icon'] ?? NULL,
         '#packages' => $this->getPackages(),
         '#attributes' => [
           'class' => [$class_name],
@@ -110,7 +110,7 @@ class ExoLinkWidget extends LinkWidget {
           'before' => $this->t('Before'),
           'after' => $this->t('After'),
         ],
-        '#default_value' => isset($attributes['data-icon-position']) ? $attributes['data-icon-position'] : 'before',
+        '#default_value' => $attributes['data-icon-position'] ?? 'before',
         '#required' => TRUE,
         '#states' => [
           'visible' => [

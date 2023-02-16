@@ -85,7 +85,7 @@ class SiteSettingsStorage extends SqlContentEntityStorage {
    */
   public function load($id) {
     $event = new SiteSettingsPreloadEvent($id);
-    $this->eventDispatcher->dispatch(SiteSettingsPreloadEvent::EVENT_NAME, $event);
+    $this->eventDispatcher->dispatch($event, SiteSettingsPreloadEvent::EVENT_NAME);
     return parent::load($event->getTypeId());
   }
 
@@ -115,7 +115,7 @@ class SiteSettingsStorage extends SqlContentEntityStorage {
     $entity = $this->loadByType($type_id);
     if (!$entity) {
       $event = new SiteSettingsPreloadEvent($type_id);
-      $this->eventDispatcher->dispatch(SiteSettingsPreloadEvent::EVENT_NAME, $event);
+      $this->eventDispatcher->dispatch($event, SiteSettingsPreloadEvent::EVENT_NAME);
       $entity = $this->create([
         'id' => $event->getTypeId(),
         'type' => $type_id,
