@@ -1,33 +1,31 @@
-uuid: 802121ae-fdfd-4ba9-86bd-dd67e5981f07
+uuid: 0deb6087-3a8e-4449-8063-f7f7188f2d3a
 langcode: en
 status: true
 dependencies:
   module:
     - node
-id: exo
 label: eXo
-description: ''
+id: exo
+description: 'Default eXo linkit profile.'
 matchers:
-  e5cc46f5-eaff-4c5f-a07a-9949cd59a42e:
-    uuid: e5cc46f5-eaff-4c5f-a07a-9949cd59a42e
+  7da8b89b-1f9e-4e98-832a-67a705dd26b2:
     id: 'entity:node'
-    weight: 0
+    uuid: 7da8b89b-1f9e-4e98-832a-67a705dd26b2
     settings:
+      metadata: Content
       bundles: {  }
       group_by_bundle: true
-      include_unpublished: false
       substitution_type: canonical
-      metadata: Content
       limit: 50
-  328e9986-79ca-478a-8628-1ec636e7093b:
-    uuid: 328e9986-79ca-478a-8628-1ec636e7093b
-    id: 'entity:media'
+      include_unpublished: false
     weight: 0
+  9e713db5-a2b4-43e5-84b3-08dd949418ec:
+    id: 'entity:media'
+    uuid: 9e713db5-a2b4-43e5-84b3-08dd949418ec
     settings:
-      metadata: ''
-      bundles:
-        document: document
-        image: image
+      metadata: Media
+      bundles: {  }
       group_by_bundle: true
       substitution_type: media
       limit: 50
+    weight: 0

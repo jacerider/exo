@@ -2,8 +2,8 @@ name: eXo Linkit
 type: module
 description: Adds a widget to replace the core link field with linkit field.
 core: 8.x
-core_version_requirement: ^8 || ^9
+core_version_requirement: '^9.3 || ^10'
 package: eXo
 dependencies:
-  - exo_link:exo_link
-  - linkit (>=8.x-5.0-beta12)
+  - drupal:link
+  - linkit:linkit
