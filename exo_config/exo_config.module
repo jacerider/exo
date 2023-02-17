@@ -8,6 +8,7 @@
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
+use Drupal\user\RoleInterface;
 
 /**
  * Implements hook_help().
@@ -32,6 +33,23 @@ function exo_config_help($route_name, RouteMatchInterface $route_match) {
       return $output;
 
     default:
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_load().
+ */
+function exo_config_user_role_load($roles) {
+  if (Settings::get('exo_config_devel', FALSE)) {
+    foreach ($roles as $role) {
+      /** @var \Drupal\user\RoleInterface $role */
+      if (PHP_SAPI !== 'cli') {
+        $role->grantPermission('access devel information');
+      }
+      else {
+        $role->revokePermission('access devel information');
+      }
+    }
   }
 }
 
