@@ -17,7 +17,7 @@ use Drupal\exo_linkit\Utility\LinkitHelper;
  *   field_types = {"link"},
  * )
  */
-class LinkitWidgetWidget extends WidgetBase {
+class ExoLinkitWidget extends WidgetBase {
 
   /**
    * {@inheritdoc}
@@ -130,7 +130,7 @@ class LinkitWidgetWidget extends WidgetBase {
 
     $element['attributes']['data-entity-substitution'] = [
       '#type' => 'hidden',
-      '#default_value' => $default_allowed && isset($entity) ? $entity->getEntityTypeId() == 'file' ? 'file' : 'canonical' : '',
+      '#default_value' => $default_allowed && isset($entity) ? ($entity->getEntityTypeId() == 'file' ? 'file' : 'canonical') : '',
     ];
 
     $element['title'] = [
