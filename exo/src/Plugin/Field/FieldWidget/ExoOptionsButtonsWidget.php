@@ -111,7 +111,7 @@ class ExoOptionsButtonsWidget extends OptionsButtonsWidget {
       $element['#options'] = array_reverse($element['#options'], TRUE);
     }
 
-    if (($this->required || $this->getSetting('hide_empty')) && !$form_state->getFormObject() instanceof FieldConfigEditForm) {
+    if ($this->getSetting('hide_empty') && !$form_state->getFormObject() instanceof FieldConfigEditForm) {
       $element['#attributes']['class'][] = 'hide-empty';
     }
 
@@ -123,7 +123,7 @@ class ExoOptionsButtonsWidget extends OptionsButtonsWidget {
    */
   protected function getEmptyLabel() {
     if (!$this->required && !$this->multiple) {
-      return $this->t($this->getSetting('empty_label'));
+      return $this->getSetting('empty_label');
     }
   }
 
