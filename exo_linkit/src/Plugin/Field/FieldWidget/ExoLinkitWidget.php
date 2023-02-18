@@ -75,8 +75,8 @@ class ExoLinkitWidget extends WidgetBase {
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $item = $items[$delta];
     $uri = $item->uri;
-    $uri_scheme = parse_url($uri, PHP_URL_SCHEME);
-    $is_nolink = substr($uri, 0, 14) === 'route:<nolink>';
+    $uri_scheme = $uri ? parse_url($uri, PHP_URL_SCHEME) : NULL;
+    $is_nolink = $uri && substr($uri, 0, 14) === 'route:<nolink>';
     if (!empty($uri) && empty($uri_scheme) && $is_nolink) {
       $uri = LinkitHelper::uriFromUserInput($uri);
       $uri_scheme = parse_url($uri, PHP_URL_SCHEME);
