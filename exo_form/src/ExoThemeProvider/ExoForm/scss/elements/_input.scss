@@ -196,6 +196,33 @@ div.exo-form-input {
     opacity: 0.5;
     cursor: not-allowed;
   }
+
+  .ck {
+
+    > label {
+      display: none;
+    }
+
+    .ck-content {
+      font-size: rem-calc(16);
+      line-height: 1.2;
+
+      ul {
+        margin: 0.25em 0 0.25em 1.5em;
+
+        li {
+          list-style-image: none;
+        }
+      }
+    }
+
+    .ck-source-editing-area {
+
+      textarea {
+        height: 100%;
+      }
+    }
+  }
 }
 
 // Input labels can be floated above their input fields.
