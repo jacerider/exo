@@ -43,7 +43,7 @@ trait ExoComponentFieldPreviewEntityTrait {
         $query->condition($key, TRUE);
       }
       $query->range(0, 1);
-      $results = $query->execute();
+      $results = $query->accessCheck(FALSE)->execute();
       if (!empty($results)) {
         $entity = $storage->load(reset($results));
       }
