@@ -38,6 +38,10 @@ class Container extends ExoFormBase {
    * {@inheritdoc}
    */
   public function preRender($element) {
+    // If we have no visible children, we hide the container.
+    if (!Element::getVisibleChildren($element)) {
+      return [];
+    }
     $element['#exo_form_element_attributes']['class'][] = 'exo-form-element';
     $element['#exo_form_element_attributes']['class'][] = 'exo-form-element-js';
     $element['#exo_form_attributes']['class'][] = 'exo-form-container';

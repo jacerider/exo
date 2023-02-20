@@ -61,7 +61,7 @@ function exo(cb) {
 }
 
 function js(cb) {
-  gulp.src(config.js.src)
+  return gulp.src(config.js.src)
     .pipe(plumber())
     .pipe(eslint({
       configFile: './.eslintrc',
@@ -76,10 +76,7 @@ function js(cb) {
       path.dirname = path.dirname.replace('/src/js', '/' + config.js.dest);
     }))
     .pipe(plumber.stop())
-    .pipe(gulp.dest('.'))
-    .on('finish', function () {
-      cb();
-    });
+    .pipe(gulp.dest('.'));
 }
 
 function ts(cb) {
@@ -129,8 +126,9 @@ function tsClean(cb) {
 };
 
 function css(cb) {
-  gulp.src(config.css.src)
+  return gulp.src(config.css.src)
     .pipe(glob())
+    .pipe(cache('css'))
     .pipe(sourcemaps.init())
     .pipe(sass({
       outputStyle: 'compressed',
@@ -160,10 +158,7 @@ function css(cb) {
       }
     }))
     .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest('.'))
-    .on('finish', function () {
-      cb();
-    });
+    .pipe(gulp.dest('.'));
 }
 
 function enableDdev(cb) {
