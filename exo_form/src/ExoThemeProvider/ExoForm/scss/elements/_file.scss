@@ -49,8 +49,8 @@
       @include flex-align(center, middle);
       flex: 0 0 1%;
       float: none;
-      margin-bottom: 0;
-      margin-right: $global-margin;
+      margin: 0;
+      padding: 0;
 
       img {
         width: auto;
@@ -91,14 +91,10 @@
     display: block;
 
     // Managed file preview.
-    &.exo-form-file-input {
+    &.exo-form-file-input.file {
       flex: 1 1 100%;
-      padding: 0 $global-padding;
+      padding: $global-padding * 0.5;
       background-position: $global-padding center;
-
-      > a {
-        padding-left: $global-padding + rem-calc(5);
-      }
     }
   }
 

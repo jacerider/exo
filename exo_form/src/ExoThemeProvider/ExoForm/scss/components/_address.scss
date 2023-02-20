@@ -1,6 +1,5 @@
 .exo-form-address {
   // margin-bottom: -$global-margin !important;
-  // display: none;
 
   .exo-form-inline {
     margin-top: $global-margin;
@@ -14,10 +13,17 @@
 .exo-form-element.exo-form-address-wrapper {
 
   > .fieldset-wrapper {
-    margin-top: 0 !important;
 
     > .exo-form-address {
       margin-top: 0 !important;
+    }
+
+    .form-wrapper {
+      margin-top: 0 !important;
+
+      > .exo-form-element {
+        margin-top: 0 !important;
+      }
     }
   }
 

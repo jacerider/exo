@@ -27,25 +27,28 @@ class ManagedFile extends ExoFormBase {
   /**
    * {@inheritdoc}
    */
+  public function process(&$element) {
+    parent::process($element);
+    foreach ($element['#pre_render'] as $key => $callback) {
+      if (is_array($callback) && $callback[0] === 'Drupal\claro\ClaroPreRender') {
+        unset($element['#pre_render'][$key]);
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function preRender($element) {
     $element['upload']['#is_wrapped'] = TRUE;
-    // $element['upload']['#is_managed'] = $element['#type'] === 'managed_file';
-    // $element['#exo_form_attributes']['class'][] = 'exo-form-managed-file';
-    // @see \Drupal\exo_form\Plugin\ExoForm\File for file preRender().
     $element['#exo_form_attributes']['class'][] = 'exo-form-managed-file';
     $element['#exo_form_attributes']['class'][] = 'exo-form-managed-file-js';
-    // If (!empty($element['#value']['fids'])) {
-    // }.
     if ($element['#type'] == 'managed_file') {
       foreach (Element::children($element) as $key) {
         if (substr($key, 0, 5) === 'file_') {
           $element[$key]['filename']['#attributes']['class'][] = 'exo-form-file-input';
-          // $element[$key]['filename']['#attributes']['class'][] = 'exo-form-file-item-js';
-          // $element[$key]['filename']['#attributes']['class'][] = 'ready';
         }
       }
-      // ($element);
-      // die;
     }
     return parent::preRender($element);
   }

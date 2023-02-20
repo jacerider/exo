@@ -437,6 +437,9 @@ function exo_form_theme_registry_alter(&$theme_registry) {
   $theme_registry['image_widget']['path'] = $path;
   $theme_registry['image_widget']['theme path'] = $module_path;
   $theme_registry['image_widget']['strict'] = TRUE;
+  if (!empty($theme_registry['image_widget']['preprocess functions'])) {
+    $theme_registry['image_widget']['preprocess functions'] = array_diff($theme_registry['image_widget']['preprocess functions'], ['claro_preprocess_image_widget']);
+  }
 }
 
 /**
@@ -741,7 +744,7 @@ function exo_form_preprocess_file_managed_file(array &$variables) {
 }
 
 /**
- * Implements preprocess_file_managed_file().
+ * Implements preprocess_image_widget().
  */
 function exo_form_preprocess_image_widget(array &$variables) {
   if (!exo_form_access()) {
