@@ -5,7 +5,6 @@ if (page.length) {
     const elements = document.querySelectorAll('.alchemist.node.full > .layout > .layout__region > .exo-component-wrapper[data-component-' + position + ']');
     if (elements.length) {
       const id = elements[0].getAttribute('data-component-' + position).replace(/_/g, '-');
-      console.log(id);
       page[0].classList.add('component-enabled');
       page[0].classList.add('component-' + position + '--' + id);
     }
