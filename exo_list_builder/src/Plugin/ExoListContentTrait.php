@@ -157,15 +157,15 @@ trait ExoListContentTrait {
   public function getAvailableFieldValues(EntityListInterface $entity_list, array $field, $property, $condition) {
     $field_id = $field['id'];
     $cid = 'exo_list_buider:filter:' . $entity_list->id() . ':' . $field_id . ':' . $property;
-    $values = [];
     // Field can enable facet support.
     $faceted = !empty($field['filter']['settings']['widget_settings']['facet']);
     $group_property = $field['filter']['settings']['widget_settings']['group'] ?? NULL;
     $do_cache = empty($faceted) && empty($condition);
     if ($do_cache && ($cache = \Drupal::cache()->get($cid))) {
-      $values = $cache->data;
+      return $cache->data;
     }
     else {
+      $values = [];
       $cacheable_metadata = new CacheableMetadata();
       $cacheable_metadata->addCacheTags($entity_list->getCacheTags());
       if ($computed_filter = $this->getComputedFilterClass($field['definition'])) {
@@ -179,14 +179,30 @@ trait ExoListContentTrait {
       else {
         $query = $this->getAvailableFieldValuesQuery($entity_list, $field, $property, $condition, $cacheable_metadata);
         if ($query) {
+          $handler = $entity_list->getHandler();
+
+          // Experimental support for query conditions.
+          $query_conditions = $handler->getQueryConditions();
+          if (isset($query_conditions[$field['field_name']])) {
+            $field_id_key = $query->getMetaData('field_id_key') ?: $query->getMetaData('base_id_key');
+            /** @var \Drupal\Core\Field\FieldDefinitionInterface $definition */
+            $condition = $query_conditions[$field['field_name']];
+            $query->condition('f.' . $field_id_key, $condition['value'], $condition['operator']);
+            $cid .= ':' . $field['field_name'] . ':' . implode('.', $condition['value']);
+            if ($do_cache && ($cache = \Drupal::cache()->get($cid))) {
+              return $cache->data;
+            }
+          }
+
+          // Facet support.
           if ($faceted && ($base_alias = $query->getMetaData('base_alias')) && ($base_id_key = $query->getMetaData('base_id_key'))) {
-            $handler = $entity_list->getHandler();
             $ids = $handler->getQuery('options')->execute();
             if (empty($ids)) {
               return [];
             }
             $query->condition($base_alias . '.' . $base_id_key, $ids, 'IN');
           }
+
           $results = $query->execute();
           if ($group_property) {
             $values = $results->fetchAllKeyed();
@@ -239,6 +255,7 @@ trait ExoListContentTrait {
         }
       }
       if ($do_cache) {
+        // $cacheable_metadata->addCacheTags()
         \Drupal::cache()->set($cid, $values, Cache::PERMANENT, $cacheable_metadata->getCacheTags());
       }
     }
@@ -432,6 +449,9 @@ trait ExoListContentTrait {
       }
       $query->fields('f', [$reference_field_column])
         ->distinct(TRUE);
+
+      $query->addMetaData('field_alias', $reference_field_table);
+      $query->addMetaData('field_id_key', $reference_id_key);
 
       if (!empty($condition)) {
         if ($reference_property === 'target_id') {

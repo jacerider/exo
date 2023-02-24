@@ -38,11 +38,12 @@ class EntityLabel extends ExoListFilterStringBase {
    * {@inheritdoc}
    */
   public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
-    if ($property = $entity_list->getTargetEntityType()->getKey('label')) {
-      $this->queryAlterByField($property, $query, $value, $entity_list, $field);
+    $field_id = $entity_list->getTargetEntityType()->getKey('label');
+    if ($entity_list->getTargetEntityTypeId() === 'user') {
+      $field_id = 'name';
     }
-    elseif ($entity_list->getTargetEntityTypeId() === 'user') {
-      $this->queryAlterByField('name', $query, $value, $entity_list, $field);
+    if ($field_id) {
+      $this->queryAlterByStringField($field_id, $query, $value, $entity_list, $field);
     }
   }
 

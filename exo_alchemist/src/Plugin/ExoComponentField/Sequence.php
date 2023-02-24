@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\exo_alchemist\ExoComponentFieldManager;
 use Drupal\exo_alchemist\ExoComponentManager;
 use Drupal\exo_alchemist\ExoComponentValue;
 use Drupal\exo_alchemist\ExoComponentValues;
@@ -271,6 +272,9 @@ class Sequence extends EntityReferenceBase {
       foreach ($items as $delta => $item) {
         $component->addParentFieldDelta($this->getFieldDefinition(), $delta);
         if ($item->entity) {
+          foreach ($component->getFields() as $field) {
+            ExoComponentFieldManager::setVisibleFieldName($item->entity, $field->getName());
+          }
           $field_values[] = $this->exoComponentManager()->restoreEntity($component, $item->entity);
         }
       }

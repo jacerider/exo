@@ -487,16 +487,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
 
     // Use an set query conditions.
-    foreach ($this->queryConditions as $condition) {
-      if ($condition['field'] === 'moderation_state') {
-        $query->addTag('exo_entity_list_moderation_state');
-        // @see exo_list_builder_query_exo_entity_list_moderation_state_alter().
-        $query->addMetaData('exo_entity_list_moderation_state', $condition['value']);
-      }
-      else {
-        $query->condition($condition['field'], $condition['value'], $condition['operator'], $condition['langcode']);
-      }
-    }
+    $this->buildQueryConditions($query);
 
     // Filter.
     $filter_values = [];
@@ -596,13 +587,36 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * {@inheritdoc}
    */
   public function addQueryCondition($field, $value = NULL, $operator = NULL, $langcode = NULL) {
-    $this->queryConditions[] = [
+    $this->queryConditions[$field] = [
       'field' => $field,
       'value' => $value,
       'operator' => $operator,
       'langcode' => $langcode,
     ];
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getQueryConditions() {
+    return $this->queryConditions;
+  }
+
+  /**
+   * Build query conditions.
+   */
+  protected function buildQueryConditions(QueryInterface $query) {
+    foreach ($this->getQueryConditions() as $condition) {
+      if ($condition['field'] === 'moderation_state') {
+        $query->addTag('exo_entity_list_moderation_state');
+        // @see exo_list_builder_query_exo_entity_list_moderation_state_alter().
+        $query->addMetaData('exo_entity_list_moderation_state', $condition['value']);
+      }
+      else {
+        $query->condition($condition['field'], $condition['value'], $condition['operator'], $condition['langcode']);
+      }
+    }
   }
 
   /**
@@ -737,6 +751,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
     $id = str_replace('_', '-', $entity_list->id());
     $build['#id'] = 'exo-list-' . $id;
+    $build['#exo_list_id'] = $entity_list->id();
     $build['#attributes']['class'][] = 'exo-list';
     $build['#attributes']['class'][] = 'exo-list-' . $id;
     $build['#attached']['library'][] = 'exo_list_builder/list';
@@ -796,27 +811,21 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
     $build[$this->entitiesKey] = $format_build;
 
-    $build['footer'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'div',
-      '#weight' => 100,
-      '#attributes' => ['class' => ['exo-list-footer']],
-    ];
-
     // Only load the entities when we want to render the results.
     $entities = $render_status ? $this->load() : [];
     $build['#draggable'] = FALSE;
     if ($entities) {
+      $build_rows = [];
       foreach ($entities as $key => $target_entity) {
         if ($row = $this->buildRow($target_entity)) {
           switch ($format) {
             case 'table';
-              $build[$this->entitiesKey][$key] = $row;
+              $build_rows[$key] = $row;
               $build['#draggable'] = !empty($row['#draggable']);
               break;
 
             default:
-              $build[$this->entitiesKey][$key] = [
+              $build_rows[$key] = [
                 '#type' => 'html_tag',
                 '#tag' => 'div',
                 '#attributes' => [
@@ -824,20 +833,62 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
                     'exo-list-item',
                   ],
                 ],
+                '#group_by' => $row['#group_by'],
                 'row' => $row,
               ];
               if ($entity_list->getSetting('list_link')) {
-                $build[$this->entitiesKey][$key]['#tag'] = 'a';
-                $build[$this->entitiesKey][$key]['#attributes']['href'] = $target_entity->toUrl()->toString();
+                $build_rows[$key]['#tag'] = 'a';
+                $build_rows[$key]['#attributes']['href'] = $target_entity->toUrl()->toString();
               }
               break;
           }
         }
       }
-      if ($subform = $this->buildSort($build)) {
-        $build['header']['second']['sort'] = $subform + [
-          '#weight' => -10,
-        ];
+
+      if ($build_rows) {
+        // Hide ops as necessary.
+        $found_ops = FALSE;
+        foreach ($build_rows as $row) {
+          if (!empty($row['operations']['data']['#links'])) {
+            $found_ops = TRUE;
+            break;
+          }
+        }
+
+        if (!$found_ops) {
+          unset($build[$this->entitiesKey]['#header']['operations']);
+          foreach ($build_rows as $key => $row) {
+            unset($build_rows[$key]['operations']);
+          }
+        }
+      }
+
+      $group_by = [];
+      foreach ($build_rows as $row) {
+        if (!empty($row['#group_by'])) {
+          foreach ($row['#group_by'] as $field_name => $rendered) {
+            unset($build[$this->entitiesKey]['#header'][$field_name]);
+            $key = md5((string) $rendered);
+            $group_by[$field_name]['sort'] = $row['#group_by_sort'][$field_name];
+            $group_by[$field_name]['data'][$key]['rendered'] = $rendered;
+            $group_by[$field_name]['data'][$key]['rows'][$row['#entity_id']] = $row;
+          }
+        }
+      }
+      if ($group_by) {
+        $build['#group_by'] = TRUE;
+        $build['#draggable'] = FALSE;
+        $template = $build[$this->entitiesKey];
+        $build[$this->entitiesKey] = [];
+        $build[$this->entitiesKey] += $this->buildGroups($template, $group_by);
+      }
+      else {
+        $build[$this->entitiesKey] += $build_rows;
+        if ($subform = $this->buildSort($build)) {
+          $build['header']['second']['sort'] = $subform + [
+            '#weight' => -10,
+          ];
+        }
       }
     }
     elseif ($render_status) {
@@ -845,10 +896,27 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         $build['#access'] = FALSE;
       }
       else {
-        $build[$this->entitiesKey] = $this->buildEmpty($build);
+        $build[$this->entitiesKey] = [
+          '#type' => 'html_tag',
+          '#tag' => 'div',
+          '#attributes' => [
+            'class' => [
+              'exo-list-content',
+              'exo-list-' . str_replace('_', '-', $format),
+            ],
+          ],
+          'message' => $this->buildEmpty($build),
+        ];
       }
     }
     $build[$this->entitiesKey]['#entities'] = $entities;
+
+    $build['footer'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
+      '#weight' => 100,
+      '#attributes' => ['class' => ['exo-list-footer']],
+    ];
 
     if (($entities || $this->isFiltered()) && (count($entities) < $this->getTotal() || $this->getOption('limit'))) {
       $pager = $this->buildPager($build);
@@ -863,24 +931,131 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       unset($build['footer']['pager']['pager_header']);
     }
 
-    if ($entities) {
-      $found_ops = FALSE;
-      $entity_keys = Element::children($build[$this->entitiesKey]);
-      foreach ($entity_keys as $id) {
-        if (!empty($build[$this->entitiesKey][$id]['operations']['data']['#links'])) {
-          $found_ops = TRUE;
-          break;
+    return $build;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  protected function buildGroups($template, $groups, $ids = [], $h = 2) {
+    $group = array_shift($groups);
+    $build = [];
+    foreach ($group['data'] as $key => $data) {
+      $segment = [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => ['class' => ['exo-list-group']],
+      ];
+      $segment['title'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'h' . $h,
+        '#weight' => -100,
+        '#attributes' => ['class' => ['exo-list-group-title']],
+        'value' => ['#markup' => $data['rendered']],
+      ];
+      if (!empty($groups)) {
+        $segment['children'] = $this->buildGroups($template, $groups, array_merge($ids, array_keys($data['rows'])), $h + 1);
+      }
+      else {
+        $rows = !empty($ids) ? array_intersect_key($data['rows'], array_flip($ids)) : $data['rows'];
+        if (!empty($rows)) {
+          $segment['children'] = $template + $rows;
+        }
+        else {
+          $segment['#access'] = FALSE;
         }
       }
+      $build[strip_tags($data['rendered'])] = $segment;
+    }
+    ksort($build);
+    if ($group['sort'] == 'desc') {
+      $build = array_reverse($build);
+    }
+    return $build;
+  }
 
-      if (!$found_ops) {
-        unset($build[$this->entitiesKey]['#header']['operations']);
-        foreach ($entity_keys as $id) {
-          unset($build[$this->entitiesKey][$id]['operations']);
-        }
+  /**
+   * {@inheritDoc}
+   */
+  public function buildRow(EntityInterface $entity) {
+    $row = [];
+    $row['#entity_id'] = $entity->id();
+    $row['#group_by'] = [];
+    foreach ($this->getShownFields() as $field_id => $field) {
+      $row[$field_id]['data'] = $this->renderField($entity, $field);
+      $row[$field_id]['#wrapper_attributes']['class'][] = Html::getClass('exo-list-builder-field-id--' . $field_id);
+      $row[$field_id]['#wrapper_attributes']['class'][] = Html::getClass('exo-list-builder-field-type--' . $field['view']['type']);
+      if (!empty($field['view']['align'])) {
+        $row[$field_id]['#wrapper_attributes']['class'][] = Html::getClass('exo-list-builder-align--' . $field['view']['align']);
+      }
+      if (!empty($field['view']['size'])) {
+        $row[$field_id]['#wrapper_attributes']['class'][] = Html::getClass('exo-list-builder-size--' . $field['view']['size']);
+      }
+      if (isset($row[$field_id]['data']['#list_weight'])) {
+        $row[$field_id]['data']['#parents'] = ['weight', $entity->id()];
+        $row['#attributes']['class'][] = 'draggable';
+        $row['#draggable'] = TRUE;
+      }
+      if (!empty($field['view']['group_by'])) {
+        $row['#group_by'][$field_id] = \Drupal::service('renderer')->render($row[$field_id]['data']);
+        $row['#group_by_sort'][$field_id] = $field['view']['group_by_sort'];
+        unset($row[$field_id]);
       }
     }
+    if ($this->entityList->showOperations()) {
+      $row['operations']['data'] = $this->buildOperations($entity);
+      $row['operations']['#wrapper_attributes']['class'][] = 'exo-list-builder-field-id--operations';
+      $row['operations']['#wrapper_attributes']['class'][] = 'exo-list-builder-size--compact';
+    }
+    if ($entity instanceof EntityPublishedInterface) {
+      if ($entity->isPublished()) {
+        $row['#attributes']['class'][] = 'exo-list-builder--published';
+      }
+      else {
+        $row['#attributes']['class'][] = 'exo-list-builder--unpublished';
+      }
+    }
+    return $row;
+  }
 
+  /**
+   * Build an individual field's output.
+   *
+   * @return array
+   *   A render array.
+   */
+  protected function renderField(EntityInterface $entity, array $field) {
+    /** @var \Drupal\exo_list_builder\Plugin\ExoListElementInterface $instance */
+    $instance = $this->elementManager->createInstance($field['view']['type'], $field['view']['settings']);
+    $instance_entity = $entity;
+    if (!empty($field['reference_field']) && $entity instanceof ContentEntityInterface) {
+      $reference_entity = $this->getFieldEntity($instance_entity, explode(':', $field['reference_field']));
+      if ($reference_entity = $this->getFieldEntity($instance_entity, explode(':', $field['reference_field']))) {
+        $instance_entity = $reference_entity;
+      }
+      else {
+        return [
+          '#markup' => $instance->getConfiguration()['empty'],
+        ];
+      }
+    }
+    $instance_entity->exoEntityList = $this->getEntityList();
+    $instance_entity->exoEntityListField = $field;
+    $build = $instance->buildView($instance_entity, $field);
+    if (!is_array($build)) {
+      $build = [
+        '#markup' => $build,
+      ];
+    }
+    if (!empty($field['view']['wrapper'])) {
+      switch ($field['view']['wrapper']) {
+        case 'div':
+          $field['view']['wrapper'] .= ' class="' . Html::getClass('exo-list-field--' . $field['id']) . '"';
+          break;
+      }
+      $build['#prefix'] = '<' . $field['view']['wrapper'] . '>';
+      $build['#suffix'] = '</' . $field['view']['wrapper'] . '>';
+    }
     return $build;
   }
 
@@ -912,7 +1087,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
     $entities = $form[$this->entitiesKey]['#entities'];
 
-    if ($entities || !$render_status || $this->isFiltered()) {
+    if ($entity_list->getSetting('filter_status') && ($entities || !$render_status || $this->isFiltered())) {
       // Filter.
       if ($subform = $this->buildFormFilters($form, $form_state)) {
         $form['header']['first']['filters'] = [
@@ -1023,9 +1198,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $actions_status_list = [];
     foreach ($actions as $action_id => $action) {
       if ($action->supportsJobQueue()) {
-        $message = [
-          '#markup' => '<strong>Hi</strong> Hello!',
-        ];
         /** @var \Drupal\exo_list_builder\QueueWorker\ExoListActionProcess $queue_worker */
         $queue_worker = \Drupal::service('plugin.manager.queue_worker')->createInstance('exo_list_action:' . $entity_list->id() . ':' . $action_id);
         $context = $queue_worker->getContext();
@@ -1122,7 +1294,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    *   The message.
    */
   protected function getEmptyMessage() {
-    return $this->t('There are no @label yet.', ['@label' => $this->entityType->getPluralLabel()]);
+    return $this->getEntityList()->getSetting('empty_message', $this->t('There are no @label yet.', ['@label' => $this->entityType->getPluralLabel()]));
   }
 
   /**
@@ -1132,7 +1304,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    *   The message.
    */
   protected function getEmptyFilterMessage() {
-    return $this->t('There are no @label matching the provided conditions.', ['@label' => $this->entityType->getPluralLabel()]);
+    return $this->getEntityList()->getSetting('empty_filter_message', $this->t('There are no @label matching the provided conditions.', ['@label' => $this->entityType->getPluralLabel()]));
   }
 
   /**
@@ -1640,7 +1812,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       ];
       $form['inline']['actions']['submit'] = [
         '#type' => 'submit',
-        '#value' => $this->t('Apply'),
+        '#value' => $this->getEntityList()->getSetting('submit_label', $this->t('Apply')),
       ];
     }
     if ($show_modal) {
@@ -2078,86 +2250,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     ];
 
     return $row;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public function buildRow(EntityInterface $entity) {
-    $row = [];
-    $row['#entity_id'] = $entity->id();
-    foreach ($this->getShownFields() as $field_id => $field) {
-      $row[$field_id]['data'] = $this->renderField($entity, $field);
-      $row[$field_id]['#wrapper_attributes']['class'][] = Html::getClass('exo-list-builder-field-id--' . $field_id);
-      $row[$field_id]['#wrapper_attributes']['class'][] = Html::getClass('exo-list-builder-field-type--' . $field['view']['type']);
-      if (!empty($field['view']['align'])) {
-        $row[$field_id]['#wrapper_attributes']['class'][] = Html::getClass('exo-list-builder-align--' . $field['view']['align']);
-      }
-      if (!empty($field['view']['size'])) {
-        $row[$field_id]['#wrapper_attributes']['class'][] = Html::getClass('exo-list-builder-size--' . $field['view']['size']);
-      }
-      if (isset($row[$field_id]['data']['#list_weight'])) {
-        $row[$field_id]['data']['#parents'] = ['weight', $entity->id()];
-        $row['#attributes']['class'][] = 'draggable';
-        // $row['#weight'] = $row[$field_id]['data']['#list_weight'];
-        $row['#draggable'] = TRUE;
-      }
-    }
-    if ($this->entityList->showOperations()) {
-      $row['operations']['data'] = $this->buildOperations($entity);
-      $row['operations']['#wrapper_attributes']['class'][] = 'exo-list-builder-field-id--operations';
-      $row['operations']['#wrapper_attributes']['class'][] = 'exo-list-builder-size--compact';
-    }
-    if ($entity instanceof EntityPublishedInterface) {
-      if ($entity->isPublished()) {
-        $row['#attributes']['class'][] = 'exo-list-builder--published';
-      }
-      else {
-        $row['#attributes']['class'][] = 'exo-list-builder--unpublished';
-      }
-    }
-    return $row;
-  }
-
-  /**
-   * Build an individual field's output.
-   *
-   * @return array
-   *   A render array.
-   */
-  protected function renderField(EntityInterface $entity, array $field) {
-    /** @var \Drupal\exo_list_builder\Plugin\ExoListElementInterface $instance */
-    $instance = $this->elementManager->createInstance($field['view']['type'], $field['view']['settings']);
-    $instance_entity = $entity;
-    if (!empty($field['reference_field']) && $entity instanceof ContentEntityInterface) {
-      $reference_entity = $this->getFieldEntity($instance_entity, explode(':', $field['reference_field']));
-      if ($reference_entity = $this->getFieldEntity($instance_entity, explode(':', $field['reference_field']))) {
-        $instance_entity = $reference_entity;
-      }
-      else {
-        return [
-          '#markup' => $instance->getConfiguration()['empty'],
-        ];
-      }
-    }
-    $instance_entity->exoEntityList = $this->getEntityList();
-    $instance_entity->exoEntityListField = $field;
-    $build = $instance->buildView($instance_entity, $field);
-    if (!is_array($build)) {
-      $build = [
-        '#markup' => $build,
-      ];
-    }
-    if (!empty($field['view']['wrapper'])) {
-      switch ($field['view']['wrapper']) {
-        case 'div':
-          $field['view']['wrapper'] .= ' class="' . Html::getClass('exo-list-field--' . $field['id']) . '"';
-          break;
-      }
-      $build['#prefix'] = '<' . $field['view']['wrapper'] . '>';
-      $build['#suffix'] = '</' . $field['view']['wrapper'] . '>';
-    }
-    return $build;
   }
 
   /**

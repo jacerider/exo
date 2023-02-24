@@ -7,3 +7,6 @@ _view:
 _icon:
   label: Entity Type Icon
   display_label: Icon
+_link:
+  label: Entity Link
+  display_label: Link

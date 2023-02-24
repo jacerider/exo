@@ -38,11 +38,12 @@ class EntityListFilterForm extends FormBase {
       'contexts' => $this->entity->getHandler()->getCacheContexts(),
     ];
     $form['#attributes']['class'][] = 'exo-entity-list-filter-form';
+    $form['#exo_list_id'] = $entity->id();
     $form['actions'] = ['#type' => 'actions'];
     $form['actions']['submit'] = [
       '#type' => 'submit',
       '#id' => Html::getId($this->getFormId() . '_' . $entity->id() . '_submit'),
-      '#value' => $this->t('Save'),
+      '#value' => $entity->getSetting('submit_label', $this->t('Apply')),
       '#submit' => ['::submitForm'],
     ];
     return $form;
@@ -54,9 +55,11 @@ class EntityListFilterForm extends FormBase {
   public function form(array $form, FormStateInterface $form_state) {
     $handler = $this->entity->getHandler();
 
-    $fields = $handler->getFilters();
-    $fields = array_filter($fields, function ($field) {
+    $filters = $handler->getFilters();
+    $fields = array_filter($filters, function ($field) {
       return !empty($field['filter']['settings']['expose_block']);
+    }) ?: array_filter($filters, function ($field) {
+      return !empty($field['filter']['settings']['expose']);
     });
     if ($subform = $handler->buildFormFilterFields($fields, $form_state)) {
       $form['filters'] = ['#tree' => TRUE] + $subform;

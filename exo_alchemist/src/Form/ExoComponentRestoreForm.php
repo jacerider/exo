@@ -91,6 +91,9 @@ class ExoComponentRestoreForm extends LayoutRebuildConfirmFormBase {
 
     // Save changes.
     $configuration = $block->getConfiguration();
+    // Allow component to act on update.
+    $definition = $exo_component_manager->getEntityComponentDefinition($entity);
+    $exo_component_manager->onDraftUpdateLayoutBuilderEntity($definition, $entity);
     $configuration['block_serialized'] = serialize($entity);
     $component->setConfiguration($configuration);
     $this->layoutTempstoreRepository->set($section_storage);

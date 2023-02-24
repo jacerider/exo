@@ -116,7 +116,10 @@ class Boolean extends ExoListElementContentBase {
   protected function getOutputFormats(array $field) {
     $settings = $field['definition']->getFieldStorageDefinition()->getSettings();
     $formats = [
-      'default' => [$settings['on_label'], $settings['off_label']],
+      'default' => [
+        $settings['on_label'] ?? 'Yes',
+        $settings['off_label'] ?? 'No',
+      ],
       'yes-no' => [$this->t('Yes'), $this->t('No')],
       'true-false' => [$this->t('True'), $this->t('False')],
       'on-off' => [$this->t('On'), $this->t('Off')],

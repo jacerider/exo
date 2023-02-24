@@ -243,6 +243,8 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       'wrapper' => 'small',
       'align' => 'left',
       'size' => 'compact',
+      'group_by' => FALSE,
+      'group_by_sort' => 'asc',
       'sort' => NULL,
       'sort_asc_label' => '@label: Up',
       'sort_desc_label' => '@label: Down',
@@ -277,6 +279,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
     'limit_status' => TRUE,
     'result_status' => TRUE,
     'sort_status' => TRUE,
+    'filter_status' => TRUE,
     'filter_overview_status' => TRUE,
     'block_status' => FALSE,
     'first_page_only_status' => FALSE,
@@ -334,8 +337,20 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       if (!empty($options['query'][$key])) {
         $options['query'][$key] = $this->optionsEncode($options['query'][$key]);
       }
-      if ($this->getUrl() || $this->isOverride()) {
+      if ($this->getUrl()) {
         return Url::fromRoute($this->getRouteName(), [], $options);
+      }
+      if ($this->isOverride()) {
+        if ($this->getTargetEntityType()->getLinkTemplate('collection')) {
+          $target_entity_type = $this->getTargetEntityType();
+          return Url::fromRoute("entity.{$target_entity_type->id()}.collection");
+        }
+        if ($this->getTargetEntityTypeId() === 'taxonomy_term') {
+          foreach ($this->getTargetBundleIds() as $bundle) {
+            $route_name = 'exo_list_builder.' . $this->id() . '.' . $bundle . '.taxonomy_vocabulary.overview_form';
+            return Url::fromRoute($route_name);
+          }
+        }
       }
       return Url::fromRoute('<current>', [], $options);
     }

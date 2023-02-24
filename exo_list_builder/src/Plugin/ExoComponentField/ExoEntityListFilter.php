@@ -5,6 +5,7 @@ namespace Drupal\exo_list_builder\Plugin\ExoComponentField;
 use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldComputedBase;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldDisplayFormTrait;
@@ -15,11 +16,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * A 'view' adapter for exo components.
  *
  * @ExoComponentField(
- *   id = "exo_entity_list",
- *   label = @Translation("Entity List"),
+ *   id = "exo_entity_list_filter",
+ *   label = @Translation("Entity List Filter"),
  * )
  */
-class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFactoryPluginInterface {
+class ExoEntityListFilter extends ExoComponentFieldComputedBase implements ContainerFactoryPluginInterface {
 
   use ExoComponentFieldDisplayFormTrait;
   use ExoComponentFieldPreviewEntityTrait;
@@ -32,6 +33,13 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
   protected $entityTypeManager;
 
   /**
+   * The entity form builder.
+   *
+   * @var \Drupal\Core\Form\FormBuilderInterface
+   */
+  protected $formBuilder;
+
+  /**
    * Constructs a LocalActionDefault object.
    *
    * @param array $configuration
@@ -42,10 +50,13 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
    *   The plugin implementation definition.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
+   * @param \Drupal\Core\Form\FormBuilderInterface $form_builder
+   *   The entity form builder.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, FormBuilderInterface $form_builder) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
+    $this->formBuilder = $form_builder;
   }
 
   /**
@@ -56,7 +67,8 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('form_builder')
     );
   }
 
@@ -76,9 +88,7 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
    */
   public function propertyInfo() {
     $properties = [
-      'render' => $this->t('The entity list renderable.'),
-      'page' => $this->t('The entity list page.'),
-      'count' => $this->t('The entity list result count. (Requires: exo_entity_list_count: true)'),
+      'render' => $this->t('The entity list filter renderable.'),
     ];
     return $properties;
   }
@@ -89,51 +99,10 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
   public function viewValue(ContentEntityInterface $entity, array $contexts) {
     $value = [];
     $field = $this->getFieldDefinition();
-    $render = [];
     /** @var \Drupal\exo_list_builder\EntityListInterface $entity */
     $entity = $this->entityTypeManager->getStorage('exo_entity_list')->load($field->getAdditionalValue('exo_entity_list_id'));
     if ($entity) {
-      $handler = $entity->getHandler();
-
-      // Support passing in filter values.
-      $filters = $field->getAdditionalValue('exo_entity_list_filters') ?? [];
-      foreach ($filters as $key => $filter) {
-        $handler->setOption(['filter', $key], $filter);
-      }
-
-      // Support passing in query conditions.
-      $query_conditions = $field->getAdditionalValue('exo_entity_list_query_condition') ?? [];
-      foreach ($query_conditions as $key => $condition) {
-        if (is_array($condition)) {
-          $handler->addQueryCondition($condition['field'] ?? NULL, $condition['value'] ?? NULL, $condition['operator'] ?? NULL);
-        }
-      }
-
-      if ($this->isPreview($contexts)) {
-        if (!$handler->getLimit()) {
-          $handler->setLimit(40);
-          \Drupal::messenger()->addMessage($this->t('Entity list preview is limited to 40 items.'));
-        }
-      }
-      $render = [
-        '#type' => 'exo_entity_list',
-        '#entity_list' => $entity,
-        '#cache' => [
-          'tags' => $entity->getHandler()->getCacheTags(),
-          'contexts' => $entity->getHandler()->getCacheContexts(),
-        ],
-      ];
-      if ($this->isLayoutBuilder($contexts)) {
-        $render = $this->getFormAsPlaceholder($render);
-      }
-      if ($field->hasAdditionalValue('exo_entity_list_hide_if_empty') && !$handler->isModified() && empty($handler->getTotal())) {
-        $value['#component_access'] = FALSE;
-      }
-      $value['render'] = $render;
-      $value['page'] = $handler->getOption('page');
-      if ($field->hasAdditionalValue('exo_entity_list_count')) {
-        $value['count'] = $handler->getTotal();
-      }
+      $value['render'] = $this->formBuilder->getForm('\Drupal\exo_list_builder\Form\EntityListFilterForm', $entity);
     }
     return $value;
   }

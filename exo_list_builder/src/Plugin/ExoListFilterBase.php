@@ -34,6 +34,13 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
   protected $listWidget;
 
   /**
+   * Entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition) {
@@ -96,7 +103,19 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
         'header' => $this->t('Header'),
         'modal' => $this->t('Modal'),
       ],
-      '#default_value' => $configuration['position'] ?: 'modal',
+      '#default_value' => $configuration['position'] ?: 'header',
+      '#states' => [
+        'visible' => [
+          ':input[name="fields[' . $field['id'] . '][filter][settings][expose]"]' => ['checked' => TRUE],
+        ],
+      ],
+      '#weight' => -90,
+    ];
+    $form['label'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Label'),
+      '#description' => $this->t('If empty, will use field label.'),
+      '#default_value' => $configuration['label'],
       '#states' => [
         'visible' => [
           ':input[name="fields[' . $field['id'] . '][filter][settings][expose]"]' => ['checked' => TRUE],

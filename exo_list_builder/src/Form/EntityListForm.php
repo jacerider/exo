@@ -384,6 +384,13 @@ class EntityListForm extends EntityForm {
       '#default_value' => $exo_entity_list->getSetting('sort_status'),
     ];
 
+    $form['settings']['filter_status'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Show Filters'),
+      '#description' => $this->t('If checked, the filter will be shown.'),
+      '#default_value' => $exo_entity_list->getSetting('filter_status'),
+    ];
+
     $form['settings']['filter_overview_status'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Show Filter Overview'),
@@ -410,6 +417,24 @@ class EntityListForm extends EntityForm {
       '#title' => $this->t('Hide if No Results'),
       '#description' => $this->t('If the list returns no results, do not display it.'),
       '#default_value' => $exo_entity_list->getSetting('hide_no_results'),
+    ];
+
+    $form['settings']['submit_label'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Override Submit Button Label'),
+      '#default_value' => $exo_entity_list->getSetting('submit_label'),
+    ];
+
+    $form['settings']['empty_message'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Override Empty Message'),
+      '#default_value' => $exo_entity_list->getSetting('empty_message'),
+    ];
+
+    $form['settings']['empty_filter_message'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Override Empty Filtered Message'),
+      '#default_value' => $exo_entity_list->getSetting('empty_filter_message'),
     ];
 
     $form['fields_container'] = [
@@ -622,6 +647,25 @@ class EntityListForm extends EntityForm {
           'nowrap' => $this->t('No Wrap'),
         ],
         '#default_value' => $field['view']['size'],
+      ];
+      $row['view']['options']['group_by'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Group by value'),
+        '#default_value' => $field['view']['group_by'],
+      ];
+      $row['view']['options']['group_by_sort'] = [
+        '#type' => 'radios',
+        '#title' => $this->t('Group by sort'),
+        '#options' => [
+          'asc' => $this->t('Ascending'),
+          'desc' => $this->t('Descending'),
+        ],
+        '#default_value' => $field['view']['group_by_sort'],
+        '#states' => [
+          'visible' => [
+            ':input[name="fields[' . $field_id . '][view][options][group_by]"]' => ['checked' => TRUE],
+          ],
+        ],
       ];
       $row['view']['settings'] = [
         '#type' => 'details',

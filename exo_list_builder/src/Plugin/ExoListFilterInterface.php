@@ -17,7 +17,8 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
    * The default settings.
    */
   const DEFAULTS = [
-    'position' => 'modal',
+    'position' => 'header',
+    'label' => '',
     'expose' => TRUE,
     'default' => [
       'status' => FALSE,

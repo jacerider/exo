@@ -12,20 +12,20 @@ use Drupal\exo_list_builder\Plugin\ExoListElementBase;
  * Defines a eXo list element for rendering a content entity field.
  *
  * @ExoListElement(
- *   id = "entity_label",
+ *   id = "entity_link",
  *   label = @Translation("Render"),
- *   description = @Translation("Render the entity label and id."),
+ *   description = @Translation("Render the entity as a link."),
  *   weight = 0,
  *   field_type = {},
  *   entity_type = {},
  *   bundle = {},
  *   field_name = {
- *    "_label",
+ *    "_link",
  *   },
  *   exclusive = FALSE,
  * )
  */
-class EntityLabel extends ExoListElementBase {
+class EntityLink extends ExoListElementBase {
 
   /**
    * {@inheritdoc}
@@ -33,9 +33,7 @@ class EntityLabel extends ExoListElementBase {
   public function defaultConfiguration() {
     return [
       'entity_icon' => TRUE,
-      'entity_id' => TRUE,
-      'override_label' => '',
-      'link_label' => TRUE,
+      'link_text' => 'View',
     ] + parent::defaultConfiguration();
   }
 
@@ -49,20 +47,10 @@ class EntityLabel extends ExoListElementBase {
       '#title' => $this->t('Show entity icon'),
       '#default_value' => $configuration['entity_icon'],
     ];
-    $form['entity_id'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Show entity ID'),
-      '#default_value' => $configuration['entity_id'],
-    ];
-    $form['override_label'] = [
+    $form['link_text'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Override label'),
-      '#default_value' => $configuration['override_label'],
-    ];
-    $form['link_label'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Link to the entity'),
-      '#default_value' => $configuration['link_label'],
+      '#title' => $this->t('Link text'),
+      '#default_value' => $configuration['link_text'],
     ];
     $form = parent::buildConfigurationForm($form, $form_state, $entity_list, $field);
     unset($form['link']);
@@ -74,9 +62,9 @@ class EntityLabel extends ExoListElementBase {
    */
   protected function view(EntityInterface $entity, array $field) {
     $configuration = $this->getConfiguration();
-    $label = $configuration['override_label'] ?: ($entity->label() ?: $entity->id());
+    $label = $configuration['link_text'] ?: $entity->label();
     $icon = '';
-    if ($configuration['link_label'] && ($link = $this->getEntityAsLink($label, $entity))) {
+    if ($link = $this->getEntityAsLink($label, $entity)) {
       $label = $link;
     }
     if ($configuration['entity_icon']) {
@@ -85,10 +73,7 @@ class EntityLabel extends ExoListElementBase {
         $icon = $as_icon->setIconOnly();
       }
     }
-    $string = '<strong>' . $icon . $label . '</strong>';
-    if ($configuration['entity_id']) {
-      $string .= ' <small>(' . $entity->id() . ')</small>';
-    }
+    $string = $icon . $label;
     return $string;
   }
 
@@ -105,7 +90,10 @@ class EntityLabel extends ExoListElementBase {
    * {@inheritdoc}
    */
   protected function viewPlain(EntityInterface $entity, array $field) {
-    return $entity->label() . ' (' . $entity->id() . ')';
+    if ($entity->getEntityType()->hasLinkTemplate('canonical') && $entity->access('view')) {
+      return $entity->toUrl('canonical')->setAbsolute()->toString();
+    }
+    return NULL;
   }
 
 }

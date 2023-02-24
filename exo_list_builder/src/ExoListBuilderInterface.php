@@ -3,6 +3,7 @@
 namespace Drupal\exo_list_builder;
 
 use Drupal\Core\Entity\EntityListBuilderInterface;
+use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -96,6 +97,11 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
    * @return $this
    */
   public function addQueryCondition($field, $value = NULL, $operator = NULL, $langcode = NULL);
+
+  /**
+   * Get query conditions.
+   */
+  public function getQueryConditions();
 
   /**
    * Build filter form fields.
