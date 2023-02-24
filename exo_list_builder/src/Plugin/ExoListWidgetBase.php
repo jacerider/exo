@@ -115,14 +115,14 @@ abstract class ExoListWidgetBase extends PluginBase implements ExoListWidgetInte
             '#type' => 'select',
             '#title' => $this->t('Exclude'),
             '#options' => $options,
-            '#default_value' => $configuration['options']['exclude'],
+            '#default_value' => $configuration['options']['exclude'] ?? [],
             '#multiple' => TRUE,
           ];
           $form['options']['include'] = [
             '#type' => 'select',
             '#title' => $this->t('Include'),
             '#options' => $options,
-            '#default_value' => $configuration['options']['include'],
+            '#default_value' => $configuration['options']['include'] ?? [],
             '#multiple' => TRUE,
           ];
         }
