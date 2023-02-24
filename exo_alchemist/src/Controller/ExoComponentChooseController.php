@@ -166,11 +166,12 @@ class ExoComponentChooseController implements ContainerInjectionInterface {
             ],
           ],
           [
-            '#type' => 'container',
+            '#type' => 'html_tag',
+            '#tag' => 'div',
             '#attributes' => [
               'class' => ['exo-component-label'],
             ],
-            '#children' => $label,
+            'children' => ['#markup' => $label],
           ],
         ],
         '#url' => $url,
