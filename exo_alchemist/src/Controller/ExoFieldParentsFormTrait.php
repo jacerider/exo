@@ -183,7 +183,7 @@ trait ExoFieldParentsFormTrait {
     $target_field_names = Element::children($form);
     foreach ($target_field_names as $field_name) {
       $field = $definition->getFieldBySafeId($field_name);
-      $component_field = isset($component_fields[$field_name]) ? $component_fields[$field_name] : $this->exoComponentManager()->getExoComponentFieldManager()->createFieldInstance($field);
+      $component_field = $component_fields[$field_name] ?? $this->exoComponentManager()->getExoComponentFieldManager()->createFieldInstance($field);
       if ($component_field instanceof ExoComponentFieldFormInterface) {
         $component_field->formAlter($form[$field_name], $form_state);
       }
