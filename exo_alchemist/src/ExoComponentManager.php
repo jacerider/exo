@@ -1284,7 +1284,7 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
       return TRUE;
     }
     $storage = $this->entityTypeManager->getStorage($entity->getEntityTypeId());
-    $vid_count = $storage->getQuery()->allRevisions()->condition($entity->getEntityType()->getKey('id'), $entity->id())->count()->execute();
+    $vid_count = $storage->getQuery()->accessCheck(FALSE)->allRevisions()->condition($entity->getEntityType()->getKey('id'), $entity->id())->count()->execute();
     if ($vid_count == 1) {
       return TRUE;
     }
