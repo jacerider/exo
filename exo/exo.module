@@ -11,6 +11,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Block\BlockPluginInterface;
+use Drupal\Core\Render\Markup;
 use Drupal\exo\Plugin\Field\FieldFormatter\ExoAttributeColorStyleFormatter;
 
 /**
@@ -393,4 +394,40 @@ function exo_entity_view_alter(array &$build, EntityInterface $entity, EntityVie
       }
     }
   }
+}
+
+/**
+ * Convert text with asterisk conversion.
+ *
+ * @param string $text
+ *   The text to convert.
+ * @param bool $remove
+ *   If true, asterisks will be removed.
+ * @param bool $wrap
+ *   If true, wrap each work in span tags.
+ *
+ * @return string
+ *   The converted text.
+ */
+function exo_string_transform($text, $remove = FALSE, $wrap = FALSE) {
+  if (is_string($text)) {
+    if ($remove) {
+      $text = preg_replace('#\*{3}(.*?)\*{3}#', '$1', $text);
+      $text = preg_replace('#\*{2}(.*?)\*{2}#', '$1', $text);
+      $text = preg_replace('#\*{1}(.*?)\*{1}#', '$1', $text);
+    }
+    else {
+      // ***bold/italic***
+      $text = preg_replace('#\*{3}(.*?)\*{3}#', '<strong class="exo-text-transform"><em>$1</em></strong>', $text);
+      // **bold**
+      $text = preg_replace('#\*{2}(.*?)\*{2}#', '<strong class="exo-text-transform">$1</strong>', $text);
+      // *italic*
+      $text = preg_replace('#\*{1}(.*?)\*{1}#', '<em class="exo-text-transform">$1</em>', $text);
+      if ($wrap) {
+        $text = preg_replace('([a-zA-Z.,!?0-9]+(?![^<]*>))', '<span>$0</span>', $text);
+      }
+    }
+    $text = Markup::create(str_replace("\n", '<br>', $text));
+  }
+  return $text;
 }
