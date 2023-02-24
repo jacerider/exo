@@ -72,9 +72,10 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase implements ExoLi
    */
   public function buildForm(array $form, FormStateInterface $form_state, $value, EntityListInterface $entity_list, array $field) {
     $form = parent::buildForm($form, $form_state, $value, $entity_list, $field);
+    $configuration = $this->getConfiguration();
     $form['q'] = [
       '#type' => 'textfield',
-      '#title' => $field['display_label'],
+      '#title' => $configuration['label'] ?: $field['display_label'],
       '#default_value' => $value,
     ];
     return $form;
@@ -91,7 +92,7 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase implements ExoLi
    * {@inheritdoc}
    */
   public function toUrlQuery(array $raw_value, EntityListInterface $entity_list, array $field) {
-    return $raw_value['q'];
+    return $raw_value['q'] ?? NULL;
   }
 
   /**
