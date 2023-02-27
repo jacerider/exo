@@ -135,6 +135,9 @@ function exo_library_info_alter(&$libraries, $extension) {
         if ($dependency === 'core/internal.underscore' || $dependency === 'core/underscore') {
           $library['dependencies'][$key] = 'exo/underscore';
         }
+        if (strpos($dependency, '/jquery.ui') !== FALSE) {
+          $library['dependencies'][$key] = str_replace('core/', 'exo/', $dependency);
+        }
       }
     }
   }
