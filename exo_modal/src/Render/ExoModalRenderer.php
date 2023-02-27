@@ -59,16 +59,16 @@ class ExoModalRenderer implements MainContentRendererInterface {
 
     // Determine the title: use the title provided by the main content if any,
     // otherwise get it from the routing information.
-    $title = isset($main_content['#title']) ? $main_content['#title'] : $this->titleResolver->getTitle($request, $route_match->getRouteObject());
+    $title = $main_content['#title'] ?? $this->titleResolver->getTitle($request, $route_match->getRouteObject());
 
     // Determine the dialog options and the target for the OpenDialogCommand.
-    $options = $request->request->get('dialogOptions', []);
+    $options = $request->request->all()['dialogOptions'] ?? [];
 
     $route_name = $route_match->getRouteName();
     $id = Html::getUniqueId(md5("drupal-dialog-$route_name"));
 
-    $options['padding'] = isset($options['padding']) ? $options['padding'] : '1.25rem';
-    $options['title'] = isset($options['title']) ? $options['title'] : $title;
+    $options['padding'] = $options['padding'] ?? '1.25rem';
+    $options['title'] = $options['title'] ?? $title;
 
     $response->addCommand(new ExoModalOpenCommand($id, $content, $options));
     return $response;
