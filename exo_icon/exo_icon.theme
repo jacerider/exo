@@ -92,7 +92,7 @@ function template_preprocess_exo_icon_package(array &$variables) {
     '#title' => $entity->getType() == 'image' ? t('Available SVGs') : t('Available Icons'),
   ];
 
-  $variables['content']['icons']['#children']['icons'] = [
+  $variables['content']['icons']['icons'] = [
     '#theme' => 'exo_icon_list',
     '#exo_icon_package' => $variables['exo_icon_package'],
     '#weight' => 100,
