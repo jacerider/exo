@@ -128,6 +128,7 @@ function tsClean(cb) {
 function css(cb) {
   return gulp.src(config.css.src)
     .pipe(glob())
+    .pipe(cache('css'))
     .pipe(sourcemaps.init())
     .pipe(sass({
       outputStyle: 'compressed',
