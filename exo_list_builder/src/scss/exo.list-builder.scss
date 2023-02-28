@@ -635,6 +635,59 @@
     text-align: center;
   }
 
+  .exo-form-table-overflow {
+
+    .exo-list-builder-field-id--operations {
+      position: sticky;
+      right: 0;
+      background: alpha(gray(10), 0.85);
+      border-color: gray(15);
+
+      &:hover {
+        z-index: 10;
+      }
+
+      &:after {
+        content: '';
+        display: block;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -1px;
+        height: 1px;
+        background: gray(20);
+      }
+
+      &:before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: -1px;
+        left: -20px;
+        bottom: -1px;
+        width: 20px;
+        background: linear-gradient(to left, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
+        pointer-events: none;
+      }
+    }
+
+    tbody {
+
+      tr {
+
+        &:last-child {
+
+          .exo-list-builder-field-id--operations {
+
+            &:after {
+              display: none;
+            }
+          }
+        }
+      }
+    }
+  }
+
   .exo-form-checkbox {
 
     span,
