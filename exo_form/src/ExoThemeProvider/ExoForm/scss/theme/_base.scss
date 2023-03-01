@@ -2292,6 +2292,7 @@
         tr {
           transition: background-color $global-speed;
           font-size: theme-val($theme, table-tbody-font-size);
+          background: theme-val($theme, table-tbody-bg-color, true);
 
           &:hover {
             background: color-scale-direct(theme-val($theme, table-tbody-bg-color, true), 3%);
