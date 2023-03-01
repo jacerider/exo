@@ -1,0 +1,239 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - user
+id: manage_accounts
+label: 'Manage Accounts'
+key: q
+target_entity_type: user
+target_bundles_include:
+  user: user
+target_bundles_exclude: {  }
+override: true
+format: table
+url: ''
+limit: 50
+limit_options:
+  - '10'
+  - '20'
+  - '50'
+  - '100'
+actions: {  }
+sorts: {  }
+sort: 'field:_label'
+references: {  }
+fields:
+  uid:
+    display_label: 'User ID'
+    view:
+      type: ''
+      toggle: false
+      show: true
+      wrapper: small
+      sort: ''
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
+      align: left
+      size: compact
+      group_by: false
+      group_by_sort: asc
+    filter:
+      type: content_property
+      settings:
+        position: header
+        label: ''
+        multiple_join: or
+        default:
+          status: '1'
+          value: '1'
+        match_operator: '>'
+        property: value
+        widget: textfield
+        expose: 0
+        expose_block: 0
+        allow_zero: 0
+        multiple: 0
+        default_from_url:
+          status: 0
+    weight: -10
+  _label:
+    display_label: Name
+    view:
+      type: entity_label
+      settings:
+        entity_icon: '1'
+        override_label: ''
+        link_label: '1'
+        empty: '-'
+        entity_id: 0
+      toggle: false
+      show: true
+      wrapper: ''
+      sort: asc
+      sort_asc_label: '@label A-Z'
+      sort_desc_label: '@label Z-A'
+      align: left
+      size: stretch
+      group_by_sort: asc
+      group_by: 0
+    filter:
+      type: entity_label
+      settings:
+        expose: '1'
+        position: header
+        label: ''
+        match_operator: CONTAINS
+        expose_block: 0
+        allow_zero: 0
+        default:
+          status: 0
+        additional_fields: {  }
+    weight: -9
+  mail:
+    display_label: Email
+    view:
+      type: email
+      settings:
+        empty: '-'
+        link: 0
+      toggle: false
+      show: true
+      wrapper: small
+      sort: asc
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
+      align: left
+      size: compact
+      group_by_sort: asc
+      group_by: 0
+    filter:
+      type: content_property
+      settings:
+        expose: '1'
+        position: header
+        label: ''
+        multiple_join: or
+        match_operator: CONTAINS
+        property: value
+        widget: textfield
+        expose_block: 0
+        allow_zero: 0
+        multiple: 0
+        default:
+          status: 0
+        default_from_url:
+          status: 0
+    weight: -8
+  roles:
+    display_label: Roles
+    view:
+      type: entity_reference_label
+      settings:
+        override_label: ''
+        empty: '-'
+        display_mode: all
+        display_amount: '1'
+        display_offset: '0'
+        entity_icon: 0
+        entity_id: 0
+        link_reference: 0
+        display_reverse: 0
+      toggle: false
+      show: true
+      wrapper: small
+      sort: ''
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
+      align: left
+      size: compact
+      group_by_sort: asc
+      group_by: 0
+    filter:
+      type: user_role
+      settings:
+        expose: '1'
+        position: header
+        label: ''
+        multiple_join: or
+        exclude:
+          anonymous: anonymous
+          authenticated: authenticated
+          administrator: administrator
+        expose_block: 0
+        allow_zero: 0
+        multiple: 0
+        default:
+          status: 0
+        include: {  }
+    weight: -7
+  login:
+    display_label: 'Last login'
+    view:
+      type: timestamp
+      settings:
+        date_format: medium
+        empty: '-'
+        link: 0
+      toggle: false
+      show: true
+      wrapper: small
+      sort: desc
+      sort_asc_label: '@label: Oldest'
+      sort_desc_label: '@label: Newest'
+      align: left
+      size: compact
+      group_by_sort: asc
+      group_by: 0
+    filter:
+      type: ''
+    weight: -6
+  status:
+    display_label: Status
+    view:
+      type: boolean_icon_square
+      settings:
+        empty: '-'
+        link: 0
+      toggle: false
+      show: true
+      wrapper: ''
+      sort: ''
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
+      align: center
+      size: compact
+      group_by_sort: asc
+      group_by: 0
+    filter:
+      type: boolean_select
+      settings:
+        expose: '1'
+        position: header
+        label: ''
+        format: enabled-disabled
+        format_custom_true: ''
+        format_custom_false: ''
+        expose_block: 0
+        allow_zero: 0
+        default:
+          status: 0
+    weight: -5
+settings:
+  list_link: 0
+  limit_status: 0
+  pagerer_header: ''
+  pagerer_footer: ''
+  render_status: 1
+  operations_status: 1
+  result_status: 1
+  sort_status: 1
+  filter_status: 1
+  filter_overview_status: 1
+  block_status: 0
+  first_page_only_status: 0
+  hide_no_results: 0
+  submit_label: ''
+  empty_message: ''
+  empty_filter_message: ''
+weight: 0
