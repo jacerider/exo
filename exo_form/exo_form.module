@@ -430,6 +430,18 @@ function exo_form_theme_registry_alter(&$theme_registry) {
   $theme_registry['form_element']['theme path'] = $module_path;
   $theme_registry['form_element']['strict'] = TRUE;
 
+  if (isset($theme_registry['form_element__password'])) {
+    $theme_registry['form_element__password']['path'] = $path;
+    $theme_registry['form_element__password']['theme path'] = $module_path;
+    $theme_registry['form_element__password']['strict'] = TRUE;
+  }
+
+  if (isset($theme_registry['form_element__password_confirm'])) {
+    $theme_registry['form_element__password_confirm']['path'] = $path;
+    $theme_registry['form_element__password_confirm']['theme path'] = $module_path;
+    $theme_registry['form_element__password_confirm']['strict'] = TRUE;
+  }
+
   $theme_registry['views_exposed_form']['path'] = $path;
   $theme_registry['views_exposed_form']['theme path'] = $module_path;
   $theme_registry['views_exposed_form']['strict'] = TRUE;
