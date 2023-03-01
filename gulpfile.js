@@ -3,6 +3,7 @@ const { parallel, series } = require('gulp');
 const gutil = require('gulp-util');
 const execSync = require('child_process').execSync;
 const cache = require('gulp-cached');
+const dependents = require('gulp-dependents');
 const plumber = require('gulp-plumber');
 const sass = require('gulp-sass')(require('sass'));
 const glob = require('gulp-sass-glob');
@@ -129,6 +130,7 @@ function css(cb) {
   return gulp.src(config.css.src)
     .pipe(glob())
     .pipe(cache('css'))
+    .pipe(dependents())
     .pipe(sourcemaps.init())
     .pipe(sass({
       outputStyle: 'compressed',
