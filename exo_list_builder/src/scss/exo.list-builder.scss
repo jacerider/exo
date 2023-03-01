@@ -168,6 +168,11 @@
         @include breakpoint(small only) {
           flex: 1 1 auto;
         }
+
+        .exo-form-element-inner {
+          @include flex;
+          @include flex-align(left, bottom);
+        }
       }
 
       button {

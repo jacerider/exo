@@ -689,8 +689,8 @@
 
         .exo-form-file-input {
           background-color: theme-val($theme, form-bg-color, true);
-          min-height: theme-val($theme, input-height) + rem-calc(5);
-          line-height: theme-val($theme, input-height) + rem-calc(5);
+          min-height: theme-val($theme, input-height);
+          line-height: theme-val($theme, input-height);
         }
 
         .exo-form-button,
@@ -1443,11 +1443,11 @@
 
         .password-strength {
           color: theme-val($theme, base, true);
-          background-color: theme-val($theme, input-bg-color, true);
-          padding: theme-val($theme, password-strength-padding);
+          background-color: theme-val($theme, password-suggestions-bg-color, true);
           border-color: theme-val($theme, border-color, true);
           border-style: theme-val($theme, border-style);
           border-width: theme-val($theme, password-strength-border-width);
+          border-radius: theme-val($theme, form-border-radius);
 
           .password-strength__meter{
             height: theme-val($theme, password-strength-height);
@@ -1471,12 +1471,15 @@
           }
 
           .password-strength__title {
-            position: absolute;
             top: theme-val($theme, password-strength-padding);
             left: theme-val($theme, password-strength-padding) + ($global-padding * 0.5);
-            line-height: theme-val($theme, password-strength-height);
             color: theme-val($theme, password-strength-color, true);
             text-shadow: theme-val($theme, password-strength-text-shadow);
+          }
+
+          .password-strength__text {
+            color: theme-val($theme, password-suggestions-color, true);
+            font-size: theme-val($theme, password-suggestions-font-size);
           }
         }
 

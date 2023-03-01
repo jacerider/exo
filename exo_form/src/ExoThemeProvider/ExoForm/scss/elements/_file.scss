@@ -70,8 +70,12 @@
       }
 
       > span {
-        // margin-bottom: $global-margin;
-        margin: 0;
+        flex: 0 0;
+        white-space: nowrap;
+
+        .exo-form-file-input {
+          flex: 1 1 auto;
+        }
       }
 
       .exo-form-file-input {
@@ -100,14 +104,6 @@
 
   .exo-form-element-type-submit {
     flex: 0 0 1%;
-    // margin-top: rem-calc(5);
-
-    .button.exo-form-button.form-submit {
-      // padding: rem-calc(5);
-      // line-height: 1;
-      // height: auto;
-      // min-height: 0;
-    }
   }
 }
 
@@ -122,9 +118,8 @@
 .exo-form-file-input {
   position: relative;
   display: block;
-  min-height: $input-height;
-  line-height: $input-height;
   padding: 0 $global-padding;
+  margin-right: $global-margin;
 
   > * {
     position:relative;
@@ -149,20 +144,6 @@
 
   &:after {
     content: attr(data-text);
-    // box-sizing: border-box;
-    // font-size: rem-calc(12);
-    // text-transform: uppercase;
-    // position: absolute;
-    // top: 0;
-    // bottom: 0;
-    // left: 0;
-    // padding: 0 $global-padding;
-    // display: block;
-    // width: 100%;
-    // pointer-events: none;
-    // z-index: 1;
-    // height: $input-height;
-    // border-radius: 5px 10px 10px 5px;
   }
 
   &.exo-form-file-button {
