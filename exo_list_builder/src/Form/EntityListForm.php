@@ -356,6 +356,20 @@ class EntityListForm extends EntityForm {
       '#parents' => ['key'],
     ];
 
+    if ($exo_entity_list->getTargetEntityTypeId() === 'node') {
+      $form['settings']['node_access_op'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Node Access OP'),
+        '#description' => $this->t('By default, node access is checked using the "view" operation. If you want to use a different operation, select it here.'),
+        '#default_value' => $exo_entity_list->getSetting('node_access_op'),
+        '#empty_option' => $this->t('View'),
+        '#options' => [
+          'update' => $this->t('Update'),
+          'delete' => $this->t('Delete'),
+        ],
+      ];
+    }
+
     $form['settings']['render_status'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Show Rendered Results'),
@@ -712,6 +726,7 @@ class EntityListForm extends EntityForm {
         'filter',
         'type',
       ], $form_state, $field['filter']['type']);
+
       $row['filter']['type'] = [
         '#type' => 'select',
         '#options' => ['' => $this->t('- None -')] + $filters,

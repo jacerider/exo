@@ -468,6 +468,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $entity_list = $this->getEntityList();
     $query = $this->getEntityQuery($context);
     $query->accessCheck(TRUE);
+    if ($op = $entity_list->getSetting('node_access_op')) {
+      $query->addMetaData('op', $op);
+    }
     $query->addTag('exo_list_query');
     $query->addMetaData('exo_list_builder', $this);
 
@@ -624,7 +627,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   public function getTotal() {
     if (!isset($this->total)) {
-      $query = clone $this->getQuery('all');
+      $query = clone $this->buildQuery('all');
       $query->addTag('exo_list_total');
       $this->total = $query->count()->execute();
     }
@@ -748,10 +751,14 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   public function buildList(array $build) {
     $entity_list = $this->getEntityList();
     $render_status = $entity_list->getSetting('render_status');
+    $total = $this->getTotal();
+    // We are not modified and we only have a single entity..
+    $hide_extras = !$this->isModified() && $total <= 1;
 
     $id = str_replace('_', '-', $entity_list->id());
     $build['#id'] = 'exo-list-' . $id;
     $build['#exo_list_id'] = $entity_list->id();
+    $build['#exo_hide_extras'] = $hide_extras;
     $build['#attributes']['class'][] = 'exo-list';
     $build['#attributes']['class'][] = 'exo-list-' . $id;
     $build['#attached']['library'][] = 'exo_list_builder/list';
@@ -884,7 +891,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
       else {
         $build[$this->entitiesKey] += $build_rows;
-        if ($subform = $this->buildSort($build)) {
+        if (!$hide_extras && ($subform = $this->buildSort($build))) {
           $build['header']['second']['sort'] = $subform + [
             '#weight' => -10,
           ];
@@ -918,7 +925,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       '#attributes' => ['class' => ['exo-list-footer']],
     ];
 
-    if (($entities || $this->isFiltered()) && (count($entities) < $this->getTotal() || $this->getOption('limit'))) {
+    if (!$hide_extras && ($entities || $this->isFiltered()) && (count($entities) < $total || $this->getOption('limit'))) {
       $pager = $this->buildPager($build);
       $build['header']['second']['pager'] = $pager;
       // Remove pages from header.
@@ -1065,9 +1072,11 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   public function buildForm(array $form, FormStateInterface $form_state) {
     $entity_list = $this->getEntityList();
     $render_status = $entity_list->getSetting('render_status');
+    $filter_status = $entity_list->getSetting('filter_status');
     $actions = $this->getActions();
     $action_settings_action = $form_state->get('action_settings_action');
     $form = $this->buildList($form);
+    $hide_extras = empty($form['#exo_hide_extras']);
 
     $form['submit'] = [
       '#type' => 'submit',
@@ -1087,7 +1096,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
     $entities = $form[$this->entitiesKey]['#entities'];
 
-    if ($entity_list->getSetting('filter_status') && ($entities || !$render_status || $this->isFiltered())) {
+    if ($hide_extras && $filter_status && ($entities || !$render_status || $this->isFiltered())) {
       // Filter.
       if ($subform = $this->buildFormFilters($form, $form_state)) {
         $form['header']['first']['filters'] = [
