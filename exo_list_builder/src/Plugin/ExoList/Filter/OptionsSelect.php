@@ -50,7 +50,17 @@ class OptionsSelect extends ExoListFilterBase implements ExoListFieldValuesInter
   public function buildConfigurationForm(array $form, FormStateInterface $form_state, EntityListInterface $entity_list, array $field) {
     $form = parent::buildConfigurationForm($form, $form_state, $entity_list, $field);
     $configuration = $this->getConfiguration();
-    $options = $this->getValueOptions($entity_list, $field);
+    $options = [];
+    foreach ($this->getValueOptions($entity_list, $field) as $key => $value) {
+      if (is_array($value)) {
+        foreach ($value as $sub_key => $sub_value) {
+          $options[$sub_key] = $key . ': ' . $sub_value;
+        }
+      }
+      else {
+        $options[$key] = $value;
+      }
+    }
     $form['include'] = [
       '#type' => 'checkboxes',
       '#title' => $this->t('Include'),
@@ -152,6 +162,7 @@ class OptionsSelect extends ExoListFilterBase implements ExoListFieldValuesInter
    */
   public function toPreview($value, EntityListInterface $entity_list, array $field) {
     $options = $this->getValueOptions($entity_list, $field);
+    $options = OptGroup::flattenOptions($options);
     return $options[$value];
   }
 
