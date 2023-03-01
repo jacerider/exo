@@ -46,6 +46,14 @@ admin.people:
   smart: people
   icon: regular-users
   prefix: admin
+admin.user:
+  smart: user
+  icon: regular-user
+  prefix: admin
+admin.manage.account:
+  text: manage accounts
+  icon: regular-users-cog
+  prefix: admin
 admin.account:
   smart: account
   icon: regular-users-cog
