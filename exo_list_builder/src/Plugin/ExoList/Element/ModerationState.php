@@ -4,7 +4,9 @@ namespace Drupal\exo_list_builder\Plugin\ExoList\Element;
 
 use Drupal\content_moderation\ModerationInformationInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Url;
 use Drupal\exo_list_builder\Plugin\ExoListContentTrait;
 use Drupal\exo_list_builder\Plugin\ExoListElementBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -72,7 +74,33 @@ class ModerationState extends ExoListElementBase implements ContainerFactoryPlug
   protected function view(EntityInterface $entity, array $field) {
     if ($item = $this->getItem($entity, $field)) {
       $workflow = $this->moderationInformation->getWorkflowForEntity($entity);
-      return $workflow->getTypePlugin()->getState($item->value)->label();
+      $value = $workflow->getTypePlugin()->getState($item->value)->label();
+      $pending_revision = NULL;
+      if ($entity instanceof RevisionableInterface) {
+        /** @var \Drupal\Core\Entity\ContentEntityStorageInterface $storage */
+        $storage = $this->entityTypeManager()->getStorage($entity->getEntityTypeId());
+        $latest_revision_id = $storage->getLatestTranslationAffectedRevisionId($entity->id(), $entity->language()->getId());
+        $default_revision_id = $entity->isDefaultRevision() && !$entity->isNewRevision() && ($revision_id = $entity->getRevisionId()) ?
+          $revision_id : $this->moderationInformation->getDefaultRevisionId($entity->getEntityTypeId(), $entity->id());
+        if ($latest_revision_id !== NULL && $latest_revision_id != $default_revision_id) {
+          /** @var \Drupal\Core\Entity\ContentEntityInterface $latest_revision */
+          $latest_revision = $storage->loadRevision($latest_revision_id);
+          if (!$latest_revision->wasDefaultRevision()) {
+            $pending_revision = $latest_revision;
+          }
+        }
+      }
+      if ($pending_revision) {
+        $label = $workflow->getTypePlugin()->getState($latest_revision->get($item->getFieldDefinition()->getName())->value)->label();
+        if ($entity->hasLinkTemplate('latest-version')) {
+          $url = $entity->toUrl('latest-version');
+          if ($url->access()) {
+            $label = '<a href="' . $url->toString() . '">' . $label . '</a>';
+          }
+        }
+        $value .= ' (' . $label . ')';
+      }
+      return $value;
     }
     return parent::view($entity, $field);
   }

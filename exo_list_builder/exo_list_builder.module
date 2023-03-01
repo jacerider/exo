@@ -113,29 +113,55 @@ function exo_list_builder_query_exo_list_query_alter(AlterableInterface $query) 
  */
 function exo_list_builder_query_exo_entity_list_moderation_state_alter(AlterableInterface $query) {
   if ($query instanceof SelectInterface) {
-    $entity_type = $query->getMetaData('entity_type');
-    if (!$entity_type) {
+    // @see https://www.drupal.org/project/drupal/issues/3025164
+    $original_entity_type_id = $query->getMetaData('entity_type');
+    if (!$original_entity_type_id) {
       return;
     }
-    $entity_type = \Drupal::entityTypeManager()->getDefinition($entity_type);
+    $all_revisions = $query->getMetaData('all_revisions');
+    $original_entity_type = \Drupal::entityTypeManager()->getDefinition($original_entity_type_id);
+    $entity_type = \Drupal::entityTypeManager()->getDefinition('content_moderation_state');
     $join_conditions = [];
     $join_arguments = [];
 
-    $join_conditions[] = 'md.content_entity_type_id = :content_moderation_state_entity_type';
-    $join_arguments[':content_moderation_state_entity_type'] = $entity_type->id();
+    $join_conditions[] = '%alias.content_entity_type_id = :content_moderation_state_entity_type';
+    $join_arguments[':content_moderation_state_entity_type'] = $original_entity_type->id();
 
-    $join_conditions[] = 'md.content_entity_id = base_table.' . $entity_type->getKey('id');
-    if ($entity_type->hasKey('revision')) {
-      $join_conditions[] = 'md.content_entity_revision_id = base_table.' . $entity_type->getKey('revision');
+    // Determine the best table to JOIN to. If it's a simple query, then
+    // we do not have much to choose from. But if it is the contrary case,
+    // we could have a revision data table which is a more desired table to
+    // JOIN to since same revision might be available in multiple languages.
+    $base_table_alias = 'base_table';
+    if (!$query->getMetaData('simple_query')) {
+      if (isset($query->getTables()[$original_entity_type->getRevisionDataTable()])) {
+        $base_table_alias = $original_entity_type->getRevisionDataTable();
+      }
     }
 
-    $query->addJoin('LEFT', 'content_moderation_state_field_data', 'md', implode(' AND ', $join_conditions), $join_arguments);
+    $join_conditions[] = '%alias.content_entity_id = ' . $base_table_alias . '.' . $original_entity_type->getKey('id');
+
+    if ($entity_type->hasKey('langcode') && $original_entity_type->hasKey('langcode')) {
+      $join_conditions[] = "%alias." . $entity_type->getKey('langcode') . " = $base_table_alias." . $original_entity_type->getKey('langcode');
+    }
+
+    if ($entity_type->hasKey('revision') && $original_entity_type->hasKey('revision')) {
+      $join_conditions[] = '%alias.content_entity_revision_id = base_table.' . $original_entity_type->getKey('revision');
+    }
+
+    if ($all_revisions) {
+      $table = $entity_type->getRevisionDataTable();
+    }
+    else {
+      $table = $entity_type->getDataTable();
+    }
+    $query->addJoin('LEFT', $table, NULL, implode(' AND ', $join_conditions), $join_arguments);
+
     $value = $query->getMetaData('exo_entity_list_moderation_state');
     if (!empty($value)) {
       if (!is_array($value)) {
         $value = [$value];
       }
-      $query->condition('md.moderation_state', $value, 'IN');
+      $query->condition($table . '.moderation_state', $value, 'IN');
     }
   }
 }

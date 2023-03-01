@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @ExoListFilter(
  *   id = "moderation_state",
- *   label = @Translation("Moderation State"),
+ *   label = @Translation("Select"),
  *   description = @Translation("Filter by the moderation states."),
  *   weight = 0,
  *   field_type = {},
@@ -24,11 +24,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   field_name = {
  *     "moderation_state",
  *   },
- *   exclusive = FALSE,
+ *   exclusive = false,
  *   provider = "content_moderation",
  * )
  */
-class ModerationState extends ExoListFilterBase implements ContainerFactoryPluginInterface {
+class ModerationState extends OptionsSelect implements ContainerFactoryPluginInterface {
 
   /**
    * The moderation information service.
@@ -69,23 +69,9 @@ class ModerationState extends ExoListFilterBase implements ContainerFactoryPlugi
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $value, EntityListInterface $entity_list, array $field) {
-    $form = parent::buildForm($form, $form_state, $value, $entity_list, $field);
-    $form['state'] = [
-      '#type' => 'select',
-      '#title' => $field['display_label'],
-      '#options' => $this->getWorkflowOptions($entity_list),
-      '#empty_option' => $this->t('- Show All -'),
-      '#default_value' => $value,
-    ];
-    return $form;
-  }
-
-  /**
-   * Get workflow options.
-   */
-  protected function getWorkflowOptions(EntityListInterface $entity_list) {
+  public function getValueOptions(EntityListInterface $entity_list, array $field, $input = NULL) {
     $options = [];
+    $latest_options = [];
     foreach ($entity_list->getTargetBundleIds() as $bundle) {
       /** @var \Drupal\workflows\WorkflowInterface $workflow */
       $workflow = $this->moderationInformation->getWorkflowForEntityTypeAndBundle($entity_list->getTargetEntityTypeId(), $bundle);
@@ -93,34 +79,16 @@ class ModerationState extends ExoListFilterBase implements ContainerFactoryPlugi
         $plugin = $workflow->getTypePlugin();
         if ($plugin instanceof ContentModerationInterface) {
           foreach ($plugin->getStates() as $state_id => $state) {
-            $options[$state_id] = $state->label();
+            /** @var \Drupal\content_moderation\ContentModerationState $state */
+            $options['Current Version'][$state_id] = $state->label();
+            if (!$state->isDefaultRevisionState()) {
+              $latest_options['Pending Version']['latest:' . $state_id] = $state->label();
+            }
           }
         }
       }
     }
-    return $options;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function toUrlQuery(array $raw_value, EntityListInterface $entity_list, array $field) {
-    return $raw_value['state'];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isEmpty($raw_value) {
-    return $this->checkEmpty($raw_value['state']);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function toPreview($value, EntityListInterface $entity_list, array $field) {
-    $options = $this->getWorkflowOptions($entity_list);
-    return $options[$value] ?? '';
+    return $options + $latest_options;
   }
 
   /**
@@ -128,6 +96,11 @@ class ModerationState extends ExoListFilterBase implements ContainerFactoryPlugi
    */
   public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
     $query->addTag('exo_entity_list_moderation_state');
+    $parts = explode(':', $value);
+    if (isset($parts[1]) && $parts[0] === 'latest') {
+      $value = $parts[1];
+      $query->latestRevision();
+    }
     // @see exo_list_builder_query_exo_entity_list_moderation_state_alter().
     $query->addMetaData('exo_entity_list_moderation_state', $value);
   }
