@@ -35,7 +35,6 @@
 
           const elementOffset = $element.offset();
           const innerOffset = $inner.offset();
-          console.log(innerOffset.left + $inner.outerWidth(), Drupal.Exo.$window.width());
           if (elementOffset.left > innerOffset.left) {
             $inner.css({
               transform: 'translateX(' + (elementOffset.left - innerOffset.left) + 'px)',
@@ -47,7 +46,6 @@
               transform: 'translateX(' + (elementOffset.left - innerOffset.left - (right - Drupal.Exo.$window.width())) + 'px)',
             });
           }
-          console.log($inner.offset().left + $inner.outerWidth(), Drupal.Exo.$window.width());
         });
         $trigger.on('mouseleave', e => {
           const watch = function () {
