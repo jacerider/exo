@@ -175,6 +175,22 @@ class ExoLinkitWidget extends WidgetBase {
   }
 
   /**
+   * Form element validation handler for the 'title' element.
+   *
+   * Conditionally requires the link title if a URL value was filled in.
+   */
+  public static function validateTitleElement(&$element, FormStateInterface $form_state, $form) {
+    if ($element['uri']['#value'] !== '' && $element['title']['#value'] === '') {
+      // We expect the field name placeholder value to be wrapped in t() here,
+      // so it won't be escaped again as it's already marked safe.
+      $form_state->setError($element['title'], t('@title field is required if there is @uri input.', [
+        '@title' => $element['title']['#title'],
+        '@uri' => $element['uri']['#title'],
+      ]));
+    }
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
