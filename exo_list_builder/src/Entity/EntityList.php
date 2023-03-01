@@ -274,6 +274,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * @var array
    */
   protected $settingDefaults = [
+    'node_access_op' => NULL,
     'render_status' => TRUE,
     'operations_status' => TRUE,
     'limit_status' => TRUE,
@@ -884,7 +885,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
     $settings = $this->getSettings();
     $key_exists = NULL;
     $value = &NestedArray::getValue($settings, (array) $key, $key_exists);
-    return $key_exists ? $value : $default;
+    return $value ?: $default;
   }
 
   /**
