@@ -72,7 +72,10 @@ class ExoConfigFile extends File {
       return is_array($validate) && isset($validate[1]) && $validate[1] === 'exoConfigFilesValidate';
     });
     if (!$validate_handler_exists) {
-      array_unshift($complete_form['#validate'], [static::class, 'exoConfigFilesValidate']);
+      array_unshift($complete_form['#validate'], [
+        static::class,
+        'exoConfigFilesValidate',
+      ]);
     }
 
     // Add global submit handler.
@@ -80,7 +83,10 @@ class ExoConfigFile extends File {
       return is_array($submit) && isset($submit[1]) && $submit[1] === 'exoConfigFilesSubmit';
     });
     if (!$submit_handler_exists) {
-      array_unshift($complete_form['actions']['submit']['#submit'], [static::class, 'exoConfigFilesSubmit']);
+      array_unshift($complete_form['actions']['submit']['#submit'], [
+        static::class,
+        'exoConfigFilesSubmit',
+      ]);
     }
 
     // Store the field names for later processing.
@@ -91,7 +97,7 @@ class ExoConfigFile extends File {
     $config_file_field_names[$field_name] = [
       'name' => $field_name,
       'config_file_field_name' => $config_file_field_name,
-      'parents' => isset($element['#final_parents']) ? $element['#final_parents'] : $element['#parents'],
+      'parents' => $element['#final_parents'] ?? $element['#parents'],
       'array_parents' => $element['#array_parents'],
     ];
     $form_state->set('exo_config_file_field_names', $config_file_field_names);
@@ -99,10 +105,10 @@ class ExoConfigFile extends File {
     // Setup validators.
     $validators = [
       'file_validate_extensions' => [implode(' ', $element['#extensions'])],
-      'file_validate_size' => [Bytes::toInt('10MB')],
+      'file_validate_size' => [Bytes::toNumber('10MB')],
     ] + $element['#upload_validators'];
     $element['#upload_validators'] = $validators;
-    $description = isset($element['#description']) ? $element['#description'] : '';
+    $description = $element['#description'] ?? '';
     $element['#description'] = [
       '#theme' => 'file_upload_help',
       '#upload_validators' => $validators,
@@ -189,7 +195,7 @@ class ExoConfigFile extends File {
       if ($file) {
         try {
           $element = NestedArray::getValue($form, $data['array_parents']);
-          /* @var \Drupal\exo_config_file\Entity\ExoConfigFileInterface $exo_config_file */
+          /** @var \Drupal\exo_config_file\Entity\ExoConfigFileInterface $exo_config_file */
           $exo_config_file = static::exoConfigFileSubmit($file, $element, $form_state);
           $form_state->setValue($data['parents'], $exo_config_file->getFilePath());
         }
@@ -217,7 +223,7 @@ class ExoConfigFile extends File {
   public static function exoConfigFileSubmit(FileInterface $file, array $element, FormStateInterface $form_state) {
     $token = \Drupal::service('token');
     $complete_form = $form_state->getFormObject();
-    /* @var \Drupal\Core\Entity\EntityInterface $entity */
+    /** @var \Drupal\Core\Entity\EntityInterface $entity */
     $entity = $complete_form->getEntity();
     if ($entity->isNew()) {
       // We save to make sure have an ID.
@@ -249,7 +255,7 @@ class ExoConfigFile extends File {
 
     $exo_config_file_id = static::getConfigFileEntityId($entity, $field_name);
     $storage = \Drupal::entityTypeManager()->getStorage('exo_config_file');
-    /* @var \Drupal\exo_file_config\Entity\ExoConfigFileInterface $exo_config_file */
+    /** @var \Drupal\exo_file_config\Entity\ExoConfigFileInterface $exo_config_file */
     $exo_config_file = $storage->load($exo_config_file_id);
     if (!$exo_config_file) {
       $exo_config_file = $storage->create([
