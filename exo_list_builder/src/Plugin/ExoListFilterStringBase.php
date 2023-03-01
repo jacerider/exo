@@ -62,7 +62,7 @@ abstract class ExoListFilterStringBase extends ExoListFilterMatchBase {
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array $form, FormStateInterface $form_state) {
-    $form_state->setValue('additional_fields', array_filter($form_state->getValue('additional_fields')));
+    $form_state->setValue('additional_fields', array_filter($form_state->getValue('additional_fields') ?: []));
   }
 
   /**
