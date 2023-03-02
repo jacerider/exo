@@ -3,9 +3,9 @@
 namespace Drupal\exo_linkit\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
+use Drupal\exo_link\Plugin\Field\FieldWidget\ExoLinkWidget;
 use Drupal\exo_linkit\Utility\LinkitHelper;
 
 /**
@@ -17,7 +17,7 @@ use Drupal\exo_linkit\Utility\LinkitHelper;
  *   field_types = {"link"},
  * )
  */
-class ExoLinkitWidget extends WidgetBase {
+class ExoLinkitWidget extends ExoLinkWidget {
 
   /**
    * {@inheritdoc}
@@ -73,6 +73,7 @@ class ExoLinkitWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
+    $element = parent::formElement($items, $delta, $element, $form, $form_state);
     $item = $items[$delta];
     $uri = $item->uri;
     $uri_scheme = $uri ? parse_url($uri, PHP_URL_SCHEME) : NULL;
@@ -172,22 +173,6 @@ class ExoLinkitWidget extends WidgetBase {
     }
 
     return $element;
-  }
-
-  /**
-   * Form element validation handler for the 'title' element.
-   *
-   * Conditionally requires the link title if a URL value was filled in.
-   */
-  public static function validateTitleElement(&$element, FormStateInterface $form_state, $form) {
-    if ($element['uri']['#value'] !== '' && $element['title']['#value'] === '') {
-      // We expect the field name placeholder value to be wrapped in t() here,
-      // so it won't be escaped again as it's already marked safe.
-      $form_state->setError($element['title'], t('@title field is required if there is @uri input.', [
-        '@title' => $element['title']['#title'],
-        '@uri' => $element['uri']['#title'],
-      ]));
-    }
   }
 
   /**
