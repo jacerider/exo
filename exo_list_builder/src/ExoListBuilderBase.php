@@ -483,14 +483,14 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         }
       }
     }
-    $this->addQuerySort($query);
+    $this->addQuerySort($query, $context);
 
     if ($entity_list->getTargetEntityType()->hasKey('bundle')) {
       $query->condition($entity_list->getTargetEntityType()->getKey('bundle'), $entity_list->getTargetBundleIds(), 'IN');
     }
 
     // Use an set query conditions.
-    $this->buildQueryConditions($query);
+    $this->buildQueryConditions($query, $context);
 
     // Filter.
     $filter_values = [];
@@ -567,9 +567,10 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    *
    * This only impacts non-table lists.
    */
-  protected function addQuerySort(QueryInterface $query) {
+  protected function addQuerySort(QueryInterface $query, $context = 'default') {
     $entity_list = $this->entityList;
     $order = $this->getOption('order');
+
     if (!$order) {
       $order = $entity_list->getSort();
     }
@@ -580,8 +581,10 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         $sort = $this->getOption('sort');
         $instance = $this->sortManager->createInstance($sort_plugin_id);
         $instance->sort($query, $entity_list, $sort, $sort_plugin_value);
-        $this->setOption('order', $order);
-        $this->setOption('sort', $sort);
+        if ($context === 'default') {
+          $this->setOption('order', $order);
+          $this->setOption('sort', $sort);
+        }
       }
     }
   }
@@ -609,7 +612,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   /**
    * Build query conditions.
    */
-  protected function buildQueryConditions(QueryInterface $query) {
+  protected function buildQueryConditions(QueryInterface $query, $context = 'default') {
     foreach ($this->getQueryConditions() as $condition) {
       if ($condition['field'] === 'moderation_state') {
         $query->addTag('exo_entity_list_moderation_state');
