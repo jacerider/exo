@@ -140,7 +140,6 @@ class ExoLinkWidget extends LinkWidget {
         '#title' => $this->t('Open link in new window'),
         '#description' => $this->t('See WCAG guidance on <a href="https://www.w3.org/WAI/WCAG21/Techniques/general/G200" target="_blank">opening links in new windows/tabs</a>.'),
         '#default_value' => !empty($attributes['target']),
-        '#return_value' => '_blank',
       ];
     }
 
@@ -185,6 +184,9 @@ class ExoLinkWidget extends LinkWidget {
    */
   public static function validateElement($element, FormStateInterface $form_state, $form) {
     $values = $form_state->getValue($element['#parents']);
+    if (!empty($values['options']['attributes']['target'])) {
+      $values['options']['attributes']['target'] = '_blank';
+    }
     if (empty($values['options']['attributes']['data-icon'])) {
       $values['options']['attributes']['data-icon-position'] = '';
     }
