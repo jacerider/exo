@@ -132,7 +132,7 @@ class Link extends ExoComponentFieldFieldableBase {
         if ($source_field && $media->hasField($source_field->getName()) && $media->get($source_field->getName())->entity instanceof FileInterface) {
           /** @var \Drupal\file\FileInterface $file */
           $file = $media->get($source_field->getName())->entity;
-          $url = file_create_url($file->getFileUri());
+          $url = \Drupal::service('file_url_generator')->generateAbsoluteString($file->getFileUri());
         }
       }
     }
