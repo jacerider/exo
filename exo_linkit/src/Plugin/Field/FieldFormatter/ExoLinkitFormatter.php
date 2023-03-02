@@ -93,7 +93,6 @@ class ExoLinkitFormatter extends LinkFormatter {
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $elements = parent::viewElements($items, $langcode);
-
     // Loop over the elements and substitute the URL.
     foreach ($elements as $delta => &$item) {
       /** @var \Drupal\link\LinkItemInterface $link_item */
