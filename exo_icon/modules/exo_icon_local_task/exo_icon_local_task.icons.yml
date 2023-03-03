@@ -202,3 +202,7 @@ local_task.types:
   smart: types
   icon: regular-puzzle-piece
   prefix: local_task
+local_task.grants:
+  text: grants
+  icon: regular-user-lock
+  prefix: local_task
