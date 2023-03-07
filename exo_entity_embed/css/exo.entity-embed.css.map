@@ -1,1 +1,0 @@
-{"version":3,"sources":["exo_entity_embed/src/scss/exo.entity-embed.scss"],"names":[],"mappings":"AAAA,cACE,cAAA,CAKA,kCACE,QAAA,CACA,SAAA,CACA,UAAA","file":"exo.entity-embed.css","sourcesContent":["drupal-entity {\n  display: inline;\n}\n\n.cke_editable {\n\n  > .cke_widget_wrapper {\n    margin: 0;\n    padding: 0;\n    width: auto;\n  }\n}\n"]}

@@ -1,1 +1,0 @@
-{"version":3,"sources":["exo_icon/src/scss/exo.icon.icon.scss"],"names":[],"mappings":"AAAA,gBACE,oBAAA,CACA,WAAA,CACA,YAAA,CACA,cAAA,CACA,mBAAA,CACA,iBAAA","file":"exo.icon.icon.css","sourcesContent":[".exo-icon-image {\n  display: inline-block;\n  width: 1.5em;\n  height: 1.5em;\n  stroke-width: 0;\n  stroke: currentColor;\n  fill: currentColor;\n}\n"]}
