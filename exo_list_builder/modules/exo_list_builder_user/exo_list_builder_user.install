@@ -4,18 +4,8 @@
  * Implements hook_install().
  */
 function exo_list_builder_user_install() {
-  $config = \Drupal::configFactory()->getEditable('user_admin_people');
+  $config = \Drupal::configFactory()->getEditable('views.view.user_admin_people');
   if ($config) {
     $config->set('status', FALSE)->save(TRUE);
-  }
-}
-
-/**
- * Implements hook_uninstall().
- */
-function exo_list_builder_user_uninstall() {
-  $config = \Drupal::configFactory()->getEditable('user_admin_people');
-  if ($config) {
-    $config->set('status', TRUE)->save(TRUE);
   }
 }

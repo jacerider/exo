@@ -1,6 +1,6 @@
 name: 'eXo List Builder: Webform'
 type: module
-description: 'Provides list builder support to wordpress.'
+description: 'Provides list builder support to webform management.'
 package: 'eXo'
 core_version_requirement: '^9.3 || ^10'
 dependencies:

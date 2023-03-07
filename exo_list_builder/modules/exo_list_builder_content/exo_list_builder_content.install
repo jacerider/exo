@@ -1,0 +1,11 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function exo_list_builder_content_install() {
+  $config = \Drupal::configFactory()->getEditable('views.view.content');
+  if ($config) {
+    $config->set('status', FALSE)->save(TRUE);
+  }
+}
