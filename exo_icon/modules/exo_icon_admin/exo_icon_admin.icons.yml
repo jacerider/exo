@@ -31,7 +31,11 @@ admin.configuration:
   icon: regular-sliders-v-square
   prefix: admin
 admin.settings:
-  smart: settings
+  smart: setting
+  icon: regular-cog
+  prefix: admin
+admin.option:
+  smart: option
   icon: regular-cog
   prefix: admin
 admin.basic_site_settings:
@@ -121,6 +125,18 @@ admin.performance:
 admin.logging_and_errors:
   text: logging and errors
   icon: regular-debug
+  prefix: admin
+admin.logging_messages:
+  smart: log messages
+  icon: regular-debug
+  prefix: admin
+admin.access_denied:
+  smart: access denied
+  icon: regular-ban
+  prefix: admin
+admin.errors:
+  smart: errors
+  icon: regular-exclamation-square
   prefix: admin
 admin.maintenance_mode:
   text: maintenance mode
@@ -321,4 +337,24 @@ admin.clone:
 admin.migrate:
   smart: migrate
   icon: regular-exchange
+  prefix: admin
+admin.home:
+  text: home
+  icon: regular-home
+  prefix: admin
+admin.form_modes:
+  text: form modes
+  icon: regular-shield-alt
+  prefix: admin
+admin.view_modes:
+  text: view modes
+  icon: regular-shield-check
+  prefix: admin
+admin.status_report:
+  text: status report
+  icon: regular-file-medical-alt
+  prefix: admin
+admin.webform:
+  regex: webform
+  icon: regular-file-invoice
   prefix: admin

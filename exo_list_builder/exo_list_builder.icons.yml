@@ -1,0 +1,4 @@
+exo_list_builder.entity_lists:
+  text: entity lists
+  icon: regular-list
+  prefix: admin

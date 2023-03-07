@@ -206,3 +206,11 @@ local_task.grants:
   text: grants
   icon: regular-user-lock
   prefix: local_task
+local_task.webform:
+  smart: form
+  icon: regular-file-invoice
+  prefix: local_task
+local_task.addons:
+  smart: add-on
+  icon: regular-files-medical
+  prefix: local_task
