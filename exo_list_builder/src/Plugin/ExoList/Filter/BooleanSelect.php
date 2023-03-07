@@ -105,9 +105,10 @@ class BooleanSelect extends ExoListFilterBase implements ExoListFieldValuesInter
    */
   public function buildForm(array $form, FormStateInterface $form_state, $value, EntityListInterface $entity_list, array $field) {
     $form = parent::buildForm($form, $form_state, $value, $entity_list, $field);
+    $configuration = $this->getConfiguration();
     $form['q'] = [
       '#type' => 'select',
-      '#title' => $field['display_label'],
+      '#title' => $configuration['label'] ?: $field['display_label'],
       '#options' => $this->getValueOptions($entity_list, $field),
       '#empty_option' => $this->t('- All -'),
       '#empty_value' => NULL,
@@ -147,6 +148,12 @@ class BooleanSelect extends ExoListFilterBase implements ExoListFieldValuesInter
     $configuration = $this->getConfiguration();
     $formats = $this->getOutputFormats($field);
     $format = $configuration['format'];
+    if ($format === 'custom') {
+      $formats['custom'] = [
+        $configuration['format_custom_true'],
+        $configuration['format_custom_false'],
+      ];
+    }
     $options = [];
     if (isset($formats[$format])) {
       $options[1] = $formats[$format][0];
@@ -183,6 +190,12 @@ class BooleanSelect extends ExoListFilterBase implements ExoListFieldValuesInter
     $configuration = $this->getConfiguration();
     $formats = $this->getOutputFormats($field);
     $format = $configuration['format'];
+    if ($format === 'custom') {
+      $formats['custom'] = [
+        $configuration['format_custom_true'],
+        $configuration['format_custom_false'],
+      ];
+    }
     if (is_array($value)) {
       $value = implode(', ', $value);
     }
