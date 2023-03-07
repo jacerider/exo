@@ -6,3 +6,4 @@
 /config.local.json
 /npm-debug.log
 /.gitrepo
+/exo*/**/*.css.map

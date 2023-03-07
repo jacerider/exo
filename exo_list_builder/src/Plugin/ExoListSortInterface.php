@@ -19,6 +19,38 @@ interface ExoListSortInterface extends PluginInspectionInterface {
   public function label();
 
   /**
+   * Supports direction change.
+   *
+   * @return bool
+   *   TRUE if this sort supports direction change.
+   */
+  public function supportsDirectionChange();
+
+  /**
+   * Get the default direction.
+   *
+   * @return string
+   *   The default direction.
+   */
+  public function getDefaultDirection();
+
+  /**
+   * Get asc label.
+   *
+   * @return string
+   *   The label.
+   */
+  public function getAscLabel();
+
+  /**
+   * Get desc label.
+   *
+   * @return string
+   *   The label.
+   */
+  public function getDescLabel();
+
+  /**
    * Do sort.
    *
    * @param \Drupal\Core\Entity\Query\QueryInterface|\Drupal\Core\Entity\Query\ConditionInterface $query

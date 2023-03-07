@@ -138,7 +138,8 @@ function exo_list_builder_query_exo_entity_list_moderation_state_alter(Alterable
       }
     }
 
-    $join_conditions[] = '%alias.content_entity_id = ' . $base_table_alias . '.' . $original_entity_type->getKey('id');
+    $id_key = $original_entity_type->getKey('id');
+    $join_conditions[] = '%alias.content_entity_id = ' . $base_table_alias . '.' . $id_key;
 
     if ($entity_type->hasKey('langcode') && $original_entity_type->hasKey('langcode')) {
       $join_conditions[] = "%alias." . $entity_type->getKey('langcode') . " = $base_table_alias." . $original_entity_type->getKey('langcode');
@@ -155,6 +156,15 @@ function exo_list_builder_query_exo_entity_list_moderation_state_alter(Alterable
       $table = $entity_type->getDataTable();
     }
     $query->addJoin('LEFT', $table, NULL, implode(' AND ', $join_conditions), $join_arguments);
+
+    // Sort support.
+    $sort_field = $query->getMetaData('exo_entity_list_moderation_state_sort_field');
+    if ($sort_field) {
+      $sort_direction = $query->getMetaData('exo_entity_list_moderation_state_sort_direction') ?: 'DESC';
+      $revision_data_table = $original_entity_type->getRevisionDataTable();
+      $query->addJoin('LEFT', $revision_data_table, 'entity_revision_data_table', $table . '.content_entity_revision_id = entity_revision_data_table.vid');
+      $query->orderBy('entity_revision_data_table.' . $sort_field, $sort_direction);
+    }
 
     $value = $query->getMetaData('exo_entity_list_moderation_state');
     if (!empty($value)) {

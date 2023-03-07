@@ -1341,23 +1341,51 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         }
       }
       foreach ($entity_list->getSorts() as $sort_id => $sort_plugin) {
-        if ($sort_plugin['id'] === 'default') {
+        if ($sort_plugin['id'] === 'default' || !$this->sortManager->hasDefinition($sort_id)) {
           continue;
         }
-        $url = $this->getOptionsUrl([], [], [
-          'order' => $sort_id,
-        ]);
-        $links[$sort_id] = [
-          'title' => $this->icon($sort_plugin['label'])->setIcon('regular-sort')->toMarkup(),
-          'url' => $url,
-        ];
-        if ($sort_plugin_id === $sort_id) {
-          $active = [
-            'title' => $this->icon('Sorted by @label', [
-              '@label' => $sort_plugin['label'],
-            ])->setIcon('regular-sort')->toMarkup(),
+        $sort_instance = $this->sortManager->createInstance($sort_id, $sort_plugin['settings']);
+        // Plugins that support direction change.
+        if ($sort_instance->supportsDirectionChange()) {
+          $plugin_sort = $sort ?: 'desc';
+          foreach (['desc', 'asc'] as $direction) {
+            $url = $this->getOptionsUrl([], [], [
+              'order' => $sort_id,
+              'sort' => $direction,
+            ]);
+            $label = $direction === 'desc' ? $sort_instance->getDescLabel() : $sort_instance->getAscLabel();
+            $icon = $direction === 'desc' ? 'regular-sort-amount-down' : 'regular-sort-amount-up';
+            $links[$sort_id . '_' . $direction] = [
+              'title' => $this->icon($label)->setIcon($icon)->toMarkup(),
+              'url' => $url,
+            ];
+            if ($sort_plugin_id === $sort_id && $plugin_sort === $direction) {
+              $active = [
+                'title' => $this->icon('Sorted by @label', [
+                  '@label' => $label,
+                ])->setIcon($icon)->toMarkup(),
+                'url' => $url,
+              ];
+            }
+          }
+        }
+        // Plugins that do not support direction change.
+        else {
+          $url = $this->getOptionsUrl([], [], [
+            'order' => $sort_id,
+          ]);
+          $links[$sort_id] = [
+            'title' => $this->icon($sort_plugin['label'])->setIcon('regular-sort')->toMarkup(),
             'url' => $url,
           ];
+          if ($sort_plugin_id === $sort_id) {
+            $active = [
+              'title' => $this->icon('Sorted by @label', [
+                '@label' => $sort_plugin['label'],
+              ])->setIcon('regular-sort')->toMarkup(),
+              'url' => $url,
+            ];
+          }
         }
       }
       foreach ($sort_fields as $field_id => $field) {
@@ -1371,33 +1399,27 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
             'order' => $new_order,
             'sort' => 'desc',
           ]);
-          $links[$field['id'] . '_asc'] = [
-            'title' => $this->icon($field['view']['sort_asc_label'], [
-              '@label' => $field['display_label'],
-            ])->setIcon('regular-sort-amount-up')->toMarkup(),
-            'url' => $asc_url,
-          ];
-          $links[$field['id'] . '_desc'] = [
-            'title' => $this->icon($field['view']['sort_desc_label'], [
-              '@label' => $field['display_label'],
-            ])->setIcon('regular-sort-amount-down')->toMarkup(),
-            'url' => $desc_url,
-          ];
-          if (($order === $new_order) && $sort === 'asc') {
-            $active = [
-              'title' => $this->icon('Sorted by ' . $field['view']['sort_asc_label'], [
-                '@label' => $field['display_label'],
-              ])->setIcon('regular-sort-amount-up')->toMarkup(),
-              'url' => $asc_url,
-            ];
+          $directions = ['asc', 'desc'];
+          if (in_array($field['type'], ['changed', 'created', 'timestamp'])) {
+            $directions = array_reverse($directions);
           }
-          elseif (($order === $new_order) && $sort === 'desc') {
-            $active = [
-              'title' => $this->icon('Sorted by ' . $field['view']['sort_desc_label'], [
+          foreach ($directions as $direction) {
+            $icon = $direction === 'desc' ? 'regular-sort-amount-down' : 'regular-sort-amount-up';
+            $url = $direction === 'asc' ? $asc_url : $desc_url;
+            $links[$field['id'] . '_' . $direction] = [
+              'title' => $this->icon($field['view']['sort_' . $direction . '_label'], [
                 '@label' => $field['display_label'],
-              ])->setIcon('regular-sort-amount-down')->toMarkup(),
-              'url' => $desc_url,
+              ])->setIcon($icon)->toMarkup(),
+              'url' => $url,
             ];
+            if ($order === $new_order && $sort === $direction) {
+              $active = [
+                'title' => $this->icon('Sorted by ' . $field['view']['sort_' . $direction . '_label'], [
+                  '@label' => $field['display_label'],
+                ])->setIcon($icon)->toMarkup(),
+                'url' => $url,
+              ];
+            }
           }
         }
       }

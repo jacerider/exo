@@ -26,6 +26,20 @@ abstract class ExoListSortBase extends PluginBase implements ExoListSortInterfac
   protected $entityTypeManager;
 
   /**
+   * Flag indicating if the sort supports direction change.
+   *
+   * @var bool
+   */
+  protected $supportsDirectionChange = FALSE;
+
+  /**
+   * The default direction.
+   *
+   * @var string
+   */
+  protected $defaultDirection = 'asc';
+
+  /**
    * LogGeneratorBase constructor.
    *
    * @param array $configuration
@@ -59,6 +73,34 @@ abstract class ExoListSortBase extends PluginBase implements ExoListSortInterfac
    */
   public function label() {
     return $this->getPluginDefinition()['label'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function supportsDirectionChange() {
+    return !empty($this->supportsDirectionChange);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultDirection() {
+    return $this->defaultDirection === 'asc' ? 'asc' : 'desc';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getAscLabel() {
+    return $this->label() . ': ' . $this->t('A-Z');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDescLabel() {
+    return $this->label() . ': ' . $this->t('Z-A');
   }
 
   /**
