@@ -107,6 +107,17 @@ class LocalActions extends ExoToolbarItemBase implements ContainerFactoryPluginI
       if (!empty($action['#link']['localized_options']['attributes']['data-icon'])) {
         $elements[$key]->setIcon($action['#link']['localized_options']['attributes']['data-icon']);
       }
+      elseif (\Drupal::hasService('plugin.manager.exo_icon')) {
+        $manager = \Drupal::service('plugin.manager.exo_icon');
+        $icon = $manager->getDefinitionMatch($action['#link']['title'], [
+          'local_action',
+          'local_task',
+          'admin',
+        ]);
+        if ($icon) {
+          $elements[$key]->setIcon($icon);
+        }
+      }
     }
     $this->addCacheableDependency($cacheable_metadata);
     return $elements;
