@@ -756,7 +756,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $render_status = $entity_list->getSetting('render_status');
     $total = $this->getTotal();
     // We are not modified and we only have a single entity..
-    $hide_extras = !$this->isModified() && $total <= 1;
+    $hide_extras = !$this->isFiltered() && $total <= 1;
 
     $id = str_replace('_', '-', $entity_list->id());
     $build['#id'] = 'exo-list-' . $id;
@@ -928,7 +928,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       '#attributes' => ['class' => ['exo-list-footer']],
     ];
 
-    if (!$hide_extras && ($entities || $this->isFiltered()) && (count($entities) < $total || $this->getOption('limit'))) {
+    if (!$hide_extras) {
       $pager = $this->buildPager($build);
       $build['header']['second']['pager'] = $pager;
       // Remove pages from header.
