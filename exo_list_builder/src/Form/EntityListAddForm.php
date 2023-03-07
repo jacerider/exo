@@ -106,6 +106,7 @@ class EntityListAddForm extends EntityForm {
       '#type' => 'container',
       '#prefix' => '<div id="target-bundles">',
       '#suffix' => '</div>',
+      'placeholder' => [],
     ];
 
     if ($entity_type_id = $exo_entity_list->getTargetEntityTypeId()) {
