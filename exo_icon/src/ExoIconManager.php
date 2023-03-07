@@ -87,8 +87,9 @@ class ExoIconManager extends DefaultPluginManager implements ExoIconManagerInter
 
     if (!empty($definition['smart'])) {
       $text = $definition['smart'];
-      $definition['regex'] = "^$text$|^$text | $text$";
-      $definition['weight'] = isset($definition['weight']) ? $definition['weight'] : 10;
+      $texts = $text . 's';
+      $definition['regex'] = "^$text$|^$texts$|^$text | $text$";
+      $definition['weight'] = $definition['weight'] ?? 10;
     }
 
     if (empty($definition['text']) && empty($definition['regex'])) {
