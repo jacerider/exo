@@ -691,6 +691,8 @@
           background-color: theme-val($theme, form-bg-color, true);
           min-height: theme-val($theme, input-height);
           line-height: theme-val($theme, input-height);
+          padding-top: 0;
+          padding-bottom: 0;
         }
 
         .exo-form-button,

@@ -98,7 +98,8 @@
     &.exo-form-file-input.file {
       flex: 1 1 100%;
       padding: $global-padding * 0.5;
-      background-position: $global-padding center;
+      padding-left: $global-padding * 1.75;
+      background-position: $global-padding * 0.5 center;
     }
   }
 
