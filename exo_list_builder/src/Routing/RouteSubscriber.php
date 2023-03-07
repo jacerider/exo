@@ -3,6 +3,8 @@
 namespace Drupal\exo_list_builder\Routing;
 
 use Drupal\Core\Routing\RouteSubscriberBase;
+use Drupal\Core\Routing\RoutingEvents;
+use Drupal\exo_list_builder\EntityListInterface;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
 
@@ -10,6 +12,14 @@ use Symfony\Component\Routing\Route;
  * Listens to the dynamic route events.
  */
 class RouteSubscriber extends RouteSubscriberBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getSubscribedEvents(): array {
+    $events[RoutingEvents::ALTER] = ['onAlterRoutes', -200];
+    return $events;
+  }
 
   /**
    * {@inheritdoc}
@@ -33,20 +43,43 @@ class RouteSubscriber extends RouteSubscriberBase {
           }
           continue;
         }
+        if ($exo_entity_list->getTargetEntityTypeId() === 'node') {
+          $route = $collection->get('system.admin_content');
+          if ($route) {
+            $this->overrideRoute($exo_entity_list, $route);
+          }
+          continue;
+        }
         $route = $collection->get('entity.' . $exo_entity_list->getTargetEntityTypeId() . '.collection');
         if ($route) {
-          if ($url = $exo_entity_list->getUrl()) {
-            $route->setPath($url);
-          }
-          $defaults = $route->getDefaults();
-          $defaults['_controller'] = '\Drupal\exo_list_builder\Controller\ExoListController::listing';
-          $defaults['_title_callback'] = '\Drupal\exo_list_builder\Controller\ExoListController::listingTitle';
-          $defaults['exo_entity_list'] = $exo_entity_list->id();
-          unset($defaults['_entity_list']);
-          $route->setDefaults($defaults);
+          $this->overrideRoute($exo_entity_list, $route);
         }
       }
     }
+  }
+
+  /**
+   * Override a route.
+   *
+   * @param \Drupal\exo_list_builder\EntityListInterface $exo_entity_list
+   *   The entity list.
+   * @param \Symfony\Component\Routing\Route $route
+   *   The route.
+   */
+  protected function overrideRoute(EntityListInterface $exo_entity_list, Route $route) {
+    if ($url = $exo_entity_list->getUrl()) {
+      $route->setPath($url);
+    }
+    $defaults = $route->getDefaults();
+    $defaults['_controller'] = '\Drupal\exo_list_builder\Controller\ExoListController::listing';
+    $defaults['_title_callback'] = '\Drupal\exo_list_builder\Controller\ExoListController::listingTitle';
+    $defaults['exo_entity_list'] = $exo_entity_list->id();
+    unset($defaults['_entity_list']);
+    unset($defaults['title']);
+    $route->setDefaults($defaults);
+    $options = $route->getOptions();
+    $options['parameters']['exo_entity_list']['type'] = 'entity:exo_entity_list';
+    $route->setOptions($options);
   }
 
 }
