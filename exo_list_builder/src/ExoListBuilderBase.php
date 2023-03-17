@@ -835,7 +835,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
               break;
 
             default:
-              if ($entity_list->getSetting('item_wrapper_status')) {
+              if (!$entity_list->getSetting('item_wrapper_status')) {
                 $build_rows[$key] = $row;
               }
               else {
