@@ -139,7 +139,6 @@ class ExoModal extends ExoData {
   protected $wrap:JQuery;
   protected $header:JQuery;
   protected $footer:JQuery;
-  protected $container:JQuery;
   protected $content:JQuery;
   protected $contentSelection:JQuery;
   protected $contentPlaceholder:JQuery;
@@ -276,7 +275,6 @@ class ExoModal extends ExoData {
       this.$element.attr('aria-hidden', 'true');
       this.$element.attr('aria-labelledby', this.getId());
       this.$element.attr('role', 'dialog');
-      this.$container = this.$element.find('.' + this.name + '-container').first();
 
       this.$content = this.$element.find('.' + this.name + '-content').first();
       this.$sectionHeader = this.$element.find('.' + this.name + '-section-header');
@@ -367,7 +365,12 @@ class ExoModal extends ExoData {
 
       if (this.get('closeInBody') !== false) {
         const $close = $('<div class="exo-container-button ' + this.get('closeInBody') + '"><a href="javascript:void(0)" class="' + this.name + '-button ' + this.name + '-button-close" data-' + this.name + '-close></a></div>');
-        this.$container.prepend($close);
+        let $region = this.$element.find('.' + this.name + '-container').first();
+        let $header = this.$element.find('.' + this.name + '-section-header').first();
+        if ($header.length) {
+          $region = $header;
+        }
+        $region.prepend($close);
         setTimeout(() => {
           this.widthOffset += $close.outerWidth();
         });
