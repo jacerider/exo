@@ -214,8 +214,9 @@ abstract class ExoModalFieldFormatterBase extends FormatterBase implements ExoMo
             'delta' => $delta,
             'display_id' => $view,
             'langcode' => $langcode,
+            'revision_id' => 'na',
           ];
-          if ($entity instanceof RevisionableInterface) {
+          if ($entity instanceof RevisionableInterface && $entity->getRevisionId()) {
             $route_parameters['revision_id'] = $entity->getRevisionId();
           }
           if ($view == '_custom') {

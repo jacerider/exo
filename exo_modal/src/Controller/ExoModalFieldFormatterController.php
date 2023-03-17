@@ -6,7 +6,8 @@ use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Field\FieldTypePluginManager;
 use Drupal\Core\Field\FormatterPluginManager;
 use Drupal\exo_modal\Plugin\ExoModalFieldFormatterPluginInterface;
@@ -61,13 +62,15 @@ class ExoModalFieldFormatterController extends ControllerBase {
   /**
    * View modal content.
    */
-  public function view(EntityInterface $entity, $revision_id, $field_name, $delta, $display_id, $langcode, $display_settings = NULL) {
+  public function view(ContentEntityInterface $entity, $revision_id, $field_name, $delta, $display_id, $langcode, $display_settings = NULL) {
     $response = new AjaxResponse();
     if ($entity->hasField($field_name)) {
       $plugin = NULL;
       // Load revision if it is not the active revision.
-      if ($entity->getRevisionId() != $revision_id) {
-        $entity = $this->entityTypeManager->getStorage($entity->getEntityTypeId())->loadRevision($revision_id);
+      if ($revision_id !== 'na' && $entity instanceof RevisionableInterface) {
+        if ($entity->getRevisionId() != $revision_id) {
+          $entity = $this->entityTypeManager->getStorage($entity->getEntityTypeId())->loadRevision($revision_id);
+        }
       }
       if ($display_id == '_custom') {
         $display_settings = json_decode(urldecode($display_settings), TRUE);
