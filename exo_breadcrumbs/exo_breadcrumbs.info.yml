@@ -1,6 +1,6 @@
 name: 'eXo Breadcrumbs'
 type: module
 description: 'Provides breadcrumbs enhancements.'
-core_version_requirement: ^8.8 || ^9
+core_version_requirement: '^9.3 || ^10'
 package: 'eXo'
 dependencies:

@@ -6,8 +6,8 @@ use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Breadcrumb\Breadcrumb;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Routing\RouteObjectInterface as RoutingRouteObjectInterface;
 use Drupal\system\PathBasedBreadcrumbBuilder;
-use Symfony\Cmf\Component\Routing\RouteObjectInterface;
 
 /**
  * Adds the current page title to the breadcrumb.
@@ -56,7 +56,7 @@ class BreadcrumbFormatter extends PathBasedBreadcrumbBuilder {
 
     // Adds current page title as non-clickable final breadcrumb.
     $request = \Drupal::request();
-    $route = $request->attributes->get(RouteObjectInterface::ROUTE_OBJECT);
+    $route = $request->attributes->get(RoutingRouteObjectInterface::ROUTE_OBJECT);
     $title = $this->titleResolver->getTitle($request, $route);
     if (!isset($title)) {
       $path = trim($this->context->getPathInfo(), '/');
