@@ -54,6 +54,18 @@ function exo_config_user_role_load($roles) {
 }
 
 /**
+ * Implements hook_ENTITY_TYPE_load().
+ */
+function exo_config_user_role_update(RoleInterface $role) {
+  if (Settings::get('exo_config_devel', FALSE) && !isset($role->exoConfigSave)) {
+    /** @var \Drupal\user\RoleInterface $role */
+    $role->revokePermission('access devel information');
+    $role->exoConfigSave = TRUE;
+    $role->save();
+  }
+}
+
+/**
  * Implements hook_config_readonly_whitelist_patterns().
  */
 function exo_config_config_readonly_whitelist_patterns() {
