@@ -835,25 +835,23 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
               break;
 
             default:
-              if (!$entity_list->getSetting('item_wrapper_status')) {
-                $build_rows[$key] = $row;
-              }
-              else {
-                $build_rows[$key] = [
-                  '#type' => 'html_tag',
-                  '#tag' => 'div',
-                  '#attributes' => [
-                    'class' => [
-                      'exo-list-item',
-                    ],
+              $build_rows[$key] = [
+                '#type' => 'html_tag',
+                '#tag' => 'div',
+                '#attributes' => [
+                  'class' => [
+                    'exo-list-item',
                   ],
-                  '#group_by' => $row['#group_by'] ?? NULL,
-                  'row' => $row,
-                ];
-                if ($entity_list->getSetting('list_link')) {
-                  $build_rows[$key]['#tag'] = 'a';
-                  $build_rows[$key]['#attributes']['href'] = $target_entity->toUrl()->toString();
-                }
+                ],
+                '#group_by' => $row['#group_by'] ?? NULL,
+                'row' => $row,
+              ];
+              if ($entity_list->getSetting('list_link')) {
+                $build_rows[$key]['#tag'] = 'a';
+                $build_rows[$key]['#attributes']['href'] = $target_entity->toUrl()->toString();
+              }
+              if (!$entity_list->getSetting('item_wrapper_status')) {
+                $build_rows[$key]['#type'] = NULL;
               }
               break;
           }
