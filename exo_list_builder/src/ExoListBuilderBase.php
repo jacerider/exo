@@ -843,7 +843,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
                     'exo-list-item',
                   ],
                 ],
-                '#group_by' => $row['#group_by'],
+                '#group_by' => $row['#group_by'] ?? NULL,
                 'row' => $row,
               ];
               if ($entity_list->getSetting('list_link')) {
@@ -1577,7 +1577,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $page = (int) $this->getOption('page') + 1;
     $pages = $limit > 0 && $total > 0 ? ceil($total / (int) $limit) : 1;
 
-    if ($limit && $entity_list->getSetting('limit_status')) {
+    if ($pages > 1 && $limit && $entity_list->getSetting('limit_status')) {
       $form['limit'] = [
         '#type' => 'html_tag',
         '#tag' => 'div',
