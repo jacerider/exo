@@ -221,7 +221,7 @@ class EntityListForm extends EntityForm {
         'visible' => [
           ':input[name="format"]' => ['value' => 'list'],
         ],
-      ]
+      ],
     ];
 
     $form['url'] = [
@@ -431,6 +431,17 @@ class EntityListForm extends EntityForm {
       '#title' => $this->t('Hide if No Results'),
       '#description' => $this->t('If the list returns no results, do not display it.'),
       '#default_value' => $exo_entity_list->getSetting('hide_no_results'),
+    ];
+
+    $form['settings']['item_wrapper_status'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Wrap each item in a DIV'),
+      '#default_value' => $exo_entity_list->getSetting('item_wrapper_status'),
+      '#states' => [
+        'visible' => [
+          ':input[name="format"]' => ['value' => 'list'],
+        ],
+      ],
     ];
 
     $form['settings']['submit_label'] = [

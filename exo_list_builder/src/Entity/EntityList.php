@@ -284,6 +284,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
     'filter_overview_status' => TRUE,
     'block_status' => FALSE,
     'first_page_only_status' => FALSE,
+    'item_wrapper_status' => TRUE,
   ];
 
   /**
