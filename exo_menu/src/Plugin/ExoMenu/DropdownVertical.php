@@ -21,6 +21,7 @@ class DropdownVertical extends ExoMenuDropdownBase {
   public function defaultConfiguration() {
     return parent::defaultConfiguration() + [
       'cloneExpandable' => FALSE,
+      'expandChildren' => FALSE,
       'expandActiveTrail' => FALSE,
     ];
   }
@@ -35,6 +36,12 @@ class DropdownVertical extends ExoMenuDropdownBase {
       '#title' => $this->t('Clone expandable links into child'),
       '#description' => $this->t('Will take an expandable link, and place it as the first child so that it is clickable.'),
       '#default_value' => $this->configuration['cloneExpandable'],
+    ];
+    $form['expandChildren'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Expand children'),
+      '#description' => $this->t('Will automatically expand all children.'),
+      '#default_value' => $this->configuration['expandChildren'],
     ];
     $form['expandActiveTrail'] = [
       '#type' => 'checkbox',

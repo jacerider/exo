@@ -27,7 +27,15 @@
         this.$element.find('.expanded > a').append(this.get('itemIcon'));
       }
 
-      this.$element.find('.expanded > a').on('click.exo.menu.style.dropdown', e => {
+      let $links;
+      if (this.get('expandChildren')) {
+        $links = this.$element.find('.level-0 > ul > .expanded > a');
+      }
+      else {
+        $links = this.$element.find('.expanded > a');
+      }
+
+      $links.on('click.exo.menu.style.dropdown', e => {
         const $target = $(e.currentTarget);
         e.preventDefault();
         this.toggle($target.closest('.expanded'));
