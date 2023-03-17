@@ -78,7 +78,7 @@ class SiteSettingsBlock extends BlockBase implements BlockPluginInterface, Conta
     if (!empty($config['site_settings_type'])) {
       $site_settings = $this->entityTypeManager->getStorage('exo_site_settings')->loadByType($config['site_settings_type']);
       if ($site_settings) {
-        $view_mode = $config['site_settings_view_mode'];
+        $view_mode = $config['site_settings_view_mode'] ?: 'default';
         $build = $this->entityTypeManager->getViewBuilder('exo_site_settings')->view($site_settings, $view_mode, NULL);
       }
     }
