@@ -8,13 +8,6 @@ namespace Drupal\exo_alchemist\Plugin;
 trait ExoComponentFieldPreviewEntityTrait {
 
   /**
-   * The entity type manager.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected $entityTypeManager;
-
-  /**
    * Get an entity to preview.
    *
    * @return \Drupal\Core\Entity\EntityInterface
