@@ -29,9 +29,7 @@ use Drupal\exo_alchemist\Plugin\ExoComponentFieldComputedInterface;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldFieldableInterface;
 use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\Core\Plugin\CategorizingPluginManagerTrait;
-use Drupal\Core\Plugin\Context\EntityContext;
 use Drupal\Core\Plugin\PluginBase;
-use Drupal\exo_alchemist\Plugin\ExoComponentFieldPreviewEntityTrait;
 
 /**
  * Provides the Component Field plugin manager.
@@ -42,7 +40,6 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
   use ExoIconTranslationTrait;
   use FilteredPluginManagerTrait;
   use ExoComponentContextTrait;
-  use ExoComponentFieldPreviewEntityTrait;
 
   /**
    * The entity type manager.
@@ -1088,21 +1085,6 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
         // Apply context.
         if ($component_field instanceof ContextAwarePluginInterface) {
           if (!empty($component_field->getContexts())) {
-            // Preview with proper entity when component has entity context.
-            if ($is_preview && isset($contexts['layout_builder.entity']) && $definition->hasContextDefinition('entity')) {
-              $layout_entity = $contexts['layout_builder.entity']->getContextValue();
-              $preview_entity_type = str_replace('entity:', '', $definition->getContextDefinition('entity')->getDataType());
-              if ($layout_entity && $preview_entity_type !== $layout_entity->getEntityTypeId()) {
-                $preview_bundles = $definition->getContextDefinition('entity')->getConstraint('Bundle') ?: [$preview_entity_type];
-                if ($preview_entity = $this->getPreviewEntity($preview_entity_type, $preview_bundles)) {
-                  $contexts['layout_builder.entity'] = EntityContext::fromEntity($preview_entity);
-                  \Drupal::messenger()->addMessage($this->t('This component is being previewed using <a href="@url">@label</a>.', [
-                    '@url' => $preview_entity->toUrl()->toString(),
-                    '@label' => $preview_entity->getEntityType()->getLabel() . ': ' . $preview_entity->label(),
-                  ]), 'alchemist');
-                }
-              }
-            }
             $component_field->setContextMapping(['entity' => 'layout_builder.entity']);
             if (isset($contexts['layout_entity'])) {
               $component_field->setContextMapping(['entity' => 'layout_entity']);

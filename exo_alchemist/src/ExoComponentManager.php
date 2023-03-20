@@ -32,6 +32,8 @@ use Drupal\exo_alchemist\Plugin\Discovery\ExoComponentInstalledDiscovery;
 use Drupal\layout_builder\LayoutEntityHelperTrait;
 use Drupal\layout_builder\SectionComponent;
 use Drupal\Core\Plugin\Context\ContextDefinition;
+use Drupal\Core\Plugin\Context\EntityContext;
+use Drupal\exo_alchemist\Plugin\ExoComponentFieldPreviewEntityTrait;
 use Drupal\exo_icon\ExoIconTranslatableMarkup;
 
 /**
@@ -43,6 +45,7 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
   use FilteredPluginManagerTrait;
   use LayoutEntityHelperTrait;
   use ExoComponentContextTrait;
+  use ExoComponentFieldPreviewEntityTrait;
 
   /**
    * The entity bundle type to use as component entities.
@@ -1205,6 +1208,23 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
       $build['#attributes']['class'][] = Html::getClass('exo-component-' . $extend_definition->getName());
       if ($extend_definition->hasLibrary()) {
         $build['#attached']['library'][] = 'exo_alchemist/' . $extend_definition->getLibraryId();
+      }
+    }
+    if ($definition->getContextDefinitions()) {
+      // Preview with proper entity when component has entity context.
+      if ($is_preview && isset($contexts['layout_builder.entity']) && $definition->hasContextDefinition('entity')) {
+        $layout_entity = $contexts['layout_builder.entity']->getContextValue();
+        $preview_entity_type = str_replace('entity:', '', $definition->getContextDefinition('entity')->getDataType());
+        if ($layout_entity && $preview_entity_type !== $layout_entity->getEntityTypeId()) {
+          $preview_bundles = $definition->getContextDefinition('entity')->getConstraint('Bundle') ?: [$preview_entity_type];
+          if ($preview_entity = $this->getPreviewEntity($preview_entity_type, $preview_bundles)) {
+            $contexts['layout_builder.entity'] = EntityContext::fromEntity($preview_entity);
+            \Drupal::messenger()->addMessage($this->t('This component is being previewed using <a href="@url">@label</a>.', [
+              '@url' => $preview_entity->toUrl()->toString(),
+              '@label' => $preview_entity->getEntityType()->getLabel() . ': ' . $preview_entity->label(),
+            ]), 'alchemist');
+          }
+        }
       }
     }
     $values = $this->viewEntityValues($definition, $entity, $contexts);
