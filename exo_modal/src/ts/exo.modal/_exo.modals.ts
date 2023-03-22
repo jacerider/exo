@@ -52,7 +52,7 @@ class ExoModals extends ExoDataManager<ExoModal> {
       this.getVisible().each((modal:ExoModal) => {
         const $element = $(e.target);
         if (modal.getElement().find(e.target).length) {
-          if (e.which === 13 && modal.getElement().find('form').length) {
+          if (e.which === 13 && modal.getElement().find('form').length && !modal.getElement().find('.ck-editor').length) {
             if ($element.has('[data-autocomplete-path]').length || $element.hasClass('ui-autocomplete-input') || $element.is('textarea')) {
               return;
             }
