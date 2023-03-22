@@ -14,15 +14,11 @@ use Drupal\exo_form\Plugin\ExoFormBase;
  *   element_types = {
  *     "datetime",
  *     "exo_datetime",
+ *     "exo_datetime_month_year",
  *   }
  * )
  */
 class DateTime extends ExoFormBase {
-
-  /**
-   * {@inheritdoc}
-   */
-  // protected $featureAttributeKey = 'exo_form_attributes';
 
   /**
    * {@inheritdoc}
@@ -52,6 +48,7 @@ class DateTime extends ExoFormBase {
    */
   public function preRender($element) {
     $element = parent::preRender($element);
+    $element['#wrapper_attributes']['class'][] = 'exo-form-element';
     $element['#wrapper_attributes']['class'][] = 'exo-form-datetime';
     $element['#attributes']['class'][] = 'exo-form-inline';
     $element['#attributes']['class'][] = 'exo-form-input';
