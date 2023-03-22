@@ -29,6 +29,8 @@ abstract class ExoAttributeWidgetBase extends WidgetBase implements ExoAttribute
     return [
       'empty_option' => 'Auto',
       'enabled_options' => [],
+      // inline, grid, grid-compact, stacked.
+      'exo_style' => 'inline',
     ] + parent::defaultSettings();
   }
 
@@ -119,7 +121,7 @@ abstract class ExoAttributeWidgetBase extends WidgetBase implements ExoAttribute
     }
     $element['value'] = $element + [
       '#type' => $supports_multiple ? 'exo_checkboxes' : 'exo_radios',
-      '#exo_style' => 'inline',
+      '#exo_style' => $this->getSetting('exo_style') ?: 'inline',
       '#default_value' => $value,
       '#required' => $this->fieldDefinition->isRequired(),
       '#options' => $options,
