@@ -205,6 +205,7 @@ class ExoOEmbedModal extends ExoModalFieldFormatterBase {
       'max_width' => 0,
       'max_height' => 0,
       'resolution' => '16:9',
+      'image_style' => '',
       'type' => 'image',
       'text' => 'View Video',
       'icon' => 'regular-play-circle',
@@ -431,8 +432,6 @@ class ExoOEmbedModal extends ExoModalFieldFormatterBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-    $elements = [];
-
     foreach ($items as $delta => $item) {
       $media = $item->getEntity();
       $this->thumbnails[$delta] = [
