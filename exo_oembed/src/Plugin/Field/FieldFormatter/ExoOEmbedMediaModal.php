@@ -36,7 +36,7 @@ class ExoOEmbedMediaModal extends ExoOEmbedModal {
         // Placeholder for handling more items.
       }
     }
-    return parent::viewElements($media_items, $langcode);
+    return $media_items ? parent::viewElements($media_items, $langcode) : [];
   }
 
   /**
