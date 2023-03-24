@@ -669,7 +669,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       foreach ($this->getReferences() as $reference_field_id => $reference) {
         if (isset($fields[$reference_field_id])) {
           $parent_field = $fields[$reference_field_id];
-          $reference_fields = array_intersect_key($this->getReferenceFields($parent_field), array_flip($reference['fields']));
+          $reference_fields = array_intersect_key($this->getReferenceFields($parent_field), array_flip($reference['fields'] ?? []));
           foreach ($reference_fields as $reference_field) {
             $reference_field['id'] = $reference_field_id . ':' . $reference_field['id'];
             $reference_field['label'] = $parent_field['label'] . ' (' . $reference_field['label'] . ')';
