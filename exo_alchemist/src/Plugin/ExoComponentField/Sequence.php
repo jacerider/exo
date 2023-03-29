@@ -313,7 +313,10 @@ class Sequence extends EntityReferenceBase {
       if ($entity) {
         $this->exoComponentManager()->getExoComponentFieldManager()->onPostSaveLayoutBuilderEntity($component, $entity, $parent_entity);
         // We need to save usage.
-        \Drupal::service('inline_block.usage')->addUsage($entity->id(), $sequence_entity);
+        /** @var \Drupal\layout_builder\InlineBlockUsage $inline_block_usage */
+        $inline_block_usage = \Drupal::service('inline_block.usage');
+        $inline_block_usage->deleteUsage([$entity->id()]);
+        $inline_block_usage->addUsage($entity->id(), $sequence_entity);
       }
     }
   }
