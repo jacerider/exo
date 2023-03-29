@@ -22,6 +22,8 @@ class Width extends ClassAttribute {
    */
   protected $options = [
     '_none' => 'Auto',
+    '10' => '10%',
+    '20' => '20%',
     '30' => '30%',
     '40' => '40%',
     '50' => '50%',
