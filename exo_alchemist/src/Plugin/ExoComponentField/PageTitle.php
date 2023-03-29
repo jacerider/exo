@@ -80,14 +80,14 @@ class PageTitle extends Text implements ContainerFactoryPluginInterface {
     );
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function processDefinition() {
-    parent::processDefinition();
-    $field = $this->getFieldDefinition();
-    $field->setHideable(FALSE);
-  }
+  // /**
+  //  * {@inheritdoc}
+  //  */
+  // public function processDefinition() {
+  //   parent::processDefinition();
+  //   $field = $this->getFieldDefinition();
+  //   $field->setHideable(FALSE);
+  // }
 
   /**
    * {@inheritdoc}
