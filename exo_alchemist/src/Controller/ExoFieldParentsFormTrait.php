@@ -237,6 +237,10 @@ trait ExoFieldParentsFormTrait {
     $visible = [];
     foreach ($definition->getFields() as $field) {
       $field_name = $field->safeId();
+      // Page title should not be handled automatically.
+      if (in_array($field->getType(), ['page_title'])) {
+        continue;
+      }
       if ($entity->hasField($field_name)) {
         if ($entity->get($field_name)->isEmpty() && !$field->isRequired() && $field->isHideable()) {
           $hidden[] = $field->getName();

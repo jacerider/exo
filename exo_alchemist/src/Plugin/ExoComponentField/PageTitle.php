@@ -83,15 +83,6 @@ class PageTitle extends Text implements ContainerFactoryPluginInterface {
   /**
    * {@inheritdoc}
    */
-  public function processDefinition() {
-    parent::processDefinition();
-    $field = $this->getFieldDefinition();
-    $field->setRequired(TRUE);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function propertyInfo() {
     $properties = [
       'value' => $this->t('The page title renderable.'),
