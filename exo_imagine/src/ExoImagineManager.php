@@ -121,12 +121,13 @@ class ExoImagineManager {
       if (empty($info)) {
         return $definition;
       }
-      $ratio = $info[0] / $info[1];
       if ($width && !$height) {
-        $height = $width * $ratio;
+        $ratio = $width / $info[0];
+        $height = $info[1] * $ratio;
       }
       if ($height && !$width) {
-        $width = $height * $ratio;
+        $ratio = $height / $info[1];
+        $width = $info[0] * $ratio;
       }
       $mime = $info['mime'];
       $definition['uri'] = $image_style_uri;
@@ -193,12 +194,13 @@ class ExoImagineManager {
         if (empty($info)) {
           return $definition;
         }
-        $ratio = $info[0] / $info[1];
         if ($width && !$height) {
-          $height = $width * $ratio;
+          $ratio = $width / $info[0];
+          $height = $info[1] * $ratio;
         }
         if ($height && !$width) {
-          $width = $height * $ratio;
+          $ratio = $height / $info[1];
+          $width = $info[0] * $ratio;
         }
         $mime = $info['mime'];
         $definition['uri'] = $image_style_uri;
@@ -217,7 +219,8 @@ class ExoImagineManager {
         $definition['cache_tags'] = $image_style->getCacheTags();
       }
       else {
-        $definition['src'] = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
+        // $definition['src'] = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
+        $definition['src'] = '';
         $definition['width'] = $image_definition['width'];
         $definition['height'] = $image_definition['height'];
         $definition['mime'] = 'image/gif';

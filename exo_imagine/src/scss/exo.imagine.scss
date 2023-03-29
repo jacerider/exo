@@ -80,6 +80,13 @@
   }
 }
 
+.exo-imagine-preview {
+
+  &:before {
+    display: none;
+  }
+}
+
 @keyframes exo-image-fadeout {
   0% { opacity: 1; }
   100% { opacity: 0; }
