@@ -1210,7 +1210,15 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
         $build['#attached']['library'][] = 'exo_alchemist/' . $extend_definition->getLibraryId();
       }
     }
-    if ($definition->getContextDefinitions()) {
+    if ($this->isDefaultStorage($contexts)) {
+      if (isset($contexts['layout_builder.entity'])) {
+        $layout_entity = $contexts['layout_builder.entity']->getContextValue();
+        if ($preview_entity = $this->getPreviewEntity($layout_entity->getEntityTypeId(), $layout_entity->bundle())) {
+          $contexts['layout_builder.entity'] = EntityContext::fromEntity($preview_entity);
+        }
+      }
+    }
+    elseif ($definition->getContextDefinitions()) {
       // Preview with proper entity when component has entity context.
       if ($is_preview && isset($contexts['layout_builder.entity']) && $definition->hasContextDefinition('entity')) {
         $layout_entity = $contexts['layout_builder.entity']->getContextValue();
