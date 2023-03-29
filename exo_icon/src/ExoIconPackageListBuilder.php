@@ -51,6 +51,7 @@ class ExoIconPackageListBuilder extends DraggableListBuilder {
         'exo_icon_package' => $entity->id(),
       ]),
     ];
+    $row['preview']['#wrapper_attributes']['style'] = 'white-space:nowrap;text-align:left;';
     $row['preview']['data'] = $preview;
     $row['type']['data']['#markup'] = $this->icon($entity->getType());
     $row['global']['data']['#markup'] = $entity->isGlobal() ? $this->icon('Global')->setIcon('regular-check-circle')->setIconOnly() : $this->icon('Not Global')->setIcon('regular-circle')->setIconOnly();
