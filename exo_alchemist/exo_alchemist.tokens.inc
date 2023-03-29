@@ -159,9 +159,11 @@ function exo_alchemist_smart_data(ContentEntityInterface $entity, $alchemist_fie
       $items = $repository->getComponentItemsByFieldType($entity, 'sequence', FALSE, TRUE);
       if ($items) {
         $entity = $items->first()->entity;
-        $items = $repository->getComponentItemsByEntityFieldType($entity, $alchemist_field_type);
-        if ($items) {
-          $data = exo_alchemist_smart_find($items, $field_type);
+        if ($entity) {
+          $items = $repository->getComponentItemsByEntityFieldType($entity, $alchemist_field_type);
+          if ($items) {
+            $data = exo_alchemist_smart_find($items, $field_type);
+          }
         }
       }
     }
