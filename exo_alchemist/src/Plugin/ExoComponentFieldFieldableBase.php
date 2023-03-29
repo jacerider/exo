@@ -298,7 +298,12 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
       return $values;
     }
     if ($field_type === $parent_field_type) {
-      $values = $parent_items->getValue();
+      if ($this->getFieldDefinition()->getCardinality() === 1) {
+        $values = $parent_items->first()->getValue();
+      }
+      else {
+        $values = $parent_items->getValue();
+      }
     }
     else {
       $string_types = ['string', 'string_long'];
