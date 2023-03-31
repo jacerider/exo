@@ -127,7 +127,11 @@ abstract class MediaBase extends EntityReferenceBase implements ExoComponentFiel
    */
   protected function getValueEntity(ExoComponentValue $value, FieldItemInterface $item = NULL) {
     $media = NULL;
-    $key = md5($this->getMediaKey($value));
+    $key = $this->getMediaKey($value);
+    if (!$key) {
+      return;
+    }
+    $key = md5($key);
     if ($item && $item->entity && $item->entity instanceof MediaInterface) {
       $media = $item->entity;
       if ($media->bundle() !== $value->get('bundle')) {
