@@ -22,6 +22,7 @@ class ExoAlchemistAdmin {
   protected $activeComponent:JQuery = null;
   protected $activeField:JQuery = null;
   protected watchFinished:number = null;
+  protected scrollTop:number = 0;
 
   /**
    * Initial setup.
@@ -44,6 +45,10 @@ class ExoAlchemistAdmin {
       if (this.$activeTarget) {
         this.sizeTarget(this.$activeTarget);
       }
+    });
+
+    Drupal.Exo.trackElementPosition($('#layout-builder'), null, null, e => {
+      this.scrollTop = $(document).scrollTop();
     });
 
     document.addEventListener('aos:finish', e => {
@@ -93,6 +98,7 @@ class ExoAlchemistAdmin {
           if ($new.length) {
             $(element).imagesLoaded(() => {
               this.setComponentActive($new, true);
+              $(document).scrollTop(this.scrollTop);
               if (this.$activeField && !$($new).find(this.$activeField).length) {
                 const $new = $('#' + this.$activeField.attr('id'));
                 if ($new.length) {
