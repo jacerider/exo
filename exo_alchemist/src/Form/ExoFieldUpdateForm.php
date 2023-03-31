@@ -134,12 +134,11 @@ class ExoFieldUpdateForm extends FormBase {
    * @param \Drupal\Core\Session\AccountInterface $current_user
    *   The current user.
    */
-  public function __construct(LayoutTempstoreRepositoryInterface $layout_tempstore_repository, ExoComponentManager $exo_component_manager, BlockManagerInterface $block_manager, EntityTypeManagerInterface $entity_type_manager, UuidInterface $uuid, AccountInterface $current_user) {
+  public function __construct(LayoutTempstoreRepositoryInterface $layout_tempstore_repository, ExoComponentManager $exo_component_manager, BlockManagerInterface $block_manager, EntityTypeManagerInterface $entity_type_manager, AccountInterface $current_user) {
     $this->layoutTempstoreRepository = $layout_tempstore_repository;
     $this->exoComponentManager = $exo_component_manager;
     $this->blockManager = $block_manager;
     $this->entityTypeManager = $entity_type_manager;
-    $this->uuidGenerator = $uuid;
     $this->currentUser = $current_user;
   }
 
@@ -152,7 +151,6 @@ class ExoFieldUpdateForm extends FormBase {
       $container->get('plugin.manager.exo_component'),
       $container->get('plugin.manager.block'),
       $container->get('entity_type.manager'),
-      $container->get('uuid'),
       $container->get('current_user')
     );
   }
