@@ -43,11 +43,20 @@ class Link extends ExoComponentFieldFieldableBase {
    */
   public function validateValue(ExoComponentValue $value) {
     parent::validateValue($value);
+    $field = $this->getFieldDefinition();
+    if ($field->getAdditionalValue('title_type') === 'disabled') {
+      if ($value->has('value')) {
+        $value->set('uri', $value->get('value'));
+        $value->unset('value');
+      }
+    }
     if (!$value->has('uri')) {
       throw new PluginException(sprintf('eXo Component Field plugin (%s) requires [default.uri] be set.', $value->getDefinition()->getType()));
     }
-    if (!$value->has('title')) {
-      throw new PluginException(sprintf('eXo Component Field plugin (%s) requires [default.title] be set.', $value->getDefinition()->getType()));
+    if ($field->getAdditionalValue('title_type') !== 'disabled') {
+      if (!$value->has('title')) {
+        throw new PluginException(sprintf('eXo Component Field plugin (%s) requires [default.title] be set.', $value->getDefinition()->getType()));
+      }
     }
   }
 
@@ -55,11 +64,36 @@ class Link extends ExoComponentFieldFieldableBase {
    * {@inheritdoc}
    */
   public function getStorageConfig() {
+    $field = $this->getFieldDefinition();
+    $title_type = DRUPAL_REQUIRED;
+    if ($type = $field->getAdditionalValue('title_type')) {
+      switch ($type) {
+        case 'optional':
+          $title_type = DRUPAL_OPTIONAL;
+          break;
+
+        case 'disabled':
+          $title_type = DRUPAL_DISABLED;
+          break;
+      }
+    }
+    $link_type = LinkItemInterface::LINK_GENERIC;
+    if ($type = $field->getAdditionalValue('link_type')) {
+      switch ($type) {
+        case 'internal':
+          $link_type = LinkItemInterface::LINK_INTERNAL;
+          break;
+
+        case 'external':
+          $link_type = LinkItemInterface::LINK_EXTERNAL;
+          break;
+      }
+    }
     return [
       'type' => 'link',
       'settings' => [
-        'link_type' => LinkItemInterface::LINK_GENERIC,
-        'title' => DRUPAL_REQUIRED,
+        'link_type' => $link_type,
+        'title' => $title_type,
       ],
     ];
   }
