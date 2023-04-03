@@ -79,6 +79,7 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
       'render' => $this->t('The entity list renderable.'),
       'page' => $this->t('The entity list page.'),
       'count' => $this->t('The entity list result count. (Requires: exo_entity_list_count: true)'),
+      'cache' => $this->t('The entity list cache. Useful for caching empty lists.'),
     ];
     return $properties;
   }
@@ -131,6 +132,10 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
       }
       $value['render'] = $render;
       $value['page'] = $handler->getOption('page');
+      $value['cache'] = [
+        '#markup' => '',
+        '#cache' => $render['#cache'],
+      ];
       if ($field->hasAdditionalValue('exo_entity_list_count')) {
         $value['count'] = $handler->getTotal();
       }
