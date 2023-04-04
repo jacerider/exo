@@ -1,14 +1,23 @@
 @import 'exo-common';
 
 .media-library-wrapper {
-  margin: 0;
-  padding: 0;
+  margin: 0 !important;
+  padding: 0 !important;
 
   .exo-form-wrap {
     border: 0 !important;
     padding: 0 !important;
     box-shadow: none !important;
     background-color: inherit !important;
+  }
+
+  .exo-form {
+    margin-bottom: 0 !important;
+  }
+
+  .media-library-add-form__input-wrapper {
+    padding: $global-padding !important;
+    margin-bottom: $global-margin !important;
   }
 
   .media-library-menu {
@@ -76,17 +85,17 @@
       background-color: none !important;
     }
 
-    .exo-body:not(.theme-gin) {
+    .exo-body:not(.theme-gin) & {
 
       &.views-display-link-widget {
         @include exo-icon(regular, f00a) {
           position: static;
           padding-right: rem-calc(5);
           mask-image: none;
+          background: none;
         }
         margin-right: $global-margin * 0.5 !important;
         background: none !important;
-        // padding: 0 !important;
 
         &.is-active {
           font-weight: 700;
@@ -98,6 +107,7 @@
           position: static;
           padding-right: rem-calc(5);
           mask-image: none;
+          background: none;
         }
         background: none !important;
         // padding: 0 !important;
@@ -160,6 +170,7 @@
   .media-library-view,
   .view-media-library {
     @include flex;
+    @include flex-align(left, middle);
     flex-wrap: wrap;
     justify-content: space-between;
     position: relative;
@@ -178,8 +189,8 @@
     > .view-filters {
       flex: 1 1 auto !important;
       order: 1;
-      margin-top: ($global-margin * 0.5) !important;
-      margin-bottom: 0 !important;
+      margin-top: 0 !important;
+      margin-bottom: $global-margin !important;
 
       > .views-exposed-form {
         background: none;
@@ -189,6 +200,14 @@
         border-radius: 0;
         overflow: visible;
         box-shadow: none;
+
+        > * {
+          margin-bottom: 0;
+        }
+      }
+
+      .exo-form-inline {
+        @include flex-align(left, middle);
       }
     }
 
@@ -467,7 +486,20 @@
 
 }
 
+.media-library-widget {
+
+  > .fieldset-wrapper {
+    margin-top: 0 !important;
+
+    > .field-prefix {
+      display: none;
+    }
+  }
+}
+
 .media-library-selection {
+  margin-left: -0.5rem !important;
+  margin-right: -0.5rem !important;
 
   .media-library-item {
     margin: 0;

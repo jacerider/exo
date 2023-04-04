@@ -193,6 +193,15 @@ function exo_media_page_attachments_alter(array &$attachments) {
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function exo_media_form_media_library_add_form_upload_alter(array &$form, FormStateInterface $form_state) {
+  if (isset($form['container'])) {
+    $form['container']['#attributes']['class'][] = 'media-library-add-form__input-wrapper';
+  }
+}
+
+/**
  * Implements hook_exo_modal_alter().
  */
 function exo_media_exo_modal_alter(ExoModalInterface $modal, array $context) {
@@ -203,6 +212,8 @@ function exo_media_exo_modal_alter(ExoModalInterface $modal, array $context) {
       $modal->setSetting('theme_content', 'black');
       $modal->setModalSetting('nest', TRUE);
       $modal->addModalClass('is-admin');
+      $modal->addModalClass('exo-form');
+      $modal->addModalClass('exo-form-theme-black');
       break;
   }
   switch ($modal->getSetting(['modal', 'title'])) {
@@ -213,6 +224,8 @@ function exo_media_exo_modal_alter(ExoModalInterface $modal, array $context) {
       $modal->setSetting('theme_content', 'black');
       $modal->setModalSetting('nest', TRUE);
       $modal->addModalClass('is-admin');
+      $modal->addModalClass('exo-form');
+      $modal->addModalClass('exo-form-theme-black');
       $modal->setModalSetting('width', '80%');
       break;
   }
