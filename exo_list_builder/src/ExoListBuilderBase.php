@@ -2495,7 +2495,11 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     return Cache::mergeContexts(
       $this->getEntityList()->getEntityType()->getListCacheContexts(),
       $this->entityType->getListCacheContexts(),
-      ['url.query_args:' . $this->getEntityList()->getKey()]
+      [
+        'url.query_args:sort',
+        'url.query_args:order',
+        'url.query_args:' . $this->getEntityList()->getKey(),
+      ]
     );
   }
 
