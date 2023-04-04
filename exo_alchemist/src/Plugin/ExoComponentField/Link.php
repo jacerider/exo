@@ -4,11 +4,13 @@ namespace Drupal\exo_alchemist\Plugin\ExoComponentField;
 
 use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\Core\Field\FieldItemInterface;
+use Drupal\Core\Url;
 use Drupal\exo_alchemist\ExoComponentValue;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldFieldableBase;
 use Drupal\file\FileInterface;
 use Drupal\link\LinkItemInterface;
 use Drupal\media\MediaInterface;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 /**
  * A 'link' adapter for exo components.
@@ -162,11 +164,18 @@ class Link extends ExoComponentFieldFieldableBase {
       $media_id = substr($value['uri'], 13);
       $media = \Drupal::entityTypeManager()->getStorage('media')->load($media_id);
       if ($media instanceof MediaInterface) {
-        $source_field = $media->getSource()->getSourceFieldDefinition($media->get('bundle')->entity);
-        if ($source_field && $media->hasField($source_field->getName()) && $media->get($source_field->getName())->entity instanceof FileInterface) {
-          /** @var \Drupal\file\FileInterface $file */
-          $file = $media->get($source_field->getName())->entity;
-          $url = \Drupal::service('file_url_generator')->generateAbsoluteString($file->getFileUri());
+        if (\Drupal::service('module_handler')->moduleExists('media_entity_download')) {
+          $url = Url::fromRoute('media_entity_download.download', ['media' => $media->id()], [
+            'query' => [ResponseHeaderBag::DISPOSITION_INLINE => NULL],
+          ])->toString();
+        }
+        else {
+          $source_field = $media->getSource()->getSourceFieldDefinition($media->get('bundle')->entity);
+          if ($source_field && $media->hasField($source_field->getName()) && $media->get($source_field->getName())->entity instanceof FileInterface) {
+            /** @var \Drupal\file\FileInterface $file */
+            $file = $media->get($source_field->getName())->entity;
+            $url = \Drupal::service('file_url_generator')->generateAbsoluteString($file->getFileUri());
+          }
         }
       }
     }

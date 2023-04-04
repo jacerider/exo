@@ -11,11 +11,13 @@ use Drupal\exo_alchemist\Plugin\ExoComponentFieldComputedBase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
+use Drupal\Core\Url;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldDisplayInterface;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldDisplayTrait;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldFormInterface;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldFormTrait;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldPreviewEntityTrait;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 /**
  * A 'display' adapter for exo components.
@@ -106,6 +108,11 @@ class EntityDisplay extends ExoComponentFieldComputedBase implements ContextAwar
       'entity_view_url' => $this->t('The entity canonical url.'),
       'entity_edit_url' => $this->t('The entity edit url.'),
     ];
+    if (static::getEntityTypeIdFromPluginId($this->getPluginId()) === 'media') {
+      if (\Drupal::service('module_handler')->moduleExists('media_entity_download')) {
+        $properties['entity_download_url'] = $this->t('The entity download URL.');
+      }
+    }
     $properties += $this->propertyInfoFieldDisplay();
     return $properties;
   }
@@ -149,6 +156,11 @@ class EntityDisplay extends ExoComponentFieldComputedBase implements ContextAwar
       if (!$entity->isNew()) {
         $values['entity_view_url'] = $entity->toUrl()->toString();
         $values['entity_edit_url'] = $entity->toUrl('edit-form')->toString();
+      }
+      if ($entity->getEntityTypeId() === 'media' && \Drupal::service('module_handler')->moduleExists('media_entity_download')) {
+        $values['entity_download_url'] = Url::fromRoute('media_entity_download.download', ['media' => $entity->id()], [
+          'query' => [ResponseHeaderBag::DISPOSITION_INLINE => NULL],
+        ])->toString();
       }
       $values += $this->viewValueFieldDisplay($entity, $contexts);
     }
