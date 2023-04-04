@@ -35,6 +35,9 @@ trait ExoComponentFieldPreviewEntityTrait {
       if ($key = $entity_definition->getKey('status')) {
         $query->condition($key, TRUE);
       }
+      if ($entity_type_id === 'media') {
+        $query->condition('alchemist_key', null, 'IS NULL');
+      }
       $query->range(0, 1);
       $results = $query->accessCheck(FALSE)->execute();
       if (!empty($results)) {
