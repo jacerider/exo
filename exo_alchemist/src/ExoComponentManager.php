@@ -1223,7 +1223,7 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
       if ($is_preview && isset($contexts['layout_builder.entity']) && $definition->hasContextDefinition('entity')) {
         $layout_entity = $contexts['layout_builder.entity']->getContextValue();
         $preview_entity_type = str_replace('entity:', '', $definition->getContextDefinition('entity')->getDataType());
-        if ($layout_entity && $preview_entity_type !== $layout_entity->getEntityTypeId()) {
+        if ($layout_entity && $preview_entity_type !== $layout_entity->getEntityTypeId() && $preview_entity_type !== 'entity') {
           $preview_bundles = $definition->getContextDefinition('entity')->getConstraint('Bundle') ?: [$preview_entity_type];
           if ($preview_entity = $this->getPreviewEntity($preview_entity_type, $preview_bundles)) {
             $contexts['layout_builder.entity'] = EntityContext::fromEntity($preview_entity);
