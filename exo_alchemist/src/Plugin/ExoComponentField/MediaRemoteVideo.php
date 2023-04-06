@@ -5,6 +5,7 @@ namespace Drupal\exo_alchemist\Plugin\ExoComponentField;
 use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Field\FieldItemInterface;
+use Drupal\Core\Url;
 use Drupal\exo_alchemist\ExoComponentValue;
 use Drupal\media\OEmbed\ResourceException;
 
@@ -84,6 +85,9 @@ class MediaRemoteVideo extends MediaBase {
     if ($this->moduleHandler()->moduleExists('exo_modal')) {
       $properties['modal'] = $this->t('The video as a modal.');
     }
+    if ($this->moduleHandler()->moduleExists('exo_imagine')) {
+      $properties['imagine'] = $this->t('Renderable eXo Imagine thumbnail.');
+    }
     return $properties;
   }
 
@@ -117,6 +121,41 @@ class MediaRemoteVideo extends MediaBase {
           'thumbnailWidth' => $resource->getThumbnailWidth(),
           'title' => $resource->getTitle(),
         ];
+        if ($this->moduleHandler()->moduleExists('exo_imagine')) {
+          $imagine_settings = [];
+          // Can set visible, blur and animate.
+          $imagine_settings['display'] = $field->getAdditionalValue('imagine_display') ?? [];
+          $styles = $field->getAdditionalValue('styles') ?? [];
+          foreach ($styles as $breakpoint => $data) {
+            $imagine_settings['breakpoints'][$breakpoint] = [
+              'width' => $data['width'] ?? NULL,
+              'height' => $data['height'] ?? NULL,
+            ];
+          }
+          if ($media->hasField('thumbnail') && !$media->get('thumbnail')->isEmpty()) {
+            $value['imagine'] = $media->get('thumbnail')->view([
+              'type' => 'exo_imagine',
+              'label' => 'hidden',
+              'settings' => $imagine_settings,
+            ]);
+          }
+        }
+        if ($media->hasField('field_media_image') && !$media->get('field_media_image')->isEmpty()) {
+          $image = $media->get('field_media_image')->entity->getFileUri();
+          $url = \Drupal::service('file_url_generator')->generateAbsoluteString($image);
+          $size = getimagesize($image);
+          $value['thumbnailUrl'] = Url::fromUri($url);
+          $value['thumbnailWidth'] = $size[0];
+          $value['thumbnailHeight'] = $size[1];
+
+          if (!empty($imagine_settings)) {
+            $value['imagine'] = $media->get('field_media_image')->view([
+              'type' => 'exo_imagine',
+              'label' => 'hidden',
+              'settings' => $imagine_settings,
+            ]);
+          }
+        }
         if ($this->moduleHandler()->moduleExists('exo_video')) {
           $settings = $field->getAdditionalValue('video_bg_settings') ?: [];
           $value['background'] = [
@@ -124,8 +163,8 @@ class MediaRemoteVideo extends MediaBase {
             '#video_provider' => $provider->getName(),
             '#video_url' => $url,
           ];
-          if ($thumbnail = $resource->getThumbnailUrl()) {
-            $value['background']['#video_image'] = $thumbnail->toString();
+          if (!empty($value['thumbnailUrl'])) {
+            $value['background']['#video_image'] = $value['thumbnailUrl']->toString();
           }
           foreach ($settings as $key => $val) {
             $value['background']['#' . $key] = $val;
