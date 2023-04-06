@@ -17,12 +17,12 @@ class ExoAlchemistAdmin {
   protected $targetClose:JQuery;
   protected $targetOps:JQuery;
   protected targetTimer:ReturnType<typeof setTimeout>;
-  // protected fieldHoverTimer:number;
   protected $activeTarget:JQuery = null;
   protected $activeComponent:JQuery = null;
   protected $activeField:JQuery = null;
   protected watchFinished:number = null;
   protected scrollTop:number = 0;
+  protected scrollTrack:boolean = true;
 
   /**
    * Initial setup.
@@ -47,12 +47,14 @@ class ExoAlchemistAdmin {
       }
     });
 
-    Drupal.Exo.trackElementPosition($('#layout-builder'), null, null, e => {
-      this.scrollTop = $(document).scrollTop();
-    });
-
     document.addEventListener('aos:finish', e => {
       this.watch();
+    });
+
+    Drupal.Exo.trackElementPosition($('form.layout-builder-form'), null, null, e => {
+      if (this.$activeComponent && this.scrollTrack) {
+        this.scrollTop = $(document).scrollTop();
+      }
     });
   }
 
@@ -85,12 +87,14 @@ class ExoAlchemistAdmin {
     }
     return new Promise((resolve, reject) => {
 
-      function ready() {
+      const ready = () => {
         $('#layout-builder').trigger('exo.alchemist.ready');
+        this.scrollTrack = true;
       }
 
       // Called each time layout builder is rebuilt.
       $('#layout-builder').once('exo.alchemist').each((index, element) => {
+        this.scrollTrack = false;
         // Check active components and fields and make sure we store the new
         // elements.
         if (this.$activeComponent && !$(element).find(this.$activeComponent).length) {
@@ -98,6 +102,11 @@ class ExoAlchemistAdmin {
           if ($new.length) {
             $(element).imagesLoaded(() => {
               this.setComponentActive($new, true);
+              const bottom = $(window).height() + this.scrollTop;
+              const offsets = $new.offset();
+              if (offsets.top < this.scrollTop || offsets.top > bottom) {
+                this.scrollTop = $new.offset().top - displace.offsets.top - 30;
+              }
               $(document).scrollTop(this.scrollTop);
               if (this.$activeField && !$($new).find(this.$activeField).length) {
                 const $new = $('#' + this.$activeField.attr('id'));
@@ -113,7 +122,9 @@ class ExoAlchemistAdmin {
           }
         }
         else {
-          ready();
+          $(element).imagesLoaded(() => {
+            ready();
+          });
         }
       });
 
