@@ -33,7 +33,10 @@
 
       this.validate();
       this.bind();
-
+      // Menu title support.
+      if (this.$element.hasClass('menu-title')) {
+        this.$element.addClass('value');
+      }
       if (this.hasValue() || this.isAutofocus() || this.hasPlaceholder() || this.hasBadInput()) {
         this.$element.addClass('active');
       }
