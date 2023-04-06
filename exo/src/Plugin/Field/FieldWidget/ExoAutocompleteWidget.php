@@ -185,9 +185,9 @@ class ExoAutocompleteWidget extends WidgetBase implements ContainerFactoryPlugin
       unset($element['#selection_settings']);
     }
 
-    $new_terms = isset($settings['new_terms']) ? $settings['new_terms'] : FALSE;
-    $allow_message = isset($settings['not_found_message_allow']) ? $settings['not_found_message_allow'] : FALSE;
-    $not_found_message = isset($settings['not_found_message']) ? $settings['not_found_message'] : "The term '@term' will be added.";
+    $new_terms = $settings['new_terms'] ?? FALSE;
+    $allow_message = $settings['not_found_message_allow'] ?? FALSE;
+    $not_found_message = $settings['not_found_message'] ?? "The term '@term' will be added.";
     if (!$new_terms) {
       if ($allow_message) {
         $not_found_message = "Cannot add '@term' because 'Allow new terms' is disabled on the widget settings.";
@@ -205,12 +205,12 @@ class ExoAutocompleteWidget extends WidgetBase implements ContainerFactoryPlugin
       '#selection_handler' => $this->getFieldSetting('handler'),
       '#selection_settings' => $selection_settings,
       '#size' => 60,
-      '#limit' => isset($settings['limit']) ? $settings['limit'] : 10,
-      '#min_length' => isset($settings['min_length']) ? $settings['min_length'] : 0,
-      '#delimiter' => isset($settings['delimiter']) ? $settings['delimiter'] : '',
+      '#limit' => $settings['limit'] ?? 10,
+      '#min_length' => $settings['min_length'] ?? 0,
+      '#delimiter' => $settings['delimiter'] ?? '',
       '#not_found_message_allow' => $allow_message,
       '#not_found_message' => $this->t($not_found_message),
-      '#new_terms' => isset($settings['new_terms']) ? $settings['new_terms'] : FALSE,
+      '#new_terms' => $settings['new_terms'] ?? FALSE,
       '#no_empty_message' => isset($settings['no_empty_message']) ? $this->t($settings['no_empty_message']) : '',
     ];
 
@@ -230,7 +230,7 @@ class ExoAutocompleteWidget extends WidgetBase implements ContainerFactoryPlugin
       $entities[$item->id()] = $item;
     }
 
-    $selection_settings = isset($element['#selection_settings']) ? $element['#selection_settings'] : [];
+    $selection_settings = $element['#selection_settings'] ?? [];
     $data = serialize($selection_settings) . $element['#target_type'] . $element['#selection_handler'];
     $selection_settings_key = Crypt::hmacBase64($data, Settings::getHashSalt());
 
@@ -373,7 +373,7 @@ class ExoAutocompleteWidget extends WidgetBase implements ContainerFactoryPlugin
    */
   protected function getSelectionHandlerSetting($setting_name) {
     $settings = $this->getFieldSetting('handler_settings');
-    return isset($settings[$setting_name]) ? $settings[$setting_name] : NULL;
+    return $settings[$setting_name] ?? NULL;
   }
 
   /**
