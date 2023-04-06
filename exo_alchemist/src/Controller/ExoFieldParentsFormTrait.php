@@ -138,16 +138,18 @@ trait ExoFieldParentsFormTrait {
             unset($form[$field_name]['widget']['add_more']);
             if ($key !== NULL) {
               if ($handles_multiple) {
-                // When a widget handles multiple values, we need to treat it
-                // as if it handles a single widget (ex: exo_autocomplete).
-                // To do this we change the items value to a single value and
-                // store both the delta and original value in the element.
-                // In the submit callback, we merge them together to restore
-                // the old values with the updated new value.
-                foreach (Element::children($form[$field_name]['widget']) as $field_delta) {
-                  $form[$field_name]['widget'][$field_delta]['#multiple'] = FALSE;
-                  $form[$field_name]['#alchemist_original_value'] = $value;
-                  $form[$field_name]['#alchemist_delta'] = $key;
+                if (empty($form['#allow_multiple'])) {
+                  // When a widget handles multiple values, we need to treat it
+                  // as if it handles a single widget (ex: exo_autocomplete).
+                  // To do this we change the items value to a single value and
+                  // store both the delta and original value in the element.
+                  // In the submit callback, we merge them together to restore
+                  // the old values with the updated new value.
+                  foreach (Element::children($form[$field_name]['widget']) as $field_delta) {
+                    $form[$field_name]['widget'][$field_delta]['#multiple'] = FALSE;
+                    $form[$field_name]['#alchemist_original_value'] = $value;
+                    $form[$field_name]['#alchemist_delta'] = $key;
+                  }
                 }
               }
               else {
