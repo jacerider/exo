@@ -181,6 +181,7 @@ class ExoComponentConfigureForm extends FormBase {
       ]),
       '#description' => $component_field->getDescription(),
     ];
+    $form['wrapper']['#allow_multiple'] = TRUE;
     $form['wrapper'] += $this->getTargetForm($form['wrapper'], $form_state, $this->entity, $parents);
 
     $form['actions'] = ['#type' => 'actions'];
