@@ -17,19 +17,6 @@
 
     > .details-wrapper {
       padding: $global-padding;
-      // > .form-item:not(.exo-form-item),
-      // > .profile {
-      //   padding-left: $global-padding;
-      //   padding-right: $global-padding;
-
-      //   &:first-child {
-      //     padding-top: $global-padding;
-      //   }
-
-      //   &:last-child {
-      //     padding-bottom: $global-padding;
-      //   }
-      // }
     }
 
     p {
@@ -38,6 +25,13 @@
       &:last-child {
         margin-bottom: 0;
       }
+    }
+  }
+
+  .claro-details__summary {
+
+    &:after {
+      display: none !important;
     }
   }
 

@@ -38,10 +38,26 @@
 
   td {
 
+    // See link field widget.
     > .exo-form-element,
     > .exo-form-inline > .exo-form-element {
       margin-top: 0 !important;
       margin-bottom: 0 !important;
+    }
+  }
+
+  .field-multiple-table {
+
+    td {
+
+      > .exo-form-element.js-form-wrapper {
+        margin-top: $global-margin * 0.5 !important;
+        margin-bottom: $global-margin * 0.5 !important;
+
+        &:first-child {
+          margin-top: 0 !important;
+        }
+      }
     }
   }
 
