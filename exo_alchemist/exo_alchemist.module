@@ -772,11 +772,9 @@ function exo_alchemist_exo_modal_alter(ExoModalInterface $modal, array $context)
     $trigger_name = \Drupal::request()->request->get('_triggering_element_name');
     $modal->setSetting('theme', 'black');
     $modal->setSetting('theme_content', 'black');
+    $modal->setModalSetting('overlay', TRUE);
     if ($context['route_name'] === 'layout_builder.component.appearance') {
-      $modal->setModalSetting('overlay', FALSE);
-    }
-    else {
-      $modal->setModalSetting('overlay', TRUE);
+      $modal->setModalSetting('overlayColor', 'transparent');
     }
     $modal->setModalSetting('width', 500);
     $modal->setModalSetting('padding', 20);
