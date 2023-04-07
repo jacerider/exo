@@ -17,6 +17,11 @@
         pagination: {},
         navigation: {},
         scrollbar: {},
+        on: {
+          init: () => {
+            $(document).trigger('exoComponentSliderInit');
+          }
+        }
       };
       if ($pagination.length) {
         defaultSettings['pagination']['el'] = $pagination.get(0);
