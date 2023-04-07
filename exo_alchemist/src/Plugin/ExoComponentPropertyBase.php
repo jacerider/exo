@@ -3,7 +3,9 @@
 namespace Drupal\exo_alchemist\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\exo_alchemist\Definition\ExoComponentDefinition;
 
 /**
  * Base class for Component Property plugins.
@@ -77,6 +79,12 @@ abstract class ExoComponentPropertyBase extends PluginBase implements ExoCompone
    */
   public function allowsMultiple() {
     return $this->multiple === TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function alter(ExoComponentDefinition $definition, ContentEntityInterface $entity, array $contexts) {
   }
 
 }

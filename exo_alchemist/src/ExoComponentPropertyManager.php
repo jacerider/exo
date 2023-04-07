@@ -247,6 +247,39 @@ class ExoComponentPropertyManager extends DefaultPluginManager implements ExoCom
   }
 
   /**
+   * Alter entity values.
+   *
+   * Allow modifiers to change field definitions before they are processed.
+   *
+   * @param \Drupal\exo_alchemist\Definition\ExoComponentDefinition $definition
+   *   The component definition.
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   The content entity.
+   * @param \Drupal\Core\Plugin\Context\Context[] $contexts
+   *   An array of current contexts.
+   */
+  public function alterEntityValues(ExoComponentDefinition $definition, ContentEntityInterface $entity, array $contexts) {
+    if (($modifiers = $definition->getModifiers()) && $entity->hasField(self::MODIFIERS_FIELD_NAME)) {
+      foreach ($modifiers as $modifier) {
+        $modifier_name = $modifier->getName();
+        foreach ($modifier->getProperties() as $property) {
+          if (!empty($this->getDefinition($property->getType())['alter'])) {
+            $values = self::getEntityModifierValues($entity, NULL, $definition, TRUE);
+            $value = $values[$modifier_name][$property->getName()] ?? NULL;
+            if (!$value && $property->isRequired()) {
+              $value = $property->getDefault();
+            }
+            if ($instance = $this->getModifierAttribute($property, $value)) {
+              $instance->alter($definition, $entity, $contexts);
+              // $modifier_attributes[$modifier_name] = NestedArray::mergeDeep($modifier_attributes[$modifier_name], $instance->asAttributeArray());
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * View content entity for definition as values.
    *
    * Values are broken out this way so sequence and other nested fields can

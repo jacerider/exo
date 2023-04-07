@@ -1285,6 +1285,7 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
       '#attributes' => [],
       '#content_attributes' => [],
     ];
+    $this->exoComponentPropertyManager->alterEntityValues($definition, $entity, $contexts);
     $this->exoComponentFieldManager->viewEntityValues($definition, $values, $entity, $contexts);
     $this->exoComponentPropertyManager->viewEntityValues($definition, $values, $entity, $contexts);
     $this->exoComponentEnhancementManager->viewEntityValues($definition, $values, $entity, $contexts);
