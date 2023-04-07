@@ -31,7 +31,7 @@ class ExoListBuilderConfigWebform extends ExoListBuilderConfig {
     if ($entity->access('update')) {
       $operations['edit'] = [
         'title' => $this->icon('Build'),
-        'url' => $this->ensureDestination($entity->toUrl('edit-form')),
+        'url' => $entity->toUrl('edit-form'),
         'weight' => 0,
       ];
     }
