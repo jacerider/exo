@@ -95,6 +95,14 @@ class ExoFieldHideController implements ContainerInjectionInterface {
         $items = $this->getTargetItems($parent_entity, $parents);
         $definition = $this->exoComponentManager->getEntityComponentDefinition($entity);
         $field = $definition->getFieldBySafeId($items->getName());
+
+        if (empty($field)) {
+          // There is an unknown issue with sequence fields.
+          $entity = $parent_entity;
+          $definition = $this->exoComponentManager->getEntityComponentDefinition($entity);
+          $field = $definition->getFieldBySafeId($items->getName());
+        }
+
         if (ExoComponentFieldManager::setHiddenFieldName($entity, $field->getName())) {
           $configuration = $block->getConfiguration();
           $configuration['block_serialized'] = serialize($parent_entity);
