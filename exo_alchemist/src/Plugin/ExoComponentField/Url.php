@@ -31,6 +31,23 @@ class Url extends ExoComponentFieldFieldableBase {
   /**
    * {@inheritdoc}
    */
+  public function propertyInfo() {
+    $properties = [
+      'url' => $this->t('The absolute url.'),
+    ];
+    if (!empty($this->getFieldDefinition()->getAdditionalValue('link_icon'))) {
+      $properties['icon'] = $this->t('The icon of the link. Should be passed into {{ icon() }}');
+      $properties['title_icon'] = $this->t('The title with the icon.');
+    }
+    if (in_array($this->getWidgetConfig()['type'], ['exo_linkit', 'exo_link']) && !empty($this->getFieldDefinition()->getAdditionalValue('link_target'))) {
+      $properties['target'] = $this->t('The link target.');
+    }
+    return $properties;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function validateValue(ExoComponentValue $value) {
     parent::validateValue($value);
     if ($value->has('value')) {
@@ -77,7 +94,7 @@ class Url extends ExoComponentFieldFieldableBase {
         'type' => 'exo_linkit',
         'settings' => [
           'icon' => !empty($this->getFieldDefinition()->getAdditionalValue('link_icon')),
-          'target' => TRUE,
+          'target' => !empty($this->getFieldDefinition()->getAdditionalValue('link_target')),
           'linkit_profile' => 'exo',
         ],
       ];
@@ -86,8 +103,8 @@ class Url extends ExoComponentFieldFieldableBase {
       return [
         'type' => 'exo_link',
         'settings' => [
-          'icon' => FALSE,
-          'target' => TRUE,
+          'icon' => !empty($this->getFieldDefinition()->getAdditionalValue('link_icon')),
+          'target' => !empty($this->getFieldDefinition()->getAdditionalValue('link_target')),
         ],
       ];
     }
@@ -126,6 +143,7 @@ class Url extends ExoComponentFieldFieldableBase {
       }
     }
     $value['url'] = $url;
+    $value['target'] = $value['options']['attributes']['target'] ?? '_self';
     return $value;
   }
 
@@ -133,9 +151,13 @@ class Url extends ExoComponentFieldFieldableBase {
    * {@inheritdoc}
    */
   public function formAlter(array &$form, FormStateInterface $form_state) {
-    foreach (Element::children($form['widget']) as $delta) {
-      if (isset($form['widget'][$delta]['options'])) {
-        $form['widget'][$delta]['options']['#access'] = FALSE;
+    $link_icon = !empty($this->getFieldDefinition()->getAdditionalValue('link_icon'));
+    $link_target = !empty($this->getFieldDefinition()->getAdditionalValue('link_target'));
+    if (empty($link_icon) && empty($link_target)) {
+      foreach (Element::children($form['widget']) as $delta) {
+        if (isset($form['widget'][$delta]['options'])) {
+          $form['widget'][$delta]['options']['#access'] = FALSE;
+        }
       }
     }
   }
