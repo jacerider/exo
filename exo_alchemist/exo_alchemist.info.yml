@@ -11,4 +11,5 @@ dependencies:
   - core:block_content
   - core:media
   - core:menu_ui
+  - core:field_ui
   - entity_reference_revisions:entity_reference_revisions
