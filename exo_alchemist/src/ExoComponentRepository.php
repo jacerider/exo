@@ -225,7 +225,6 @@ class ExoComponentRepository {
    *   The component entities.
    */
   public function getComponentItemsByEntityFieldType(BlockContent $component, $field_type, FieldItemListInterface $items = NULL, $visible_only = FALSE) {
-    $items = NULL;
     $definition = $this->exoComponentManager->getEntityComponentDefinition($component);
     $hidden = [];
     if ($visible_only) {
