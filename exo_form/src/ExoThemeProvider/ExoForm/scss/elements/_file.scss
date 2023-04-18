@@ -22,6 +22,59 @@
   }
 }
 
+.exo-form-inline.exo-form-inline-all > .exo-form-file {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.draggable {
+
+  td {
+
+    &:first-child {
+      @include flex;
+      @include flex-align(left, middle);
+
+      > a {
+        flex: 0 0 auto;
+      }
+
+      > .exo-form-element {
+        flex: 1 1 auto;
+      }
+    }
+
+    &:last-child {
+      width: 1%;
+      white-space: nowrap;
+    }
+
+    .exo-form-element-type-managed-file.exo-form-managed-file {
+      border: 0;
+      padding: 0;
+
+      .form-managed-file {
+
+        > span {
+          flex: 0 0 auto;
+          width: auto;
+          min-width: rem-calc(100);
+        }
+
+        > .exo-form-file-input {
+          flex: 1 1 auto;
+        }
+      }
+    }
+  }
+
+  .form-managed-file {
+    @include flex;
+    @include flex-align(left, middle);
+    white-space: nowrap;
+  }
+}
+
 .exo-form-managed-file {
   padding: $global-padding;
 

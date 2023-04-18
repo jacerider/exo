@@ -1801,6 +1801,18 @@
           color: theme-val($theme, base, true);
           box-shadow: none;
         }
+
+        .pager {
+
+          .pager__link {
+            background-color: theme-val($theme, input-bg-color, true);
+          }
+
+          .pager__link.is-active {
+            background-color: theme-val($theme, primary, true);
+            color: color-b-or-w(theme-val($theme, primary));
+          }
+        }
       }
 
       .media-library-menu {
