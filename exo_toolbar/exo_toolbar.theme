@@ -26,6 +26,7 @@ function template_preprocess_exo_toolbar(array &$variables) {
 
   // Prepare the toolbar attributes.
   $variables['attributes'] = $element['#attributes'];
+  $variables['attributes']['class'][] = 'notranslate';
   $variables['heading'] = $element['#heading'];
 
   if ($toolbar->isDebugMode()) {
