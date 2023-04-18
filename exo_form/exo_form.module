@@ -598,6 +598,10 @@ function exo_form_preprocess_fieldset(&$variables) {
   else {
     $variables['attributes']['class'][] = 'has-legend';
   }
+  if (!empty($variables['attributes']['data-drupal-states']) && isset($variables['element']['#theme_wrappers']) && in_array('exo_form_element_container', $variables['element']['#theme_wrappers'])) {
+    // Exo form element container will handle states.
+    // unset($variables['attributes']['data-drupal-states']);
+  }
 }
 
 /**
@@ -718,6 +722,10 @@ function template_preprocess_exo_form_element_container(array &$variables) {
       if (isset($element['#attributes']['id'])) {
         $variables['attributes']['id'] = $element['#attributes']['id'];
       }
+    }
+    if ($element['#type'] === 'fieldset' && isset($element['#field_name']) && !empty($element['#attributes']['data-drupal-states'])) {
+      $variables['attributes']['class'][] = 'js-form-wrapper';
+      $element['#exo_form_inner_attributes']['data-drupal-states'] = $element['#attributes']['data-drupal-states'];
     }
   }
   if (isset($element['#name'])) {
