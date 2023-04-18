@@ -1,0 +1,11 @@
+layout_nowrap:
+  label: 'One column: No Wrapper'
+  path: layouts/nowrap
+  template: layout--nowrap
+  category: 'Columns: 1'
+  default_region: content
+  icon_map:
+    - [content]
+  regions:
+    content:
+      label: Content
