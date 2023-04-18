@@ -149,6 +149,7 @@ class ExoComponentDiscovery implements DiscoveryInterface {
             foreach ([
               'default',
               'hide',
+              'hide_default',
               'edit',
               'computed',
               'invisible',
