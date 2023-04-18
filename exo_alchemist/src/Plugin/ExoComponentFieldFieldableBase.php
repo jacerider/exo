@@ -306,7 +306,7 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
       }
     }
     else {
-      $string_types = ['string', 'string_long'];
+      $string_types = ['string', 'string_long', 'text_long'];
       if (in_array($field_type, $string_types) && in_array($parent_field_type, $string_types)) {
         $values = $parent_items->getValue();
       }
