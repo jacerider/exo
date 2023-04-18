@@ -65,7 +65,8 @@ function exo_alchemist_theme($existing, $type, $theme, $path) {
   ];
   /** @var \Drupal\exo_alchemist\ExoComponentManager $exo_component_manager */
   $exo_component_manager = \Drupal::service('plugin.manager.exo_component');
-  foreach ($exo_component_manager->getInstalledDefinitions() as $definition) {
+  $definitions = $exo_component_manager->getInstalledDefinitions();
+  foreach ($definitions as $key => $definition) {
     /** @var \Drupal\exo_alchemist\Definition\ExoComponentDefinition $definition */
     $theme = [
       'template' => $definition->getTemplate(),
@@ -80,6 +81,9 @@ function exo_alchemist_theme($existing, $type, $theme, $path) {
         'preview_field_attributes' => [],
       ],
     ];
+    if ($definition->isExtended() && isset($definitions[$definition->extendId()])) {
+      $theme['path'] = $definitions[$definition->extendId()]->getPath();
+    }
     // Drupal crawls the entire active theme for tpl files. We need to protect
     // against it picking up our components and overriding module tpls.
     // @see exo_alchemist_theme_registry_alter(). This may result in actual
