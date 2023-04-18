@@ -134,7 +134,7 @@ class ExoEntityList extends ExoComponentFieldComputedBase implements ContainerFa
       $value['page'] = $handler->getOption('page');
       $value['cache'] = [
         '#markup' => '',
-        '#cache' => $render['#cache'],
+        '#cache' => $render['#cache'] ?? [],
       ];
       if ($field->hasAdditionalValue('exo_entity_list_count')) {
         $value['count'] = $handler->getTotal();
