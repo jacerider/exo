@@ -6,6 +6,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Markup;
 use Drupal\exo_list_builder\EntityListInterface;
 
 /**
@@ -128,6 +129,21 @@ abstract class ExoListElementContentBase extends ExoListElementBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function buildView(EntityInterface $entity, array $field) {
+    $view = $this->view($entity, $field);
+    if ($this->allowEntityLink === TRUE && $this->getConfiguration()['link']) {
+      $view = [
+        '#type' => 'link',
+        '#url' => $entity->toUrl('canonical'),
+        '#title' => Markup::create($view),
+      ];
+    }
+    return $view;
+  }
+
+  /**
    * Get viewable output.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
@@ -141,23 +157,47 @@ abstract class ExoListElementContentBase extends ExoListElementBase {
   protected function view(EntityInterface $entity, array $field) {
     $configuration = $this->getConfiguration();
     $field_items = $this->getItems($entity, $field);
-    if (!$field_items) {
+    if (!$field_items || $field_items->isEmpty()) {
       return $configuration['empty'];
     }
     $field_items = $this->prepareItems($field_items);
+    // Allow widget the oportunity to render all items.
+    $values = $this->viewItems($entity, $field_items, $field);
+    if (!is_array($values)) {
+      $values = [$values];
+    }
+    foreach ($values as &$value) {
+      if (is_array($value)) {
+        $renderer = \Drupal::service('renderer');
+        $value = $renderer->render($value);
+      }
+    }
+    return implode($configuration['separator'], $values) ?: $configuration['empty'];
+  }
+
+  /**
+   * Get viewable items.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity.
+   * @param \Drupal\Core\Field\FieldItemListInterface $field_items
+   *   The field items.
+   * @param array $field
+   *   The field definition.
+   *
+   * @return array
+   *   An array of viewable items.
+   */
+  protected function viewItems(EntityInterface $entity, FieldItemListInterface $field_items, array $field) {
+    $configuration = $this->getConfiguration();
     $values = [];
     foreach ($field_items as $field_item) {
       if ($field_item->isEmpty()) {
         return $configuration['empty'];
       }
-      $value = $this->viewItem($entity, $field_item, $field);
-      if (is_array($value)) {
-        $renderer = \Drupal::service('renderer');
-        $value = $renderer->render($value);
-      }
-      $values[] = $value;
+      $values[] = $this->viewItem($entity, $field_item, $field);
     }
-    return implode($configuration['separator'], $values) ?: $configuration['empty'];
+    return $values;
   }
 
   /**
