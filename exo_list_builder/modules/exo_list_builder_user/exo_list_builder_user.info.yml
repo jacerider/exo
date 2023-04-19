@@ -1,4 +1,4 @@
-name: 'eXo List Builder: Webform'
+name: 'eXo List Builder: User'
 type: module
 description: 'Provides list builder support to user management.'
 package: 'eXo'
