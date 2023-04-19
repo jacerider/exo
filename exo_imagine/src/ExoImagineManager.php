@@ -219,8 +219,7 @@ class ExoImagineManager {
         $definition['cache_tags'] = $image_style->getCacheTags();
       }
       else {
-        // $definition['src'] = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
-        $definition['src'] = '';
+        $definition['src'] = ExoImaginePlaceholder::image($image_definition['width'], $image_definition['height']);
         $definition['width'] = $image_definition['width'];
         $definition['height'] = $image_definition['height'];
         $definition['mime'] = 'image/gif';
