@@ -13,7 +13,7 @@ use Drupal\exo_linkit\Utility\LinkitHelper;
  *
  * @FieldWidget(
  *   id = "exo_linkit",
- *   label = @Translation("Linkit"),
+ *   label = @Translation("eXo Linkit"),
  *   field_types = {"link"},
  * )
  */
