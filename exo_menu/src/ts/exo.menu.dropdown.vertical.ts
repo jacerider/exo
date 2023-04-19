@@ -42,9 +42,21 @@
       });
 
       if (this.get('expandActiveTrail')) {
-        this.$element.find('.expanded.active-trail').each((index, element) => {
-          this.toggle($(element), false);
+        let found = false;
+        const $activeTrail = this.$element.find('.expanded.active-trail');
+        this.$element.find('.expanded.active-trail').removeClass('active-trail');
+        // Prioritize active links.
+        this.$element.find('.is-active').each((index, element) => {
+          $(element).parents('.expanded').each((index, parent) => {
+            found = true;
+            this.toggle($(parent), false);
+          })
         });
+        if (found === false) {
+          $activeTrail.each((index, element) => {
+            this.toggle($(element), false);
+          });
+        }
       }
     }
 
