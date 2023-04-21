@@ -13,14 +13,18 @@
       const $next = $wrapper.find('.swiper-button-next');
       const $prev = $wrapper.find('.swiper-button-prev');
       const $scrollbar = $wrapper.find('.swiper-scrollbar');
+      const $autoplayTime = $wrapper.find('.swiper-autoplay-time');
+      const $autoplayBar = $wrapper.find('.swiper-autoplay-bar');
       const defaultSettings = {
         pagination: {},
         navigation: {},
         scrollbar: {},
+        thumbs: {},
+        autoplay: {},
         on: {
           init: () => {
             $(document).trigger('exoComponentSliderInit');
-          }
+          },
         }
       };
       if ($pagination.length) {
@@ -35,7 +39,40 @@
       if ($scrollbar.length) {
         defaultSettings['scrollbar']['el'] = $scrollbar.get(0);
       }
+
+      if ($autoplayTime.length || $autoplayBar.length) {
+        defaultSettings.autoplay['delay'] = 4000;
+        defaultSettings.autoplay['disableOnInteraction'] = false;
+        defaultSettings.on['autoplayStop'] = (slider) => {
+          $autoplayTime.hide();
+          $autoplayBar.parent().hide();
+        }
+        defaultSettings.on['autoplayTimeLeft'] = (slider, time, progress) => {
+          if ($autoplayTime.length) {
+            $autoplayTime[0].style.setProperty("--progress", String(1 - progress));
+            $autoplayTime[0].textContent = `${Math.ceil(time / 1000)}s`;
+          }
+          if ($autoplayBar.length) {
+            const percent = Math.min(100, Math.max(0, 100 - Math.round(progress * 100)));
+            $autoplayBar.css('width', percent + '%');
+          }
+        };
+      }
+
       const settings = $.extend(true, {}, defaultSettings, this.$wrapper.data('ee--slider-settings') || {});
+
+      const $navSlider = $wrapper.closest('.exo-component').find('.ee--slider-nav[data-ee--slider-id="' + id + '"]');
+      if ($navSlider.length) {
+        const navSettings = $.extend(true, {}, {
+          spaceBetween: 10,
+          slidesPerView: $navSlider.find('.swiper-slide').length,
+          freeMode: true,
+          watchSlidesProgress: true,
+        }, $navSlider.data('ee--slider-settings') || {});
+        const navSwiper = new Swiper($navSlider.get(0), navSettings);
+        settings['thumbs']['swiper'] = navSwiper;
+      }
+
       this.swiper = new Swiper(this.$wrapper.get(0), settings);
       if (typeof Drupal.behaviors.exoImagine != 'undefined') {
         this.swiper.on('slideChange', () => {
