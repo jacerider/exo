@@ -80,6 +80,9 @@
         this.$dropdownList = $('<ul id="exo-form-select-list-' + this.uniqueId + '" class="exo-form-select-list" role="listbox" aria-labelledby="exo-form-select-label-' + this.uniqueId + '" tabindex="-1"></ul>').appendTo(this.$dropdownScroll);
         this.$dropdownWrapper.append(this.$dropdown);
         this.$dropdown.addClass((this.multiple ? 'is-multiple' : 'is-single'));
+        if (this.$field.hasClass('notranslate')) {
+          this.$dropdownList.addClass('notranslate');
+        }
         if (this.hasValue() === true) {
           this.$element.addClass('filled');
         }
@@ -449,7 +452,7 @@
 
       if (this.$dropdown.find('.search-input').length === 0) {
         this.$dropdown
-          .prepend('<div class="close" aria-label="Close">&times;</div>')
+          .prepend('<div class="close notranslate" aria-label="Close">&times;</div>')
           .prepend('<div class="search"><input type="text" class="exo-form-input-item simple search-input" aria-autocomplete="list" aria-controls="exo-form-select-scroll-' + this.uniqueId + '" tabindex="-1"></input></div>')
           .find('.search-input').attr('placeholder', this.placeholder).on('keydown.exo.form.select', e => {
             this.onSearchKeydown(e);
