@@ -326,6 +326,14 @@ class EntityListForm extends EntityForm {
       '#default_value' => $exo_entity_list->getSetting('pagerer_footer'),
       '#states' => $states,
     ];
+    $form['pager']['remember'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Remember'),
+      '#description' => $this->t("If enabled, the list will remember the user's last limit selection."),
+      '#parents' => ['settings', 'remember_limit'],
+      '#default_value' => $exo_entity_list->getSetting('remember_limit'),
+      '#states' => $states,
+    ];
 
     $this->buildFormActions($form, $form_state);
     $this->buildFormSorts($form, $form_state);

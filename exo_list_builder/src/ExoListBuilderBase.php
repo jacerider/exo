@@ -1565,6 +1565,11 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           $limit = $this->entityList->getLimit();
         }
       }
+      // Use stored session limit.
+      if ($this->entityList->getSetting('limit_status') && $this->entityList->getSetting('remember_limit')) {
+        $key = $this->entityList->id() . '_remember_limit';
+        $limit = (int) \Drupal::service('session')->get($key) ?: $limit;
+      }
       $this->limit = $limit;
     }
     return $this->limit;
@@ -2022,6 +2027,19 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
+    $filters = $this->getExposedFilters();
+    if (empty($filters)) {
+      return;
+    }
+    foreach ($filters as $field) {
+      $form_field = $form['header']['first']['filters']['inline'][$field['id']] ?: $form['header']['first']['filters']['modal'][$field['id']] ?: NULL;
+      if ($form_field && $field['filter']['instance']) {
+        /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
+        $instance = $field['filter']['instance'];
+        $subform_state = SubformState::createForSubform($form_field, $form, $form_state);
+        $instance->validateForm($form_field, $subform_state, $this->getEntityList(), $field);
+      }
+    }
   }
 
   /**
@@ -2030,10 +2048,21 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $entity_list = $this->getEntityList();
 
+    if ($form_state->getRedirect()) {
+      // If a redirect has already been set, do not override it.
+      return;
+    }
+
     // Reset options.
     $this->setOptions([]);
     // Limit.
-    $this->setOption('limit', $form_state->getValue('limit'));
+    $limit = $form_state->getValue('limit');
+    $this->setOption('limit', $limit);
+    if ($entity_list->getSetting('remember_limit') && $limit) {
+      // Store session limit if enabled.
+      $key = $entity_list->id() . '_remember_limit';
+      \Drupal::service('session')->set($key, $limit);
+    }
 
     // Show.
     if ($show = $form_state->getValue('show')) {
