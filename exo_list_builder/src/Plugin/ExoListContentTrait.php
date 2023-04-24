@@ -213,8 +213,7 @@ trait ExoListContentTrait {
             $parts = explode('.', $property);
             $column = $parts[1] ?? NULL;
             $entities = [];
-            // When referencing a target entity, we will fetch the entity
-            // labels.
+            // When referencing a target entity, fetch the entity labels.
             if ($column === 'target_id') {
               $field_definition = $field['definition'];
               if ($reference_field_definition = $this->getReferenceFieldDefinition($field_definition)) {
@@ -224,6 +223,10 @@ trait ExoListContentTrait {
             }
             elseif ($property === 'target_id') {
               $entities = $this->entityTypeManager()->getStorage($field['definition']->getSetting('target_type'))->loadMultiple($values);
+            }
+            // When referencing the id, fetch the entity labels.
+            elseif ($property === $entity_list->getTargetEntityType()->getKey('id')) {
+              $entities = $this->entityTypeManager()->getStorage($entity_list->getTargetEntityTypeId())->loadMultiple($values);
             }
             else {
               $values = array_combine($values, $values);
