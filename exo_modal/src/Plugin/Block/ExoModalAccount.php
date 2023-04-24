@@ -138,6 +138,7 @@ class ExoModalAccount extends ExoModalBlockBase {
   protected function generateModal($with_content = TRUE) {
     $modal = parent::generateModal($with_content);
     $modal->addCacheContexts($this->getCacheContexts());
+    $modal->setModalSetting('destroyOnClose', TRUE);
     $account = \Drupal::currentUser();
     if ($account->isAnonymous()) {
       $modal->setTriggerAttribute('href', Url::fromRoute('user.login')->setOption('query', \Drupal::destination()->getAsArray())->toString());

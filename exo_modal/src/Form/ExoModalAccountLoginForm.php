@@ -61,6 +61,7 @@ class ExoModalAccountLoginForm extends UserLoginForm {
             'inherit' => TRUE,
           ],
         ],
+        '#use_close' => FALSE,
         '#form_element' => FALSE,
       ];
 

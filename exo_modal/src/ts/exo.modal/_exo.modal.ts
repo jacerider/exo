@@ -882,7 +882,7 @@ class ExoModal extends ExoData {
           // Set ajax request as loaded so we can continue.
           self.ajaxLoaded = true;
           // Do not load again if content cache is enabled.
-          self.contentAjaxLoaded = self.get('contentAjaxCache') || !self.get('destroyOnClose');
+          self.contentAjaxLoaded = self.get('contentAjaxCache') && !self.get('destroyOnClose');
           successCallback(response, status, xmlhttprequest);
         };
         ajax.execute();
