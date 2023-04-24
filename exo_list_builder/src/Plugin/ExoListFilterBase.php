@@ -301,7 +301,7 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
     $entity_list = $form_state->get('exo_entity_list');
     if (!empty($form['default']['value'])) {
       $subform_state = SubformState::createForSubform($form['default']['value'], $form, $form_state);
-      $this->validateForm($form['default']['value'], $subform_state);
+      $this->validateConfigurationFormValue($form['default']['value'], $subform_state);
       $default = $this->toUrlQuery($form_state->getValue(['default', 'value'], []), $entity_list, $form['default']['value']['#exo_list_field']);
       if ($default) {
         $form_state->setValue(['default', 'value'], $default);
@@ -318,6 +318,12 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       $subform_state = SubformState::createForSubform($form['widget_settings'], $form, $form_state);
       $instance->validateConfigurationForm($form['widget_settings'], $subform_state);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function validateConfigurationFormValue(array &$form, FormStateInterface $form_state) {
   }
 
   /**
@@ -348,6 +354,12 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
   /**
    * {@inheritdoc}
    */
+  public function validateForm(array &$form, FormStateInterface $form_state, EntityListInterface $entity_list, array $field) {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getFilteredValueOptions(EntityListInterface $entity_list, array $field, $input = NULL) {
     $options = [];
     if ($this instanceof ExoListFieldValuesInterface) {
@@ -357,12 +369,6 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       $instance->alterOptions($options, $entity_list, $this, $field);
     }
     return $options;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
   }
 
   /**

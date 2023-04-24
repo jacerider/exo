@@ -110,8 +110,12 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
    *   An associative array containing the structure of the form.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
+   * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
+   *   The entity list.
+   * @param array $field
+   *   The field definition.
    */
-  public function validateForm(array &$form, FormStateInterface $form_state);
+  public function validateForm(array &$form, FormStateInterface $form_state, EntityListInterface $entity_list, array $field);
 
   /**
    * Check if the filter value is considered empty.
