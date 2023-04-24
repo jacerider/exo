@@ -4,7 +4,6 @@ namespace Drupal\exo_modal\Element;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element\RenderElement;
-use Drupal\exo\Element\ExoButton;
 
 /**
  * Provides a render element that will create a confirmation modal.
