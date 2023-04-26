@@ -1645,9 +1645,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
               'preset' => $pagerer_header,
             ],
           ];
-          if ($pagerer_header === '_hide') {
-            unset($form['pager_header']);
-          }
         }
         if ($pagerer_footer) {
           $form['pager_footer'] = [
@@ -1657,10 +1654,13 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
               'preset' => $pagerer_footer,
             ],
           ];
-          if ($pagerer_footer === '_hide') {
-            unset($form['pager_footer']);
-          }
         }
+      }
+      if ($pagerer_header === '_hide') {
+        unset($form['pager_header']);
+      }
+      if ($pagerer_footer === '_hide') {
+        unset($form['pager_footer']);
       }
     }
 
@@ -2032,7 +2032,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       return;
     }
     foreach ($filters as $field) {
-      $form_field = $form['header']['first']['filters']['inline'][$field['id']] ?: $form['header']['first']['filters']['modal'][$field['id']] ?: NULL;
+      $form_field = $form['header']['first']['filters']['inline'][$field['id']] ?? $form['header']['first']['filters']['modal'][$field['id']] ?? NULL;
       if ($form_field && $field['filter']['instance']) {
         /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
         $instance = $field['filter']['instance'];
