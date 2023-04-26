@@ -7,7 +7,6 @@ use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\Core\Queue\SuspendQueueException;
 use Drupal\Core\State\StateInterface;
 use Drupal\exo_list_builder\ExoListActionManager;
-use Drupal\exo_list_builder\Plugin\ExoListActionInterface;
 use Psr\Log\LogLevel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
