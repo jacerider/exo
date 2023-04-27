@@ -13,9 +13,9 @@ class ExoConfigReadonlyStorage extends ConfigReadonlyStorage {
    * {@inheritdoc}
    */
   protected function checkLock($name = '') {
-    if (exo_config_lock()) {
-      parent::checkLock($name);
-    }
+    // if (exo_config_lock()) {
+    //   parent::checkLock($name);
+    // }
   }
 
 }
