@@ -13,9 +13,10 @@ class ExoConfigReadonlyStorage extends ConfigReadonlyStorage {
    * {@inheritdoc}
    */
   protected function checkLock($name = '') {
-    // if (exo_config_lock()) {
-    //   parent::checkLock($name);
-    // }
+    \Drupal::logger('exo_config')->debug('Check lock on: ' . $name);
+    if (exo_config_lock()) {
+      parent::checkLock($name);
+    }
   }
 
 }
