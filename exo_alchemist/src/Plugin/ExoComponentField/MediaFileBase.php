@@ -30,18 +30,6 @@ abstract class MediaFileBase extends MediaBase {
   /**
    * {@inheritdoc}
    */
-  protected function getMediaKey(ExoComponentValue $value) {
-    $key = parent::getMediaKey($value);
-    if (empty($key)) {
-      // Use the path as the default key.
-      $key = $value->get('path');
-    }
-    return $key;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function propertyInfo() {
     $properties = parent::propertyInfo();
     $properties['url'] = $this->t('The file url.');

@@ -197,7 +197,12 @@ abstract class MediaBase extends EntityReferenceBase implements ExoComponentFiel
    *   The component value.
    */
   protected function getMediaKey(ExoComponentValue $value) {
-    return $value->get('key');
+    $key = $value->get('key');
+    if (empty($key)) {
+      // Use the path as the default key.
+      $key = $value->get('path');
+    }
+    return $key;
   }
 
   /**
