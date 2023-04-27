@@ -751,7 +751,12 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   /**
    * {@inheritdoc}
    */
-  public function buildList(array $build) {
+  public function buildList(array $build, FormStateInterface $form_state = NULL) {
+    // Skip reloading everything. This makes things faster.
+    if ($form_state && $form_state->getUserInput()) {
+      return [];
+    }
+
     $entity_list = $this->getEntityList();
     $render_status = $entity_list->getSetting('render_status');
     $total = $this->getTotal();
@@ -1086,7 +1091,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $filter_status = $entity_list->getSetting('filter_status');
     $actions = $this->getActions();
     $action_settings_action = $form_state->get('action_settings_action');
-    $form = $this->buildList($form);
+    $form = $this->buildList($form, $form_state);
     $hide_extras = empty($form['#exo_hide_extras']);
 
     $form['submit'] = [
