@@ -753,9 +753,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   public function buildList(array $build, FormStateInterface $form_state = NULL) {
     // Skip reloading everything. This makes things faster.
-    if ($form_state && $form_state->getUserInput()) {
-      return [];
-    }
+    // if ($form_state && $form_state->getUserInput()) {
+    //   return [];
+    // }
 
     $entity_list = $this->getEntityList();
     $render_status = $entity_list->getSetting('render_status');
