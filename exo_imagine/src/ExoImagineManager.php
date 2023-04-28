@@ -118,18 +118,20 @@ class ExoImagineManager {
       $image_style = $imagine_style->getStyle();
       $image_style_uri = $image_style->buildUri($image_uri);
       $info = @getimagesize($image_uri);
-      if (empty($info)) {
-        return $definition;
+      if (!$width || !$height) {
+        if (empty($info)) {
+          return $definition;
+        }
+        if ($width && !$height) {
+          $ratio = $width / $info[0];
+          $height = $info[1] * $ratio;
+        }
+        if ($height && !$width) {
+          $ratio = $height / $info[1];
+          $width = $info[0] * $ratio;
+        }
       }
-      if ($width && !$height) {
-        $ratio = $width / $info[0];
-        $height = $info[1] * $ratio;
-      }
-      if ($height && !$width) {
-        $ratio = $height / $info[1];
-        $width = $info[0] * $ratio;
-      }
-      $mime = $info['mime'];
+      $mime = $file->getMimeType();
       $definition['uri'] = $image_style_uri;
       $definition['src'] = $this->generateUrl($image_style->buildUrl($image_uri));
       $definition['webp'] = $webp ? static::toWebpUri($definition['src']) : NULL;
@@ -190,19 +192,21 @@ class ExoImagineManager {
         }
         $image_style = $imagine_style->getStyle();
         $image_style_uri = $image_style->buildUri($image_uri);
-        $info = @getimagesize($image_uri);
-        if (empty($info)) {
-          return $definition;
+        if (!$width || !$height) {
+          $info = @getimagesize($image_uri);
+          if (empty($info)) {
+            return $definition;
+          }
+          if ($width && !$height) {
+            $ratio = $width / $info[0];
+            $height = $info[1] * $ratio;
+          }
+          if ($height && !$width) {
+            $ratio = $height / $info[1];
+            $width = $info[0] * $ratio;
+          }
         }
-        if ($width && !$height) {
-          $ratio = $width / $info[0];
-          $height = $info[1] * $ratio;
-        }
-        if ($height && !$width) {
-          $ratio = $height / $info[1];
-          $width = $info[0] * $ratio;
-        }
-        $mime = $info['mime'];
+        $mime = $file->getMimeType();
         $definition['uri'] = $image_style_uri;
         $definition['src'] = $this->generateUrl($image_style->buildUrl($image_uri));
         $definition['webp'] = $webp ? static::toWebpUri($definition['src']) : NULL;
