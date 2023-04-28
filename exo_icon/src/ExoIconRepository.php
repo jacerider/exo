@@ -43,6 +43,20 @@ class ExoIconRepository implements ExoIconRepositoryInterface {
   protected $definitionsFiltered;
 
   /**
+   * The cache key.
+   *
+   * @var string
+   */
+  protected $cacheKey;
+
+  /**
+   * The cache tags.
+   *
+   * @var array
+   */
+  protected $cacheTags;
+
+  /**
    * Constructs a new ExoIconRepository object.
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager, CacheBackendInterface $cache_discovery) {

@@ -75,6 +75,13 @@ class ExoSettingsInstance implements ExoSettingsInstanceInterface {
   protected $localSettingsDiff;
 
   /**
+   * The settings.
+   *
+   * @var array
+   */
+  protected $settings;
+
+  /**
    * Constructs a new ExoModal.
    */
   public function __construct(ExoSettingsInterface $exo_settings, $local_settings, $id = NULL) {
@@ -166,7 +173,6 @@ class ExoSettingsInstance implements ExoSettingsInstanceInterface {
    */
   public function setSetting($key, $value) {
     // Make sure settings are correctly set before changing a value.
-    $settings = $this->getSettings();
     // We change this setting in both the aggregate settings and the local
     // settings so that we make sure it is accessible both from get() and when
     // we extract just the local settings.

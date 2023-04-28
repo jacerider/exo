@@ -88,6 +88,13 @@ class ExoToolbarRepository implements ExoToolbarRepositoryInterface {
   protected $toolbarVisibleItems;
 
   /**
+   * Context handler.
+   *
+   * @var \Drupal\Core\Plugin\Context\ContextHandlerInterface
+   */
+  protected $contextHandler;
+
+  /**
    * Constructs a new ExoToolbarRepository.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
