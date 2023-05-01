@@ -73,13 +73,8 @@ $palette: map-merge($global-colors, $colors);
 
     a {
       transition: all $global-speed;
-      color: color(theme-primary);
 
-      &:hover {
-        color: darken(color(theme-primary), 10%);
-      }
-
-      @if $contrast < 10 {
+      @if $contrast < $component-contrast-tolerance {
         color: color($offset);
 
         &:hover {
@@ -89,6 +84,13 @@ $palette: map-merge($global-colors, $colors);
           @else {
             color: lighten(color($offset), 10%);
           }
+        }
+      }
+      @else {
+        color: color(theme-primary);
+
+        &:hover {
+          color: darken(color(theme-primary), 10%);
         }
       }
     }
