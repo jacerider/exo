@@ -701,7 +701,7 @@ function template_preprocess_exo_form_element_container(array &$variables) {
   }
   $element = $variables['element'];
   $variables['attributes'] = [
-    'class' => ['exo-form-element', 'exo-form-element-js'],
+    'class' => ['exo-form-element', 'exo-form-element-js', 'js-form-wrapper'],
   ];
   $variables['wrapper_outer_prefix'] = isset($element['#wrapper_outer_prefix']) ? $element['#wrapper_outer_prefix'] : [];
   $variables['wrapper_outer_suffix'] = isset($element['#wrapper_outer_suffix']) ? $element['#wrapper_outer_suffix'] : [];
