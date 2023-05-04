@@ -172,18 +172,20 @@ class ExoSettingsInstance implements ExoSettingsInstanceInterface {
    * {@inheritdoc}
    */
   public function setSetting($key, $value) {
-    $settings = $this->getSettings();
-    $localSettings = $this->getLocalSettings();
     // Make sure settings are correctly set before changing a value.
     // We change this setting in both the aggregate settings and the local
     // settings so that we make sure it is accessible both from get() and when
     // we extract just the local settings.
+    $settings = $this->getSettings();
+    $localSettings = $this->getLocalSettings();
     NestedArray::setValue($settings, (array) $key, $value, TRUE);
     NestedArray::setValue($localSettings, (array) $key, $value, TRUE);
     if ($key == 'exo_preset') {
-      $this->settings = $this->exoSettings->mergePresets($settings);
-      $this->localSettings = $this->exoSettings->mergePresets($localSettings);
+      $settings = $this->exoSettings->mergePresets($settings);
+      $localSettings = $this->exoSettings->mergePresets($localSettings);
     }
+    $this->settings = $settings;
+    $this->localSettings = $localSettings;
     return $this;
   }
 
