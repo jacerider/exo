@@ -224,13 +224,14 @@
       // Additional resets for further consistency
       background-color: gray(8);
       border: 1px solid gray(25);
-      padding: rem-calc(1 0 1 8);
+      padding: rem-calc(1 8);
       margin: 0;
       width: 100%;
       font-family: inherit;
       font-size: rem-calc(12) !important;
       cursor: inherit;
       line-height: inherit;
+      text-align: center;
       // padding: rem-calc(2);
       // font-size: rem-calc(14);
       // background: none;
@@ -241,7 +242,8 @@
     }
 
     .button {
-      height: rem-calc(20) !important;
+      height: rem-calc(24) !important;
+      line-height: rem-calc(24) !important;
       font-size: rem-calc(10) !important;
       padding: rem-calc(1 10) !important;
       font-weight: 400 !important;
@@ -510,13 +512,6 @@
             font-size: rem-calc(12);
           }
         }
-      }
-
-      .button {
-        height: rem-calc(24);
-        line-height: rem-calc(24);
-        padding-top: 0;
-        padding-bottom: 0;
       }
 
       + .exo-list-total {
