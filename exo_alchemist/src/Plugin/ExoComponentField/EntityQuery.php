@@ -131,6 +131,7 @@ class EntityQuery extends ExoComponentFieldComputedBase implements ContainerFact
     $field_view_mode = $this->getFieldDefinition()->getAdditionalValue('field_view_mode');
     $storage = $this->entityTypeManager->getStorage($entity_type);
     $query = $storage->getQuery();
+    $query->accessCheck(TRUE);
 
     if (!empty($bundles)) {
       $type = $this->entityTypeManager->getDefinition($entity_type);
