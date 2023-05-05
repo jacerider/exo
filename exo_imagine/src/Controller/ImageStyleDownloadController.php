@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
+use Drupal\Core\Site\Settings;
+use Drupal\Core\StreamWrapper\StreamWrapperManager;
 
 /**
  * Defines a controller to serve image styles.
@@ -51,40 +53,55 @@ class ImageStyleDownloadController extends CoreImageStyleDownloadController {
     $target_sans_extension = rtrim($original_target, 'webp');
     $uri_sans_extension = rtrim($original_uri, 'webp');
     $target = NULL;
-    $image_uri = NULL;
+    $image_uri = '';
 
-    foreach ([
-      'jpg',
-      'jpeg',
-      'png',
-      'gif',
-    ] as $extention) {
-      if (file_exists($uri_sans_extension . $extention)) {
-        $target = $target_sans_extension . $extention;
-        $image_uri = $uri_sans_extension . $extention;
-        break;
+    $extention = $request->query->get('ext', '');
+    if (!$extention) {
+      foreach ([
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+      ] as $extention) {
+        if (file_exists($uri_sans_extension . $extention)) {
+          $target = $target_sans_extension . $extention;
+          $image_uri = $uri_sans_extension . $extention;
+          break;
+        }
       }
+    }
+    if (file_exists($uri_sans_extension . $extention)) {
+      $target = $target_sans_extension . $extention;
+      $image_uri = $uri_sans_extension . $extention;
     }
 
     if (!$target) {
       throw new NotFoundHttpException();
     }
+    $image_uri = $this->streamWrapperManager->normalizeUri($image_uri);
 
-    // Check that the style is defined, the scheme is valid, and the image
-    // derivative token is valid. Sites which require image derivatives to be
-    // generated without a token can set the
+    // Check that the style is defined and the scheme is valid.
+    $valid = !empty($image_style) && $this->streamWrapperManager->isValidScheme($scheme);
+
+    // Also validate the derivative token. Sites which require image
+    // derivatives to be generated without a token can set the
     // 'image.settings:allow_insecure_derivatives' configuration to TRUE to
-    // bypass the latter check, but this will increase the site's vulnerability
+    // bypass this check, but this will increase the site's vulnerability
     // to denial-of-service attacks. To prevent this variable from leaving the
     // site vulnerable to the most serious attacks, a token is always required
     // when a derivative of a style is requested.
     // The $target variable for a derivative of a style has
     // styles/<style_name>/... as structure, so we check if the $target variable
     // starts with styles/.
-    $valid = !empty($image_style) && $this->streamWrapperManager->isValidScheme($scheme);
+    $token = $request->query->get(IMAGE_DERIVATIVE_TOKEN, '');
+    $token_is_valid = hash_equals($image_style->getPathToken($image_uri), $token)
+      || hash_equals($image_style->getPathToken($scheme . '://' . $target), $token);
     if (!$this->config('image.settings')->get('allow_insecure_derivatives') || strpos(ltrim($target, '\/'), 'styles/') === 0) {
-      $valid &= hash_equals($image_style->getPathToken($image_uri), $request->query->get(IMAGE_DERIVATIVE_TOKEN, ''));
+      $valid = $valid && $token_is_valid;
     }
+
+    $headers = [];
+
     if (!$valid) {
       // Return a 404 (Page Not Found) rather than a 403 (Access Denied) as the
       // image token is for DDoS protection rather than access checking. 404s
@@ -96,14 +113,45 @@ class ImageStyleDownloadController extends CoreImageStyleDownloadController {
     $derivative_uri = $image_style->buildUri($image_uri);
     $info = pathinfo($derivative_uri);
     $derivative_uri = ($info['dirname'] ? $info['dirname'] . DIRECTORY_SEPARATOR : '') . $info['filename'] . '.webp';
-    $headers = [];
+    $derivative_scheme = $this->streamWrapperManager->getScheme($derivative_uri);
 
-    // If using the private scheme, let other modules provide headers and
+    if ($token_is_valid) {
+      $is_public = ($scheme !== 'private');
+    }
+    else {
+      $core_schemes = ['public', 'private', 'temporary'];
+      $additional_public_schemes = array_diff(Settings::get('file_additional_public_schemes', []), $core_schemes);
+      $public_schemes = array_merge(['public'], $additional_public_schemes);
+      $is_public = in_array($derivative_scheme, $public_schemes, TRUE);
+    }
+
+    // If not using a public scheme, let other modules provide headers and
     // control access to the file.
-    if ($scheme == 'private') {
+    if (!$is_public) {
       $headers = $this->moduleHandler()->invokeAll('file_download', [$image_uri]);
       if (in_array(-1, $headers) || empty($headers)) {
         throw new AccessDeniedHttpException();
+      }
+    }
+
+    // Don't try to generate file if source is missing.
+    if (!$this->sourceImageExists($image_uri, $token_is_valid)) {
+      // If the image style converted the extension, it has been added to the
+      // original file, resulting in filenames like image.png.jpeg. So to find
+      // the actual source image, we remove the extension and check if that
+      // image exists.
+      $path_info = pathinfo(StreamWrapperManager::getTarget($image_uri));
+      $converted_image_uri = sprintf('%s://%s%s%s', $this->streamWrapperManager->getScheme($derivative_uri), $path_info['dirname'], DIRECTORY_SEPARATOR, $path_info['filename']);
+      if (!$this->sourceImageExists($converted_image_uri, $token_is_valid)) {
+        $this->logger->notice('Source image at %source_image_path not found while trying to generate derivative image at %derivative_path.', [
+          '%source_image_path' => $image_uri,
+          '%derivative_path' => $derivative_uri,
+        ]);
+        return new Response($this->t('Error generating image, missing source file.'), 404);
+      }
+      else {
+        // The converted file does exist, use it as the source.
+        $image_uri = $converted_image_uri;
       }
     }
 
@@ -141,14 +189,53 @@ class ImageStyleDownloadController extends CoreImageStyleDownloadController {
       ];
       // \Drupal\Core\EventSubscriber\FinishResponseSubscriber::onRespond()
       // sets response as not cacheable if the Cache-Control header is not
-      // already modified. We pass in FALSE for non-private schemes for the
-      // $public parameter to make sure we don't change the headers.
-      return new BinaryFileResponse($uri, 200, $headers, $scheme !== 'private');
+      // already modified. When $is_public is TRUE, the following sets the
+      // Cache-Control header to "public".
+      return new BinaryFileResponse($uri, 200, $headers, $is_public);
     }
     else {
       $this->logger->notice('Unable to generate the derived image located at %path.', ['%path' => $derivative_uri]);
       return new Response($this->t('Error generating image.'), 500);
     }
+  }
+
+  /**
+   * Checks whether the provided source image exists.
+   *
+   * @param string $image_uri
+   *   The URI for the source image.
+   * @param bool $token_is_valid
+   *   Whether a valid image token was supplied.
+   *
+   * @return bool
+   *   Whether the source image exists.
+   */
+  private function sourceImageExists(string $image_uri, bool $token_is_valid): bool {
+    $exists = file_exists($image_uri);
+
+    // If the file doesn't exist, we can stop here.
+    if (!$exists) {
+      return FALSE;
+    }
+
+    if ($token_is_valid) {
+      return TRUE;
+    }
+
+    if (StreamWrapperManager::getScheme($image_uri) !== 'public') {
+      return TRUE;
+    }
+
+    $image_path = $this->fileSystem->realpath($image_uri);
+    $private_path = Settings::get('file_private_path');
+    if ($private_path) {
+      $private_path = realpath($private_path);
+      if ($private_path && strpos($image_path, $private_path) === 0) {
+        return FALSE;
+      }
+    }
+
+    return TRUE;
   }
 
 }

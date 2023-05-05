@@ -141,6 +141,7 @@ class ExoImagineManager {
         if (isset($parts[1])) {
           $definition['webp'] .= '?' . $parts[1];
         }
+        $definition['webp'] .= '&ext=' . pathinfo($parts[0], PATHINFO_EXTENSION);
       }
       $definition['width'] = round($width, 2);
       $definition['height'] = round($height, 2);
