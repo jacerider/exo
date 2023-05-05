@@ -63,8 +63,8 @@ class ExoFormSettingsForm extends ExoSettingsFormBase {
     foreach ($theme_options as $theme) {
       $theme_id = $theme->getName();
       $enabled = isset($settings['themes'][$theme_id]);
-      $settings = !empty($settings['themes'][$theme_id]) ? $settings['themes'][$theme_id] : $this->exoSettings->getSettings();
-      $exo_settings_instance = $this->exoSettings->createInstance($settings, $theme_id);
+      $theme_settings = !empty($settings['themes'][$theme_id]) ? $settings['themes'][$theme_id] : $this->exoSettings->getSettings();
+      $exo_settings_instance = $this->exoSettings->createInstance($theme_settings, $theme_id);
       $states = [
         'visible' => [
           ':input[name="enabled[' . $theme_id . ']"]' => ['checked' => TRUE],
