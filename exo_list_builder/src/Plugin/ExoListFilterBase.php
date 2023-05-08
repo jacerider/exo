@@ -175,8 +175,6 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
         'id' => $form['#id'] . '--default',
         'class' => ['exo-form-element'],
       ],
-      // '#prefix' => '<div id="' . $form['#id'] . '--default">',
-      // '#suffix' => '</div>',
       '#weight' => -60,
     ];
 
