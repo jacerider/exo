@@ -25,6 +25,7 @@ use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\exo_list_builder\Plugin\ExoListActionSettingsInterface;
 use Drupal\exo_list_builder\Plugin\ExoListFilterInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Provides a base class for exo list builder.
@@ -393,7 +394,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
     unset($options['limit']);
     foreach ($options as $id => $value) {
-      if (!empty($value) && isset($defaults[$id]) && !in_array($key, $exclude_options)) {
+      if (!empty($value) && isset($defaults[$id]) && !in_array($id, $exclude_options)) {
         if ($id === 'filter') {
           $value = array_diff_key($value, array_flip($exclude_filters));
           if (empty($value)) {
@@ -1084,8 +1085,10 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $entity_list = $this->getEntityList();
 
     // Skip reloading everything. This makes things faster.
-    if ($form_state && $form_state->getUserInput()) {
-      $entity_list->setSetting('render_status', FALSE);
+    if ($user_input = $form_state->getUserInput()) {
+      if (isset($user_input['exo_filter_submit']) || isset($user_input['exo_filter_modal_submit'])) {
+        $entity_list->setSetting('render_status', FALSE);
+      }
     }
 
     $render_status = $entity_list->getSetting('render_status');
@@ -1093,7 +1096,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $actions = $this->getActions();
     $action_settings_action = $form_state->get('action_settings_action');
     $form = $this->buildList($form);
-    $hide_extras = empty($form['#exo_hide_extras']);
+    $hide_extras = !empty($form['#exo_hide_extras']);
 
     $form['submit'] = [
       '#type' => 'submit',
@@ -1102,18 +1105,16 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       '#attributes' => ['class' => ['hidden']],
     ];
 
-    if ($render_status) {
-      $format = $entity_list->getFormat();
-      switch ($format) {
-        case 'table':
-          $form[$this->entitiesKey]['#tableselect'] = !empty($actions);
-          break;
-      }
+    $format = $entity_list->getFormat();
+    switch ($format) {
+      case 'table':
+        $form[$this->entitiesKey]['#tableselect'] = !empty($actions);
+        break;
     }
 
     $entities = $form[$this->entitiesKey]['#entities'];
 
-    if ($hide_extras && $filter_status && ($entities || !$render_status || $this->isFiltered())) {
+    if (!$hide_extras && $filter_status && ($entities || !$render_status || $this->isFiltered())) {
       // Filter.
       if ($subform = $this->buildFormFilters($form, $form_state)) {
         $form['header']['first']['filters'] = [
@@ -1842,6 +1843,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $modal['actions']['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Filter'),
+      '#name' => 'exo_filter_modal_submit',
     ];
 
     if ($this->getOption('filter', FALSE)) {
@@ -1866,6 +1868,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       $form['inline']['actions']['submit'] = [
         '#type' => 'submit',
         '#value' => $this->getEntityList()->getSetting('submit_label', $this->t('Apply')),
+        '#name' => 'exo_filter_submit',
       ];
     }
     if ($show_modal) {
@@ -1945,7 +1948,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         $items[] = [
           '#type' => 'link',
           '#title' => $this->t('Reset Filters'),
-          '#url' => Url::fromRoute('<current>'),
+          '#url' => $this->getOptionsUrl(['filter']),
         ];
         $form['list'] = [
           '#theme' => 'item_list',
@@ -2046,6 +2049,58 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         $instance->validateForm($form_field, $subform_state, $this->getEntityList(), $field);
       }
     }
+
+    // if (empty($form_state->getErrors()) && empty($form_state->getRedirect())) {
+    //   $trigger = $form_state->getTriggeringElement();
+    //   if (!empty($trigger['#exo_list_redirect'])) {
+    //     $entity_list = $this->getEntityList();
+    //     // Reset options.
+    //     $this->setOptions([]);
+    //     // Limit.
+    //     $limit = $form_state->getValue('limit');
+    //     $this->setOption('limit', $limit);
+    //     if ($entity_list->getSetting('remember_limit') && $limit) {
+    //       // Store session limit if enabled.
+    //       $key = $entity_list->id() . '_remember_limit';
+    //       \Drupal::service('session')->set($key, $limit);
+    //     }
+
+    //     // Show.
+    //     if ($show = $form_state->getValue('show')) {
+    //       $fields = $this->getShownFields();
+    //       $show = array_filter($show, function ($item) {
+    //         return !empty($item['status']);
+    //       });
+    //       uasort($show, [
+    //         'Drupal\Component\Utility\SortArray',
+    //         'sortByWeightProperty',
+    //       ]);
+    //       if (array_keys($show) !== array_keys($fields)) {
+    //         $this->setOption('show', array_keys($show));
+    //       }
+    //     }
+    //     // Filters.
+    //     $filters = [];
+    //     foreach ($this->getFilters() as $field_id => $field) {
+    //       if ($field['filter']['instance']) {
+    //         $filter_value = $form_state->getValue(['filters', $field_id]);
+    //         /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
+    //         $instance = $field['filter']['instance'];
+    //         if (!$instance->isEmpty($filter_value)) {
+    //           $filters[$field_id] = $instance->toUrlQuery($filter_value, $entity_list, $field);
+    //         }
+    //       }
+    //     }
+    //     if (!empty($filters)) {
+    //       $this->setOption('filter', $filters);
+    //     }
+
+    //     $url = $this->getOptionsUrl();
+
+    //     $home = new RedirectResponse($url->setAbsolute()->toString());
+    //     $home->send();
+    //   }
+    // }
   }
 
   /**
@@ -2053,12 +2108,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $entity_list = $this->getEntityList();
-
-    if ($form_state->getRedirect()) {
-      // If a redirect has already been set, do not override it.
-      return;
-    }
-
     // Reset options.
     $this->setOptions([]);
     // Limit.
