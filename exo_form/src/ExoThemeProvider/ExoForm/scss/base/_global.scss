@@ -326,9 +326,6 @@
     @include flex;
     @include exo-flex-direction(column, row);
     @include flex-align(justify, bottom);
-    // flex-wrap: nowrap;
-    // align-items: flex-end;
-    // min-width: 100%;
     box-sizing: border-box;
     margin-left: $global-margin * 0.5 * -1;
     margin-right: $global-margin * 0.5 * -1;
@@ -517,6 +514,18 @@
 
 .colorpicker {
   z-index: 100;
+}
+
+.theme-claro .exo-form-inline {
+
+  .form-actions,
+  .views-exposed-form__item {
+    margin-top: 0 !important;
+  }
+
+  .views-exposed-form__item--preceding-actions.views-exposed-form__item--preceding-actions {
+    margin: 0;
+  }
 }
 
 .theme-gin {
