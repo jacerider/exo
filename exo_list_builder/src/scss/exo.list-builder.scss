@@ -224,11 +224,13 @@
       // Additional resets for further consistency
       background-color: gray(8);
       border: 1px solid gray(25);
-      padding: rem-calc(1 8);
+      padding: rem-calc(4 8) !important;
+      font-size: rem-calc(12) !important;
+      line-height: rem-calc(12) !important;
+      border-radius: 3px;
       margin: 0;
       width: 100%;
       font-family: inherit;
-      font-size: rem-calc(12) !important;
       cursor: inherit;
       line-height: inherit;
       text-align: center;
@@ -239,6 +241,16 @@
       // line-height: inherit;
       // appearance: auto;
       // border: 1px solid gray(40);
+    }
+
+    [type='number'] {
+      background-color: gray(8);
+      border: 1px solid gray(25);
+      padding: rem-calc(3 8) !important;
+      font-size: rem-calc(12) !important;
+      line-height: rem-calc(12) !important;
+      margin: 0;
+      border-radius: 3px;
     }
 
     .button {
@@ -445,8 +457,12 @@
 
       .pagerer-pager-mini {
 
+        li {
+          padding: 0;
+        }
+
         .pagerer-widget {
-          margin-left: rem-calc(12);
+          margin-left: rem-calc(10);
         }
 
         a {
