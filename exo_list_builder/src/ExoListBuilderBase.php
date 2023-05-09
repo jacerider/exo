@@ -2049,58 +2049,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         $instance->validateForm($form_field, $subform_state, $this->getEntityList(), $field);
       }
     }
-
-    // if (empty($form_state->getErrors()) && empty($form_state->getRedirect())) {
-    //   $trigger = $form_state->getTriggeringElement();
-    //   if (!empty($trigger['#exo_list_redirect'])) {
-    //     $entity_list = $this->getEntityList();
-    //     // Reset options.
-    //     $this->setOptions([]);
-    //     // Limit.
-    //     $limit = $form_state->getValue('limit');
-    //     $this->setOption('limit', $limit);
-    //     if ($entity_list->getSetting('remember_limit') && $limit) {
-    //       // Store session limit if enabled.
-    //       $key = $entity_list->id() . '_remember_limit';
-    //       \Drupal::service('session')->set($key, $limit);
-    //     }
-
-    //     // Show.
-    //     if ($show = $form_state->getValue('show')) {
-    //       $fields = $this->getShownFields();
-    //       $show = array_filter($show, function ($item) {
-    //         return !empty($item['status']);
-    //       });
-    //       uasort($show, [
-    //         'Drupal\Component\Utility\SortArray',
-    //         'sortByWeightProperty',
-    //       ]);
-    //       if (array_keys($show) !== array_keys($fields)) {
-    //         $this->setOption('show', array_keys($show));
-    //       }
-    //     }
-    //     // Filters.
-    //     $filters = [];
-    //     foreach ($this->getFilters() as $field_id => $field) {
-    //       if ($field['filter']['instance']) {
-    //         $filter_value = $form_state->getValue(['filters', $field_id]);
-    //         /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
-    //         $instance = $field['filter']['instance'];
-    //         if (!$instance->isEmpty($filter_value)) {
-    //           $filters[$field_id] = $instance->toUrlQuery($filter_value, $entity_list, $field);
-    //         }
-    //       }
-    //     }
-    //     if (!empty($filters)) {
-    //       $this->setOption('filter', $filters);
-    //     }
-
-    //     $url = $this->getOptionsUrl();
-
-    //     $home = new RedirectResponse($url->setAbsolute()->toString());
-    //     $home->send();
-    //   }
-    // }
   }
 
   /**
@@ -2108,6 +2056,12 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $entity_list = $this->getEntityList();
+
+    if ($form_state->getRedirect()) {
+      // If a redirect has already been set, do not override it.
+      return;
+    }
+
     // Reset options.
     $this->setOptions([]);
     // Limit.
