@@ -1057,7 +1057,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $instance_entity->exoEntityListField = $field;
     $build = $instance->buildView($instance_entity, $field);
     if (!is_array($build)) {
-      if (!empty($build)) {
+      if (!is_null($build)) {
         $build = [
           '#markup' => $build,
         ];
