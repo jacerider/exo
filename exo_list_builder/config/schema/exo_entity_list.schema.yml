@@ -39,6 +39,9 @@ exo_list_builder.exo_entity_list.*:
     limit_options:
       type: sequence
       label: 'Limit Options'
+    offset:
+      type: integer
+      label: 'Offset'
     actions:
       type: sequence
       label: Actions

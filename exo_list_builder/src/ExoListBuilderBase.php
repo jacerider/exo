@@ -25,7 +25,6 @@ use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\exo_list_builder\Plugin\ExoListActionSettingsInterface;
 use Drupal\exo_list_builder\Plugin\ExoListFilterInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Provides a base class for exo list builder.
@@ -424,7 +423,15 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     // Only add the pager if a limit is specified.
     if ($limit = $this->getLimit()) {
       $query = clone $query;
-      $query->pager($limit);
+      $element = \Drupal::service('pager.manager')->getMaxPagerElementId() + 1;
+      $page = \Drupal::service('pager.parameters')->findPage($element);
+      $total = $this->getTotal();
+      $start = ($page * $limit) + $this->entityList->getOffset();
+      \Drupal::service('pager.manager')->createPager($total, $limit, $element);
+      $query->range($start, $limit);
+    }
+    elseif ($offset = $this->entityList->getOffset()) {
+      $query->range($offset);
     }
 
     return $query->execute();

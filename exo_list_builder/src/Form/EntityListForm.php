@@ -334,6 +334,13 @@ class EntityListForm extends EntityForm {
       '#default_value' => $exo_entity_list->getSetting('remember_limit'),
       '#states' => $states,
     ];
+    $form['pager']['offset'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Offset'),
+      '#description' => $this->t("The number of results to skip."),
+      '#parents' => ['offset'],
+      '#default_value' => $exo_entity_list->getOffset(),
+    ];
 
     $this->buildFormActions($form, $form_state);
     $this->buildFormSorts($form, $form_state);
@@ -1171,6 +1178,7 @@ class EntityListForm extends EntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
+    ksm($form_state->getValues());
     $exo_entity_list = $this->entity;
     $status = $exo_entity_list->save();
 

@@ -55,6 +55,7 @@ use Drupal\exo_list_builder\Plugin\ExoListFilterInterface;
  *     "url",
  *     "limit",
  *     "limit_options",
+ *     "offset",
  *     "actions",
  *     "sorts",
  *     "sort",
@@ -156,6 +157,13 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * @var array
    */
   protected $limit_options = [10, 20, 50, 100];
+
+  /**
+   * The default offset.
+   *
+   * @var int
+   */
+  protected $offset = 0;
 
   /**
    * The action definitions.
@@ -507,6 +515,13 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    */
   public function getLimitOptions() {
     return array_combine($this->limit_options, $this->limit_options);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOffset() {
+    return $this->offset ?? 0;
   }
 
   /**

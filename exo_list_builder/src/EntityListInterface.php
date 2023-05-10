@@ -158,6 +158,14 @@ interface EntityListInterface extends ConfigEntityInterface {
   public function getLimitOptions();
 
   /**
+   * Get the offset.
+   *
+   * @return int
+   *   The offset.
+   */
+  public function getOffset();
+
+  /**
    * Returns operations status.
    *
    * @return bool
