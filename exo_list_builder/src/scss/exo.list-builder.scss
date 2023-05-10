@@ -234,6 +234,8 @@
       cursor: inherit;
       line-height: inherit;
       text-align: center;
+      background-image: none;
+      min-height: 0;
       // padding: rem-calc(2);
       // font-size: rem-calc(14);
       // background: none;
@@ -306,6 +308,10 @@
 
   .exo-list-total {
     margin-left: auto;
+
+    + .pager {
+      margin-left: $global-margin;
+    }
   }
 
   .exo-list-footer {
@@ -414,6 +420,20 @@
       .current {
         font-weight: 700;
       }
+    }
+
+    .pager {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    .pager__items {
+      @include flex;
+      @include flex-align(left, middle);
+    }
+
+    .pager__item {
+      margin: 0;
     }
 
     .pagerer-container {
