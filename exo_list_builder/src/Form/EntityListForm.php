@@ -1178,7 +1178,6 @@ class EntityListForm extends EntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-    ksm($form_state->getValues());
     $exo_entity_list = $this->entity;
     $status = $exo_entity_list->save();
 
