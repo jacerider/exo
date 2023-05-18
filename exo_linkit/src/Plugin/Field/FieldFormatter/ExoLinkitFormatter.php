@@ -5,8 +5,8 @@ namespace Drupal\exo_linkit\Plugin\Field\FieldFormatter;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\exo_link\Plugin\Field\FieldFormatter\ExoLinkFormatter;
 use Drupal\link\LinkItemInterface;
-use Drupal\link\Plugin\Field\FieldFormatter\LinkFormatter;
 use Drupal\exo_linkit\Utility\LinkitHelper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -15,13 +15,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @FieldFormatter(
  *   id = "exo_linkit",
- *   label = @Translation("Linkit"),
+ *   label = @Translation("eXo Linkit"),
  *   field_types = {
  *     "link"
  *   }
  * )
  */
-class ExoLinkitFormatter extends LinkFormatter {
+class ExoLinkitFormatter extends ExoLinkFormatter {
 
   /**
    * The entity type manager.

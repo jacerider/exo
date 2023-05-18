@@ -6,6 +6,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\link\Plugin\Field\FieldWidget\LinkWidget;
 use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\SortArray;
 use Drupal\exo_link\ExoLinkLinkitHelper;
 
 /**
@@ -55,6 +56,9 @@ class ExoLinkWidget extends LinkWidget {
       '#default_value' => $this->getSetting('packages'),
       '#description' => $this->t('The icon packages that should be made available in this field. If no packages are selected, all will be made available.'),
       '#options' => $this->getPackageOptions(),
+      '#element_validate' => [
+        [get_class(), 'validatePackages'],
+      ],
       '#states' => [
         'visible' => [
           ':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][icon]"]' => ['checked' => TRUE],
@@ -80,6 +84,15 @@ class ExoLinkWidget extends LinkWidget {
   }
 
   /**
+   * Recursively clean up options array if no data-icon is set.
+   */
+  public static function validatePackages($element, FormStateInterface $form_state, $form) {
+    $values = $form_state->getValue($element['#parents']);
+    $values = array_filter($values);
+    $form_state->setValueForElement($element, $values);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
@@ -90,6 +103,13 @@ class ExoLinkWidget extends LinkWidget {
     $item = $items[$delta];
     $options = $item->get('options')->getValue();
     $attributes = $options['attributes'] ?? [];
+
+    if (!empty($element['title'])) {
+      $element = [
+        'title' => $element['title'],
+      ] + $element;
+    }
+    // uasort($element, [SortArray::class, 'sortByWeightElement']);
 
     if ($this->getSetting('icon')) {
       $class_name = Html::getUniqueId('exo-link-widget-' . $this->fieldDefinition->getName() . '-' . $delta);
@@ -184,6 +204,7 @@ class ExoLinkWidget extends LinkWidget {
    */
   public static function validateElement($element, FormStateInterface $form_state, $form) {
     $values = $form_state->getValue($element['#parents']);
+    $values['packages'] = array_filter($values['packages'] ?? []);
     if (!empty($values['options']['attributes']['target'])) {
       $values['options']['attributes']['target'] = '_blank';
     }
