@@ -39,7 +39,7 @@ class Container extends ExoFormBase {
    */
   public function preRender($element) {
     // If we have no visible children, we hide the container.
-    if (!Element::getVisibleChildren($element)) {
+    if (!Element::getVisibleChildren($element) && empty($element['#id']) && empty($element['#attributes']['id'])) {
       return [];
     }
     $element['#exo_form_element_attributes']['class'][] = 'exo-form-element';
