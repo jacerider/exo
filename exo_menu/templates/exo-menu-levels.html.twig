@@ -50,15 +50,17 @@
         ]
       %}
       <li{{ item.attributes.addClass(classes) }}>
-      {% if item.markup %}
+        {% if item.markup %}
           <div class="exo-menu-item-markup">{{ item.markup }}</div>
-        {% elseif item.url.toString()|length %}
-          {{ link(item.title, item.url) }}
         {% else %}
-          <a {{ item.link_attributes.addClass('no-link') }} href="javascript:;">{{ item.title|raw }}</a>
-        {% endif %}
-        {% if item.below %}
-          {{ menus.menu_links(item.below, attributes, menu_level + 1) }}
+          {% if item.url.toString()|length %}
+            {{ link(item.title, item.url) }}
+          {% else %}
+            <a {{ item.link_attributes.addClass('no-link') }} href="javascript:;">{{ item.title|raw }}</a>
+          {% endif %}
+          {% if item.below %}
+            {{ menus.menu_links(item.below, attributes, menu_level + 1) }}
+          {% endif %}
         {% endif %}
       </li>
     {% endfor %}
