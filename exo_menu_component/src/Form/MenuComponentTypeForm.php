@@ -4,6 +4,7 @@ namespace Drupal\exo_menu_component\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\system\Entity\Menu;
 
 /**
  * Class MenuComponentTypeForm.
@@ -36,7 +37,10 @@ class MenuComponentTypeForm extends EntityForm {
       '#disabled' => !$exo_menu_component_type->isNew(),
     ];
 
-    $options = menu_ui_get_menus();
+    $options = array_map(function ($menu) {
+      return $menu->label();
+    }, Menu::loadMultiple());
+    asort($options);
     $form['targetMenu'] = [
       '#type' => 'checkboxes',
       '#title' => $this->t('Target menu'),

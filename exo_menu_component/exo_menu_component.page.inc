@@ -50,8 +50,6 @@ function template_preprocess_exo_menu_component_add_list(array &$variables) {
         'add_link' => Link::fromTextAndUrl($type->label(), Url::fromRoute('exo_menu_component.add_component', [
           'menu' => $variables['menu'],
           'exo_menu_component_type' => $type->id(),
-        ], [
-          'query' => \Drupal::service('redirect.destination')->getAsArray(),
         ]))->toString(),
       ];
     }

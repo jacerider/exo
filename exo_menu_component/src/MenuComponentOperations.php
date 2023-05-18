@@ -2,6 +2,7 @@
 
 namespace Drupal\exo_menu_component;
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Form\FormInterface;
@@ -104,7 +105,7 @@ class MenuComponentOperations implements ContainerInjectionInterface {
     if (!$allowed_types) {
       return;
     }
-    $menu_component_id = isset($menu_link_options['attributes']['data-exo-menu-component']) ? $menu_link_options['attributes']['data-exo-menu-component'] : NULL;
+    $menu_component_id = $menu_link_options['attributes']['data-exo-menu-component'] ?? NULL;
     if (!$menu_component_id) {
       return;
     }
@@ -138,10 +139,27 @@ class MenuComponentOperations implements ContainerInjectionInterface {
     $menu_component_form = $this->menuComponentManager->getFormObject($menu_component);
     $form['exo_menu_component'] = $this->buildComponentForm($form['exo_menu_component'], $form_state, $menu_component_form);
     $form['exo_menu_component']['#process'] = \Drupal::service('element_info')->getInfoProperty('form', '#process', []);
-    $form['exo_menu_component']['#process'][] = [get_class($this), 'processComponentForm'];
+    $form['exo_menu_component']['#process'][] = [
+      get_class($this),
+      'processComponentForm',
+    ];
+    array_unshift($form['#validate'], [
+      get_class($this),
+      'validateComponentForm',
+    ]);
+    $form['actions']['submit']['#submit'][] = [
+      get_class($this),
+      'submitComponentForm',
+    ];
 
-    array_unshift($form['#validate'], [get_class($this), 'validateComponentForm']);
-    $form['actions']['submit']['#submit'][] = [get_class($this), 'submitComponentForm'];
+    if (!empty($form['exo_menu_component']['component']['form']['field_title']['widget'][0]['#required'])) {
+      $form['exo_menu_component']['component']['form']['title']['#access'] = FALSE;
+      $form_state->set('component_use_title', TRUE);
+    }
+    if (!empty($form['exo_menu_component']['component']['form']['field_link']['widget'][0]['#required'])) {
+      $form['exo_menu_component']['component']['form']['title']['#access'] = FALSE;
+      $form_state->set('component_use_link_title', TRUE);
+    }
   }
 
   /**
@@ -240,6 +258,34 @@ class MenuComponentOperations implements ContainerInjectionInterface {
       $form_state->setErrorByName($error_element_path, $error);
     }
 
+    $title = NULL;
+    if ($form_state->get('component_use_title')) {
+      $title = NestedArray::getValue($form_state->getValues(), [
+        'exo_menu_component',
+        'component',
+        'field_title',
+        0,
+        'value',
+      ]);
+    }
+    if (!$title && $form_state->get('component_use_link_title')) {
+      $title = NestedArray::getValue($form_state->getValues(), [
+        'exo_menu_component',
+        'component',
+        'field_link',
+        0,
+        'title',
+      ]);
+    }
+
+    if ($title) {
+      $form_state->setValue([
+        'exo_menu_component',
+        'component',
+        'title',
+      ], $title);
+    }
+
     $form_state->setValue(['title', 0, 'value'], $form_state->getValue([
       'exo_menu_component',
       'component',
@@ -254,6 +300,7 @@ class MenuComponentOperations implements ContainerInjectionInterface {
     /** @var \Drupal\Core\Entity\EntityFormInterface $form_object */
     $form_object = $form_state->getFormObject();
     $menu_link = $form_object->getEntity();
+    $menu_link->link->first()->uri = 'route:<nolink>';
     /** @var \Drupal\menu_link_content\Entity\MenuLinkContentInterface $menu_link */
     $menu_link_options = $menu_link->link->first()->options ?: [];
     if ($exo_menu_component_id = $form_state->getValue('exo_menu_component_id')) {
@@ -262,7 +309,6 @@ class MenuComponentOperations implements ContainerInjectionInterface {
           'data-exo-menu-component' => $exo_menu_component_id,
         ],
       ]);
-      $menu_link->save();
     }
 
     $key = 'component';
@@ -273,7 +319,17 @@ class MenuComponentOperations implements ContainerInjectionInterface {
     // The form state needs to be set as submitted before executing the
     // doSubmitForm method.
     $inner_form_state->setSubmitted();
+    /** @var \Drupal\Core\Entity\EntityFormInterface $inner_form */
+    $inner_form = $inner_form_state->getFormObject();
     $form_submitter->doSubmitForm($form['exo_menu_component'][$key]['form'], $inner_form_state);
+    /** @var \Drupal\exo_menu_component\Entity\MenuComponentInterface $menu_component */
+    $menu_component = $inner_form->getEntity();
+
+    if ($menu_component->hasField('field_link') && !$menu_component->get('field_link')->isEmpty()) {
+      $menu_link->link->first()->uri = $menu_component->get('field_link')->uri;
+    }
+    $menu_link->save();
+    $form_state->setRedirectUrl($menu_link->toUrl('edit-form'));
   }
 
   /**
@@ -299,8 +355,8 @@ class MenuComponentOperations implements ContainerInjectionInterface {
     $inner_form_state->setValues($form_state->getValues() ? $form_state->getValues() : []);
     $inner_form_state->setUserInput($form_state->getUserInput() ? $form_state->getUserInput() : []);
 
-    $field_storage = isset($form_state->getStorage()['field_storage']['#parents']) ? $form_state->getStorage()['field_storage']['#parents'] : [];
-    $inner_field_storage = isset($inner_form_state->getStorage()['field_storage']['#parents']) ? $inner_form_state->getStorage()['field_storage']['#parents'] : [];
+    $field_storage = $form_state->getStorage()['field_storage']['#parents'] ?? [];
+    $inner_field_storage = $inner_form_state->getStorage()['field_storage']['#parents'] ?? [];
     $form_state->set('field_storage', ['#parents' => $field_storage + $inner_field_storage]);
     $inner_form_state->set('field_storage', ['#parents' => $field_storage + $inner_field_storage]);
 
