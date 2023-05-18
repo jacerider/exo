@@ -262,7 +262,8 @@ class EntityReferenceBase extends ExoComponentFieldFieldableBase implements Cont
    * {@inheritdoc}
    */
   public function view(FieldItemListInterface $items, array $contexts) {
-    if ($items->isEmpty() && ($this->isRequired() || !$this->isEditable($contexts) || $this->isPreview($contexts))) {
+    $is_preview = $this->isPreview($contexts);
+    if ($items->isEmpty() && ($this->isRequired() || !$this->isEditable($contexts) || $is_preview)) {
       // When we are previewing an empty entity reference, we need to populate
       // entities for display.
       $values = [];
@@ -299,13 +300,15 @@ class EntityReferenceBase extends ExoComponentFieldFieldableBase implements Cont
             $value['target_revision_id'] = $entity->getRevisionId();
           }
           $values[] = $value;
-          $op = $this->getFieldDefinition()->isFilter() ? 'filtered' : 'previewed';
-          \Drupal::messenger()->addMessage($this->t('This component is being @op as @name using <a href="@url">@label</a>.', [
-            '@name' => $this->getFieldDefinition()->getLabel(),
-            '@op' => $op,
-            '@url' => $entity->toUrl()->toString(),
-            '@label' => $entity->getEntityType()->getLabel() . ': ' . $entity->label(),
-          ]), 'alchemist');
+          if ($is_preview) {
+            $op = $this->getFieldDefinition()->isFilter() ? 'filtered' : 'previewed';
+            \Drupal::messenger()->addMessage($this->t('This component is being @op as @name using <a href="@url">@label</a>.', [
+              '@name' => $this->getFieldDefinition()->getLabel(),
+              '@op' => $op,
+              '@url' => $entity->toUrl()->toString(),
+              '@label' => $entity->getEntityType()->getLabel() . ': ' . $entity->label(),
+            ]), 'alchemist');
+          }
         }
       }
       $items->setValue($values);
