@@ -51,17 +51,24 @@
             <div class="exo-menu-item-prefix">{{ item.prefix }}</div>
           {% endif %}
           {% if item.markup %}
-            <div class="exo-menu-item-markup">{{ item.markup }}</div>
-          {% elseif item.url.toString()|length %}
-            {{ link(item.title, item.url) }}
+            <div class="exo-menu-item-markup">
+              {{ item.markup }}
+              {% if item.below %}
+                {{ menus.menu_links(item.below, attributes, menu_level + 1, item.below_prefix, item.below_suffix, null) }}
+              {% endif %}
+            </div>
           {% else %}
-            <a {{ item.link_attributes.addClass('no-link') }} href="javascript:;">{{ item.title|raw }}</a>
-          {% endif %}
-          {% if item.below %}
-            {{ menus.menu_links(item.below, attributes, menu_level + 1, item.below_prefix, item.below_suffix, null) }}
-          {% endif %}
-          {% if item.suffix %}
-            <div class="exo-menu-item-suffix">{{ item.suffix }}</div>
+            {% if item.url.toString()|length %}
+              {{ link(item.title, item.url) }}
+            {% else %}
+              <a {{ item.link_attributes.addClass('no-link') }} href="javascript:;">{{ item.title|raw }}</a>
+            {% endif %}
+            {% if item.below %}
+              {{ menus.menu_links(item.below, attributes, menu_level + 1, item.below_prefix, item.below_suffix, null) }}
+            {% endif %}
+            {% if item.suffix %}
+              <div class="exo-menu-item-suffix">{{ item.suffix }}</div>
+            {% endif %}
           {% endif %}
         </li>
       {% endfor %}

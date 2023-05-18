@@ -51,7 +51,12 @@
       %}
       <li{{ item.attributes.addClass(classes) }}>
         {% if item.markup %}
-          <div class="exo-menu-item-markup">{{ item.markup }}</div>
+          <div class="exo-menu-item-markup">
+            {{ item.markup }}
+            {% if item.below %}
+              {{ menus.menu_links(item.below, attributes, menu_level + 1) }}
+            {% endif %}
+          </div>
         {% else %}
           {% if item.url.toString()|length %}
             {{ link(item.title, item.url) }}
