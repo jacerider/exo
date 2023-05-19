@@ -7,6 +7,7 @@
  * Page callback for config pages.
  */
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
@@ -25,6 +26,8 @@ function template_preprocess_exo_menu_component(array &$variables) {
   // Fetch SiteSettings Entity Object.
   $exo_menu_component = $variables['elements']['#exo_menu_component'];
   $variables['tag'] = 'div';
+  $variables['attributes']['class'][] = 'exo-menu-component';
+  $variables['attributes']['class'][] = Html::getClass($exo_menu_component->bundle());
 
   // Helpful $content variable for templates.
   foreach (Element::children($variables['elements']) as $key) {
