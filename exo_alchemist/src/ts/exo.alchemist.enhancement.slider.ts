@@ -79,6 +79,7 @@
           Drupal.behaviors.exoImagine.render(this.$wrapper);
         });
       }
+
       if (this.isLayoutBuilder()) {
         this.buildForLayoutBuilder();
       }
@@ -101,9 +102,6 @@
 
       $(document).on('exoComponentFieldEditActive.exo.alchemist.enhancement.slider.' + this.id, (e, element) => {
         let $element = $(element);
-        if ($(this.swiper.visibleSlides).data('exo-field')) {
-          $element = $(this.swiper.visibleSlides);
-        }
         if (this.$wrapper.find($element).length) {
           this.swiper.slideTo($element.index());
           this.swiper.once('slideChangeTransitionEnd', function () {

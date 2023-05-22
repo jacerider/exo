@@ -165,6 +165,23 @@
   }
 }
 
+// Swiper support.
+.exo-component-edit-active .swiper .swiper-wrapper .swiper-slide.exo-component-field-edit {
+
+  &,
+  * {
+    pointer-events: none !important;
+  }
+
+  &.swiper-slide-visible {
+
+    &,
+    * {
+      pointer-events: auto !important;
+    }
+  }
+}
+
 /**
  * Nested Sections
  */
