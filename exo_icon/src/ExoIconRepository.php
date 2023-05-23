@@ -9,7 +9,7 @@ use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\UseCacheBackendTrait;
 
 /**
- * Class ExoIconRepository.
+ * Icon repository.
  */
 class ExoIconRepository implements ExoIconRepositoryInterface {
   use UseCacheBackendTrait;
@@ -55,6 +55,13 @@ class ExoIconRepository implements ExoIconRepositoryInterface {
    * @var array
    */
   protected $cacheTags;
+
+  /**
+   * Cached icons.
+   *
+   * @var array
+   */
+  protected $icons;
 
   /**
    * Constructs a new ExoIconRepository object.
