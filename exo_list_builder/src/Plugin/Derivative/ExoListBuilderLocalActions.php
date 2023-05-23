@@ -12,9 +12,16 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Defines dynamic local actions.
  */
-class ExoListBuilderLocalactions extends DeriverBase implements ContainerDeriverInterface {
+class ExoListBuilderLocalActions extends DeriverBase implements ContainerDeriverInterface {
 
   use StringTranslationTrait;
+
+  /**
+   * Route provider.
+   *
+   * @var \Drupal\Core\Routing\RouteProviderInterface
+   */
+  protected $routeProvider;
 
   /**
    * The entity type manager.
