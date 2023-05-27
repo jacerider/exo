@@ -76,7 +76,7 @@ class ExoOptionsButtonsWidget extends OptionsButtonsWidget {
     $style = $this->getSetting('style');
     $summary = parent::settingsSummary();
     $summary[] = $this->t('Display style: %style', [
-      '%style' => isset($style_options[$style]) ? $style_options[$style] : $style,
+      '%style' => $style_options[$style] ?? $style,
     ]);
     if ($this->getSetting('reverse')) {
       $summary[] = $this->t('Reverse option order');
