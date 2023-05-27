@@ -102,6 +102,14 @@ enhancement.slider:
     - exo_alchemist/enhancement
     - exo/swiper
 
+enhancement.count:
+  version: VERSION
+  js:
+    js/exo.alchemist.enhancement.count.js: { minified: true }
+  dependencies:
+    - exo_alchemist/enhancement
+    - exo/countup
+
 
 ################################################################################
 ## eXo Theme Provider

@@ -375,3 +375,8 @@ swiper:
       lib/swiper/swiper-bundle.min.css: { minified: true }
   js:
     lib/swiper/swiper-bundle.min.js: {minified: true}
+
+countup:
+  version: VERSION
+  js:
+    lib/countup/countup.min.js: {minified: true}
