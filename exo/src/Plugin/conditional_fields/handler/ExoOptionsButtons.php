@@ -13,4 +13,19 @@ use Drupal\conditional_fields\Plugin\conditional_fields\handler\OptionsButtons;
  */
 class ExoOptionsButtons extends OptionsButtons {
 
+  /**
+   * {@inheritdoc}
+   */
+  public function statesHandler($field, $field_info, $options) {
+    if (array_key_exists('#type', $field) && in_array($field['#type'], ['exo_checkbox', 'exo_checkboxes'])) {
+      // Check boxes.
+      return $this->checkBoxesHandler($field, $field_info, $options);
+    }
+    elseif (array_key_exists('#type', $field) && in_array($field['#type'], ['exo_radio', 'exo_radios'])) {
+      // Radio.
+      return $this->radioHandler($field, $field_info, $options);
+    }
+    return [];
+  }
+
 }
