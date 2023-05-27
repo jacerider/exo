@@ -40,6 +40,7 @@ interface Window {
   opera: any;
   safari: any;
   Shuffle: any;
+  countUp: any;
 }
 
 interface Document {
