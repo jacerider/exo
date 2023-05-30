@@ -1,0 +1,15 @@
+@import 'exo-common';
+
+.ee--stack-wrapper {
+  --stack-cards-gap: #{$global-padding * 2};
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  .ee--stack-item {
+    position: sticky;
+    top: 0;
+    transform-origin: center top;
+    overflow: hidden;
+  }
+}

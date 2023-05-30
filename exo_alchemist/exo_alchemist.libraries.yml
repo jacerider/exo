@@ -110,6 +110,17 @@ enhancement.count:
     - exo_alchemist/enhancement
     - exo/countup
 
+enhancement.stack:
+  version: VERSION
+  js:
+    js/exo.alchemist.enhancement.stack.js: { minified: true }
+  css:
+    component:
+      css/exo-alchemist.enhancement.stack.css: { minified: true }
+  dependencies:
+    - exo_alchemist/enhancement
+    - core/drupal.displace
+
 
 ################################################################################
 ## eXo Theme Provider
