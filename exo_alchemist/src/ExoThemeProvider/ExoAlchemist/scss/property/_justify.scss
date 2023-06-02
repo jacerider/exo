@@ -1,0 +1,76 @@
+.exo-component-wrapper {
+
+  .exo-modifier--justify-left,
+  .exo-modifier--justify-right,
+  .exo-modifier--justify-center,
+  .exo-modifier--justify-justified,
+  .exo-modifier--justify-spaced {
+    @include flex;
+  }
+
+  .exo-modifier--justify-left {
+    justify-content: left;
+  }
+
+  .exo-modifier--justify-right {
+    justify-content: right;
+  }
+
+  .exo-modifier--justify-center {
+    justify-content: center;
+  }
+
+  .exo-modifier--justify-justified {
+    justify-content: justified;
+  }
+
+  .exo-modifier--justify-spaced {
+    justify-content: spaced;
+  }
+}
+
+.exo-modifier--justify-content-left,
+.exo-modifier--justify-content-right,
+.exo-modifier--justify-content-center,
+.exo-modifier--justify-content-justified,
+.exo-modifier--justify-content-spaced {
+
+  .exo-component-content {
+    @include flex;
+  }
+}
+
+.exo-modifier--justify-content-left {
+
+  .exo-component-content {
+    justify-content: left;
+  }
+}
+
+.exo-modifier--justify-content-right {
+
+  .exo-component-content {
+    justify-content: right;
+  }
+}
+
+.exo-modifier--justify-content-center {
+
+  .exo-component-content {
+    justify-content: center;
+  }
+}
+
+.exo-modifier--justify-content-justified {
+
+  .exo-component-content {
+    justify-content: justified;
+  }
+}
+
+.exo-modifier--justify-content-spaced {
+
+  .exo-component-content {
+    justify-content: spaced;
+  }
+}

@@ -1,0 +1,76 @@
+.exo-component-wrapper {
+
+  .exo-modifier--align-top,
+  .exo-modifier--align-bottom,
+  .exo-modifier--align-middle,
+  .exo-modifier--align-baseline,
+  .exo-modifier--align-stretch {
+    @include flex;
+  }
+
+  .exo-modifier--align-top {
+    align-items: top;
+  }
+
+  .exo-modifier--align-bottom {
+    align-items: bottom;
+  }
+
+  .exo-modifier--align-middle {
+    align-items: middle;
+  }
+
+  .exo-modifier--align-baseline {
+    align-items: baseline;
+  }
+
+  .exo-modifier--align-stretch {
+    align-items: stretch;
+  }
+}
+
+.exo-modifier--align-content-top,
+.exo-modifier--align-content-bottom,
+.exo-modifier--align-content-middle,
+.exo-modifier--align-content-baseline,
+.exo-modifier--align-content-stretch {
+
+  .exo-component-content {
+    @include flex;
+  }
+}
+
+.exo-modifier--align-content-top {
+
+  .exo-component-content {
+    align-items: top;
+  }
+}
+
+.exo-modifier--align-content-bottom {
+
+  .exo-component-content {
+    align-items: bottom;
+  }
+}
+
+.exo-modifier--align-content-middle {
+
+  .exo-component-content {
+    align-items: middle;
+  }
+}
+
+.exo-modifier--align-content-baseline {
+
+  .exo-component-content {
+    align-items: baseline;
+  }
+}
+
+.exo-modifier--align-content-stretch {
+
+  .exo-component-content {
+    align-items: stretch;
+  }
+}

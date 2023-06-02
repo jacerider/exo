@@ -27,6 +27,7 @@ class PositionVertical extends ClassAttribute {
   public function getOptions() {
     return [
       'top' => $this->icon('Top')->setIcon('regular-arrow-to-top'),
+      'center' => $this->icon('Center')->setIcon('regular-compress-arrows-alt'),
       'bottom' => $this->icon('Bottom')->setIcon('regular-arrow-to-bottom'),
     ];
   }

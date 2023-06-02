@@ -6,14 +6,14 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\exo_icon\ExoIconTranslationTrait;
 
 /**
- * A 'position' adapter for exo components.
+ * A 'justify' adapter for exo components.
  *
  * @ExoComponentProperty(
- *   id = "position",
- *   label = @Translation("Position"),
+ *   id = "justify",
+ *   label = @Translation("Justify"),
  * )
  */
-class Position extends ClassAttribute {
+class Justify extends ClassAttribute {
   use ExoIconTranslationTrait;
 
   /**
@@ -26,11 +26,11 @@ class Position extends ClassAttribute {
    */
   public function getOptions() {
     return [
-      'top' => $this->icon('Top')->setIcon('regular-arrow-to-top'),
-      'left' => $this->icon('Left')->setIcon('regular-arrow-to-left'),
-      'center' => $this->icon('Center')->setIcon('regular-compress-arrows-alt'),
-      'right' => $this->icon('Right')->setIcon('regular-arrow-to-right'),
-      'bottom' => $this->icon('Bottom')->setIcon('regular-arrow-to-bottom'),
+      'left' => $this->icon('Left')->setIcon('regular-border-left'),
+      'center' => $this->icon('Center')->setIcon('regular-border-center-v'),
+      'right' => $this->icon('Right')->setIcon('regular-border-right'),
+      'justify' => $this->icon('Justify')->setIcon('regular-border-inner'),
+      'spaced' => $this->icon('Spaced')->setIcon('regular-border-none'),
     ];
   }
 

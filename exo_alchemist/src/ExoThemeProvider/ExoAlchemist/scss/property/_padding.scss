@@ -113,6 +113,30 @@ $sizes: 10, 20, 30, 60, 90, 120, 150, 180;
     }
   }
 
+  .exo-modifier--padding-v-content-top-#{$size} .exo-component-content {
+    padding-top: max($global-padding, rem-calc($size * 0.6));
+
+    @include breakpoint(medium) {
+      padding-top: max($global-padding, rem-calc($size * 0.8));
+    }
+
+    @include breakpoint(large) {
+      padding-top: rem-calc($size);
+    }
+  }
+
+  .exo-modifier--padding-v-content-bottom-#{$size} .exo-component-content {
+    padding-bottom: max($global-padding, rem-calc($size * 0.6));
+
+    @include breakpoint(medium) {
+      padding-bottom: max($global-padding, rem-calc($size * 0.8));
+    }
+
+    @include breakpoint(large) {
+      padding-bottom: rem-calc($size);
+    }
+  }
+
   .exo-modifier--padding-h-#{$size} {
     padding-left: $global-padding;
     padding-right: $global-padding;
@@ -124,6 +148,30 @@ $sizes: 10, 20, 30, 60, 90, 120, 150, 180;
 
     @include breakpoint(large) {
       padding-left: rem-calc($size);
+      padding-right: rem-calc($size);
+    }
+  }
+
+  .exo-modifier--padding-h-content-left-#{$size} .exo-component-content {
+    padding-left: $global-padding;
+
+    @include breakpoint(medium) {
+      padding-left: max($global-padding, rem-calc($size * 0.8));
+    }
+
+    @include breakpoint(large) {
+      padding-left: rem-calc($size);
+    }
+  }
+
+  .exo-modifier--padding-h-content-right-#{$size} .exo-component-content {
+    padding-right: $global-padding;
+
+    @include breakpoint(medium) {
+      padding-right: max($global-padding, rem-calc($size * 0.8));
+    }
+
+    @include breakpoint(large) {
       padding-right: rem-calc($size);
     }
   }

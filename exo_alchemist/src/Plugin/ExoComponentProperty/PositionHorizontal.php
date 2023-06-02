@@ -27,6 +27,7 @@ class PositionHorizontal extends ClassAttribute {
   public function getOptions() {
     return [
       'left' => $this->icon('Left')->setIcon('regular-arrow-to-left'),
+      'center' => $this->icon('Center')->setIcon('regular-compress-arrows-alt'),
       'right' => $this->icon('Right')->setIcon('regular-arrow-to-right'),
     ];
   }
