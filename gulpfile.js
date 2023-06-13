@@ -1,6 +1,8 @@
 const gulp = require('gulp');
 const { parallel, series } = require('gulp');
 const gutil = require('gulp-util');
+const fs = require('fs');
+const path = require('path');
 const execSync = require('child_process').execSync;
 const cache = require('gulp-cached');
 const dependents = require('gulp-dependents');
@@ -40,10 +42,13 @@ let config = {
 
 function drupal(cb) {
   let command = drushCommand + ' status --format=json';
+  let localRoot = testDir(splitPath(__dirname));
   if (root) {
-    command += ' --root="' + root + '"';
+    localRoot = testDir(splitPath(root));
+    process.chdir(root);
   }
   drupalInfo = JSON.parse(execSync(command).toString());
+  drupalInfo.root = localRoot + '/web';
   cb();
 }
 
@@ -185,9 +190,22 @@ function watch(cb) {
   }
 }
 
+function splitPath(path) {
+  var parts = path.split(/(\/|\\)/);
+  if (!parts.length) return parts;
+  return !parts[0].length ? parts.slice(1) : parts;
+}
+
+function testDir(parts) {
+  if (parts.length === 0) return null;
+  var p = parts.join('');
+  var itdoes = fs.existsSync(path.join(p, '.ddev'));
+  return itdoes ? p.slice(0, -1) : testDir(parts.slice(0, -1));
+}
+
 // exports.default = parallel(js, css, ts);
 exports.default = series(drupal, exo, parallel(css));
 exports.watch = series(drupal, enableWatch, exo, parallel(css, js, ts), watch);
 
-exports.ddev = series(drupal, enableDdev, exo, parallel(css, js, ts));
-exports.ddevWatch = series(drupal, enableWatch, enableDdev, exo, parallel(css, js, ts), watch);
+exports.ddev = series(enableDdev, drupal, exo, parallel(css, js, ts));
+exports.ddevWatch = series(enableWatch, enableDdev, drupal, exo, parallel(css, js, ts), watch);
