@@ -5,6 +5,7 @@ namespace Drupal\exo_form\Plugin;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Render\Element;
 use Drupal\Core\Security\TrustedCallbackInterface;
 
 /**
@@ -162,6 +163,20 @@ abstract class ExoFormBase extends PluginBase implements ExoFormInterface, Trust
       $element['#' . $this->featureAttributeKey]['class'][] = 'exo-form-element-intersect';
     }
     return $element;
+  }
+
+  /**
+   * Disable eXo form on all child elements.
+   *
+   * @param array $element
+   *   The element.
+   */
+  protected function disableExoOnElement(array &$element) {
+    $element['#exo_form_default'] = TRUE;
+    foreach (Element::children($element) as $id) {
+      $child_element = &$element[$id];
+      $this->disableExoOnElement($child_element);
+    }
   }
 
   /**
