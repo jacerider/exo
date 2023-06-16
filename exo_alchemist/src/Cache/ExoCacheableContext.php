@@ -53,6 +53,26 @@ class ExoCacheableContext {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function addCacheContexts(array $cache_contexts) {
+    if ($cache_contexts) {
+      $this->cacheabilityMetadata->addCacheContexts($cache_contexts);
+    }
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addCacheTags(array $cache_tags) {
+    if ($cache_tags) {
+      $this->cacheabilityMetadata->addCacheTags($cache_tags);
+    }
+    return $this;
+  }
+
+  /**
    * Returns the cacheability metadata for this response.
    *
    * @return \Drupal\Core\Cache\CacheableMetadata
