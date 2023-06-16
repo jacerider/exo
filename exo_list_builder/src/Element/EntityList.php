@@ -50,6 +50,12 @@ class EntityList extends RenderElement {
     }
 
     $element['list'] = \Drupal::entityTypeManager()->getViewBuilder($list->getEntityTypeId())->view($list, 'default');
+    if (isset($element['#filters_prefix'])) {
+      $element['list']['header']['first']['filters']['inline']['prefix'] = ['#weight' => -1000] + $element['#filters_prefix'];
+    }
+    if (isset($element['#filters_suffix'])) {
+      $element['list']['header']['first']['filters']['inline']['suffix'] = ['#weight' => 1000] + $element['#filters_suffix'];
+    }
     return $element;
   }
 
