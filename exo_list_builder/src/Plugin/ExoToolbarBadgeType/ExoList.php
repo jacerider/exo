@@ -32,8 +32,6 @@ class ExoList extends ExoToolbarBadgeTypeBase implements ContainerFactoryPluginI
    * The eXo list.
    *
    * @var \Drupal\exo_list_builder\EntityListInterface
-   *
-   * @var [type]
    */
   protected $list;
 
@@ -124,7 +122,7 @@ class ExoList extends ExoToolbarBadgeTypeBase implements ContainerFactoryPluginI
    */
   public function elementPrepare(ExoToolbarElementInterface $element, $delta, ExoToolbarItemPluginInterface $item) {
     parent::elementPrepare($element, $delta, $item);
-    $cid = 'exo_list:exo_toolbar_badge:' . $item->getItem()->id();
+    $cid = 'exo_list:exo_toolbar_badge:' . \Drupal::currentUser()->id() . ':' . $item->getItem()->id();
     $total = 0;
     if ($cache = \Drupal::cache()->get($cid)) {
       $total = $cache->data;
