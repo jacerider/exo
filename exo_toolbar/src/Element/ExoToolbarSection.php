@@ -113,6 +113,7 @@ class ExoToolbarSection extends RenderElement {
       'section' => $exo_toolbar_section,
       'toolbar' => $exo_toolbar,
     ];
+    unset($context['items']['region']);
     foreach ($exo_toolbar_items as $exo_toolbar_item) {
       $exo_toolbar_item->alterSectionElement($element, $context);
     }

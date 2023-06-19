@@ -78,15 +78,17 @@ class Divider extends ExoToolbarItemBase {
       }, array_filter($context['items'], function ($item) {
         return $item->getPluginId() == 'divider';
       }));
-      $ids = array_keys($element['items']);
+      $ids = array_keys($context['items']);
       foreach (array_keys($ids) as $key) {
         if (isset($dividers[$ids[$key]]) && isset($ids[$key + 1])) {
           $el = &$element['items'][$ids[$key]];
-          $next = &$element['items'][$ids[$key + 1]];
           if (isset($dividers[$ids[$key + 1]])) {
             $el['#access'] = FALSE;
           }
         }
+      }
+      if (isset($dividers[end($ids)])) {
+        $element['items'][$ids[$key]]['#access'] = FALSE;
       }
     }
   }
