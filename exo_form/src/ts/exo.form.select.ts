@@ -89,6 +89,7 @@
       }
       else {
         this.$hidden.remove();
+        this.$field.show();
       }
 
       this.build();
