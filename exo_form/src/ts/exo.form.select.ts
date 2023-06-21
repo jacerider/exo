@@ -30,6 +30,7 @@
     protected multiple:boolean;
     protected placeholder:string;
     protected selected:Array<ExoFormSelectValue>;
+    protected allowColumn:boolean = true;
 
     constructor($element:JQuery) {
       this.uniqueId = Drupal.Exo.guid();
@@ -569,6 +570,9 @@
         else {
           this.selected.push(values);
         }
+        if (values.text.charAt(0) === '-') {
+          this.allowColumn = false;
+        }
       });
     }
 
@@ -822,7 +826,7 @@
             break;
         }
 
-        if (this.multiple && this.$dropdownScroll[0].scrollHeight > this.$dropdownScroll.height() * 2) {
+        if (this.multiple && this.allowColumn && this.$dropdownScroll[0].scrollHeight > this.$dropdownScroll.height() * 2) {
           const scrollWidth = this.$dropdownScroll.outerWidth();
           const scrollOffsetLeft = this.$dropdownScroll.offset().left;
           const scrollOffsetRight = scrollOffsetLeft + scrollWidth;
