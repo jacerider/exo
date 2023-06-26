@@ -166,21 +166,21 @@
 }
 
 // Swiper support.
-.exo-component-edit-active .swiper .swiper-wrapper .swiper-slide.exo-component-field-edit {
+// .exo-component-edit-active .swiper .swiper-wrapper .swiper-slide.exo-component-field-edit {
 
-  &,
-  * {
-    pointer-events: none !important;
-  }
+//   &,
+//   * {
+//     pointer-events: none !important;
+//   }
 
-  &.swiper-slide-visible {
+//   &.swiper-slide-visible {
 
-    &,
-    * {
-      pointer-events: auto !important;
-    }
-  }
-}
+//     &,
+//     * {
+//       pointer-events: auto !important;
+//     }
+//   }
+// }
 
 /**
  * Nested Sections

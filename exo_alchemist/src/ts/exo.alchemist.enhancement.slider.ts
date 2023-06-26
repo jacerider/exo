@@ -15,18 +15,18 @@
       const $scrollbar = $wrapper.find('.swiper-scrollbar');
       const $autoplayTime = $wrapper.find('.swiper-autoplay-time');
       const $autoplayBar = $wrapper.find('.swiper-autoplay-bar');
-      const defaultSettings = {
+      const defaultSettings:any = {
         pagination: {},
         navigation: {},
         scrollbar: {},
         thumbs: {},
-        autoplay: {},
         on: {
           init: () => {
             $(document).trigger('exoComponentSliderInit');
           },
         }
       };
+      const isLayoutBuilder = this.isLayoutBuilder();
       if ($pagination.length) {
         defaultSettings['pagination']['el'] = $pagination.get(0);
       }
@@ -41,6 +41,7 @@
       }
 
       if ($autoplayTime.length || $autoplayBar.length) {
+        defaultSettings.autoplay = {};
         defaultSettings.autoplay['delay'] = 4000;
         defaultSettings.autoplay['disableOnInteraction'] = false;
         defaultSettings.on['autoplayStop'] = (slider) => {
@@ -60,6 +61,10 @@
       }
 
       const settings = $.extend(true, {}, defaultSettings, this.$wrapper.data('ee--slider-settings') || {});
+      if (isLayoutBuilder) {
+        settings['watchSlidesProgress'] = true;
+        settings['loop'] = false;
+      }
 
       const $navSlider = $wrapper.closest('.exo-component').find('.ee--slider-nav[data-ee--slider-id="' + id + '"]');
       if ($navSlider.length) {
@@ -80,7 +85,7 @@
         });
       }
 
-      if (this.isLayoutBuilder()) {
+      if (isLayoutBuilder) {
         this.buildForLayoutBuilder();
       }
     }
@@ -91,10 +96,12 @@
           let $element = $(element);
           $element.find('.exo-field-op-rotator-prev').off('click').on('click', e => {
             e.preventDefault();
+            Drupal.ExoAlchemistAdmin.setFieldInactive();
             this.swiper.slidePrev();
           });
           $element.find('.exo-field-op-rotator-next').off('click').on('click', e => {
             e.preventDefault();
+            Drupal.ExoAlchemistAdmin.setFieldInactive();
             this.swiper.slideNext();
           });
         }
@@ -102,11 +109,14 @@
 
       $(document).on('exoComponentFieldEditActive.exo.alchemist.enhancement.slider.' + this.id, (e, element) => {
         let $element = $(element);
-        if (this.$wrapper.find($element).length) {
+        if (this.$wrapper.find($element).length && !$element.hasClass('swiper-slide-active')) {
           this.swiper.slideTo($element.index());
-          this.swiper.once('slideChangeTransitionEnd', function () {
-            Drupal.ExoAlchemistAdmin.sizeFieldOverlay($element);
-            Drupal.ExoAlchemistAdmin.sizeTarget($element);
+          Drupal.ExoAlchemistAdmin.lockTargetPointerEvents();
+          Drupal.ExoAlchemistAdmin.setFieldInactive();
+          this.swiper.once('slideChangeTransitionEnd', (e) => {
+            $element = $(e.clickedSlide);
+            Drupal.ExoAlchemistAdmin.unlockTargetPointerEvents();
+            Drupal.ExoAlchemistAdmin.setFieldActive($element);
           });
         }
       });
