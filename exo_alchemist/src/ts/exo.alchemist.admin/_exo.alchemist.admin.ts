@@ -23,6 +23,7 @@ class ExoAlchemistAdmin {
   protected watchFinished:number = null;
   protected scrollTop:number = 0;
   protected scrollTrack:boolean = true;
+  protected lockedTargetPointerEvents = false;
 
   /**
    * Initial setup.
@@ -499,6 +500,9 @@ class ExoAlchemistAdmin {
   }
 
   public showTarget($element:JQuery, title?:string, icon?:string) {
+    if (this.lockedTargetPointerEvents === true) {
+      return;
+    }
     clearTimeout(this.targetTimer);
     this.$target.off(Drupal.Exo.transitionEvent);
     this.$activeTarget = $element;
@@ -546,6 +550,14 @@ class ExoAlchemistAdmin {
   public hideTargetClose() {
     this.$targetClose.removeClass('active');
     this.$targetClose.off('click.exo');
+  }
+
+  public lockTargetPointerEvents() {
+    this.lockedTargetPointerEvents = true;
+  }
+
+  public unlockTargetPointerEvents() {
+    this.lockedTargetPointerEvents = false;
   }
 
   /**
