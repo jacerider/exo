@@ -1,10 +1,11 @@
 <?php
 
-namespace Drupal\exo\Command;
+namespace Drupal\exo\Drush\Commands;
 
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\exo\ExoThemePluginManagerInterface;
 use Drush\Commands\DrushCommands;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Defines Drush commands for the Search API.
@@ -43,6 +44,13 @@ class ExoDrushCommands extends DrushCommands {
   public function __construct(ExoThemePluginManagerInterface $exo_theme_manager, FileSystemInterface $file_system) {
     $this->exoThemeManager = $exo_theme_manager;
     $this->fileSystem = $file_system;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container): self {
+    return new self($container->get('plugin.manager.exo_theme'), $container->get('file_system'));
   }
 
   /**
