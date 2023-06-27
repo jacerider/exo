@@ -103,7 +103,7 @@ class LocalActions extends ExoToolbarItemBase implements ContainerFactoryPluginI
         'weight' => $action['#weight'],
         'access' => $action['#access'],
         'attributes' => !empty($action['#link']['localized_options']['attributes']) ? $action['#link']['localized_options']['attributes'] : [],
-      ])->addClass('as-pill')->addClass('is-primary')->setAsLink();
+      ])->addClass('as-pill')->addClass('is-primary')->removeClass('button')->setAsLink();
       if (!empty($action['#link']['localized_options']['attributes']['data-icon'])) {
         $elements[$key]->setIcon($action['#link']['localized_options']['attributes']['data-icon']);
       }
