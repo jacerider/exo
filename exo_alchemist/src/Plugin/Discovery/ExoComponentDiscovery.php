@@ -146,20 +146,11 @@ class ExoComponentDiscovery implements DiscoveryInterface {
           $definition['fields'] = $content['fields'] ?? [];
           foreach ($extend_definition['fields'] as $field_id => $field) {
             // Allow default values to be overwritten.
-            foreach ([
-              'default',
-              'hide',
-              'hide_default',
-              'edit',
-              'computed',
-              'invisible',
-              'entity_field',
-              'entity_field_optional',
-              'entity_field_match',
-            ] as $key) {
-              if (isset($definition['fields'][$field_id][$key])) {
-                $field[$key] = $definition['fields'][$field_id][$key];
+            foreach ($field as $key => $value) {
+              if ($key === 'type') {
+                continue;
               }
+              $field[$key] = $definition['fields'][$field_id][$key];
             }
             $definition['fields'][$field_id] = $field;
             if (!in_array($field['type'], ['sequence'])) {
