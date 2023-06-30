@@ -150,7 +150,9 @@ class ExoComponentDiscovery implements DiscoveryInterface {
               if ($key === 'type') {
                 continue;
               }
-              $field[$key] = $definition['fields'][$field_id][$key];
+              if (isset($definition['fields'][$field_id][$key])) {
+                $field[$key] = $definition['fields'][$field_id][$key];
+              }
             }
             $definition['fields'][$field_id] = $field;
             if (!in_array($field['type'], ['sequence'])) {
