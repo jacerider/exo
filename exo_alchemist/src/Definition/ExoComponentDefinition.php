@@ -341,7 +341,7 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
       }
       if (class_exists($name)) {
         $this->handler = new $name();
-        $this->handler->_serviceIds = TRUE;
+        // $this->handler->_serviceIds = TRUE;
       }
     }
     return $this->handler;
