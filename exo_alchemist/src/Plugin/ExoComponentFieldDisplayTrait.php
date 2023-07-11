@@ -58,7 +58,16 @@ trait ExoComponentFieldDisplayTrait {
     $definition = $this->getComponentDisplayDefinition();
     $info = $this->exoComponentManager()->getPropertyInfo($definition);
     foreach ($info as $key => $data) {
-      if ($key !== '_global' && isset($data['properties'])) {
+      if ($key === '_global') {
+        continue;
+      }
+      if (substr($key, 0, 9) === 'modifier_') {
+        continue;
+      }
+      if (substr($key, 0, 12) === 'enhancement.') {
+        continue;
+      }
+      if (isset($data['properties'])) {
         $properties += $data['properties'];
       }
     }

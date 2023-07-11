@@ -4,6 +4,12 @@
     margin-bottom: 0;
   }
 
+  .field-suffix {
+    padding: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
   p {
     margin: 0 0 $global-margin * 0.5 !important;
   }

@@ -1,0 +1,26 @@
+.form-tablefield {
+
+  .textfield input {
+    padding: 5px;
+    height: auto;
+    min-height: 0;
+    font-size: rem-calc(12);
+    line-height: 1;
+
+    &:focus {
+      min-width: 200px !important;
+    }
+  }
+
+  table tbody {
+
+    tr {
+
+      td {
+        width: auto !important;
+        padding: 5px !important;
+        height: auto !important;
+      }
+    }
+  }
+}

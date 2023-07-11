@@ -89,6 +89,13 @@ class ExoModal implements ExoModalInterface {
   protected $cache = TRUE;
 
   /**
+   * Flag for building drupal attachments.
+   *
+   * @var bool
+   */
+  protected $buildDrupalAttachments;
+
+  /**
    * Constructs a new ExoModal.
    */
   public function __construct(ExoSettingsInstanceInterface $exo_settings, $id, $modal = NULL) {

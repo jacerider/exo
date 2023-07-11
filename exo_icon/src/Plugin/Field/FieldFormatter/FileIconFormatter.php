@@ -142,7 +142,10 @@ class FileIconFormatter extends FileFormatterBase {
     $elements['position'] = [
       '#type' => 'select',
       '#title' => $this->t('Icon position'),
-      '#options' => ['before' => $this->t('Before'), 'after' => $this->t('After')],
+      '#options' => [
+        'before' => $this->t('Before'),
+        'after' => $this->t('After'),
+      ],
       '#default_value' => $this->getSetting('position'),
       '#required' => TRUE,
       '#access' => $can_change_icon,
@@ -158,8 +161,9 @@ class FileIconFormatter extends FileFormatterBase {
     $elements = [];
 
     foreach ($this->getEntitiesToView($items, $langcode) as $delta => $file) {
+      /** @var \Drupal\file\FileInterface $file */
       $item = $file->_referringItem;
-      $url = file_create_url($file->getFileUri());
+      $url = \Drupal::service('file_url_generator')->generateAbsoluteString($file->getFileUri());
       $options = [];
       if ($this->getSetting('target')) {
         $options['attributes']['target'] = '_blank';

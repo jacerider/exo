@@ -113,6 +113,13 @@ class ExoOEmbedModal extends ExoModalFieldFormatterBase {
   protected $thumbnails;
 
   /**
+   * The token service.
+   *
+   * @var \Drupal\Core\Utility\Token
+   */
+  protected $token;
+
+  /**
    * Constructs a new instance of the plugin.
    *
    * @param string $plugin_id
@@ -341,7 +348,7 @@ class ExoOEmbedModal extends ExoModalFieldFormatterBase {
       $resource = $this->resourceFetcher->fetchResource($resource_url);
     }
     catch (ResourceException $exception) {
-      $this->logger->error("Could not retrieve the remote URL (@url).", ['@url' => $value]);
+      \Drupal::logger('exo_oembed')->error("Could not retrieve the remote URL (@url).", ['@url' => $value]);
       return;
     }
 
@@ -408,7 +415,11 @@ class ExoOEmbedModal extends ExoModalFieldFormatterBase {
    */
   protected function viewModalElement(ExoModalInterface $modal, FieldItemInterface $item, $delta, $langcode) {
     $element = [];
-    $element += $this->generateOembed($item, $delta);
+    $render = $this->generateOembed($item, $delta);
+    if (empty($render)) {
+      return $element;
+    }
+    $element += $render;
     $modal->setSetting(['modal', 'closeButton'], FALSE);
     $modal->setSetting(['modal', 'closeInBody'], TRUE);
 

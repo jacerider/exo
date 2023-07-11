@@ -10,6 +10,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldComputedBase;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
+use Drupal\Core\Render\Element;
 use Drupal\exo_alchemist\ExoComponentSectionStorageInterface;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldFormInterface;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldFormTrait;
@@ -56,6 +57,20 @@ class EntityDisplayComponent extends ExoComponentFieldComputedBase implements Co
    *   Entity build render arrays.
    */
   protected static $entityBuilds = [];
+
+  /**
+   * The entity type id.
+   *
+   * @var string
+   */
+  protected $entityTypeId;
+
+  /**
+   * The bundle.
+   *
+   * @var string
+   */
+  protected $bundle;
 
   /**
    * Constructs a new FieldBlock.
@@ -119,6 +134,9 @@ class EntityDisplayComponent extends ExoComponentFieldComputedBase implements Co
         '@id' => $this->getComponentName(),
         '@entity_type_id' => $this->entityTypeId,
         '@bundle' => $this->bundle,
+      ]),
+      'render_items' => $this->t('The rendered output items of @id.', [
+        '@id' => $this->getComponentName(),
       ]),
       'value' => $this->t('The array of raw values of @id.', [
         '@id' => $this->getComponentName(),
@@ -186,12 +204,19 @@ class EntityDisplayComponent extends ExoComponentFieldComputedBase implements Co
     if (isset($build[$component_name])) {
       // If this is a field, and not an extra field, we check to make sure it
       // has a value.
-      if ($parent_entity->hasField($component_name) && $parent_entity->get($component_name)->isEmpty()) {
+      $has_field = $parent_entity->hasField($component_name);
+      if ($has_field && $parent_entity->get($component_name)->isEmpty()) {
         // We may want to handle cache information here.
         return [];
       }
       $value['#field_attributes']['class'][] = 'entity--field';
       $value['render'] = $build[$component_name];
+      $value['render_items'] = [];
+      if ($has_field && $parent_entity->get($component_name)->getFieldDefinition()->getFieldStorageDefinition()->getCardinality() !== 1) {
+        foreach (Element::children($value['render']) as $key) {
+          $value['render_items'][] = $value['render'][$key];
+        }
+      }
       $value['value'] = NULL;
       try {
         $value['value'] = $parent_entity->get($component_name)->first()->getValue();
