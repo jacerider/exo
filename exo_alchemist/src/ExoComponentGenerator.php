@@ -2,6 +2,7 @@
 
 namespace Drupal\exo_alchemist;
 
+use Drupal\Component\Plugin\DerivativeInspectionInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Component\Uuid\UuidInterface;
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
@@ -200,6 +201,22 @@ class ExoComponentGenerator {
       }
       // Call core's presave.
       layout_builder_entity_presave($entity);
+
+      // Support global components.
+      if ($sections = $this->getEntitySections($entity)) {
+        foreach ($sections as $section) {
+          foreach ($section->getComponents() as $component) {
+            $plugin = $component->getPlugin();
+            if ($plugin instanceof DerivativeInspectionInterface && $plugin->getBaseId() === 'global_block') {
+              /** @var \Drupal\layout_builder\Plugin\Block\InlineBlock $plugin */
+              $plugin = $component->getPlugin();
+              $plugin->saveBlockContent();
+              $post_save_configuration = $plugin->getConfiguration();
+              $component->setConfiguration($post_save_configuration);
+            }
+          }
+        }
+      }
     }
     if ($this->isComponentEntity($entity)) {
       $this->handleComponentEntityPreSave($entity);

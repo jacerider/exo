@@ -3,7 +3,6 @@
 namespace Drupal\exo_alchemist\Form;
 
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Component\Uuid\UuidInterface;
 use Drupal\Core\Ajax\AjaxFormHelperTrait;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
@@ -16,6 +15,7 @@ use Drupal\exo_alchemist\Ajax\ExoComponentModifierAttributesCommand;
 use Drupal\exo_alchemist\Controller\ExoFieldParentsFormTrait;
 use Drupal\exo_alchemist\ExoComponentManager;
 use Drupal\exo_alchemist\ExoComponentPropertyManager;
+use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\layout_builder\Controller\LayoutRebuildTrait;
 use Drupal\layout_builder\LayoutBuilderHighlightTrait;
 use Drupal\layout_builder\LayoutTempstoreRepositoryInterface;
@@ -33,6 +33,7 @@ class ExoFieldUpdateForm extends FormBase {
   use LayoutRebuildTrait;
   use LayoutBuilderHighlightTrait;
   use ExoFieldParentsFormTrait;
+  use ExoIconTranslationTrait;
 
   /**
    * The layout tempstore repository.
@@ -129,8 +130,6 @@ class ExoFieldUpdateForm extends FormBase {
    *   The block manager.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
-   * @param Drupal\Component\Uuid\UuidInterface $uuid
-   *   The uuid generator.
    * @param \Drupal\Core\Session\AccountInterface $current_user
    *   The current user.
    */
@@ -200,6 +199,13 @@ class ExoFieldUpdateForm extends FormBase {
     $definition = $this->exoComponentManager()->getEntityComponentDefinition($this->entity);
 
     $form += $this->getTargetForm($form, $form_state, $this->entity, $this->parents);
+
+    if ($definition->isGlobal()) {
+      $form['is_global'] = [
+        '#markup' => '<div class="message">' . $this->icon('<strong>Global Component</strong>: Changes will be applied to all instances of this component.')->setIcon('regular-globe') . '</div>',
+        '#weight' => -1000,
+      ];
+    }
 
     $child_entity = $this->getTargetEntity($this->entity, $this->parents);
     $child_definition = $this->exoComponentManager()->getEntityComponentDefinition($child_entity);
@@ -346,7 +352,7 @@ class ExoFieldUpdateForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $trigger = $form_state->getTriggeringElement();
-    $op = isset($trigger['#op']) ? $trigger['#op'] : 'submit';
+    $op = $trigger['#op'] ?? 'submit';
     $definition = $this->exoComponentManager->getEntityComponentDefinition($this->entity);
 
     $this->submitTargetForm($form, $form_state);

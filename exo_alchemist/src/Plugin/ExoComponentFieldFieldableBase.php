@@ -192,9 +192,10 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
   /**
    * {@inheritdoc}
    */
-  public function onFieldRestore(ExoComponentValues $values, FieldItemListInterface $items) {
+  public function onFieldRestore(ExoComponentValues $values, FieldItemListInterface $items, $force = FALSE) {
     $field_values = [];
-    if ($items->isEmpty()) {
+    if ($items->isEmpty() || $force) {
+      $items->setValue(NULL);
       $field_values = $this->populateValues($values, $items);
     }
     return $field_values;

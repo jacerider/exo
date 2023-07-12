@@ -385,8 +385,14 @@ class ExoLayoutBuilder extends LayoutBuilder {
       'delta' => $delta,
       'region' => $region_id,
       'uuid' => $component_id,
+      'info' => 'Click to focus: <strong>' . $exo_component->getLabel(). '</strong>',
+      'info_icon' => 'regular-cog',
       'label' => $exo_component->getLabel(),
     ];
+    if ($exo_component->isGlobal()) {
+      $data['info'] = '[Global] ' . $data['info'];
+      $data['description'] = $this->icon('[Global] Changes will impact all instances.')->setIcon('regular-globe');
+    }
     if ($count = count(ExoComponentFieldManager::getHiddenFieldNames($entity))) {
       $data['elements_badge'] = $this->icon((string) $count)->setIcon('regular-low-vision');
     }

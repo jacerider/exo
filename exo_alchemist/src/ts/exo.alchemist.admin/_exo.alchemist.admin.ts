@@ -148,7 +148,7 @@ class ExoAlchemistAdmin {
           const $element = $(e.currentTarget);
           const data = JSON.parse(e.currentTarget.getAttribute('data-exo-component'));
           if (!$element.hasClass('exo-component-blocked')) {
-            this.showTarget($element, 'Click to focus this <strong>' + data.label.toLowerCase() + '</strong> component', 'regular-cog');
+            this.showTarget($element, data.info, data.info_icon);
           }
           else {
             this.showTarget($element, 'This component cannot be changed.', 'regular-lock');

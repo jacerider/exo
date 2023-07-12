@@ -6,7 +6,6 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\tablefield\Plugin\Field\FieldWidget\TablefieldWidget;
-use Symfony\Component\Validator\ConstraintViolationInterface;
 
 /**
  * Plugin implementation of the 'tablefield' widget.
@@ -28,6 +27,9 @@ class ExoTablefieldWidget extends TablefieldWidget {
     return [
       'wrapper' => 'fieldset',
       'hide_caption' => TRUE,
+      'hide_addrow' => FALSE,
+      'hide_rebuild' => FALSE,
+      'hide_import' => FALSE,
     ] + parent::defaultSettings();
   }
 
@@ -52,6 +54,27 @@ class ExoTablefieldWidget extends TablefieldWidget {
       '#default_value' => $this->getSetting('hide_caption'),
     ];
 
+    $element['hide_addrow'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Hide rebuild'),
+      '#description' => $this->t('This will hide the "add row" button.'),
+      '#default_value' => $this->getSetting('hide_addrow'),
+    ];
+
+    $element['hide_rebuild'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Hide rebuild'),
+      '#description' => $this->t('This will hide the structure fields.'),
+      '#default_value' => $this->getSetting('hide_rebuild'),
+    ];
+
+    $element['hide_import'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Hide import'),
+      '#description' => $this->t('This will hide the import fields.'),
+      '#default_value' => $this->getSetting('hide_import'),
+    ];
+
     return $element;
   }
 
@@ -61,6 +84,10 @@ class ExoTablefieldWidget extends TablefieldWidget {
   public function settingsSummary() {
     $summary = parent::settingsSummary();
     $summary[] = $this->t('Wrapper type: @value', ['@value' => $this->getWrapperOptions()[$this->getSetting('wrapper')]]);
+    $summary[] = $this->t('Hide caption: @value', ['@value' => $this->getSetting('hide_caption') ? 'Yes' : 'No']);
+    $summary[] = $this->t('Hide add row: @value', ['@value' => $this->getSetting('hide_addrow') ? 'Yes' : 'No']);
+    $summary[] = $this->t('Hide rebuild: @value', ['@value' => $this->getSetting('hide_rebuild') ? 'Yes' : 'No']);
+    $summary[] = $this->t('Hide import: @value', ['@value' => $this->getSetting('hide_import') ? 'Yes' : 'No']);
     return $summary;
   }
 
@@ -86,12 +113,24 @@ class ExoTablefieldWidget extends TablefieldWidget {
       foreach ($element['#default_value'] as $i => $row) {
         if (is_array($row)) {
           foreach ($row as $ii => $column) {
-            if (is_string($column) && $column === '#colspan#') {
+            if (is_string($column) && $column === '#colspan#' && !$this->isDefaultValueWidget($form_state)) {
               $element['#default_value'][$i][$ii] = '';
             }
           }
         }
       }
+    }
+
+    if ($this->getSetting('hide_addrow')) {
+      $element['#addrow'] = FALSE;
+    }
+
+    if ($this->getSetting('hide_rebuild')) {
+      $element['#rebuild'] = FALSE;
+    }
+
+    if ($this->getSetting('hide_import')) {
+      $element['#import'] = FALSE;
     }
 
     $element = [
@@ -140,7 +179,7 @@ class ExoTablefieldWidget extends TablefieldWidget {
                 $is_empty = FALSE;
                 $row_empty = FALSE;
               }
-              elseif ($key !== 0) {
+              elseif ($key !== 0 && !$this->isDefaultValueWidget($form_state)) {
                 $values[0]['value']['tablefield']['table'][$key][$key2] = '#colspan#';
               }
             }

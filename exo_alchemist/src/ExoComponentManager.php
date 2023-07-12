@@ -2,6 +2,7 @@
 
 namespace Drupal\exo_alchemist;
 
+use Drupal\Component\Plugin\DerivativeInspectionInterface;
 use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
@@ -963,6 +964,48 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
   }
 
   /**
+   * Load the global entity.
+   *
+   * @param \Drupal\exo_alchemist\Definition\ExoComponentDefinition $definition
+   *   The component definition.
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   Optional entity. If not supplied, default will be used.
+   * @param bool $all
+   *   Flag that determines if this is a partial clone or full clone. For
+   *   example, existing media will be reused if set to FALSE. New media will
+   *   be created if set to TRUE.
+   *
+   * @return \Drupal\Core\Entity\ContentEntityInterface
+   *   The content entity.
+   */
+  public function loadGlobalEntity(ExoComponentDefinition $definition, ContentEntityInterface $entity = NULL, $all = FALSE) {
+    $entity = NULL;
+    $storage = $this->entityTypeManager->getStorage(self::ENTITY_TYPE);
+    $query = $storage->getQuery();
+    $query->condition('type', $definition->safeId());
+    $query->condition('alchemist_default', FALSE);
+    if ($path = $definition->getParentsAsPath()) {
+      $query->condition('alchemist_path', $path);
+    }
+    $query->accessCheck(FALSE);
+    $query->range(0, 1);
+    $ids = $query->execute();
+    if (!empty($ids)) {
+      $id = reset($ids);
+      $entity = $storage->load($id);
+    }
+    else {
+      $entity = $this->cloneEntity($definition, $entity, $all);
+      /** @var \Drupal\block_content\Entity\BlockContent $entity */
+      $entity->setReusable();
+    }
+    if ($entity) {
+      $entity->alchemistDefinition = $definition;
+    }
+    return $entity;
+  }
+
+  /**
    * Load default content for definition.
    *
    * @param \Drupal\exo_alchemist\Definition\ExoComponentDefinition $definition
@@ -1073,12 +1116,15 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
    *   The component definition.
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The entity to restore.
+   * @param bool $force
+   *   If TRUE, will force restore.
    *
    * @return \Drupal\Core\Entity\ContentEntityInterface
    *   The content entity.
    */
-  public function restoreEntity(ExoComponentDefinition $definition, ContentEntityInterface $entity) {
-    $this->exoComponentFieldManager->restoreEntityFields($definition, $entity);
+  public function restoreEntity(ExoComponentDefinition $definition, ContentEntityInterface $entity, $force = FALSE) {
+    $force = $force ?: $definition->isGlobal();
+    $this->exoComponentFieldManager->restoreEntityFields($definition, $entity, $force);
     return $entity;
   }
 
@@ -1109,7 +1155,7 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
       return;
     }
     if ($sections = $this->getEntitySections($entity)) {
-      foreach ($this->getInlineBlockComponents($sections) as $component) {
+      foreach ($this->getValidBlockComponents($sections) as $component) {
         $component_entity = $this->entityLoadFromComponent($component);
         /** @var \Drupal\Core\Entity\EntityInterface $component_entity */
         if ($component_entity) {
@@ -1125,6 +1171,31 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
         }
       }
     }
+  }
+
+  /**
+   * Gets components that have Inline Block plugins.
+   *
+   * @param \Drupal\layout_builder\Section[] $sections
+   *   The layout sections.
+   *
+   * @return \Drupal\layout_builder\SectionComponent[]
+   *   The components that contain Inline Block plugins.
+   */
+  protected function getValidBlockComponents(array $sections) {
+    $inline_block_components = [];
+    foreach ($sections as $section) {
+      foreach ($section->getComponents() as $component) {
+        $plugin = $component->getPlugin();
+        if ($plugin instanceof DerivativeInspectionInterface && in_array($plugin->getBaseId(), [
+          'inline_block',
+          'global_block',
+        ])) {
+          $inline_block_components[] = $component;
+        }
+      }
+    }
+    return $inline_block_components;
   }
 
   /**

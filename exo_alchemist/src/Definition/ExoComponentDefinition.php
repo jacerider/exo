@@ -60,6 +60,8 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
     'animations' => [],
     'parents' => [],
     'tags' => [],
+    // Allows to define global component. Will only have a single instance.
+    'global' => FALSE,
     'additional' => [],
   ];
 
@@ -793,6 +795,16 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
    */
   public function isExtended() {
     return !empty($this->extendId());
+  }
+
+  /**
+   * Getter.
+   *
+   * @return mixed
+   *   Property value.
+   */
+  public function isGlobal() {
+    return !empty($this->definition['global']);
   }
 
   /**

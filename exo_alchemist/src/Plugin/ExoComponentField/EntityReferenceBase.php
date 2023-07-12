@@ -509,7 +509,7 @@ class EntityReferenceBase extends ExoComponentFieldFieldableBase implements Cont
   /**
    * {@inheritdoc}
    */
-  public function onFieldRestore(ExoComponentValues $values, FieldItemListInterface $items) {
+  public function onFieldRestore(ExoComponentValues $values, FieldItemListInterface $items, $force = FALSE) {
     $field_values = parent::onFieldRestore($values, $items);
     if (empty($field_values) && !$items->isEmpty()) {
       $restore = FALSE;

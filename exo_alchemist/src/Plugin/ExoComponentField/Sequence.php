@@ -7,6 +7,7 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Field\FieldItemInterface;
+use Drupal\Core\Field\FieldItemList;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\exo_alchemist\ExoComponentFieldManager;
 use Drupal\exo_alchemist\ExoComponentManager;
@@ -262,12 +263,36 @@ class Sequence extends EntityReferenceBase {
   /**
    * {@inheritdoc}
    */
-  public function onFieldRestore(ExoComponentValues $values, FieldItemListInterface $items) {
+  public function onFieldRestore(ExoComponentValues $values, FieldItemListInterface $items, $force = FALSE) {
     $field_values = [];
     if ($items->isEmpty()) {
       $field_values = parent::onFieldRestore($values, $items);
     }
+    elseif ($force) {
+      $default_entities = $this->populateValues($values, $items);
+      $component = $this->getComponentDefinition();
+      $default_values = ExoComponentValues::fromFieldDefaults($this->getFieldDefinition());
+      $entities = [];
+      foreach ($default_entities as $delta => $default_entity) {
+        if ($item = $items->get($delta)) {
+          $entities[] = $item->entity;
+        }
+        else {
+          $entities[] = $this->exoComponentManager()->cloneEntity($component, $default_entity);
+        }
+      }
+      foreach ($entities as $delta => $entity) {
+        $item_component = isset($default_values[$delta]) ? $this->getComponentDefinitionWithValue($default_values[$delta]) : $component;
+        $item_component->addParentFieldDelta($this->getFieldDefinition(), $delta);
+        foreach ($item_component->getFields() as $field) {
+          ExoComponentFieldManager::setVisibleFieldName($entity, $field->getName());
+        }
+        $field_values[] = $this->exoComponentManager()->restoreEntity($item_component, $entity, $force);
+        // ksm($entity->get('exo_field_88b1e885d254a7c37cdaa2')->value);
+      }
+    }
     else {
+      // On update, we need to make sure we build the entity.
       $component = $this->getComponentDefinition();
       foreach ($items as $delta => $item) {
         $component->addParentFieldDelta($this->getFieldDefinition(), $delta);
@@ -275,7 +300,7 @@ class Sequence extends EntityReferenceBase {
           foreach ($component->getFields() as $field) {
             ExoComponentFieldManager::setVisibleFieldName($item->entity, $field->getName());
           }
-          $field_values[] = $this->exoComponentManager()->restoreEntity($component, $item->entity);
+          $field_values[] = $this->exoComponentManager()->restoreEntity($component, $item->entity, $force);
         }
       }
     }

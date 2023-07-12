@@ -83,11 +83,18 @@ class ExoComponentLibraryController extends ControllerBase {
             ],
           ];
         }
+        $label = $definition->getLabel();
+        if ($definition->getPermission()) {
+          $label .= $this->icon()->setIcon('regular-lock')->setIconOnly();
+        }
+        if ($definition->isGlobal()) {
+          $label .= $this->icon()->setIcon('regular-globe')->setIconOnly();
+        }
         $row['component'] = [
           '#type' => 'inline_template',
           '#template' => '<strong>{{ title }}</strong> <small>({{ id }})</small><br><small><em>{{ description }}</em></small>',
           '#context' => [
-            'title' => Markup::create($definition->getLabel() . ($definition->getPermission() ? $this->icon('Locked')->setIcon('regular-lock')->setIconOnly() : '')),
+            'title' => Markup::create($label),
             'id' => $definition->id(),
             'provider' => $definition->getProvider(),
             'description' => $definition->getDescription(),

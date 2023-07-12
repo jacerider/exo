@@ -48,6 +48,17 @@ class ExoComponentRestoreForm extends LayoutRebuildConfirmFormBase {
    * {@inheritdoc}
    */
   public function getDescription() {
+    $component = $this->sectionStorage->getSection($this->delta)->getComponent($this->uuid);
+    /** @var \Drupal\layout_builder\Plugin\Block\InlineBlock $block */
+    $block = $component->getPlugin();
+    $entity = $this->extractBlockEntity($block);
+
+    $exo_component_manager = \Drupal::service('plugin.manager.exo_component');
+    $plugin_id = $exo_component_manager->getPluginIdFromSafeId($entity->bundle());
+    $definition = $exo_component_manager->getInstalledDefinition($plugin_id);
+    if ($definition && $definition->isGlobal()) {
+      return $this->t('This will restore this component to its original state.');
+    }
     return $this->t('This will restore all elements that have been removed. It will not impact any existing elements.');
   }
 

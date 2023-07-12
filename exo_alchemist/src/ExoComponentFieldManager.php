@@ -938,10 +938,12 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
    *   The component definition.
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The content entity.
+   * @param bool $force
+   *   If TRUE, will force restore.
    */
-  public function restoreEntityFields(ExoComponentDefinition $definition, ContentEntityInterface $entity) {
+  public function restoreEntityFields(ExoComponentDefinition $definition, ContentEntityInterface $entity, $force = FALSE) {
     foreach ($definition->getFields() as $field) {
-      $this->restoreEntityField($field, $entity);
+      $this->restoreEntityField($field, $entity, $force);
     }
   }
 
@@ -952,15 +954,17 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
    *   The component definition.
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The content entity.
+   * @param bool $force
+   *   If TRUE, will force restore.
    */
-  public function restoreEntityField(ExoComponentDefinitionField $field, ContentEntityInterface $entity) {
+  public function restoreEntityField(ExoComponentDefinitionField $field, ContentEntityInterface $entity, $force = FALSE) {
     if ($this->hasDefinition($field->getType())) {
       $component_field = $this->createFieldInstance($field);
       if ($component_field instanceof ExoComponentFieldFieldableInterface) {
         $field_name = $field->getFieldName();
         if ($entity->hasField($field_name)) {
           $values = ExoComponentValues::fromFieldDefaults($field);
-          $value = $component_field->onFieldRestore($values, $entity->get($field_name));
+          $value = $component_field->onFieldRestore($values, $entity->get($field_name), $force);
           if ($value) {
             $entity->get($field_name)->setValue($value);
           }
@@ -1116,6 +1120,9 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
           $ops = $this->getOperations();
           $values['#attached']['drupalSettings']['exoAlchemist']['fieldOps'] = $ops;
           $description = $field->getDescription();
+          if ($definition->isGlobal()) {
+            $description = $this->icon($description ?? '')->setIcon('regular-globe');
+          }
           $ops_allow = array_flip(array_keys($ops));
           $total_values = count($field_values);
           if ($field->getCardinality() === 1) {

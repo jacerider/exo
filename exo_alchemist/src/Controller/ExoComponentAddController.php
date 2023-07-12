@@ -73,6 +73,13 @@ class ExoComponentAddController implements ContainerInjectionInterface {
   protected $currentUser;
 
   /**
+   * The UUID generator.
+   *
+   * @var \Drupal\Component\Uuid\UuidInterface
+   */
+  protected $uuidGenerator;
+
+  /**
    * ExoComponentAddController constructor.
    *
    * @param \Drupal\layout_builder\LayoutTempstoreRepositoryInterface $layout_tempstore_repository
@@ -128,14 +135,23 @@ class ExoComponentAddController implements ContainerInjectionInterface {
    */
   public function build(SectionStorageInterface $section_storage, $delta, $region, $plugin_id) {
     $default_layout_plugin_id = 'layout_onecol';
-    // $delta = 0;
     $definition = $this->exoComponentManager->getInstalledDefinition($plugin_id);
 
-    $block_plugin_id = 'inline_block:' . $definition->safeId();
+    if ($definition->isGlobal()) {
+      $block_plugin_id = 'global_block:' . $definition->safeId();
+    }
+    else {
+      $block_plugin_id = 'inline_block:' . $definition->safeId();
+    }
+    $data = [];
     if ($this->blockManager->hasDefinition($block_plugin_id)) {
-      $entity = $this->exoComponentManager->cloneEntity($definition);
+      if ($definition->isGlobal()) {
+        $entity = $this->exoComponentManager->loadGlobalEntity($definition);
+      }
+      else {
+        $entity = $this->exoComponentManager->cloneEntity($definition);
+      }
       if ($entity) {
-
         if (empty($section_storage->getSections())) {
           $section_storage->insertSection($delta, new Section($default_layout_plugin_id));
           $section = $section_storage->getSection($delta);

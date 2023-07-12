@@ -164,8 +164,10 @@ interface ExoComponentFieldFieldableInterface extends ExoComponentFieldInterface
    *   The field values.
    * @param \Drupal\Core\Field\FieldItemListInterface $items
    *   The field items.
+   * @param bool $force
+   *   If TRUE, will force restore.
    */
-  public function onFieldRestore(ExoComponentValues $values, FieldItemListInterface $items);
+  public function onFieldRestore(ExoComponentValues $values, FieldItemListInterface $items, $force = FALSE);
 
   /**
    * Return the values that will be passed to the component for display.

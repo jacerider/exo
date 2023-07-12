@@ -534,3 +534,15 @@
 .exo-fixed-header .exo-fixed-element {
   position: static !important;
 }
+
+.exo-field-update-form {
+
+  .message {
+    background: color(theme-warning);
+    text-shadow: 0 0 5px darken(color(theme-warning), 20%);
+    font-size: rem-calc(12);
+    line-height: 1.2;
+    padding: $global-padding * 0.5;
+    margin-bottom: $global-margin;
+  }
+}

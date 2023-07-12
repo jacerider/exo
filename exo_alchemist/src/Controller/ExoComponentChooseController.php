@@ -115,8 +115,11 @@ class ExoComponentChooseController implements ContainerInjectionInterface {
       $categories[$category_machine_name] = $category;
       $image = $definition->getThumbnailSource();
       $label = $definition->getLabel();
+      if ($definition->isGlobal()) {
+        $label = $this->icon()->setIcon('regular-globe') . $label;
+      }
       if ($definition->getPermission()) {
-        $label = $this->icon($label)->setIcon('regular-lock');
+        $label = $this->icon($label)->setIcon('regular-lock') . $label;
       }
       if ($image_style = ImageStyle::load('exo_alchemist_preview')) {
         /** @var \Drupal\Image\Entity\ImageStyle $image_style */
