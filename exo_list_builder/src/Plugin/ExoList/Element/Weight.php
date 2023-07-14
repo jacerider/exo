@@ -71,7 +71,7 @@ class Weight extends ExoListElementBase {
       ]),
       '#title_display' => 'invisible',
       '#default_value' => $weight,
-      '#list_weight' => $weight,
+      '#list_weight' => $weight ?: 0,
       '#attributes' => ['class' => ['list-weight']],
     ];
   }
