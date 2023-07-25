@@ -1158,6 +1158,7 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
           $config = [
             'label' => $field->getLabel(),
             'description' => $description,
+            'width' => $component_field->getFieldDefinition()->getModalWidth() ?? 700,
           ] + $config;
         }
         // When empty, make sure we have an empty field so that attributes

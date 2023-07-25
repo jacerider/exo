@@ -324,6 +324,8 @@ class ExoImagineFormatter extends ImageFormatter {
       $files = $this->getEntitiesToView($items, $langcode);
       $breakpoint_settings = $this->getBreakpointSettings();
       $blur = $this->exoImagineSettings->getSetting('blur');
+      $animate = $this->exoImagineSettings->getSetting('animate');
+      $is_preview = \Drupal::routeMatch()->getRouteName() === 'media.filter.preview';
       foreach (Element::children($elements) as $delta) {
         $element = &$elements[$delta];
         /** @var \Drupal\file\FileInterface $file */
@@ -346,13 +348,18 @@ class ExoImagineFormatter extends ImageFormatter {
             'class' => ['exo-imagine-preview-picture'],
           ]),
         ];
-        if ($blur) {
-          $element['#attributes']['class'][] = 'exo-imagine-blur';
+        if ($is_preview) {
+          $element['#attributes']['class'][] = 'exo-imagine-loaded';
         }
-        elseif ($this->exoImagineSettings->getSetting('animate')) {
-          // Late stage change. Was a simple else statement. If non-blur,
-          // non-animated then image was opacity 0.
-          $element['#attributes']['class'][] = 'exo-imagine-fade';
+        else {
+          if ($blur) {
+            $element['#attributes']['class'][] = 'exo-imagine-blur';
+          }
+          elseif ($animate) {
+            // Late stage change. Was a simple else statement. If non-blur,
+            // non-animated then image was opacity 0.
+            $element['#attributes']['class'][] = 'exo-imagine-fade';
+          }
         }
 
         // SVG Support.
@@ -440,6 +447,11 @@ class ExoImagineFormatter extends ImageFormatter {
                 'width' => $preview_definition['width'],
                 'height' => $preview_definition['height'],
               ]);
+            }
+
+            if ($is_preview) {
+              $element['#image_attributes']->setAttribute('src', $image_definition['src']);
+              $element['#preview_attributes']->setAttribute('style', 'display: none;');
             }
           }
         }

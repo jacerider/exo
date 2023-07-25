@@ -80,6 +80,14 @@
     position: fixed;
   }
 
+  .ck-editor {
+
+    .ck-content {
+      max-height: none;
+      overflow: visible;
+    }
+  }
+
   * {
     box-sizing: border-box;
     font-smooth: subpixel-antialiased; // sass-lint:disable-line no-misspelled-properties

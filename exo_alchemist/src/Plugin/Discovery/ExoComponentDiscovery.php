@@ -139,9 +139,17 @@ class ExoComponentDiscovery implements DiscoveryInterface {
       foreach ($extend as $id => $content) {
         if (isset($all[$provider][$content['extend_id']])) {
           $extend_definition = $all[$provider][$content['extend_id']];
-          $content['template'] = $extend_definition['template'];
+          $content['template'] = $id;
+
           $definition = $this->buildDefinition($provider, $id, $content);
+          $extend_definition['css'] = [];
+          $extend_definition['js'] = [];
+          $extend_definition['libraries'] = [];
           $definition = NestedArray::mergeDeep($extend_definition, $definition);
+
+          if (!$this->templateExists($content, $content['path'], $content['absolute_path'], $id)) {
+            $definition['template'] = $extend_definition['template'];
+          }
           // Reset fields after merge.
           $definition['fields'] = $content['fields'] ?? [];
           foreach ($extend_definition['fields'] as $field_id => $field) {
@@ -201,6 +209,7 @@ class ExoComponentDiscovery implements DiscoveryInterface {
     $definition['thumbnail'] = $this->getThumbnailPath($content, $relative_path, $absolute_path, $id);
     $definition['css'] = $this->getCss($content, $relative_path, $absolute_path, $id);
     $definition['js'] = $this->getJs($content, $relative_path, $absolute_path, $id);
+    $definition['libraries'] = $content['libraries'] ?? [];
     return $definition;
   }
 

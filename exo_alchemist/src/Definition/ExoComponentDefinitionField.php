@@ -39,6 +39,7 @@ class ExoComponentDefinitionField implements \ArrayAccess {
     'hide_default' => FALSE,
     'invisible' => FALSE,
     'filter' => FALSE,
+    'modal_width' => NULL,
     'default' => [],
     'modifier' => '',
     // Use fields from parent entity as component value.
@@ -230,6 +231,19 @@ class ExoComponentDefinitionField implements \ArrayAccess {
    */
   public function getAlias() {
     return $this->definition['alias'];
+  }
+
+  /**
+   * Get modal width property.
+   *
+   * @return mixed
+   *   Property value.
+   */
+  public function getModalWidth() {
+    if ($this->getType() === 'textarea') {
+      return '90%';
+    }
+    return $this->definition['modal_width'];
   }
 
   /**

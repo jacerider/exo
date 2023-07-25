@@ -134,6 +134,13 @@
     margin-bottom: -8px;
   }
 
+  .js-media-library-add-form {
+
+    > .exo-form-element {
+      margin: 0;
+    }
+  }
+
   .media-library-menu {
     position: relative;
     z-index: 2;
@@ -276,4 +283,8 @@
       margin-top: $global-margin * 0.5;
     }
   }
+}
+
+.media-library-widget-modal.exo-modal {
+  margin-bottom: auto;
 }

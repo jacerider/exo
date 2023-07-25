@@ -1815,7 +1815,7 @@
         }
       }
 
-      .media-library-menu {
+      .js-media-library-menu {
 
         li {
 
@@ -1871,7 +1871,7 @@
         }
       }
 
-      .media-library-add-form__input-wrapper,
+      &.js-media-library-add-form,
       .media-library-content > .views-element-container {
         background-color: theme-val($theme, tab-menu-bg-color, true);
         border-style: theme-val($theme, tab-border-style);

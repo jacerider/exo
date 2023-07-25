@@ -29,8 +29,8 @@ class Align extends ClassAttribute {
       'top' => $this->icon('Top')->setIcon('regular-border-top'),
       'bottom' => $this->icon('Bottom')->setIcon('regular-border-bottom'),
       'middle' => $this->icon('Center')->setIcon('regular-border-center-h'),
-      'baseline' => $this->icon('Right')->setIcon('regular-border-style-alt'),
-      'stretch' => $this->icon('Bottom')->setIcon('regular-border-outer'),
+      'baseline' => $this->icon('Baseline')->setIcon('regular-border-style-alt'),
+      'stretch' => $this->icon('Stretch')->setIcon('regular-border-outer'),
     ];
   }
 

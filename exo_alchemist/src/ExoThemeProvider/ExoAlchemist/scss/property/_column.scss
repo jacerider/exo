@@ -1,3 +1,5 @@
+@use "sass:math";
+
 $sizes: 12, 6, 3, 4;
 $gutter-sizes: 10, 20, 30, 60, 90, 120;
 
@@ -11,10 +13,28 @@ $gutter-sizes: 10, 20, 30, 60, 90, 120;
 
   @each $gutter-size in $gutter-sizes {
     &.exo-modifier--column-gutter-#{$gutter-size} {
-      @include exo-gutters(top right bottom left, $gutters: rem-calc($gutter-size), $negative: true);
+      $gutter-small-size: math.min($gutter-size, 30);
+      $gutter-medium-size: math.min($gutter-size * 0.5, 30);
+      @include exo-gutters(top right bottom left, $gutters: rem-calc($gutter-small-size), $negative: true);
+
+      @include breakpoint(medium) {
+        @include exo-gutters(top right bottom left, $gutters: rem-calc($gutter-medium-size), $negative: true);
+      }
+
+      @include breakpoint(large) {
+        @include exo-gutters(top right bottom left, $gutters: rem-calc($gutter-size), $negative: true);
+      }
 
       > * {
-        @include exo-cell(12, top right bottom left, $gutters: rem-calc($gutter-size));
+        @include exo-cell(12, top right bottom left, $gutters: rem-calc($gutter-small-size));
+
+        @include breakpoint(medium) {
+          @include exo-cell(12, top right bottom left, $gutters: rem-calc($gutter-medium-size));
+        }
+
+        @include breakpoint(large) {
+          @include exo-cell(12, top right bottom left, $gutters: rem-calc($gutter-size));
+        }
       }
     }
   }
@@ -36,12 +56,21 @@ $gutter-sizes: 10, 20, 30, 60, 90, 120;
 
     @each $gutter-size in $gutter-sizes {
       &.exo-modifier--column-gutter-#{$gutter-size} {
-        @include exo-gutters(top right bottom left, $gutters: rem-calc($gutter-size), $negative: true);
+        $gutter-small-size: math.min($gutter-size, 30);
+        $gutter-medium-size: math.min($gutter-size * 0.5, 30);
+
+        @include breakpoint(medium) {
+          @include exo-gutters(top right bottom left, $gutters: rem-calc($gutter-medium-size), $negative: true);
+        }
+
+        @include breakpoint(large) {
+          @include exo-gutters(top right bottom left, $gutters: rem-calc($gutter-size), $negative: true);
+        }
 
         > * {
 
           @include breakpoint(medium) {
-            @include exo-cell(6, top right bottom left, $gutters: rem-calc($gutter-size));
+            @include exo-cell(6, top right bottom left, $gutters: rem-calc($gutter-medium-size));
           }
 
           @include breakpoint(large) {

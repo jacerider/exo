@@ -55,7 +55,10 @@ class Link extends ExoComponentFieldFieldableBase {
     if (!$value->has('uri')) {
       throw new PluginException(sprintf('eXo Component Field plugin (%s) requires [default.uri] be set.', $value->getDefinition()->getType()));
     }
-    if ($field->getAdditionalValue('title_type') !== 'disabled') {
+    if (!in_array($field->getAdditionalValue('title_type'), [
+      'disabled',
+      'optional',
+    ])) {
       if (!$value->has('title')) {
         throw new PluginException(sprintf('eXo Component Field plugin (%s) requires [default.title] be set.', $value->getDefinition()->getType()));
       }

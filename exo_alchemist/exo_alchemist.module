@@ -81,9 +81,6 @@ function exo_alchemist_theme($existing, $type, $theme, $path) {
         'preview_field_attributes' => [],
       ],
     ];
-    if ($definition->isExtended() && isset($definitions[$definition->extendId()])) {
-      $theme['path'] = $definitions[$definition->extendId()]->getPath();
-    }
     // Drupal crawls the entire active theme for tpl files. We need to protect
     // against it picking up our components and overriding module tpls.
     // @see exo_alchemist_theme_registry_alter(). This may result in actual
@@ -382,6 +379,9 @@ function exo_alchemist_library_info_build() {
         $libraries[$definition->getLibraryId()]['css']['base'] = array_map(function ($item) {
           return [];
         }, array_flip($css));
+      }
+      if ($dependencies = $definition->getLibraryDependencies()) {
+        $libraries[$definition->getLibraryId()]['dependencies'] = $dependencies ?? [];
       }
     }
   }
@@ -780,7 +780,12 @@ function exo_alchemist_exo_modal_alter(ExoModalInterface $modal, array $context)
     if ($context['route_name'] === 'layout_builder.component.appearance') {
       $modal->setModalSetting('overlayColor', 'transparent');
     }
-    $modal->setModalSetting('width', 500);
+    if ($context['route_name'] === 'layout_builder.field.update') {
+
+    }
+    else {
+      $modal->setModalSetting('width', 500);
+    }
     $modal->setModalSetting('padding', 20);
     $modal->setModalSetting('bodyOverflow', TRUE);
     $modal->addModalClass('is-admin');

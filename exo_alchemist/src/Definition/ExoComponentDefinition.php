@@ -51,6 +51,7 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
     'fields' => [],
     'js' => [],
     'css' => [],
+    'libraries' => [],
     'path' => '',
     'template' => '',
     'theme hook' => '',
@@ -89,9 +90,9 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
   /**
    * The component handler.
    *
-   * @var \Drupal\exo_alchemist\ExoComponentHandlerInterface
+   * @var \Drupal\exo_alchemist\ExoComponentHandlerInterface[]
    */
-  protected $handler;
+  protected static $handler = [];
 
   /**
    * The default component modifiers for each component.
@@ -332,8 +333,9 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
    *   Property value.
    */
   public function getHandler() {
-    if (!isset($this->handler) || !is_object($this->handler)) {
-      $this->handler = NULL;
+    $id = $this->id();
+    if (!array_key_exists($id, static::$handler)) {
+      static::$handler[$id] = NULL;
       $name = $this->getHandlerName();
       $filepath = $this->getHandlerPath() . '/' . $name . '.php';
       if (!class_exists($name)) {
@@ -342,11 +344,17 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
         }
       }
       if (class_exists($name)) {
-        $this->handler = new $name();
-        // $this->handler->_serviceIds = TRUE;
+        static::$handler[$id] = new $name();
+      }
+      elseif ($this->isExtended()) {
+        /** @var \Drupal\exo_alchemist\ExoComponentManager $exo_component_manager */
+        $exo_component_manager = \Drupal::service('plugin.manager.exo_component');
+        if ($exo_component_manager->hasDefinition($this->extendId())) {
+          static::$handler[$id] = $exo_component_manager->getDefinition($this->extendId())->getHandler();
+        }
       }
     }
-    return $this->handler;
+    return static::$handler[$id];
   }
 
   /**
@@ -726,6 +734,16 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
    */
   public function hasLibrary() {
     return !empty($this->getCss()) || !empty($this->getJs());
+  }
+
+  /**
+   * Getter.
+   *
+   * @return bool
+   *   Whereas has library.
+   */
+  public function getLibraryDependencies() {
+    return $this->definition['libraries'];
   }
 
   /**

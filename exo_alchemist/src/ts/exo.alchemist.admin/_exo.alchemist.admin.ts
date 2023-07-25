@@ -702,14 +702,19 @@ class ExoAlchemistAdmin {
         if (url) {
           $link.addClass('use-ajax');
         }
+        let modalSettings = {
+          title: op.label,
+          subtitle: op.description,
+          icon: op.icon,
+          width: op.width,
+        };
+        if (key === 'edit' && typeof fieldData.width !== 'undefined') {
+          modalSettings.width = fieldData.width;
+        }
         $link.data('dialog-type', 'dialog');
         $link.data('dialog-renderer', 'off_canvas');
         $link.data('dialog-options', {
-          exo_modal: {
-            title: op.label,
-            subtitle: op.description,
-            icon: op.icon,
-          }
+          exo_modal: modalSettings
         });
       }
     }

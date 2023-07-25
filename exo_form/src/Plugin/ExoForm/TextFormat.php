@@ -23,6 +23,9 @@ class TextFormat extends ExoFormBase {
   public function preRender($element) {
     $element = parent::preRender($element);
     $element['format']['#attributes']['class'][] = 'exo-filter-wrapper';
+    $element['format']['#attributes']['style'] = 'display: none;';
+    $element['format']['guidelines']['#access'] = FALSE;
+    $element['format']['help']['#access'] = FALSE;
     if (!empty($element['#description'])) {
       $element['#description'] = [
         '#markup' => '<div class="description">' . $element['#description'] . '</div>',

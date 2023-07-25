@@ -9,15 +9,15 @@
   }
 
   .exo-modifier--align-top {
-    align-items: top;
+    align-items: flex-start;
   }
 
   .exo-modifier--align-bottom {
-    align-items: bottom;
+    align-items: flex-end;
   }
 
   .exo-modifier--align-middle {
-    align-items: middle;
+    align-items: center;
   }
 
   .exo-modifier--align-baseline {
@@ -43,21 +43,21 @@
 .exo-modifier--align-content-top {
 
   .exo-component-content {
-    align-items: top;
+    align-items: flex-start;
   }
 }
 
 .exo-modifier--align-content-bottom {
 
   .exo-component-content {
-    align-items: bottom;
+    align-items: flex-end;
   }
 }
 
 .exo-modifier--align-content-middle {
 
   .exo-component-content {
-    align-items: middle;
+    align-items: center;
   }
 }
 

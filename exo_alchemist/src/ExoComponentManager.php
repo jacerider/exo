@@ -1264,15 +1264,7 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
     if ($is_layout_builder || $is_preview) {
       $build['#wrapper_attributes']['class'][] = 'exo-component-wrapper-preview';
     }
-    $build['#wrapper_attributes']['class'][] = Html::getClass('exo-component-wrapper-' . $definition->getName());
     $build['#attributes']['class'][] = 'exo-component';
-    $build['#attributes']['class'][] = Html::getClass('exo-component-' . $definition->getName());
-    $build['#content_attributes']['class'][] = 'exo-component-content';
-    $build['#preview'] = $is_layout_builder || $is_preview;
-    $build['#preview_field_attributes'] = [];
-    if ($definition->hasLibrary()) {
-      $build['#attached']['library'][] = 'exo_alchemist/' . $definition->getLibraryId();
-    }
     if ($definition->isExtended()) {
       $extend_definition = $this->getDefinition($definition->extendId());
       $build['#wrapper_attributes']['class'][] = Html::getClass('exo-component-wrapper-' . $extend_definition->getName());
@@ -1280,6 +1272,14 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
       if ($extend_definition->hasLibrary()) {
         $build['#attached']['library'][] = 'exo_alchemist/' . $extend_definition->getLibraryId();
       }
+    }
+    $build['#wrapper_attributes']['class'][] = Html::getClass('exo-component-wrapper-' . $definition->getName());
+    $build['#attributes']['class'][] = Html::getClass('exo-component-' . $definition->getName());
+    $build['#content_attributes']['class'][] = 'exo-component-content';
+    $build['#preview'] = $is_layout_builder || $is_preview;
+    $build['#preview_field_attributes'] = [];
+    if ($definition->hasLibrary()) {
+      $build['#attached']['library'][] = 'exo_alchemist/' . $definition->getLibraryId();
     }
     if ($this->isDefaultStorage($contexts)) {
       if (isset($contexts['layout_builder.entity'])) {

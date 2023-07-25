@@ -1,6 +1,8 @@
 @import 'exo-common';
 
 .media-library-wrapper {
+  @include flex;
+  @include flex-align(left, top);
   margin: 0 !important;
   padding: 0 !important;
 
@@ -15,15 +17,11 @@
     margin-bottom: 0 !important;
   }
 
-  .media-library-add-form__input-wrapper {
-    padding: $global-padding !important;
-    margin-bottom: $global-margin !important;
-  }
-
-  .media-library-menu {
+  .js-media-library-menu {
     list-style: none;
     margin: 0 0 $global-margin;
     padding: 0;
+    min-width: rem-calc(180);
 
     > li {
       margin: 0 0 $global-margin * 0.5;
@@ -48,6 +46,7 @@
       // border: 1px solid gray(60);
       border: 0;
       transition: all $global-speed;
+      white-space: nowrap;
 
       &:hover {
         background: alpha(theme-white, 0);
