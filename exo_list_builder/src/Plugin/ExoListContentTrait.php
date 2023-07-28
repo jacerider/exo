@@ -354,6 +354,7 @@ trait ExoListContentTrait {
       if ($definition->isComputed()) {
         return NULL;
       }
+      $base_alias = NULL;
       $field_name = $field['field_name'];
       /** @var \Drupal\Core\Entity\Sql\DefaultTableMapping $table_mapping */
       $table_mapping = $storage->getTableMapping();
