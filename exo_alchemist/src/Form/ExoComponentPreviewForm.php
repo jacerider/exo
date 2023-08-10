@@ -171,32 +171,34 @@ class ExoComponentPreviewForm extends FormBase {
         $this->messenger()->deleteByType('alchemist');
       }
 
-      $form['modifiers'] = [
-        '#type' => 'exo_modal',
-        '#title' => $this->t('Modify Appearance'),
-        '#trigger_icon' => 'regular-pencil-paintbrush',
-        '#trigger_attributes' => [
-          'class' => ['exo-component-modify-button'],
-        ],
-        '#use_close' => FALSE,
-        '#modal_attributes' => [
-          'class' => ['exo-form-theme-black exo-form-lock'],
-        ],
-        '#modal_settings' => [
-          'exo_preset' => 'aside_right',
-          'modal' => [
-            'title' => $this->t('Appearance'),
-            'subtitle' => $this->t('Change component preview appearance.'),
-            'theme' => 'black',
-            'theme_content' => 'black',
-            'icon' => 'regular-pencil-paintbrush',
-            'padding' => 20,
-            'width' => 500,
-            'overlayColor' => 'transparent',
+      if (!empty($definition->getModifiers())) {
+        $form['modifiers'] = [
+          '#type' => 'exo_modal',
+          '#title' => $this->t('Modify Appearance'),
+          '#trigger_icon' => 'regular-pencil-paintbrush',
+          '#trigger_attributes' => [
+            'class' => ['exo-component-modify-button'],
           ],
-        ],
-        '#tree' => TRUE,
-      ];
+          '#use_close' => FALSE,
+          '#modal_attributes' => [
+            'class' => ['exo-form-theme-black exo-form-lock'],
+          ],
+          '#modal_settings' => [
+            'exo_preset' => 'aside_right',
+            'modal' => [
+              'title' => $this->t('Appearance'),
+              'subtitle' => $this->t('Change component preview appearance.'),
+              'theme' => 'black',
+              'theme_content' => 'black',
+              'icon' => 'regular-pencil-paintbrush',
+              'padding' => 20,
+              'width' => 500,
+              'overlayColor' => 'transparent',
+            ],
+          ],
+          '#tree' => TRUE,
+        ];
+      }
 
       if (\Drupal::request()->query->get('show-hidden')) {
         $form['all'] = [

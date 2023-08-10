@@ -429,6 +429,9 @@ class ExoLayoutBuilder extends LayoutBuilder {
       if (!$filters_allow) {
         unset($ops_allow['filters']);
       }
+      if (!$exo_component->getModifiers()) {
+        unset($ops_allow['appearance']);
+      }
       $data['ops'] = array_keys($ops_allow);
     }
 
