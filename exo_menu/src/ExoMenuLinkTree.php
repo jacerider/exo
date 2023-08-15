@@ -146,23 +146,23 @@ class ExoMenuLinkTree extends MenuLinkTree {
       $id = $link->getPluginId();
       $subtree = $data->subtree;
 
-      $data->level = $parent;
-      $data->submenu = NULL;
       $data->subtree = [];
       $data->options = $link->getOptions();
-      $data->isSubmenuParent = FALSE;
+      $data->options['level'] = $parent;
+      $data->options['submenu'] = NULL;
+      $data->options['isSubmenuParent'] = FALSE;
       $levels[$key]['parent'] = $parent;
       $levels[$key]['items'][$id] = $data;
 
       if ($subtree) {
         $section++;
-        $data->submenu = $key . '-' . $section;
+        $data->options['submenu'] = $key . '-' . $section;
 
         // Add parent to submenu if it is a URL.
         if ($link->getUrlObject()->toString()) {
           $parent_data = clone $data;
-          $parent_data->isSubmenuParent = TRUE;
-          $parent_data->isSubmenuClone = TRUE;
+          $parent_data->options['isSubmenuParent'] = TRUE;
+          $parent_data->options['isSubmenuClone'] = TRUE;
           $subtree = [$i => $parent_data] + $subtree;
 
         }
@@ -174,6 +174,16 @@ class ExoMenuLinkTree extends MenuLinkTree {
     return $levels;
 
   }
+
+  // protected $level;
+
+  // protected $submenu;
+
+  // protected $options['isSubmenuParent'];
+
+  // protected $submenu;
+
+  // protected $options['isSubmenuClone'];
 
   /**
    * Builds the #items property for a menu tree's renderable array.
@@ -234,14 +244,14 @@ class ExoMenuLinkTree extends MenuLinkTree {
         else {
           $options['attributes']['class'][] = 'exo-menu-link';
         }
-        if (isset($data->submenu)) {
+        if (isset($data->options['submenu'])) {
           $options['attributes']['class'][] = 'has-submenu';
-          $options['attributes']['data-submenu'] = $data->submenu;
+          $options['attributes']['data-submenu'] = $data->options['submenu'];
         }
-        if (isset($data->isSubmenuParent)) {
+        if (isset($data->options['isSubmenuParent'])) {
           $options['attributes']['class'][] = 'is-submenu-parent';
         }
-        if (isset($data->isSubmenuClone)) {
+        if (isset($data->options['isSubmenuClone'])) {
           $options['attributes']['class'][] = 'is-submenu-clone';
         }
         $element['title'] = Markup::create('<span>' . $element['title'] . '</span>');
