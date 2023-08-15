@@ -33,12 +33,16 @@ class ExoVideoYoutube extends ExoVideoBase {
         videoId: this.get('videoId'),
         events: {
           onReady: (e) => {
+            this.$video.css('visibility', 'hidden');
             this.videoReady();
           },
           onStateChange: (e) => {
             if (e.data === 1 && this.started === false) {
               this.started = true;
-              this.$video.css('transform', '').hide().fadeIn();
+              this.$video.css('transform', '');
+              setTimeout(() => {
+                this.$video.css('visibility', 'visible').hide().fadeIn();
+              }, 3000);
               this.videoStartTimer();
             }
             if (e.data === 0 && this.get('loop')) {
