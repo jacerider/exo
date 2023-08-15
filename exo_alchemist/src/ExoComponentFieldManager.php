@@ -1119,7 +1119,7 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
         if ($is_layout_builder && !$is_locked) {
           $ops = $this->getOperations();
           $values['#attached']['drupalSettings']['exoAlchemist']['fieldOps'] = $ops;
-          $description = $field->getDescription();
+          $description = $field->getLabel();
           if ($definition->isGlobal()) {
             $description = $this->icon($description ?? '')->setIcon('regular-globe');
           }
