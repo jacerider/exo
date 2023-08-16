@@ -62,6 +62,13 @@ class EntityDisplay extends ExoComponentFieldComputedBase implements ContextAwar
   protected $bundle;
 
   /**
+   * The component definition.
+   *
+   * @var \Drupal\exo_alchemist\Definition\ExoComponentDefinition
+   */
+  protected $componentDefinition;
+
+  /**
    * Constructs a new FieldBlock.
    *
    * @param array $configuration
