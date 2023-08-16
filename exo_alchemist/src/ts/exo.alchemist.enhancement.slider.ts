@@ -15,6 +15,7 @@
       const $scrollbar = $wrapper.find('.swiper-scrollbar');
       const $autoplayTime = $wrapper.find('.swiper-autoplay-time');
       const $autoplayBar = $wrapper.find('.swiper-autoplay-bar');
+      const isLayoutBuilder = this.isLayoutBuilder();
       const defaultSettings:any = {
         pagination: {},
         navigation: {},
@@ -26,7 +27,6 @@
           },
         }
       };
-      const isLayoutBuilder = this.isLayoutBuilder();
       if ($pagination.length) {
         defaultSettings['pagination']['el'] = $pagination.get(0);
       }
@@ -109,7 +109,7 @@
 
       $(document).on('exoComponentFieldEditActive.exo.alchemist.enhancement.slider.' + this.id, (e, element) => {
         let $element = $(element);
-        if (this.$wrapper.find($element).length && !$element.hasClass('swiper-slide-active')) {
+        if (this.$wrapper.find($element).length && !$element.hasClass('swiper-slide-active') && $element.css('opacity') !== '0') {
           this.swiper.slideTo($element.index());
           Drupal.ExoAlchemistAdmin.lockTargetPointerEvents();
           Drupal.ExoAlchemistAdmin.setFieldInactive();
