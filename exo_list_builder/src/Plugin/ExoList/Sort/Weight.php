@@ -41,7 +41,7 @@ class Weight extends ExoListSortBase {
    */
   public function applies(EntityListInterface $exo_list) {
     $fields = $exo_list->getAvailableFields();
-    if (isset($fields['weight']) || isset($field['field_weight'])) {
+    if (isset($fields['weight']) || isset($fields['field_weight'])) {
       return TRUE;
     }
     return FALSE;
