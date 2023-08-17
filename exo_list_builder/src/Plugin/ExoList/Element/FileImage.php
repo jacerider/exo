@@ -69,6 +69,9 @@ class FileImage extends ExoListElementContentBase {
     $build = [];
     /** @var \Drupal\file\FileInterface $file */
     $file = $field_item->entity;
+    if (!$file) {
+      return $build;
+    }
     /** @var \Drupal\Core\Image\ImageFactory $image_factory */
     $image_factory = \Drupal::service('image.factory');
     $image = $image_factory->get($file->getFileUri());
