@@ -12,13 +12,15 @@ dependencies:
     - field.field.exo_site_settings.social.field_youtube
   module:
     - exo_link
+_core:
+  default_config_hash: TsVlOhv2-yL3WyDvbCl4oKWu_sv9GIdqGyNwGTDgG5Q
 id: exo_site_settings.social.default
 targetEntityType: exo_site_settings
 bundle: social
 mode: default
 content:
   field_facebook:
-    weight: 0
+    type: exo_link
     label: hidden
     settings:
       trim_length: '80'
@@ -31,10 +33,10 @@ content:
       url_plain: false
       title_only: 0
     third_party_settings: {  }
-    type: exo_link
+    weight: 0
     region: content
   field_instagram:
-    weight: 2
+    type: exo_link
     label: hidden
     settings:
       trim_length: '80'
@@ -47,10 +49,10 @@ content:
       url_plain: false
       title_only: 0
     third_party_settings: {  }
-    type: exo_link
+    weight: 2
     region: content
   field_linkedin:
-    weight: 4
+    type: exo_link
     label: hidden
     settings:
       trim_length: '80'
@@ -63,10 +65,10 @@ content:
       url_plain: false
       title_only: 0
     third_party_settings: {  }
-    type: exo_link
+    weight: 4
     region: content
   field_pinterest:
-    weight: 5
+    type: exo_link
     label: hidden
     settings:
       trim_length: '80'
@@ -79,26 +81,26 @@ content:
       url_plain: false
       title_only: 0
     third_party_settings: {  }
-    type: exo_link
+    weight: 5
     region: content
   field_twitter:
-    weight: 1
+    type: exo_link
     label: hidden
     settings:
       trim_length: '80'
       rel: nofollow
       target: _blank
       title: 'Visit us on Twitter'
-      icon: brand-twitter-square
+      icon: brand-x-twitter
       position: ''
       url_only: false
       url_plain: false
       title_only: 0
     third_party_settings: {  }
-    type: exo_link
+    weight: 1
     region: content
   field_youtube:
-    weight: 3
+    type: exo_link
     label: hidden
     settings:
       trim_length: '80'
@@ -111,6 +113,6 @@ content:
       url_plain: false
       title_only: 0
     third_party_settings: {  }
-    type: exo_link
+    weight: 3
     region: content
 hidden: {  }
