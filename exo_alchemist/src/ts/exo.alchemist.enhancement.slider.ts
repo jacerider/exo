@@ -91,6 +91,18 @@
     }
 
     protected buildForLayoutBuilder():void {
+      if (this.swiper.params.autoplay.enabled) {
+        $(document).on('exoComponentActive.exo.alchemist.enhancement.slider.' + this.id, (e, element) => {
+          if (Drupal.ExoAlchemistAdmin.getActiveComponent().find(this.$wrapper).length) {
+            this.swiper.autoplay.pause();
+          }
+        });
+        $(document).on('exoComponentInactive.exo.alchemist.enhancement.slider.' + this.id, (e, element) => {
+          if (Drupal.ExoAlchemistAdmin.getActiveComponent().find(this.$wrapper).length) {
+            this.swiper.autoplay.resume();
+          }
+        });
+      }
       $(document).on('exoComponentOps.exo.alchemist.enhancement.slider.' + this.id, (e, element) => {
         if (Drupal.ExoAlchemistAdmin.getActiveComponent().find(this.$wrapper).length) {
           let $element = $(element);
@@ -109,7 +121,7 @@
 
       $(document).on('exoComponentFieldEditActive.exo.alchemist.enhancement.slider.' + this.id, (e, element) => {
         let $element = $(element);
-        if (this.$wrapper.find($element).length && !$element.hasClass('swiper-slide-active') && $element.css('opacity') !== '0') {
+        if (this.$wrapper.find($element).length && !$element.hasClass('swiper-slide-active')) {
           this.swiper.slideTo($element.index());
           Drupal.ExoAlchemistAdmin.lockTargetPointerEvents();
           Drupal.ExoAlchemistAdmin.setFieldInactive();

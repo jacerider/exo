@@ -149,6 +149,12 @@
     .exo-component-event-allow {
       pointer-events: auto !important;
     }
+
+    // Active slide when using swiper needs a higher z-index so that it can be
+    // edited. Swiper overlays all elements and uses opacity to hide slides.
+    .swiper-slide-active {
+      z-index: 1;
+    }
   }
 
   &.exo-component-blocked {
