@@ -25,6 +25,13 @@ abstract class ExoListElementBase extends PluginBase implements ExoListElementIn
   protected $allowEntityLink = TRUE;
 
   /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition) {
