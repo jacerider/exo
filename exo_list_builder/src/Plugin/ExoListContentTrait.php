@@ -21,6 +21,13 @@ use Drupal\taxonomy\TermInterface;
 trait ExoListContentTrait {
 
   /**
+   * Properties.
+   *
+   * @var array
+   */
+  protected $property = [];
+
+  /**
    * Get item from entity.
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
@@ -274,6 +281,7 @@ trait ExoListContentTrait {
     $entity_type_id = $definition->getTargetEntityTypeId();
     $storage = $this->entityTypeManager()->getStorage($entity_type_id);
     if ($storage instanceof SqlEntityStorageInterface) {
+      /** @var \Drupal\Core\Entity\EntityTypeInterface $entity_type */
       $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
       $base_id_key = $entity_type->getKey('id');
       if ($definition->isComputed()) {
@@ -284,12 +292,13 @@ trait ExoListContentTrait {
       $table_mapping = $storage->getTableMapping();
       $base_table = $table_mapping->getDataTable() ?: $table_mapping->getBaseTable();
       $field_table = $table_mapping->getFieldTableName($field_name);
-      $field_storage_definitions = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions($entity_type_id)[$field_name];
-      $field_column = $table_mapping->getFieldColumnName($field_storage_definitions, $property);
+      $field_storage_definitions = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions($entity_type_id);
+      $field_storage_definition = $field_storage_definitions[$field_name];
+      $field_column = $table_mapping->getFieldColumnName($field_storage_definition, $property);
       $fields = [$field_column];
       $group_property = $field['filter']['settings']['widget_settings']['group'] ?? NULL;
       if ($group_property) {
-        $field_group_column = $table_mapping->getFieldColumnName($field_storage_definitions, $group_property);
+        $field_group_column = $table_mapping->getFieldColumnName($field_storage_definition, $group_property);
         $fields[] = $field_group_column;
       }
       $connection = \Drupal::database();
@@ -320,7 +329,13 @@ trait ExoListContentTrait {
         $base_alias = 'b';
       }
       if ($label_key = $entity_type->getKey('label')) {
-        $query->orderBy($base_alias . '.' . $label_key);
+        $properties = $field_storage_definitions[$label_key]->getPropertyDefinitions();
+        if (count($properties) > 1) {
+          $query->orderBy($base_alias . '.' . $label_key . '__' . key($properties));
+        }
+        else {
+          $query->orderBy($base_alias . '.' . $label_key);
+        }
       }
       $query->addMetaData('base_alias', $base_alias);
       $query->addMetaData('base_id_key', $base_id_key);
