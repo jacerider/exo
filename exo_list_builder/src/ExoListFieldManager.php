@@ -3,13 +3,11 @@
 namespace Drupal\exo_list_builder;
 
 use Drupal\Component\Plugin\Exception\PluginException;
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Plugin\Discovery\ContainerDerivativeDiscoveryDecorator;
 use Drupal\Core\Plugin\Discovery\YamlDiscovery;
-use Drupal\exo_list_builder\Entity\EntityList;
 
 /**
  * Provides the default exo_list_field manager.
