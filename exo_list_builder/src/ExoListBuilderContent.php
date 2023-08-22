@@ -19,6 +19,7 @@ class ExoListBuilderContent extends ExoListBuilderBase {
     foreach ($entity_list->getTargetBundleIds() as $bundle) {
       $definitions += $field_manager->getFieldDefinitions($entity_list->getTargetEntityTypeId(), $bundle);
     }
+    /** @var \Drupal\Core\Field\FieldDefinitionInterface[] $definitions */
     foreach ($definitions as $key => $definition) {
       $fields[$key] = [
         'label' => $definition->getLabel(),
