@@ -1,0 +1,5 @@
+exo_list_builder_redirect.add:
+  route_name: redirect.add
+  title: 'Add redirect'
+  appears_on:
+    - exo_list_builder.manage_redirects

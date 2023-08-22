@@ -1,0 +1,191 @@
+langcode: en
+status: true
+dependencies: {  }
+id: manage_redirects
+label: 'Manage Redirects'
+key: q
+target_entity_type: redirect
+target_bundles_include: {  }
+target_bundles_exclude: {  }
+override: false
+format: table
+url: /admin/config/search/redirect
+limit: 30
+limit_options:
+  - '10'
+  - '20'
+  - '50'
+  - '100'
+offset: 0
+actions: {  }
+sorts: {  }
+sort: 'field:created'
+references: {  }
+fields:
+  redirect_source:
+    display_label: From
+    view:
+      type: redirect_source
+      settings:
+        empty: '-'
+      toggle: false
+      show: true
+      wrapper: ''
+      sort: asc
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
+      align: left
+      size: compact
+      group_by_sort: asc
+      group_by: 0
+    filter:
+      type: content_property
+      settings:
+        expose: '1'
+        position: header
+        label: ''
+        multiple_join: or
+        match_operator: CONTAINS
+        property: path
+        widget: autocomplete
+        expose_block: 0
+        allow_zero: 0
+        multiple: 0
+        default:
+          status: 0
+        widget_settings:
+          facet: 0
+          options:
+            status: 0
+            exclude: {  }
+            include: {  }
+        default_from_url:
+          status: 0
+    weight: 0
+  redirect_redirect:
+    display_label: To
+    view:
+      type: redirect_redirect
+      settings:
+        empty: '-'
+      toggle: false
+      show: true
+      wrapper: ''
+      sort: asc
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
+      align: left
+      size: ''
+      group_by_sort: asc
+      group_by: 0
+    filter:
+      type: content_property
+      settings:
+        expose: '1'
+        position: header
+        label: ''
+        multiple_join: or
+        match_operator: CONTAINS
+        property: uri
+        widget: autocomplete
+        expose_block: 0
+        allow_zero: 0
+        multiple: 0
+        default:
+          status: 0
+        widget_settings:
+          facet: 0
+          options:
+            status: 0
+            exclude: {  }
+            include: {  }
+        default_from_url:
+          status: 0
+    weight: 0
+  status_code:
+    display_label: 'Status code'
+    view:
+      type: content_property
+      settings:
+        property: value
+        prefix: ''
+        suffix: ''
+        empty: '-'
+        link: 0
+      toggle: false
+      show: true
+      wrapper: small
+      sort: asc
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
+      align: center
+      size: compact
+      group_by_sort: asc
+      group_by: 0
+    filter:
+      type: content_property
+      settings:
+        expose: '1'
+        position: header
+        label: ''
+        multiple_join: or
+        match_operator: '='
+        property: value
+        widget: select
+        widget_settings:
+          empty_option: ''
+          empty_value: ''
+          facet: 0
+          options:
+            status: 0
+            exclude: {  }
+            include: {  }
+        expose_block: 0
+        allow_zero: 0
+        multiple: 0
+        default:
+          status: 0
+        default_from_url:
+          status: 0
+    weight: 0
+  created:
+    display_label: Created
+    view:
+      type: timestamp
+      settings:
+        date_format: short
+        empty: '-'
+        link: 0
+      toggle: false
+      show: true
+      wrapper: small
+      sort: desc
+      sort_asc_label: '@label: Oldest'
+      sort_desc_label: '@label: Newest'
+      align: left
+      size: compact
+      group_by_sort: asc
+      group_by: 0
+    filter:
+      type: ''
+    weight: 0
+settings:
+  list_link: 0
+  limit_status: 0
+  pagerer_header: ''
+  pagerer_footer: ''
+  remember_limit: 0
+  render_status: 1
+  operations_status: 1
+  result_status: 1
+  sort_status: 1
+  filter_status: 1
+  filter_overview_status: 1
+  block_status: 0
+  first_page_only_status: 0
+  hide_no_results: 0
+  item_wrapper_status: 1
+  submit_label: ''
+  empty_message: ''
+  empty_filter_message: ''
+weight: 0

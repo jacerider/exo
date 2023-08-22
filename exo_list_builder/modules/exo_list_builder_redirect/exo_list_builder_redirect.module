@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * @file
+ * Contains exo_list_builder_redirect.module.
+ */
+
+/**
+ * Implements hook_local_tasks_alter().
+ */
+function exo_list_builder_redirect_local_tasks_alter(&$local_tasks): void {
+  if (isset($local_tasks['redirect_404.fix_404'])) {
+    $local_tasks['redirect_404.fix_404']['base_route'] = 'exo_list_builder.manage_redirects';
+  }
+  if (isset($local_tasks['redirect.settings'])) {
+    $local_tasks['redirect.settings']['base_route'] = 'exo_list_builder.manage_redirects';
+  }
+}

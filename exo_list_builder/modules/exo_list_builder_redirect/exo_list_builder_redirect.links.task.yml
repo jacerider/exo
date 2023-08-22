@@ -1,0 +1,4 @@
+exo_list_builder.manage_redirects:
+  route_name: exo_list_builder.manage_redirects
+  base_route: exo_list_builder.manage_redirects
+  title: URL Redirects
