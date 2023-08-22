@@ -1,0 +1,11 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function exo_list_builder_media_install() {
+  $config = \Drupal::configFactory()->getEditable('views.view.media');
+  if ($config) {
+    $config->set('status', FALSE)->save(TRUE);
+  }
+}
