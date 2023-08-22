@@ -44,7 +44,7 @@ class ExoConfigFileListBuilder extends ConfigEntityListBuilder {
           '#type' => 'inline_template',
           '#template' => '<img src="{{ image }}" style="width:60px; height: auto; background:#95999a;" />',
           '#context' => [
-            'image' => file_create_url($entity->getFilePath()),
+            'image' => \Drupal::service('file_url_generator')->generateAbsoluteString($entity->getFilePath()),
           ],
         ],
       ];
