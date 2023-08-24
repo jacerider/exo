@@ -150,25 +150,23 @@ class ExoComponentDiscovery implements DiscoveryInterface {
           if (!$this->templateExists($content, $content['path'], $content['absolute_path'], $id)) {
             $definition['template'] = $extend_definition['template'];
           }
+
           // Reset fields after merge.
-          $definition['fields'] = $content['fields'] ?? [];
-          foreach ($extend_definition['fields'] as $field_id => $field) {
-            // Allow default values to be overwritten.
-            foreach ($field as $key => $value) {
-              if ($key === 'type') {
-                continue;
-              }
-              if (isset($definition['fields'][$field_id][$key])) {
-                $field[$key] = $definition['fields'][$field_id][$key];
-              }
+          $definition['fields'] = $extend_definition['fields'] ?? [];
+          if (!empty($content['fields'])) {
+            foreach ($content['fields'] as $field_id => $field) {
+              $definition['fields'][$field_id] = ($definition['fields'][$field_id] ?? []) + $field;
             }
-            $definition['fields'][$field_id] = $field;
+          }
+          foreach ($extend_definition['fields'] as $field_id => $field) {
+            // Make sure type never changes.
+            $definition['fields'][$field_id]['type'] = $field['type'];
             if (!in_array($field['type'], ['sequence'])) {
               // Reuse all extended fields except sequences.
               $definition['fields'][$field_id]['extend_id'] = $content['extend_id'];
             }
           }
-          $all['provider'][$definition['id']] = $definition;
+          $all[$provider][$definition['id']] = $definition;
         }
       }
     }
