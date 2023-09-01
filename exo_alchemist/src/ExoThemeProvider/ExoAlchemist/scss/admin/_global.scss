@@ -1,4 +1,5 @@
 .exo-layout-builder {
+  margin: 0 !important;
 
   .exo-section {
     border: 1px solid gray(10);
@@ -538,7 +539,7 @@
 }
 
 .exo-fixed-header .exo-fixed-element {
-  position: static !important;
+  position: relative !important;
 }
 
 .exo-field-update-form {
