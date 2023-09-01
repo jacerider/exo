@@ -121,6 +121,17 @@ enhancement.stack:
     - exo_alchemist/enhancement
     - core/drupal.displace
 
+enhancement.split-text:
+  version: VERSION
+  js:
+    js/exo.alchemist.enhancement.split-text.js: { minified: true }
+  css:
+    component:
+      css/exo-alchemist.enhancement.split-text.css: { minified: true }
+  dependencies:
+    - exo_alchemist/enhancement
+    - exo/split-type
+
 
 ################################################################################
 ## eXo Theme Provider

@@ -380,3 +380,8 @@ countup:
   version: VERSION
   js:
     lib/countup/countup.min.js: {minified: true}
+
+split-type:
+  version: VERSION
+  js:
+    lib/split-type/split-type.min.js: {minified: true}

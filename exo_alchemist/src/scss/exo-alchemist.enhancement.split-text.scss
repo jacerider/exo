@@ -1,0 +1,9 @@
+
+.ee--split-text-wrapper {
+  visibility: hidden;
+  font-kerning: none;
+
+  &.loaded {
+    visibility: visible;
+  }
+}
