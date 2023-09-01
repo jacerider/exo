@@ -50,15 +50,6 @@
   }
 
   .exo-component-filter {
-    display: block;
-    background-color: color(theme-gray);
-    color: color(theme-white);
-    font-weight: 700;
-    font-size: rem-calc(20);
-    line-height: 1;
-    padding: $global-padding * 0.5;
-    text-align: center;
-    transition: background-color $global-speed;
     width: 100%;
     cursor: pointer;
 
@@ -67,9 +58,9 @@
       margin-left: rem-calc(5);
     }
 
-    &:hover {
-      background-color: darken(color(theme-gray), 10%);
-    }
+    // &:hover {
+    //   background-color: darken(color(theme-gray), 10%);
+    // }
   }
 
   .item-list {
