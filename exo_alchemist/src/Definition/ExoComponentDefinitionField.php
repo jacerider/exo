@@ -456,7 +456,7 @@ class ExoComponentDefinitionField implements \ArrayAccess {
    *   TRUE if field is hideable.
    */
   public function isHiddenByDefault() {
-    return $this->isHideable() && $this->definition['hide_default'] === TRUE;
+    return $this->definition['hide_default'] === TRUE;
   }
 
   /**
