@@ -141,6 +141,7 @@ class ExoMenuLinkTree extends MenuLinkTree {
     $key = $parent . '-' . $section;
     // Reset section per level.
     $section = 0;
+    $levels = [];
     foreach ($tree as $i => $data) {
       $link = $data->link;
       $id = $link->getPluginId();
