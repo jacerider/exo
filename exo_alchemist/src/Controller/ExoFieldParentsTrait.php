@@ -31,6 +31,13 @@ trait ExoFieldParentsTrait {
   protected $exoComponentManager;
 
   /**
+   * The parent entity.
+   *
+   * @var \Drupal\block_content\BlockContentInterface
+   */
+  protected $parentEntity;
+
+  /**
    * Crawl path and return the child entity.
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
