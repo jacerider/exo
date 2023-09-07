@@ -211,6 +211,14 @@ interface ExoComponentFieldInterface extends PluginInspectionInterface, ContextA
   public function isRequired();
 
   /**
+   * Check if field is invisible.
+   *
+   * @return bool
+   *   Returns TRUE if field is invisible.
+   */
+  public function isInvisible();
+
+  /**
    * Check if field is locked within default storage interface.
    *
    * Locked means the field cannot be edited.

@@ -220,6 +220,13 @@ abstract class ExoComponentFieldBase extends PluginBase implements ExoComponentF
   /**
    * {@inheritdoc}
    */
+  public function isInvisible() {
+    return $this->getFieldDefinition()->isInvisible();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function isDefaultStorageLocked() {
     return $this instanceof ExoComponentFieldDefaultStorageLockInterface;
   }
