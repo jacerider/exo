@@ -155,7 +155,10 @@ class ExoComponentDiscovery implements DiscoveryInterface {
           $definition['fields'] = $extend_definition['fields'] ?? [];
           if (!empty($content['fields'])) {
             foreach ($content['fields'] as $field_id => $field) {
-              $definition['fields'][$field_id] = ($definition['fields'][$field_id] ?? []) + $field;
+              $definition['fields'][$field_id] = $definition['fields'][$field_id] ?? [];
+              foreach ($field as $key => $val) {
+                $definition['fields'][$field_id][$key] = $val;
+              }
             }
           }
           foreach ($extend_definition['fields'] as $field_id => $field) {
