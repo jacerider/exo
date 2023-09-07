@@ -1067,7 +1067,9 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
         $is_locked = $is_component_locked ?: $component_field->isComputed($contexts) ?: $component_field->isLocked($contexts) && !$this->isDefaultStorage($contexts);
         $is_hidden = isset($hidden_fields[$field->getName()]);
         if ($is_preview && \Drupal::request()->query->get('show-hidden')) {
-          $is_hidden = FALSE;
+          if (!$field->isInvisible()) {
+            $is_hidden = FALSE;
+          }
         }
         $field_name = $field->getFieldName();
         $attribute_type = $field->getType();

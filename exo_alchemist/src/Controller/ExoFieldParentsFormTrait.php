@@ -244,7 +244,7 @@ trait ExoFieldParentsFormTrait {
         continue;
       }
       if ($entity->hasField($field_name)) {
-        if ($entity->get($field_name)->isEmpty() && !$field->isRequired() && $field->isHideable()) {
+        if ($field->isInvisible() || ($entity->get($field_name)->isEmpty() && !$field->isRequired() && $field->isHideable())) {
           $hidden[] = $field->getName();
         }
         else {

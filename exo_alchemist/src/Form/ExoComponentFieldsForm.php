@@ -202,6 +202,12 @@ class ExoComponentFieldsForm extends FormBase {
       return !empty($field['status']);
     }));
 
+    foreach ($this->definition->getFields() as $field) {
+      if ($field->isInvisible()) {
+        $hidden_field_ids[] = $field->getName();
+      }
+    }
+
     // Make sure shown fields have values. This is only a precaution as fields
     // should always have a value.
     foreach ($shown_field_ids as $shown_field_id) {

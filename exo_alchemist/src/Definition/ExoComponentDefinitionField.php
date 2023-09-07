@@ -410,7 +410,7 @@ class ExoComponentDefinitionField implements \ArrayAccess {
    *   TRUE if field is editable.
    */
   public function isEditable() {
-    return $this->definition['edit'] === TRUE;
+    return $this->definition['edit'] === TRUE && !$this->isInvisible();
   }
 
   /**
@@ -456,7 +456,7 @@ class ExoComponentDefinitionField implements \ArrayAccess {
    *   TRUE if field is hideable.
    */
   public function isHiddenByDefault() {
-    return $this->definition['hide_default'] === TRUE;
+    return $this->definition['hide_default'] === TRUE || $this->isInvisible();
   }
 
   /**

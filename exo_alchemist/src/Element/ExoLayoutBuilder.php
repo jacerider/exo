@@ -394,7 +394,14 @@ class ExoLayoutBuilder extends LayoutBuilder {
       $data['description'] = $this->icon('[Global] Changes will impact all instances.')->setIcon('regular-globe');
     }
     if ($count = count(ExoComponentFieldManager::getHiddenFieldNames($entity))) {
-      $data['elements_badge'] = $this->icon((string) $count)->setIcon('regular-low-vision');
+      foreach ($exo_component->getFields() as $field) {
+        if ($field->isInvisible()) {
+          $count--;
+        }
+      }
+      if ($count > 0) {
+        $data['elements_badge'] = $this->icon((string) $count)->setIcon('regular-low-vision');
+      }
     }
     // Set next key.
     $location = array_search($component_id, $component_ids);
