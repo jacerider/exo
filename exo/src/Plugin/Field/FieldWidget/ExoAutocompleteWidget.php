@@ -292,6 +292,7 @@ class ExoAutocompleteWidget extends WidgetBase implements ContainerFactoryPlugin
    */
   public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
     $storage_definition = $this->fieldDefinition->getFieldStorageDefinition();
+    $values['target_id'] = $values['target_id'] ?? [];
     if ($storage_definition->getType() === 'entity_reference_revisions') {
       $entity_type = $storage_definition->getSetting('target_type');
       foreach ($values['target_id'] as $key => $value) {
