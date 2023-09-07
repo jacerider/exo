@@ -20,8 +20,8 @@ $sizes: 10, 20, 30, 60, 90, 120, 150, 180;
 
       &,
       .exo-modifier--padding-v {
-        padding-top: max($global-padding, rem-calc($size * 0.6));
-        padding-bottom: max($global-padding, rem-calc($size * 0.6));
+        padding-top: max($global-padding, rem-calc($size * 0.35));
+        padding-bottom: max($global-padding, rem-calc($size * 0.35));
       }
     }
 
@@ -29,7 +29,7 @@ $sizes: 10, 20, 30, 60, 90, 120, 150, 180;
 
       &,
       .exo-modifier--padding-v-top {
-        padding-top: max($global-padding, rem-calc($size * 0.6));
+        padding-top: max($global-padding, rem-calc($size * 0.35));
       }
     }
 
@@ -37,7 +37,7 @@ $sizes: 10, 20, 30, 60, 90, 120, 150, 180;
 
       &,
       .exo-modifier--padding-v-bottom {
-        padding-bottom: max($global-padding, rem-calc($size * 0.6));
+        padding-bottom: max($global-padding, rem-calc($size * 0.35));
       }
     }
 
@@ -47,8 +47,8 @@ $sizes: 10, 20, 30, 60, 90, 120, 150, 180;
 
         &,
         .exo-modifier--padding-v {
-          padding-top: max($global-padding, rem-calc($size * 0.8));
-          padding-bottom: max($global-padding, rem-calc($size * 0.8));
+          padding-top: max($global-padding, rem-calc($size * 0.65));
+          padding-bottom: max($global-padding, rem-calc($size * 0.65));
         }
       }
 
@@ -56,7 +56,7 @@ $sizes: 10, 20, 30, 60, 90, 120, 150, 180;
 
         &,
         .exo-modifier--padding-v-top {
-          padding-top: max($global-padding, rem-calc($size * 0.8));
+          padding-top: max($global-padding, rem-calc($size * 0.65));
         }
       }
 
@@ -64,7 +64,7 @@ $sizes: 10, 20, 30, 60, 90, 120, 150, 180;
 
         &,
         .exo-modifier--padding-v-bottom {
-          padding-bottom: max($global-padding, rem-calc($size * 0.8));
+          padding-bottom: max($global-padding, rem-calc($size * 0.65));
         }
       }
     }
@@ -99,12 +99,12 @@ $sizes: 10, 20, 30, 60, 90, 120, 150, 180;
   }
 
   .exo-modifier--padding-v-content-#{$size} .exo-component-content {
-    padding-top: max($global-padding, rem-calc($size * 0.6));
-    padding-bottom: max($global-padding, rem-calc($size * 0.6));
+    padding-top: max($global-padding, rem-calc($size * 0.35));
+    padding-bottom: max($global-padding, rem-calc($size * 0.35));
 
     @include breakpoint(medium) {
-      padding-top: max($global-padding, rem-calc($size * 0.8));
-      padding-bottom: max($global-padding, rem-calc($size * 0.8));
+      padding-top: max($global-padding, rem-calc($size * 0.65));
+      padding-bottom: max($global-padding, rem-calc($size * 0.65));
     }
 
     @include breakpoint(large) {
@@ -114,10 +114,10 @@ $sizes: 10, 20, 30, 60, 90, 120, 150, 180;
   }
 
   .exo-modifier--padding-v-content-top-#{$size} .exo-component-content {
-    padding-top: max($global-padding, rem-calc($size * 0.6));
+    padding-top: max($global-padding, rem-calc($size * 0.35));
 
     @include breakpoint(medium) {
-      padding-top: max($global-padding, rem-calc($size * 0.8));
+      padding-top: max($global-padding, rem-calc($size * 0.65));
     }
 
     @include breakpoint(large) {
@@ -126,10 +126,10 @@ $sizes: 10, 20, 30, 60, 90, 120, 150, 180;
   }
 
   .exo-modifier--padding-v-content-bottom-#{$size} .exo-component-content {
-    padding-bottom: max($global-padding, rem-calc($size * 0.6));
+    padding-bottom: max($global-padding, rem-calc($size * 0.35));
 
     @include breakpoint(medium) {
-      padding-bottom: max($global-padding, rem-calc($size * 0.8));
+      padding-bottom: max($global-padding, rem-calc($size * 0.65));
     }
 
     @include breakpoint(large) {
@@ -156,7 +156,7 @@ $sizes: 10, 20, 30, 60, 90, 120, 150, 180;
     padding-left: $global-padding;
 
     @include breakpoint(medium) {
-      padding-left: max($global-padding, rem-calc($size * 0.8));
+      padding-left: max($global-padding, rem-calc($size * 0.65));
     }
 
     @include breakpoint(large) {
@@ -168,7 +168,7 @@ $sizes: 10, 20, 30, 60, 90, 120, 150, 180;
     padding-right: $global-padding;
 
     @include breakpoint(medium) {
-      padding-right: max($global-padding, rem-calc($size * 0.8));
+      padding-right: max($global-padding, rem-calc($size * 0.65));
     }
 
     @include breakpoint(large) {

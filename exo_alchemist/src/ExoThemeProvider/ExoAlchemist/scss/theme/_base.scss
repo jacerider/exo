@@ -50,7 +50,7 @@ $palette: map-merge($global-colors, $colors);
   $dark: lightness(color($name)) < 60%;
   $contrast: color-contrast(color($name), color($offset));
 
-  .exo-modifier--color-bg-#{$name} + .exo-modifier--color-bg-#{$name}:not(.exo-modifier--padding--force) {
+  .exo-modifier--color-bg-#{$name}:not(.exo-modifier--padding--force) + .exo-modifier--color-bg-#{$name}:not(.exo-modifier--padding--force) {
     padding-top: 0;
   }
 
@@ -157,11 +157,11 @@ $palette: map-merge($global-colors, $colors);
         }
       }
 
-      .exo-modifier--color-bg-dark {
+      .exo-modifier--color-bg-dark:not([class^='exo-modifier--color-bg-theme-']):not([class*='exo-modifier--color-bg-theme-']) {
         background-color: color($offset) !important;
       }
 
-      .exo-modifier--color-border-dark {
+      .exo-modifier--color-border-dark:not([class^='exo-modifier--color-border-theme-']):not([class*=' exo-modifier--color-border-theme-']) {
         border-color: color($offset) !important;
       }
     }
@@ -174,7 +174,7 @@ $palette: map-merge($global-colors, $colors);
         }
       }
 
-      .exo-modifier--color-bg-light {
+      .exo-modifier--color-bg-light:not([class^='exo-modifier--color-bg-theme-']):not([class*='exo-modifier--color-bg-theme-']) {
         background-color: color($name) !important;
       }
 
