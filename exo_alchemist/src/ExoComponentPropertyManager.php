@@ -486,6 +486,25 @@ class ExoComponentPropertyManager extends DefaultPluginManager implements ExoCom
           }
         }
       }
+      foreach ($modifiers as $modifier) {
+        $modifier_name = $modifier->getName();
+        foreach ($modifier->getProperties() as $property) {
+          if (!$property->isEditable()) {
+            continue;
+          }
+          $name = $property->getName();
+          $property_modifier_group = $property->getGroup();
+          if ($property_modifier_group && isset($form['modifiers'][$property_modifier_group])) {
+            $form['modifiers'][$property_modifier_group][$name] = $form['modifiers'][$modifier_name][$name];
+            $form['modifiers'][$property_modifier_group][$name]['#parents'] = [
+              'modifiers',
+              $modifier_name,
+              $name,
+            ];
+            unset($form['modifiers'][$modifier_name][$name]);
+          }
+        }
+      }
     }
   }
 

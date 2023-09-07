@@ -27,6 +27,7 @@ class ExoComponentDefinitionModifierProperty implements \ArrayAccess {
     'description' => NULL,
     'required' => FALSE,
     'default' => NULL,
+    'group' => NULL,
     'edit' => TRUE,
     'to_body' => FALSE,
     'include' => [],
@@ -63,6 +64,7 @@ class ExoComponentDefinitionModifierProperty implements \ArrayAccess {
       $this->definition['name'] = !isset($values['name']) ? $name : $values['name'];
       $this->definition['label'] = $values['label'];
       $this->definition['alias'] = !isset($values['alias']) ? NULL : $values['alias'];
+      $this->definition['group'] = !isset($values['group']) ? NULL : $values['group'];
     }
   }
 
@@ -121,6 +123,16 @@ class ExoComponentDefinitionModifierProperty implements \ArrayAccess {
    */
   public function getDescription() {
     return $this->definition['description'];
+  }
+
+  /**
+   * Get group property.
+   *
+   * @return mixed
+   *   Property value.
+   */
+  public function getGroup() {
+    return $this->definition['group'];
   }
 
   /**
