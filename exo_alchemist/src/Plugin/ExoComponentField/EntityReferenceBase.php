@@ -263,9 +263,18 @@ class EntityReferenceBase extends ExoComponentFieldFieldableBase implements Cont
    */
   public function view(FieldItemListInterface $items, array $contexts) {
     $is_preview = $this->isPreview($contexts);
-    if ($items->isEmpty() && ($this->isRequired() || !$this->isEditable($contexts) || $is_preview)) {
-      // When we are previewing an empty entity reference, we need to populate
-      // entities for display.
+    $is_empty = $items->isEmpty();
+    $is_editable = $this->isEditable($contexts);
+    $is_required = $this->isRequired();
+    $is_invisible = $this->isInvisible();
+    if (
+      // When previewing and required but empty.
+      ($is_preview && $is_empty && $is_required) ||
+      // When previewing, empty and invisible.
+      ($is_preview && $is_empty && $is_invisible) ||
+      // When empty, required and not editable.
+      ($is_empty && $is_required && !$is_editable)
+    ) {
       $values = [];
       $bundles = $this->getEntityTypeBundles();
       $bundle = !empty($bundles) ? reset($bundles) : NULL;
