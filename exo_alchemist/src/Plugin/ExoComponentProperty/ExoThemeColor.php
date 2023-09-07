@@ -84,7 +84,12 @@ class ExoThemeColor extends ClassAttribute {
    * Check contacts.
    */
   public function getContrastColor($hexColor) {
-
+    if ($hexColor === '#ffffff' || $hexColor === '#fff') {
+      return 'light';
+    }
+    if ($hexColor === '#000000' || $hexColor === '#000') {
+      return 'dark';
+    }
     // hexColor RGB.
     $r1 = hexdec(substr($hexColor, 1, 2));
     $g1 = hexdec(substr($hexColor, 3, 2));
@@ -113,7 +118,7 @@ class ExoThemeColor extends ClassAttribute {
       $contrastRatio = (int) (($l2 + 0.05) / ($l1 + 0.05));
     }
 
-    if ($contrastRatio >= 5) {
+    if ($contrastRatio >= 10) {
       return 'light';
     }
     else {
