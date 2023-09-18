@@ -32,10 +32,6 @@
 
       let resizeTimer = null;
 
-      document.fonts.onloadingdone = () => {
-        console.log('hit');
-      };
-
       document.fonts.ready.then(() => {
         const doInit = () => {
           const $original = this.$wrapper.clone();

@@ -37,6 +37,7 @@ class Accordion extends ExoComponentEnhancementBase {
     $attributes = [
       'class' => ['ee--accordion-wrapper'],
       'data-ee--accordion-id' => $id,
+      'data-ee--accordion-style' => $this->getEnhancementDefinition()->getAdditionalValue('style') ?: 'vertical',
     ];
     if ($this->getEnhancementDefinition()->getAdditionalValue('collapse')) {
       $attributes['data-ee--accordion-collapse'] = 1;

@@ -13,6 +13,7 @@
     protected interval:number;
     protected history:boolean = false;
     protected require:boolean = false;
+    protected style:string;
 
     constructor(id:string, $wrapper:JQuery) {
       this.$wrapper = $wrapper;
@@ -23,6 +24,7 @@
       this.$contents = $wrapper.find('.ee--accordion-content[' + this.idSelector + ']');
       this.history = typeof $wrapper.data('ee--accordion-history') !== 'undefined';
       this.require = typeof $wrapper.data('ee--accordion-require') !== 'undefined';
+      this.style = $wrapper.data('ee--accordion-style') || 'vertical';
       const collapse = typeof $wrapper.data('ee--accordion-collapse') !== 'undefined';
       this.$contents.hide();
       let $show = this.$triggers.first();
@@ -147,8 +149,15 @@
           if (doHash && typeof itemId !== 'undefined') {
             Drupal.ExoAlchemistEnhancement.removeHashForKey('ee--accordion', itemId, this.id);
           }
-          if (animate) {
-            $shownContent.slideToggle(350, 'swing');
+          if (animate && this.style !== 'none') {
+            if (this.style === 'horizontal') {
+              setTimeout(() => {
+                $shownContent.animate({width: 'toggle', opacity: 'toggle'}, 350);
+              });
+            }
+            else {
+              $shownContent.slideToggle(350, 'swing');
+            }
           }
           else {
             $shownContent.hide();
@@ -161,14 +170,21 @@
           $item.addClass('show');
           this.$wrapper.attr('data-ee--accordion-show', itemId);
           $trigger.attr('aria-expanded', 'true');
-          if (animate) {
-            $contents.slideToggle(350, 'swing', () => {
+          if (animate && this.style !== 'none') {
+            const callback = () => {
               // Notify exo about a change in positions.
               Drupal.Exo.checkElementPosition();
               if (this.isLayoutBuilder()) {
                 Drupal.ExoAlchemistAdmin.unlockNestedFields($item);
               }
-            });
+            };
+            if (this.style === 'horizontal') {
+              console.log('show', $contents);
+              $contents.animate({width: 'toggle', opacity: 'toggle'}, 350, 'swing', callback);
+            }
+            else {
+              $contents.slideToggle(350, 'swing', callback);
+            }
           }
           else {
             $contents.show();

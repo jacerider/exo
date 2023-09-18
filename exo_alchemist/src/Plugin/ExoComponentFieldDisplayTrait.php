@@ -20,6 +20,13 @@ trait ExoComponentFieldDisplayTrait {
   protected $componentDisplayDefinition;
 
   /**
+   * The component manager.
+   *
+   * @var \Drupal\exo_alchemist\ExoComponentManager
+   */
+  protected $exoComponentManager;
+
+  /**
    * {@inheritdoc}
    */
   public function useDisplay() {
