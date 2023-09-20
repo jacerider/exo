@@ -28,8 +28,10 @@ class ExoOEmbedMediaModal extends ExoOEmbedModal {
     $media_items = [];
     foreach ($items as $delta => $item) {
       $media = $item->entity;
-      $source_field = $media->getSource()->getConfiguration()['source_field'];
-      $media_items = array_merge($media_items, parent::viewElements($media->get($source_field), $langcode));
+      if ($media) {
+        $source_field = $media->getSource()->getConfiguration()['source_field'];
+        $media_items = array_merge($media_items, parent::viewElements($media->get($source_field), $langcode));
+      }
     }
     return $media_items;
   }
