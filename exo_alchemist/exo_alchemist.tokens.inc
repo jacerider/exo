@@ -43,6 +43,8 @@ function exo_alchemist_tokens($type, $tokens, array $data, array $options, Bubbl
           'field_banner',
           'field_featured_image',
           'field_image',
+          'field_images',
+          'field_file_image',
           'field_body',
         ],
         'fallback' => 'exo_alchemist_smart_image_fallback',
