@@ -482,7 +482,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $query->addTag('exo_list_query');
     $query->addMetaData('exo_list_builder', $this);
 
-    if ($entity_list->getFormat() === 'table' && $context !== 'all') {
+    if ($entity_list->getFormat() === 'table' && $context === 'default') {
       $header = $this->buildHeader();
       foreach ($header as $field => $info) {
         if (is_array($info) && !empty($info['sort'])) {
@@ -648,8 +648,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   /**
    * {@inheritdoc}
    */
-  public function getRawTotal($ignoreFilters = FALSE) {
-    $query = clone $this->buildQuery('all');
+  public function getRawTotal($ignoreFilters = FALSE, $context = 'all') {
+    $query = clone $this->buildQuery($context);
     $query->addTag('exo_list_raw_total');
     if ($ignoreFilters) {
       $options = $this->getOption(['filter']);

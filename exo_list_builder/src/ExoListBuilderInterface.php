@@ -136,11 +136,13 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
    *
    * @param bool $ignoreFilters
    *   Ignore filters.
+   * @param string $context
+   *   Can be used to alter the query.
    *
    * @return int
    *   The total results.
    */
-  public function getRawTotal($ignoreFilters = FALSE);
+  public function getRawTotal($ignoreFilters = FALSE, $context = 'all');
 
   /**
    * Get actions.

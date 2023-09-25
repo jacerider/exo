@@ -130,7 +130,7 @@ class ExoList extends ExoToolbarBadgeTypeBase implements ContainerFactoryPluginI
     else {
       if ($list = $this->getList()) {
         $handler = $list->getHandler();
-        $total = $handler->getRawTotal(TRUE);
+        $total = $handler->getRawTotal(TRUE, 'external');
       }
       \Drupal::cache()->set($cid, $total, Cache::PERMANENT, $item->getItem()->getCacheTags());
     }

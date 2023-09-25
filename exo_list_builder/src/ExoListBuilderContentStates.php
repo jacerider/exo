@@ -91,7 +91,7 @@ class ExoListBuilderContentStates extends ExoListBuilderContent implements ExoLi
    */
   protected function buildQuery($context = 'default') {
     $query = parent::buildQuery($context);
-    $allow = $context !== 'all';
+    $allow = $context !== 'external';
 
     if ($allow && ($state = $this->getState())) {
       $this->alterQueryState($state, $query);
@@ -146,7 +146,7 @@ class ExoListBuilderContentStates extends ExoListBuilderContent implements ExoLi
             (empty($current_state) ? 'exo-list-states--active' : ''),
           ],
         ],
-      ]
+      ],
     ];
     foreach ($this->getStates() as $state_id => $state) {
       $url = $this->getOptionsUrl();
