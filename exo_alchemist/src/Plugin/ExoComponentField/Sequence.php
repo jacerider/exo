@@ -317,6 +317,15 @@ class Sequence extends EntityReferenceBase {
       $component->addParentFieldDelta($this->getFieldDefinition(), $delta);
       $entity = $item->entity;
       if ($entity) {
+        if (!$entity->id()) {
+          // Double check to make sure we do not have a duplicate UUID.
+          $query = \Drupal::database()->select('block_content');
+          $query->condition('uuid', $entity->uuid());
+          $result = $query->countQuery()->execute()->fetchField();
+          if ($result) {
+            $entity->set('uuid', \Drupal::service('uuid')->generate());
+          }
+        }
         if ($entity instanceof RevisionableInterface) {
           $entity->setNewRevision();
         }
