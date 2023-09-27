@@ -422,12 +422,16 @@ class ExoLayoutBuilder extends LayoutBuilder {
       $ops_allow = array_flip((array) $build['#exo_component_ops']);
       $filters_allow = FALSE;
       $filters_count = 0;
+      $hide_count = 0;
       foreach ($exo_component->getFields() as $field) {
         if ($field->isFilter()) {
           $filters_allow = TRUE;
           if ($entity->hasField($field->safeId()) && $entity->get($field->safeId())->count()) {
             $filters_count++;
           }
+        }
+        if ($field->isHideable()) {
+          $hide_count++;
         }
       }
       if ($filters_count) {
@@ -436,6 +440,10 @@ class ExoLayoutBuilder extends LayoutBuilder {
       if (!$filters_allow) {
         unset($ops_allow['filters']);
       }
+      if (!$hide_count) {
+        unset($ops_allow['elements']);
+      }
+
       if (!$exo_component->getModifiers()) {
         unset($ops_allow['appearance']);
       }
