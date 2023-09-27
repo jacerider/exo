@@ -238,19 +238,68 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
       $entity_field_name = $this->getFieldDefinition()->getEntityField();
       if ($entity_field_name) {
         $parent = $parent_context->getContextValue();
+
+        // Allow specifying a component entity reference for use as the parent.
+        if ($entity_field_entity_reference = $this->getFieldDefinition()->getEntityFieldEntityReference()) {
+          $entity_reference_field = $this->getFieldDefinition()->getComponent()->getField($entity_field_entity_reference);
+          if ($entity_reference_field->getType() === 'entity_reference') {
+            $entity_reference_field_name = $entity_reference_field->getFieldName();
+            if ($items->getEntity()->hasField($entity_reference_field_name)) {
+              $entity_reference_items = $items->getEntity()->get($entity_reference_field_name);
+              $entity_reference_entity = $entity_reference_items->entity;
+              if ($entity_reference_entity) {
+                $parent = $entity_reference_entity;
+              }
+              // Allow fallback query that will return a single entity.
+              elseif ($fallback = $this->getFieldDefinition()->getEntityFieldEntityReferenceFallback()) {
+                $entity_type_id = $entity_reference_items->getFieldDefinition()->getSettings()['target_type'];
+                $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
+                $storage = \Drupal::service('entity_type.manager')->getStorage($entity_type_id);
+                $query = $storage->getQuery();
+                $query->accessCheck(TRUE);
+                if ($key = $entity_type->getKey('status')) {
+                  $query->condition($key, TRUE);
+                }
+                if ($key = $entity_type->getKey('bundle')) {
+                  $bundles = $entity_reference_items->getFieldDefinition()->getSettings()['handler_settings']['target_bundles'] ?? [];
+                  $bundle = $bundles ? reset($bundles) : $entity_type_id;
+                  $query->condition($key, $bundle);
+                }
+                @[$fallback_field_name, $fallback_sort] = explode(':', $fallback);
+                $fallback_sort = $fallback_sort ?? 'DESC';
+                $query->sort($fallback_field_name, $fallback_sort);
+                $query->range(0, 1);
+                $ids = $query->execute();
+                if (!empty($ids)) {
+                  $parent = $storage->load(reset($ids));
+                  // Store for subsequent requests.
+                  $entity_reference_items->setValue($parent);
+                }
+              }
+              if (!$parent && $this->isPreview($contexts)) {
+                /** @var \Drupal\exo_alchemist\Plugin\ExoComponentField\EntityReferenceBase $instance */
+                $instance = \Drupal::service('plugin.manager.exo_component_field')->createFieldInstance($entity_reference_field);
+                $field_view = $instance->view($items->getEntity()->get($entity_reference_field_name), $contexts);
+                $parent = $field_view[0]['entity'];
+              }
+            }
+          }
+        }
         if ($parent->isNew()) {
           return;
         }
+        $cacheable_metadata = $contexts['cacheable_metadata']->getContextValue();
+        $cacheable_metadata->addCacheableDependency($parent);
         if ($parent->hasField($entity_field_name)) {
           $this->setEditable(FALSE);
-          if (in_array($parent->getFieldDefinition($entity_field_name)->getType(), [
-            'entity_reference',
-            'entity_reference_revisions',
-          ])) {
-            $parent_items = $parent->get($entity_field_name);
-            if (!empty($parent_items->entity) && $parent_items->entity->hasField($entity_field_name)) {
-              $parent = $parent_items->entity;
-            }
+          switch ($parent->getFieldDefinition($entity_field_name)->getType()) {
+            case 'entity_reference':
+            case 'entity_reference_revisions':
+              $parent_items = $parent->get($entity_field_name);
+              if (!empty($parent_items->entity) && $parent_items->entity->hasField($entity_field_name)) {
+                $parent = $parent_items->entity;
+              }
+              break;
           }
           $parent_items = $parent->get($entity_field_name);
           if ($this->isLayoutBuilder($contexts)) {
@@ -267,6 +316,17 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
           $entity_field_match = $this->getFieldDefinition()->getEntityFieldMatch();
           if ($values = $this->entityFieldValuesMatch($entity_field_match, $parent, $parent_items, $items, $contexts)) {
             $items->setValue($values);
+          }
+        }
+        else {
+          switch ($entity_field_name) {
+            case 'entity_link':
+              $title = $this->getFieldDefinition()->getAdditionalValue('entity_field_link_title') ?? 'Read More';
+              $items->setValue([
+                'uri' => $parent->toUrl()->toUriString(),
+                'title' => $title,
+              ]);
+              break;
           }
         }
       }
@@ -310,6 +370,13 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
       $string_types = ['string', 'string_long', 'text_long'];
       if (in_array($field_type, $string_types) && in_array($parent_field_type, $string_types)) {
         $values = $parent_items->getValue();
+      }
+      elseif (in_array($field_type, $string_types) && $parent_field_type === 'datetime') {
+        foreach ($parent_items as $parent_item) {
+          /** @var \Drupal\datetime\Plugin\Field\FieldType\DateTimeItem $parent_item */
+          $format = $this->getFieldDefinition()->getAdditionalValue('entity_field_date_format') ?? 'medium';
+          $values[] = \Drupal::service('date.formatter')->format($parent_item->date->getTimestamp(), $format);
+        }
       }
     }
     return $values;

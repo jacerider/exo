@@ -47,6 +47,11 @@ class ExoComponentDefinitionField implements \ArrayAccess {
     // Example:
     // -  entity_field: field_title.
     'entity_field' => NULL,
+    // Use a entity reference field on the component to get the entity.
+    'entity_field_entity_reference' => NULL,
+    // The fallback field to use for sorting a dynamic query that will get the
+    // first allowed entity. Can be used to pull the newest entity.
+    'entity_field_entity_reference_fallback' => NULL,
     'entity_field_optional' => NULL,
     // Use complex field values from parent entity as component value. Requires
     // entity_field to be set.
@@ -321,6 +326,26 @@ class ExoComponentDefinitionField implements \ArrayAccess {
   }
 
   /**
+   * Get entity field component entity reference field.
+   *
+   * @return string
+   *   Property value.
+   */
+  public function getEntityFieldEntityReference() {
+    return $this->definition['entity_field_entity_reference'] ?? NULL;
+  }
+
+  /**
+   * Get entity field component entity reference field fallback.
+   *
+   * @return string
+   *   Property value.
+   */
+  public function getEntityFieldEntityReferenceFallback() {
+    return $this->definition['entity_field_entity_reference_fallback'] ?? NULL;
+  }
+
+  /**
    * Is entity field optional.
    *
    * @return mixed
@@ -410,7 +435,7 @@ class ExoComponentDefinitionField implements \ArrayAccess {
    *   TRUE if field is editable.
    */
   public function isEditable() {
-    return $this->definition['edit'] === TRUE && !$this->isInvisible();
+    return $this->definition['edit'] === TRUE && !$this->isInvisible() && !$this->isComputed();
   }
 
   /**
@@ -456,7 +481,7 @@ class ExoComponentDefinitionField implements \ArrayAccess {
    *   TRUE if field is hideable.
    */
   public function isHiddenByDefault() {
-    return $this->definition['hide_default'] === TRUE || ($this->isInvisible() && !$this->hasDefault());
+    return $this->definition['hide_default'] === TRUE || ($this->isInvisible() && !$this->hasDefault() && !$this->isComputed());
   }
 
   /**
@@ -545,7 +570,7 @@ class ExoComponentDefinitionField implements \ArrayAccess {
    *   TRUE if has property.
    */
   public function hasDefault() {
-    return !empty($this->getDefaults());
+    return !empty($this->getDefaults()) || !empty($this->getEntityField()) || !empty($this->isComputed());
   }
 
   /**
