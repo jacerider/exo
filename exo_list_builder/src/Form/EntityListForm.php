@@ -847,7 +847,7 @@ class EntityListForm extends EntityForm {
           '#title' => $this->t('Fields'),
           '#multiple' => TRUE,
           '#options' => $options,
-          '#default_value' => $references[$field_id]['fields'],
+          '#default_value' => $references[$field_id]['fields'] ?? NULL,
         ];
       }
     }
