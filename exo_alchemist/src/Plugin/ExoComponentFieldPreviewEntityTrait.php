@@ -36,7 +36,7 @@ trait ExoComponentFieldPreviewEntityTrait {
         $query->condition($key, TRUE);
       }
       if ($entity_type_id === 'media') {
-        $query->condition('alchemist_key', null, 'IS NULL');
+        $query->condition('alchemist_key', NULL, 'IS NULL');
       }
       $query->range(0, 1);
       $results = $query->accessCheck(FALSE)->execute();
