@@ -945,6 +945,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       // Remove pages from header.
       unset($build['header']['second']['pager']['pages']);
       unset($build['header']['second']['pager']['pager_footer']);
+      if (!Element::getVisibleChildren($build['header']['second']['pager'])) {
+        $build['header']['second']['pager']['#access'] = FALSE;
+      }
 
       $build['footer']['pager'] = $pager;
       // Remove limit from footer.
