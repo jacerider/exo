@@ -63,12 +63,22 @@ class FileImage extends ExoListElementContentBase {
   }
 
   /**
+   * Get the file.
+   *
+   * @return \Drupal\file\FileInterface
+   *   The file entity.
+   */
+  protected function getFile(EntityInterface $entity, FieldItemInterface $field_item, array $field) {
+    return $field_item->entity;
+  }
+
+  /**
    * {@inheritdoc}
    */
   protected function viewItem(EntityInterface $entity, FieldItemInterface $field_item, array $field) {
     $build = [];
     /** @var \Drupal\file\FileInterface $file */
-    $file = $field_item->entity;
+    $file = $this->getFile($entity, $field_item, $field);
     if (!$file) {
       return $build;
     }
