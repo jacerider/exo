@@ -1153,6 +1153,10 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
           }
           if (!$component_field->isEditable($contexts)) {
             unset($ops_allow['edit']);
+            unset($ops_allow['clone']);
+            unset($ops_allow['prev']);
+            unset($ops_allow['next']);
+            unset($ops_allow['remove']);
           }
           if ((!$component_field->isRemoveable($contexts) && $total_values === 1) || $total_values === 1) {
             unset($ops_allow['remove']);
