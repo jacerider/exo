@@ -1077,13 +1077,20 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
     }
     if (!empty($build) && !empty($field['view']['wrapper'])) {
+      $prefix = $field['view']['wrapper'];
+      $suffix = $field['view']['wrapper'];
       switch ($field['view']['wrapper']) {
         case 'div':
-          $field['view']['wrapper'] .= ' class="' . Html::getClass('exo-list-field--' . $field['id']) . '"';
+          $prefix .= ' class="' . Html::getClass('exo-list-field--' . $field['id']) . '"';
+          break;
+
+        case 'div_span':
+          $prefix = 'div class="' . Html::getClass('exo-list-field--' . $field['id']) . '"><span';
+          $suffix = 'span></div';
           break;
       }
-      $build['#prefix'] = '<' . $field['view']['wrapper'] . '>';
-      $build['#suffix'] = '</' . $field['view']['wrapper'] . '>';
+      $build['#prefix'] = '<' . $prefix . '>';
+      $build['#suffix'] = '</' . $suffix . '>';
     }
     return $build;
   }
