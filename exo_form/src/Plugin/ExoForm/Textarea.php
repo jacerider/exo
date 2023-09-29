@@ -32,6 +32,11 @@ class Textarea extends Input {
         $element['#attributes']['data-autogrow-max'] = $element['#autogrow_max'];
       }
     }
+
+    if (!empty($element['#maxlength_js'])) {
+      $this->floatSupported = FALSE;
+    }
+
     return parent::preRender($element);
   }
 
