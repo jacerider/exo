@@ -280,6 +280,22 @@ class ExoModal extends ExoData {
       this.$sectionHeader = this.$element.find('.' + this.name + '-section-header');
       this.$sectionFooter = this.$element.find('.' + this.name + '-section-footer');
 
+      // Nested forms should use modal theme.
+      const $formsWithTheme = $('form[class*="exo-form-theme-"]', this.$content);
+      if ($formsWithTheme.length) {
+        let modalTheme = null;
+        for (let i = this.$element[0].classList.length - 1; i >= 0; i--) {
+          const className = this.$element[0].classList[i];
+          if (className.startsWith('exo-modal-theme-content-')) {
+            modalTheme = className.replace('exo-modal-theme-content-', '');
+          }
+        }
+        $('form[class*="exo-form-theme-"]', this.$content).removeClass(function (index, className) {
+          return (className.match(/(^|\s)exo-form-theme-\S+/g) || []).join(' ');
+        });
+        $formsWithTheme.addClass('exo-form-theme-' + modalTheme);
+      }
+
       if (!this.$element.hasClass(this.name)) {
         this.$element.addClass(this.name);
       }
