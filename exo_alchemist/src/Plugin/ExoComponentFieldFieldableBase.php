@@ -9,6 +9,7 @@ use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\exo_alchemist\Definition\ExoComponentDefinitionField;
 use Drupal\exo_alchemist\ExoComponentFieldManager;
 use Drupal\exo_alchemist\ExoComponentValue;
 use Drupal\exo_alchemist\ExoComponentValues;
@@ -233,104 +234,174 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
    * has the field, make sure the types match, and then set the value.
    */
   protected function entityFieldValuesSwap(FieldItemListInterface $items, array $contexts) {
-    $parent_context = $contexts['layout_builder.entity'] ?? $contexts['entity'] ?? NULL;
-    if ($parent_context) {
-      $entity_field_name = $this->getFieldDefinition()->getEntityField();
-      if ($entity_field_name) {
-        $parent = $parent_context->getContextValue();
+    $entity_field_name = $this->getFieldDefinition()->getEntityField();
+    if ($entity_field_name) {
+      // If field is an entity reference component field.
+      $component_field = $this->getFieldDefinition()->getComponent()->getField($entity_field_name);
+      if ($component_field && $component_field->getType() === 'entity_reference') {
+        $this->entityFieldValuesSwapOnComponentField($component_field, $items, $contexts);
+      }
+      // If field is entity field.
+      else {
+        $this->entityFieldValuesSwapOnEntityField($entity_field_name, $items, $contexts);
+      }
+    }
+  }
 
-        // Allow specifying a component entity reference for use as the parent.
-        if ($entity_field_entity_reference = $this->getFieldDefinition()->getEntityFieldEntityReference()) {
-          $entity_reference_field = $this->getFieldDefinition()->getComponent()->getField($entity_field_entity_reference);
-          if ($entity_reference_field->getType() === 'entity_reference') {
-            $entity_reference_field_name = $entity_reference_field->getFieldName();
-            if ($items->getEntity()->hasField($entity_reference_field_name)) {
-              $entity_reference_items = $items->getEntity()->get($entity_reference_field_name);
-              $entity_reference_entity = $entity_reference_items->entity;
-              if ($entity_reference_entity) {
-                $parent = $entity_reference_entity;
-              }
-              // Allow fallback query that will return a single entity.
-              elseif ($fallback = $this->getFieldDefinition()->getEntityFieldEntityReferenceFallback()) {
-                $entity_type_id = $entity_reference_items->getFieldDefinition()->getSettings()['target_type'];
-                $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
-                $storage = \Drupal::service('entity_type.manager')->getStorage($entity_type_id);
-                $query = $storage->getQuery();
-                $query->accessCheck(TRUE);
-                if ($key = $entity_type->getKey('status')) {
-                  $query->condition($key, TRUE);
-                }
-                if ($key = $entity_type->getKey('bundle')) {
-                  $bundles = $entity_reference_items->getFieldDefinition()->getSettings()['handler_settings']['target_bundles'] ?? [];
-                  $bundle = $bundles ? reset($bundles) : $entity_type_id;
-                  $query->condition($key, $bundle);
-                }
-                @[$fallback_field_name, $fallback_sort] = explode(':', $fallback);
-                $fallback_sort = $fallback_sort ?? 'DESC';
-                $query->sort($fallback_field_name, $fallback_sort);
-                $query->range(0, 1);
-                $ids = $query->execute();
-                if (!empty($ids)) {
-                  $parent = $storage->load(reset($ids));
-                  // Store for subsequent requests.
-                  $entity_reference_items->setValue($parent);
-                }
-              }
-              if (!$parent && $this->isPreview($contexts)) {
-                /** @var \Drupal\exo_alchemist\Plugin\ExoComponentField\EntityReferenceBase $instance */
-                $instance = \Drupal::service('plugin.manager.exo_component_field')->createFieldInstance($entity_reference_field);
-                $field_view = $instance->view($items->getEntity()->get($entity_reference_field_name), $contexts);
-                $parent = $field_view[0]['entity'];
-              }
+  /**
+   * Swap fields when acting on an entity field.
+   */
+  protected function entityFieldValuesSwapOnComponentField(ExoComponentDefinitionField $component_field, FieldItemListInterface $items, array $contexts) {
+    $parents = $this->entityFieldValuesGetParents($items, $contexts);
+    if (empty($parents)) {
+      return;
+    }
+    $this->setEditable(FALSE);
+    $values = [];
+    $entity_field_match = $this->getFieldDefinition()->getEntityFieldMatch();
+    $parent = $items->getEntity();
+    $parent_items = $parent->get($component_field->getFieldName());
+    if ($entity_field_values = $this->entityFieldValuesMatch($entity_field_match, $parent, $parent_items, $items, $contexts)) {
+      $values = $entity_field_values;
+    }
+    $items->setValue($values);
+  }
+
+  /**
+   * Swap fields when acting on an entity field.
+   */
+  protected function entityFieldValuesSwapOnEntityField($entity_field_name, FieldItemListInterface $items, array $contexts) {
+    $parents = $this->entityFieldValuesGetParents($items, $contexts);
+    if (empty($parents)) {
+      return;
+    }
+    $entity_field_match = $this->getFieldDefinition()->getEntityFieldMatch();
+    $values = [];
+    foreach ($parents as $parent) {
+      $cacheable_metadata = $contexts['cacheable_metadata']->getContextValue();
+      $cacheable_metadata->addCacheableDependency($parent);
+      if ($parent->hasField($entity_field_name)) {
+        $this->setEditable(FALSE);
+        switch ($parent->getFieldDefinition($entity_field_name)->getType()) {
+          case 'entity_reference':
+          case 'entity_reference_revisions':
+            $parent_items = $parent->get($entity_field_name);
+            if (!empty($parent_items->entity) && $parent_items->entity->hasField($entity_field_name)) {
+              $parent = $parent_items->entity;
             }
-          }
+            break;
         }
-        if ($parent->isNew()) {
-          return;
+        if ($this->isLayoutBuilder($contexts)) {
+          // Do not use cached parent.
+          $parent = \Drupal::entityTypeManager()->getStorage($parent->getEntityTypeId())->loadUnchanged($parent->id());
         }
-        $cacheable_metadata = $contexts['cacheable_metadata']->getContextValue();
-        $cacheable_metadata->addCacheableDependency($parent);
-        if ($parent->hasField($entity_field_name)) {
-          $this->setEditable(FALSE);
-          switch ($parent->getFieldDefinition($entity_field_name)->getType()) {
-            case 'entity_reference':
-            case 'entity_reference_revisions':
-              $parent_items = $parent->get($entity_field_name);
-              if (!empty($parent_items->entity) && $parent_items->entity->hasField($entity_field_name)) {
-                $parent = $parent_items->entity;
-              }
-              break;
-          }
-          $parent_items = $parent->get($entity_field_name);
-          if ($this->isLayoutBuilder($contexts)) {
-            // Do not use cached parent.
-            $parent = \Drupal::entityTypeManager()->getStorage($parent->getEntityTypeId())->loadUnchanged($parent->id());
-          }
-          if ($parent->get($entity_field_name)->isEmpty()) {
-            if ($this->getFieldDefinition()->isEntityFieldOptional()) {
-              return;
-            }
-            $items->setValue(NULL);
+        $parent_items = $parent->get($entity_field_name);
+        if ($parent_items->isEmpty()) {
+          if ($this->getFieldDefinition()->isEntityFieldOptional()) {
             return;
           }
-          $entity_field_match = $this->getFieldDefinition()->getEntityFieldMatch();
-          if ($values = $this->entityFieldValuesMatch($entity_field_match, $parent, $parent_items, $items, $contexts)) {
-            $items->setValue($values);
-          }
+          continue;
         }
-        else {
-          switch ($entity_field_name) {
-            case 'entity_link':
-              $title = $this->getFieldDefinition()->getAdditionalValue('entity_field_link_title') ?? 'Read More';
-              $items->setValue([
-                'uri' => $parent->toUrl()->toUriString(),
-                'title' => $title,
-              ]);
-              break;
+        if ($entity_field_values = $this->entityFieldValuesMatch($entity_field_match, $parent, $parent_items, $items, $contexts)) {
+          $values[] = $entity_field_values;
+        }
+      }
+      else {
+        if ($entity_field_values = $this->entityFieldValuesHelpers($entity_field_name, $parent)) {
+          $values[] = $entity_field_values;
+        }
+      }
+    }
+    $items->setValue($values);
+  }
+
+  /**
+   * Helpers for hardcoded fields.
+   */
+  protected function entityFieldValuesHelpers($entity_field_name, $parent) {
+    switch ($entity_field_name) {
+      case 'entity_link':
+        return [
+          'uri' => $parent->toUrl()->toUriString(),
+          'title' => $this->getFieldDefinition()->getAdditionalValue('entity_field_link_title') ?? 'Read More',
+        ];
+    }
+  }
+
+  /**
+   * Return parent entity.
+   */
+  protected function entityFieldValuesGetParents(FieldItemListInterface $items, array $contexts) {
+    $parents = [];
+    // Allow specifying a component entity reference for use as the parent.
+    if ($entity_field_entity_reference = $this->getFieldDefinition()->getEntityFieldEntityReference()) {
+      $entity_reference_field = $this->getFieldDefinition()->getComponent()->getField($entity_field_entity_reference);
+      if ($entity_reference_field && $entity_reference_field->getType() === 'entity_reference') {
+        $entity_reference_field_name = $entity_reference_field->getFieldName();
+        if ($items->getEntity()->hasField($entity_reference_field_name)) {
+          $entity_reference_items = $items->getEntity()->get($entity_reference_field_name);
+          foreach ($entity_reference_items as $entity_reference_item) {
+            if ($entity_reference_item->entity) {
+              $parents[] = $entity_reference_item->entity;
+            }
+          }
+          // Allow fallback query that will return a single entity.
+          if (!$parents && $fallback = $this->getFieldDefinition()->getEntityFieldEntityReferenceFallback()) {
+            $entity_type_id = $entity_reference_items->getFieldDefinition()->getSettings()['target_type'];
+            $cardinality = $entity_reference_items->getFieldDefinition()->getFieldStorageDefinition()->getCardinality();
+            if ($cardinality === -1) {
+              $cardinality = 1;
+              if ($this->isPreview($contexts)) {
+                $cardinality = 3;
+              }
+            }
+            $entity_type = \Drupal::entityTypeManager()->getDefinition($entity_type_id);
+            $storage = \Drupal::service('entity_type.manager')->getStorage($entity_type_id);
+            $query = $storage->getQuery();
+            $query->accessCheck(TRUE);
+            if ($key = $entity_type->getKey('status')) {
+              $query->condition($key, TRUE);
+            }
+            if ($key = $entity_type->getKey('bundle')) {
+              $bundles = $entity_reference_items->getFieldDefinition()->getSettings()['handler_settings']['target_bundles'] ?? [];
+              $bundle = $bundles ? reset($bundles) : $entity_type_id;
+              $query->condition($key, $bundle);
+            }
+            @[$fallback_field_name, $fallback_sort] = explode(':', $fallback);
+            $fallback_sort = $fallback_sort ?? 'DESC';
+            $query->sort($fallback_field_name, $fallback_sort);
+            $query->range(0, $cardinality);
+            $ids = $query->execute();
+            if (!empty($ids)) {
+              $parents = $storage->loadMultiple($ids);
+              // Store for subsequent requests.
+              $entity_reference_items->setValue($parents);
+            }
+          }
+          if (!$parents && $this->isPreview($contexts)) {
+            /** @var \Drupal\exo_alchemist\Plugin\ExoComponentField\EntityReferenceBase $instance */
+            $instance = \Drupal::service('plugin.manager.exo_component_field')->createFieldInstance($entity_reference_field);
+            $field_view = $instance->view($items->getEntity()->get($entity_reference_field_name), $contexts);
+            $parents[] = $field_view[0]['entity'];
+            $entity_reference_items->setValue($parents);
           }
         }
       }
     }
+    if (!$parents) {
+      $parent_context = $contexts['layout_builder.entity'] ?? $contexts['entity'] ?? NULL;
+      if ($parent_context) {
+        $parents[] = $parent_context->getContextValue();
+      }
+    }
+    $results = [];
+    foreach ($parents as $key => $parent) {
+      if ($parent->isNew()) {
+        continue;
+      }
+      $results[] = $parent;
+    }
+    return $results;
   }
 
   /**
@@ -375,7 +446,7 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
         foreach ($parent_items as $parent_item) {
           /** @var \Drupal\datetime\Plugin\Field\FieldType\DateTimeItem $parent_item */
           $format = $this->getFieldDefinition()->getAdditionalValue('entity_field_date_format') ?? 'medium';
-          $values[] = \Drupal::service('date.formatter')->format($parent_item->date->getTimestamp(), $format);
+          $values['value'] = \Drupal::service('date.formatter')->format($parent_item->date->getTimestamp(), $format);
         }
       }
     }

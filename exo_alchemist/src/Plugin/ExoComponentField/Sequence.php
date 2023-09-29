@@ -229,8 +229,19 @@ class Sequence extends EntityReferenceBase {
         'type' => $component_definition->safeId(),
       ];
       foreach ($entity_field_match as $to => $from) {
-        $val = $parent_field_type === 'fieldception' ? $item->getFieldValue($from) : $item->{$from} ?? NULL;
-        $value[$component_definition->getField($to)->getFieldName()] = $val;
+        if ($parent_field_type === 'entity_reference_revisions') {
+          if ($item->entity->hasField($from)) {
+            $val = $item->entity->get($from)->getValue() ?? NULL;
+          }
+          else {
+            $val = $this->entityFieldValuesHelpers($from, $item->entity);
+          }
+          $value[$component_definition->getField($to)->getFieldName()] = $val;
+        }
+        else {
+          $val = $parent_field_type === 'fieldception' ? $item->getFieldValue($from) : $item->{$from} ?? NULL;
+          $value[$component_definition->getField($to)->getFieldName()] = $val;
+        }
       }
       $values[] = \Drupal::entityTypeManager()->getStorage($settings['target_type'])->create($value);
     }
@@ -288,7 +299,6 @@ class Sequence extends EntityReferenceBase {
           ExoComponentFieldManager::setVisibleFieldName($entity, $field->getName());
         }
         $field_values[] = $this->exoComponentManager()->restoreEntity($item_component, $entity, $force);
-        // ksm($entity->get('exo_field_88b1e885d254a7c37cdaa2')->value);
       }
     }
     else {
