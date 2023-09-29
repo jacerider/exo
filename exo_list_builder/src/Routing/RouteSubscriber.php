@@ -51,6 +51,9 @@ class RouteSubscriber extends RouteSubscriberBase {
           continue;
         }
         $route = $collection->get('entity.' . $exo_entity_list->getTargetEntityTypeId() . '.collection');
+        if ($exo_entity_list->getTargetEntityTypeId() === 'media') {
+          $route->setRequirement('_permission', 'access media overview');
+        }
         if ($route) {
           $this->overrideRoute($exo_entity_list, $route);
         }
