@@ -664,6 +664,7 @@ class EntityListForm extends EntityForm {
           'strong' => '<strong>',
           'em' => '<em>',
           'div' => '<div class>',
+          'div_span' => '<div class><span>',
         ],
         '#default_value' => $field['view']['wrapper'],
       ];
