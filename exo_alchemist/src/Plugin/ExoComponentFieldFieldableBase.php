@@ -297,9 +297,6 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
         }
         $parent_items = $parent->get($entity_field_name);
         if ($parent_items->isEmpty()) {
-          if ($this->getFieldDefinition()->isEntityFieldOptional()) {
-            return;
-          }
           continue;
         }
         if ($entity_field_values = $this->entityFieldValuesMatch($entity_field_match, $parent, $parent_items, $items, $contexts)) {
@@ -311,6 +308,9 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
           $values[] = $entity_field_values;
         }
       }
+    }
+    if (empty($values) && !$this->getFieldDefinition()->isEntityFieldOptional()) {
+      return;
     }
     $items->setValue($values);
   }
