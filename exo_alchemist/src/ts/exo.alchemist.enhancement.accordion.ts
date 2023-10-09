@@ -26,7 +26,9 @@
       this.require = typeof $wrapper.data('ee--accordion-require') !== 'undefined';
       this.style = $wrapper.data('ee--accordion-style') || 'vertical';
       const collapse = typeof $wrapper.data('ee--accordion-collapse') !== 'undefined';
-      this.$contents.hide();
+      if (this.style !== 'none') {
+        this.$contents.hide();
+      }
       let $show = this.$triggers.first();
       let forceShow = false;
 
@@ -160,7 +162,7 @@
             }
           }
           else {
-            $shownContent.hide();
+            $shown.removeClass('shown');
           }
         }
         if ((!current || keepOpen) && doHash && typeof itemId !== 'undefined') {
@@ -179,7 +181,6 @@
               }
             };
             if (this.style === 'horizontal') {
-              console.log('show', $contents);
               $contents.animate({width: 'toggle', opacity: 'toggle'}, 350, 'swing', callback);
             }
             else {
@@ -187,7 +188,9 @@
             }
           }
           else {
-            $contents.show();
+            setTimeout(() => {
+              $item.addClass('shown');
+            }, 10);
             // Notify exo about a change in positions.
             Drupal.Exo.checkElementPosition();
             if (this.isLayoutBuilder()) {
