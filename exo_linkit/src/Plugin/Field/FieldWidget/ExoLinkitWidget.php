@@ -109,6 +109,8 @@ class ExoLinkitWidget extends ExoLinkWidget {
       '#description' => $this->t('Start typing to find content or paste a URL and click on the suggestion below.'),
       '#autocomplete_route_name' => 'linkit.autocomplete',
       '#autocomplete_route_parameters' => [
+        'linkit_profile' => $linkit_profile_id,
+        // Support old linkit module.
         'linkit_profile_id' => $linkit_profile_id,
       ],
       '#error_no_message' => TRUE,
