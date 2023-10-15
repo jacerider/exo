@@ -4,7 +4,6 @@ namespace Drupal\exo_alchemist\Plugin\ExoComponentField;
 
 use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\exo\ExoSettingsPluginInterface;
@@ -52,7 +51,6 @@ class Menu extends ExoComponentFieldComputedBase implements ContainerFactoryPlug
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, ExoSettingsPluginInterface $exo_settings, ExoMenuGeneratorInterface $exo_menu_generator) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    // $this->exoSettings = $exo_settings->createPluginSelectInstance($this->configuration['menu']);
     $this->exoSettings = $exo_settings;
     $this->exoMenuGenerator = $exo_menu_generator;
   }
