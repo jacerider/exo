@@ -29,10 +29,16 @@ function template_preprocess_exo_menu_component(array &$variables) {
   $variables['attributes']['class'][] = 'exo-menu-component';
   $variables['attributes']['class'][] = Html::getClass($exo_menu_component->bundle());
 
+  if ($exo_menu_component->hasField('field_link') && !$exo_menu_component->get('field_link')->isEmpty()) {
+    $variables['url'] = Url::fromUri($exo_menu_component->get('field_link')->uri)->toString();
+    $variables['target'] = $exo_menu_component->get('field_link')->options['attributes']['target'] ?? '';
+  }
+
   // Helpful $content variable for templates.
   foreach (Element::children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];
   }
+
 }
 
 /**
