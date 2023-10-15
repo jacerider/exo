@@ -58,7 +58,7 @@ class ExoModalBlockController extends ControllerBase {
         $build = $plugin->buildModal();
         if ($this->isAjax()) {
           $response = new AjaxResponse();
-          $response->addCommand(new AppendCommand('body', $plugin->buildModal()));
+          $response->addCommand(new AppendCommand('body', $build));
           return $response;
         }
       }
