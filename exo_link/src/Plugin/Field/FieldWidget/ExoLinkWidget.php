@@ -6,7 +6,6 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\link\Plugin\Field\FieldWidget\LinkWidget;
 use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\SortArray;
 use Drupal\exo_link\ExoLinkLinkitHelper;
 
 /**
@@ -109,7 +108,6 @@ class ExoLinkWidget extends LinkWidget {
         'title' => $element['title'],
       ] + $element;
     }
-    // uasort($element, [SortArray::class, 'sortByWeightElement']);
 
     if ($this->getSetting('icon')) {
       $class_name = Html::getUniqueId('exo-link-widget-' . $this->fieldDefinition->getName() . '-' . $delta);
@@ -149,6 +147,7 @@ class ExoLinkWidget extends LinkWidget {
       ];
       if (!empty($this->getSetting('class_list'))) {
         $element['options']['attributes']['class']['#type'] = 'select';
+        $element['options']['attributes']['class']['#description'] = $this->t('A style may apply special styling the the link and/or its children.');
         $element['options']['attributes']['class']['#title'] = $this->t('Style');
         $element['options']['attributes']['class']['#options'] = ['' => $this->t('- Select -')] + $this->getSetting('class_list');
       }
