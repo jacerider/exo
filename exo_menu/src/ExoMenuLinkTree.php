@@ -176,16 +176,6 @@ class ExoMenuLinkTree extends MenuLinkTree {
 
   }
 
-  // protected $level;
-
-  // protected $submenu;
-
-  // protected $options['isSubmenuParent'];
-
-  // protected $submenu;
-
-  // protected $options['isSubmenuClone'];
-
   /**
    * Builds the #items property for a menu tree's renderable array.
    *
@@ -231,7 +221,7 @@ class ExoMenuLinkTree extends MenuLinkTree {
           $options['attributes']['icon'] = $options['attributes']['data-icon'];
         }
         if (!empty($options['attributes']['data-icon']) && !empty($element['title'])) {
-          $position = isset($options['attributes']['data-icon-position']) ? $options['attributes']['data-icon-position'] : 'before';
+          $position = $options['attributes']['data-icon-position'] ?? 'before';
           $element['title'] = ExoIconIconize::iconize($element['title'])->setIcon($options['attributes']['data-icon'])->setIconPosition($position)->render();
         }
         unset($options['attributes']['data-icon']);
