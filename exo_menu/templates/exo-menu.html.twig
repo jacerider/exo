@@ -25,15 +25,18 @@
   We call a macro which calls itself to render the full tree.
   @see http://twig.sensiolabs.org/doc/tags/macro.html
 #}
-{{ menus.menu_links(items, attributes, 0, null, null, tag) }}
+{{ menus.menu_links(items, attributes, 0, null, null, tag, wrap_children) }}
 
-{% macro menu_links(items, attributes, menu_level, prefix, suffix, tag) %}
+{% macro menu_links(items, attributes, menu_level, prefix, suffix, tag, wrap_children) %}
   {% import _self as menus %}
   {% if items %}
     {% if menu_level == 0 %}
       <{{ tag }}{{ attributes }}>
     {% endif %}
     <div class="exo-menu-level level-{{ menu_level }}">
+      {% if menu_level != 0 and wrap_children %}
+        <div class="exo-menu-children">
+      {% endif %}
       {% if prefix %}
         <div class="exo-menu-prefix">{{ prefix }}</div>
       {% endif %}
@@ -54,7 +57,7 @@
             <div class="exo-menu-item-markup">
               {{ item.markup }}
               {% if item.below %}
-                {{ menus.menu_links(item.below, attributes, menu_level + 1, item.below_prefix, item.below_suffix, null) }}
+                {{ menus.menu_links(item.below, attributes, menu_level + 1, item.below_prefix, item.below_suffix, tag, wrap_children) }}
               {% endif %}
             </div>
           {% else %}
@@ -64,7 +67,7 @@
               <a {{ item.link_attributes.addClass('no-link') }} href="javascript:;">{{ item.title|raw }}</a>
             {% endif %}
             {% if item.below %}
-              {{ menus.menu_links(item.below, attributes, menu_level + 1, item.below_prefix, item.below_suffix, null) }}
+              {{ menus.menu_links(item.below, attributes, menu_level + 1, item.below_prefix, item.below_suffix, tag, wrap_children) }}
             {% endif %}
             {% if item.suffix %}
               <div class="exo-menu-item-suffix">{{ item.suffix }}</div>
@@ -75,6 +78,9 @@
       </ul>
       {% if suffix %}
         <div class="exo-menu-suffix">{{ suffix }}</div>
+      {% endif %}
+      {% if menu_level != 0 and wrap_children %}
+        </div>
       {% endif %}
     </div>
     {% if menu_level == 0 %}

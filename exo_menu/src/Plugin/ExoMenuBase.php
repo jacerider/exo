@@ -49,6 +49,7 @@ abstract class ExoMenuBase extends PluginBase implements ExoMenuPluginInterface,
       'child_level' => 0,
       'depth' => 3,
       'expand' => 1,
+      'wrap_children' => 0,
     ];
   }
 
@@ -63,6 +64,7 @@ abstract class ExoMenuBase extends PluginBase implements ExoMenuPluginInterface,
       'child_level',
       'depth',
       'expand',
+      'wrap_children',
     ];
   }
 
@@ -117,6 +119,13 @@ abstract class ExoMenuBase extends PluginBase implements ExoMenuPluginInterface,
       '#title' => $this->t('Expand all menu links'),
       '#default_value' => $this->configuration['expand'],
       '#description' => $this->t('All menu links that have children will "Show as expanded".'),
+    ];
+
+    $form['wrap_children'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Wrap Children'),
+      '#default_value' => $this->configuration['wrap_children'],
+      '#description' => $this->t('Add additional wrapper for menu links with children.'),
     ];
 
     $form['levels'] = [

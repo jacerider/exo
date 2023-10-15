@@ -30,16 +30,17 @@
   <nav class="exo-menu-nav">
     <div class="exo-menu-wrap">
       {% for level in levels %}
-        {{ menus.menu_links(level.items, level.attributes) }}
+        {{ menus.menu_links(level.items, level.attributes, 0, wrap_children) }}
       {% endfor %}
     </div>
   </nav>
 </div>
 
-{% macro menu_links(items, attributes, menu_level) %}
+{% macro menu_links(items, attributes, menu_level, wrap_children) %}
   {% import _self as menus %}
   {% if items %}
     <ul{{ attributes.addClass('exo-menu-level') }}>
+
     {% for item in items %}
       {%
         set classes = [
@@ -54,7 +55,9 @@
           <div class="exo-menu-item-markup">
             {{ item.markup }}
             {% if item.below %}
-              {{ menus.menu_links(item.below, attributes, menu_level + 1) }}
+              {% if menu_level != 0 and wrap_children %}<div class="exo-menu-children">{% endif %}
+                {{ menus.menu_links(item.below, attributes, menu_level + 1, wrap_children) }}
+              {% if menu_level != 0 and wrap_children %}</div>{% endif %}
             {% endif %}
           </div>
         {% else %}
@@ -64,7 +67,9 @@
             <a {{ item.link_attributes.addClass('no-link') }} href="javascript:;">{{ item.title|raw }}</a>
           {% endif %}
           {% if item.below %}
-            {{ menus.menu_links(item.below, attributes, menu_level + 1) }}
+            {% if menu_level != 0 and wrap_children %}<div class="exo-menu-children">{% endif %}
+              {{ menus.menu_links(item.below, attributes, menu_level + 1, wrap_children) }}
+            {% if menu_level != 0 and wrap_children %}</div>{% endif %}
           {% endif %}
         {% endif %}
       </li>

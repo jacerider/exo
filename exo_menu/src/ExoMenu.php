@@ -73,6 +73,13 @@ class ExoMenu implements ExoMenuInterface, RenderableInterface, RefinableCacheab
   protected $style = 'tree';
 
   /**
+   * The plugin.
+   *
+   * @var string
+   */
+  protected $plugin;
+
+  /**
    * The plugin collection that holds the style plugin for this entity.
    *
    * @var \Drupal\exo_menu\Plugin\ExoMenuCollection
@@ -435,6 +442,7 @@ class ExoMenu implements ExoMenuInterface, RenderableInterface, RefinableCacheab
         'style' => $style->getPluginId(),
         'selector' => '#' . $build['#attributes']['id'],
       ];
+      $build['#wrap_children'] = $this->exoSettings->getSetting('wrap_children');
       $build['#tag'] = $this->tag;
       return $style->prepareBuild($build);
     }
