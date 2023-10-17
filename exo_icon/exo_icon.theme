@@ -187,7 +187,7 @@ function template_preprocess_exo_icon_browser(array &$variables) {
   $variables['package_search'] = [
     '#type' => 'textfield',
     '#placeholder' => t('Search icons...'),
-    '#attributes' => ['class' => ['exo-icon-browser-search-input']],
+    '#attributes' => ['class' => ['exo-icon-browser-search-input'], 'type' => ''],
   ];
 
   $variables['package_select'] = [
