@@ -161,8 +161,12 @@ class EntityDisplay extends ExoComponentFieldComputedBase implements ContextAwar
       $values['entity_label'] = $entity->label();
       $values['entity_type_id'] = $entity->getEntityTypeId();
       if (!$entity->isNew()) {
-        $values['entity_view_url'] = $entity->toUrl()->toString();
-        $values['entity_edit_url'] = $entity->toUrl('edit-form')->toString();
+        if ($entity->getEntityType()->hasLinkTemplate('canonical')) {
+          $values['entity_view_url'] = $entity->toUrl()->toString();
+        }
+        if ($entity->getEntityType()->hasLinkTemplate('edit-form')) {
+          $values['entity_edit_url'] = $entity->toUrl('edit-form')->toString();
+        }
       }
       if ($entity->getEntityTypeId() === 'media' && \Drupal::service('module_handler')->moduleExists('media_entity_download')) {
         $values['entity_download_url'] = Url::fromRoute('media_entity_download.download', ['media' => $entity->id()], [
@@ -192,7 +196,7 @@ class EntityDisplay extends ExoComponentFieldComputedBase implements ContextAwar
       // the root entity.
       if ($entity = $this->getPreviewEntity($entity_type_id, $bundle)) {
         \Drupal::messenger()->addMessage($this->t('This component is being previewed using <a href="@url">@label</a>.', [
-          '@url' => $entity->toUrl()->toString(),
+          '@url' => $entity->getEntityType()->hasLinkTemplate('canonical') ? $entity->toUrl()->toString() : '',
           '@label' => $entity->getEntityType()->getLabel() . ': ' . $entity->label(),
         ]), 'alchemist');
       }

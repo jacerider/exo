@@ -1299,7 +1299,7 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
           if ($preview_entity = $this->getPreviewEntity($preview_entity_type, $preview_bundles)) {
             $contexts['layout_builder.entity'] = EntityContext::fromEntity($preview_entity);
             \Drupal::messenger()->addMessage($this->t('This component is being previewed using <a href="@url">@label</a>.', [
-              '@url' => $preview_entity->toUrl()->toString(),
+              '@url' => $preview_entity->getEntityType()->hasLinkTemplate('canonical') ? $preview_entity->toUrl()->toString() : '',
               '@label' => $preview_entity->getEntityType()->getLabel() . ': ' . $preview_entity->label(),
             ]), 'alchemist');
           }
