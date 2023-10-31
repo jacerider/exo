@@ -290,10 +290,12 @@ class ExoModal extends ExoData {
             modalTheme = className.replace('exo-modal-theme-content-', '');
           }
         }
-        $('form[class*="exo-form-theme-"]', this.$content).removeClass(function (index, className) {
-          return (className.match(/(^|\s)exo-form-theme-\S+/g) || []).join(' ');
-        });
-        $formsWithTheme.addClass('exo-form-theme-' + modalTheme);
+        if (modalTheme) {
+          $('form[class*="exo-form-theme-"]', this.$content).removeClass(function (index, className) {
+            return (className.match(/(^|\s)exo-form-theme-\S+/g) || []).join(' ');
+          });
+          $formsWithTheme.addClass('exo-form-theme-' + modalTheme);
+        }
       }
 
       if (!this.$element.hasClass(this.name)) {
