@@ -170,9 +170,13 @@
   }
 }
 
-.exo-form-container-field-multiple-table {
+.exo-form .exo-form-container-field-multiple-table {
 
   thead {
-    display: none;
+    // display: none;
+
+    th:not(.field-label) {
+      display: none !important;
+    }
   }
 }
