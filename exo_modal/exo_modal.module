@@ -202,18 +202,36 @@ function exo_modal_ajax_render_alter(array &$data) {
                 $modal->setSetting('exo_preset', 'aside_right');
               }
               break;
+
+            case 'exoModal':
+            case 'exo_modal':
+              if (is_array($value)) {
+                foreach ($value as $key => $val) {
+                  if ($key === 'preset' || $key === 'exo_preset') {
+                    $presets = exo_presets('exo_modal');
+                    if (isset($presets[$val])) {
+                      $preset = $presets[$val];
+                      if (!empty($preset['theme'])) {
+                        $modal->setSetting('theme', $preset['theme']);
+                      }
+                      if (!empty($preset['theme_content'])) {
+                        $modal->setSetting('theme_content', $preset['theme_content']);
+                      }
+                      $modal->setSetting('exo_preset', $val);
+                    }
+                  }
+                  else {
+                    $modal->setSetting(['modal', $key], $val);
+                  }
+                }
+              }
+              break;
           }
           if ($item['selector'] == '#drupal-off-canvas') {
             // Special treatment for drupal-off-canvas.
             $modal->setSetting(['modal', 'width'], 400);
             $modal->setSetting(['modal', 'overlay'], TRUE);
             $modal->setSetting(['modal', 'nest'], FALSE);
-          }
-          if (!empty($dialog_options['exo_modal'])) {
-            // eXo Modal settings override all others.
-            foreach ($dialog_options['exo_modal'] as $key => $val) {
-              $modal->setSetting(['modal', $key], $val);
-            }
           }
         }
       }
