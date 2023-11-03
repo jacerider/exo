@@ -147,10 +147,18 @@ class ExoModal extends ExoData {
 
   public build(data):Promise<ExoSettingsGroupInterface> {
     return new Promise((resolve, reject) => {
+      const dataClass = [];
+      if (data.class) {
+        dataClass.push(data.class);
+      }
       if (data.preset && typeof drupalSettings.exoModal.presets === 'object' && drupalSettings.exoModal.presets[data.preset]) {
         data = jQuery.extend(true, {}, drupalSettings.exoModal.presets[data.preset], data);
+        if (drupalSettings.exoModal.presets[data.preset].class) {
+          dataClass.push(drupalSettings.exoModal.presets[data.preset].class);
+        }
       }
       data = jQuery.extend(true, {}, Drupal.ExoModal.getSettingsGroup('defaults'), data);
+      data.class = dataClass.join(' ');
       super.build(data, false).then(data => {
         if (data !== null) {
           this.debug('log', 'Build: Act', '[' + this.id + ']', data);
