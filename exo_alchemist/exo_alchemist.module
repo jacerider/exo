@@ -896,7 +896,7 @@ function exo_alchemist_views_pre_view(ViewExecutable $view, $display_id, array &
         $component_field = $exo_component_manager->getExoComponentFieldManager()->createFieldInstance($field);
         if ($component_field instanceof View) {
           $contexts = [
-            'entity' => EntityContext::fromEntity($entity),
+            'layout_builder.entity' => EntityContext::fromEntity($entity),
             'default_storage' => new Context(new ContextDefinition('boolean'), $is_default_storage),
             'preview' => new Context(new ContextDefinition('boolean'), $is_preview),
             'cacheable_metadata' => new Context(new ContextDefinition('any'), new ExoCacheableContext()),
