@@ -1267,18 +1267,23 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           if (empty($context['job_finish'])) {
             $show_action_status_column = TRUE;
             foreach ($entities as $entity_id => $entity) {
-              $form['entities'][$entity_id]['_action_status']['#wrapper_attributes']['class'][] = 'exo-list-builder-size--compact';
-              if (!isset($form['entities'][$entity_id]['_action_status']['data'][$action_id])) {
-                $form['entities'][$entity_id]['_action_status']['data'][$action_id] = [
+              $form[$this->entitiesKey][$entity_id]['_action_status']['#wrapper_attributes']['class'][] = 'exo-list-builder-size--compact';
+              if (!isset($form[$this->entitiesKey][$entity_id]['_action_status']['data'][$action_id])) {
+                $form[$this->entitiesKey][$entity_id]['_action_status']['data'][$action_id] = [
                   '#theme' => 'item_list',
                 ];
               }
               if (isset($context['results']['entity_ids_complete'][$entity_id])) {
                 $date = $date_formatter->format($context['results']['entity_ids_complete'][$entity_id], 'medium');
-                $form['entities'][$entity_id]['_action_status']['data'][$action_id]['#items'][]['#markup'] = '<small>' . $action->label() . ': <em>' . $this->icon($date)->setIcon('regular-check-circle') . '</em></small>';
+                $form[$this->entitiesKey][$entity_id]['_action_status']['data'][$action_id]['#items'][]['#markup'] = '<small>' . $action->label() . ': <em>' . $this->icon($date)->setIcon('regular-check-circle') . '</em></small>';
               }
               elseif (isset($context['results']['entity_ids'][$entity_id])) {
-                $form['entities'][$entity_id]['_action_status']['data'][$action_id]['#items'][]['#markup'] = '<small>' . $action->label() . ': <em>' . $this->icon('Pending')->setIcon('regular-clock') . '</em></small>';
+                $form[$this->entitiesKey][$entity_id]['_action_status']['data'][$action_id]['#items'][]['#markup'] = '<small>' . $action->label() . ': <em>' . $this->icon('Pending')->setIcon('regular-clock') . '</em></small>';
+              }
+              if (isset($form[$this->entitiesKey][$entity_id]['operations'])) {
+                $operations = $form[$this->entitiesKey][$entity_id]['operations'];
+                unset($form[$this->entitiesKey][$entity_id]['operations']);
+                $form[$this->entitiesKey][$entity_id]['operations'] = $operations;
               }
             }
           }
@@ -1302,10 +1307,16 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
 
     if ($show_action_status_column) {
-      $form['entities']['#header']['_action_status'] = [
+      $form[$this->entitiesKey]['#header']['_action_status'] = [
         'data' => $this->t('Action Status'),
         'class' => ['exo-list-action-status'],
       ];
+      // Move operations to last column.
+      if (isset($form[$this->entitiesKey]['#header']['operations'])) {
+        $operations = $form[$this->entitiesKey]['#header']['operations'];
+        unset($form[$this->entitiesKey]['#header']['operations']);
+        $form[$this->entitiesKey]['#header']['operations'] = $operations;
+      }
     }
     return $form;
   }
