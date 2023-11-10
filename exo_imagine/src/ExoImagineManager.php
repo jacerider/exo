@@ -107,6 +107,18 @@ class ExoImagineManager {
       'cache_tags' => [],
     ];
     if (!file_exists($image_uri)) {
+      // Support for stage file proxy when we have configured to ignore root.
+      if (($width || $height) && $this->moduleHandler->moduleExists('stage_file_proxy')) {
+        $config = \Drupal::config('stage_file_proxy.settings');
+        if (!$config->get('use_imagecache_root')) {
+          $imagine_style = $this->getImagineStyle($width, $height, $unique);
+          $image_style = $imagine_style->getStyle();
+          $image_style_uri = $image_style->buildUri($image_uri);
+          $definition['uri'] = $image_style_uri;
+          $definition['src'] = $this->generateUrl($image_style->buildUrl($image_uri));
+          $definition['cache_tags'] = $image_style->getCacheTags();
+        }
+      }
       return $definition;
     }
     if ($width || $height) {
