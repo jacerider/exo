@@ -309,11 +309,6 @@ function exo_modal_ajax_render_alter(array &$data) {
       $modal_settings = exo_modal_js_settings_append_presets($modal->getDrupalSettings());
       break;
     }
-    if ($item['command'] === 'closeDialog') {
-      $command = new ExoModalCloseCommand();
-      $data[] = $command->render();
-      break;
-    }
     if ($item['command'] === 'webformCloseDialog') {
       $command = new ExoModalCloseCommand();
       $data[] = $command->render();
