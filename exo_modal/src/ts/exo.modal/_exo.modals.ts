@@ -134,7 +134,6 @@ class ExoModals extends ExoDataManager<ExoModal> {
    *   Get visible modals that are contained within the main wrapper area.
    */
   public getVisibleFocus(containedOnly?:boolean):ExoModal {
-    const collection = new ExoDataCollection<ExoModal>();
     let index = 0;
     let focused = null;
     this.getVisible(containedOnly).each((modal:ExoModal) => {
