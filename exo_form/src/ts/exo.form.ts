@@ -22,12 +22,25 @@
       });
 
       // Disable on click.
-      $(context).find('.exo-form-button-disable-on-click').once('exo.form.disable').on('click', e => {
+      const $buttons = $(context).find('.exo-form-button-disable-on-click');
+      $buttons.filter('.is-disabled').each((index, element) => {
+        const $button = $(element);
+        if ($button.data('exo-form-button-original-message')) {
+          $button.text($button.data('exo-form-button-original-message'));
+        }
+        $button.prop('disabled', false).removeClass('is-disabled');
+      });
+      $buttons.once('exo.form.disable').on('mousedown', e => {
         const $button = $(e.target);
         const $form = $button.closest('form.exo-form');
         const form = $form[0] as HTMLFormElement;
         if ($form.length && form.checkValidity()) {
           if ($button.data('exo-form-button-disable-message')) {
+            $button.css({
+              minWidth: $button.outerWidth() + 'px',
+              textAlign: 'center',
+            });
+            $button.data('exo-form-button-original-message', $button.text());
             $button.text($button.data('exo-form-button-disable-message'));
           }
           if ($button.data('exo-form-button-disable-form')) {
