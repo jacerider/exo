@@ -2,6 +2,7 @@
 
 namespace Drupal\exo_modal\Ajax;
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Ajax\CommandInterface;
 use Drupal\Core\Ajax\CommandWithAttachedAssetsInterface;
 use Drupal\Core\Ajax\CommandWithAttachedAssetsTrait;
@@ -145,9 +146,11 @@ class ExoModalOpenCommand implements CommandInterface, CommandWithAttachedAssets
    */
   public function getModal() {
     if (!isset($this->modal)) {
+      $options = $this->getOptions();
+      $preset = $options['preset'] ?? NULL;
       $this->modal = \Drupal::service('exo_modal.generator')->generate(
         $this->id,
-        ['modal' => $this->getOptions()],
+        ['exo_preset' => $preset, 'modal' => $options],
         $this->content
       );
     }
@@ -164,6 +167,7 @@ class ExoModalOpenCommand implements CommandInterface, CommandWithAttachedAssets
       'route_name' => \Drupal::routeMatch()->getRouteName(),
     ];
     \Drupal::moduleHandler()->invokeAll('exo_modal_alter', [$modal, $context]);
+    // ksm($modal->getSettings());
     $content = $modal->toRenderableModal();
     $content['#attached']['library'][] = 'exo_modal/ajax';
     $this->content = $content;
