@@ -23,14 +23,14 @@
 
       // Disable on click.
       const $buttons = $(context).find('.exo-form-button-disable-on-click');
-      $buttons.filter('.is-disabled').each((index, element) => {
+      $buttons.filter('.exo-form-button-disabled-form-init.is-disabled').each((index, element) => {
         const $button = $(element);
         if ($button.data('exo-form-button-original-message')) {
           $button.text($button.data('exo-form-button-original-message'));
         }
         $button.prop('disabled', false).removeClass('is-disabled');
       });
-      $buttons.once('exo.form.disable').on('mousedown', e => {
+      $buttons.filter(':not(.is-disabled)').once('exo.form.disable').on('mouseup', e => {
         const $button = $(e.target);
         const $form = $button.closest('form.exo-form');
         const form = $form[0] as HTMLFormElement;
@@ -44,7 +44,7 @@
             $button.text($button.data('exo-form-button-disable-message'));
           }
           if ($button.data('exo-form-button-disable-form')) {
-            $form.addClass('is-disabled');
+            $form.addClass('is-disabled exo-form-button-disabled-form-init');
           }
           else {
             setTimeout(() => {
