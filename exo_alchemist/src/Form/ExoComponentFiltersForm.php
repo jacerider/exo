@@ -6,6 +6,7 @@ use Drupal\Core\Ajax\AjaxFormHelperTrait;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\exo_alchemist\Controller\ExoFieldParentsTrait;
+use Drupal\exo_alchemist\ExoComponentFieldManager;
 use Drupal\exo_alchemist\ExoComponentManager;
 use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\layout_builder\Controller\LayoutRebuildTrait;
@@ -195,6 +196,21 @@ class ExoComponentFiltersForm extends FormBase {
     $component = $this->sectionStorage->getSection($this->delta)->getComponent($this->uuid);
     /** @var \Drupal\layout_builder\Plugin\Block\InlineBlock $block */
     $block = $component->getPlugin();
+
+    // Handle hiding and showing.
+    foreach ($this->definition->getFields() as $field) {
+      if ($field->isFilter()) {
+        if ($this->entity->hasField($field->getFieldName())) {
+          if ($this->entity->get($field->getFieldName())->isEmpty()) {
+            ExoComponentFieldManager::setHiddenFieldName($this->entity, $field->getName());
+          }
+          else {
+            ExoComponentFieldManager::setVisibleFieldName($this->entity, $field->getName());
+          }
+        }
+      }
+    }
+
     $configuration = $block->getConfiguration();
     $configuration['block_serialized'] = serialize($this->entity);
     $section = $this->sectionStorage->getSection($this->delta);
