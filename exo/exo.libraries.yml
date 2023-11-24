@@ -385,3 +385,8 @@ split-type:
   version: VERSION
   js:
     lib/split-type/split-type.min.js: {minified: true}
+
+fuse:
+  version: VERSION
+  js:
+    lib/fuse/fuse.min.js: {minified: true}

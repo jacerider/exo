@@ -19,6 +19,7 @@ declare var Sortable:any;
 declare var Swiper:any;
 declare var SplitType:any;
 declare var once:any;
+declare var Fuse:any;
 
 interface JQuery {
   once(id?): JQuery;
