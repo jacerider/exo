@@ -56,6 +56,7 @@ select:
   dependencies:
     - core/drupal.displace
     - exo/jquery.touchevents
+    - exo/fuse
     - exo_form/base
     - exo_form/input
     - exo_form/checkbox

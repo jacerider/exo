@@ -117,6 +117,25 @@ class ExoFormDemoForm extends FormBase {
       '#description' => $this->t('Example description.'),
     ];
 
+    $element['container']['select_opt'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Select'),
+      '#options' => [
+        'One' => [
+          '1.1' => 'One',
+          '1.2' => 'Two',
+          '1.3' => 'Three',
+        ],
+        'Two' => [
+          '2.1' => 'One',
+          '2.2' => 'Two',
+          '2.3' => 'Three',
+        ],
+      ],
+      '#empty_option' => '- None -',
+      '#description' => $this->t('Example description.'),
+    ];
+
     $element['select2'] = [
       '#type' => 'select',
       '#title' => $this->t('Select Multiple with Defaults'),
@@ -151,6 +170,26 @@ class ExoFormDemoForm extends FormBase {
       ],
       '#multiple' => TRUE,
       '#default_value' => [0, 1],
+      '#description' => $this->t('Example description.'),
+    ];
+
+    $element['select2_opt'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Select Multiple with Defaults and Option Group'),
+      '#options' => [
+        'One' => [
+          '1.1' => 'One',
+          '1.2' => 'Two',
+          '1.3' => 'Three',
+        ],
+        'Two' => [
+          '2.1' => 'One',
+          '2.2' => 'Two',
+          '2.3' => 'Three',
+        ],
+      ],
+      '#default_value' => ['1.2', '2.3'],
+      '#multiple' => TRUE,
       '#description' => $this->t('Example description.'),
     ];
 

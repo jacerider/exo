@@ -337,21 +337,49 @@
       // When user types letters or numbers or delete.
       if (this.isAlphaNumberic(e.which) || e.which === 8) {
         const $item = $(e.currentTarget);
-        const search = $item.val().toString().toLowerCase();
+        let search = $item.val().toString().toLowerCase();
+        let select = 0;
+        let $highlight;
         if (search) {
+          const parts = search.split('');
+          const allEqual = parts.every(val => val === parts[0]);
           let $items = this.$dropdown.find('.selector');
+          if (allEqual && parts.length > 1) {
+            select = parts.length - 1;
+            search = parts[0];
+          }
+
+          const options = [];
+
+          $items.each((index, element) => {
+            const text = $(element).data('option').text.toLowerCase();
+            options.push({
+              text: text,
+              element: element,
+            });
+          });
+          const fuse = new Fuse(options, {
+            keys: ['text'],
+            threshold: 0.3,
+            includeScore: true
+          });
+          const fuseResults = fuse.search(search);
           if (this.multiple) {
             $items = $items.filter(':not(.active)');
           }
+          // Hide all items.
           $items.each((index, element) => {
-            const text = $(element).data('option').text.toLowerCase();
-            if (text.indexOf(search) >= 0) {
-              $(element).removeClass('hide');
-            }
-            else {
-              $(element).addClass('hide');
-            }
+            $(element).addClass('hide').css('order', 1000);
           });
+          if (fuseResults.length > 0) {
+            var delta = 0;
+            $highlight = $(fuseResults[select].item.element);
+            fuseResults.forEach(result => {
+              // Show matched items and set order.
+              $(result.item.element).removeClass('hide').css('order', delta);
+              delta++;
+            });
+          }
           this.$dropdown.find('.optgroup').removeClass('hide').each((index, element) => {
             const $optgroup = $(element);
             if (!$optgroup.nextUntil('.optgroup').filter(':not(.hide)').length) {
@@ -360,9 +388,9 @@
           });
         }
         else {
-          this.$dropdown.find('.hide').removeClass('hide');
+          this.$dropdown.find('.selector').removeClass('hide').css('order', '');
         }
-        this.highlightOption(this.$dropdown.find('.selector:not(.hide):visible').first());
+        this.highlightOption($highlight || this.$dropdown.find('.selector:not(.hide):visible').first());
       }
       e.preventDefault();
     }
@@ -557,6 +585,7 @@
         };
         if ($item.is('optgroup')) {
           values.text = $(element).attr('label');
+          values.value = values.text;
           values.group = true;
         }
         else {
@@ -565,6 +594,7 @@
           values.selected = $item.is(':selected');
         }
         if (this.multiple && (values.value === '' || values.value === '_none')) {
+          console.log('remove', values);
           $item.remove();
         }
         else {
@@ -574,6 +604,7 @@
           this.allowColumn = false;
         }
       });
+
     }
 
     public updateTrigger() {
