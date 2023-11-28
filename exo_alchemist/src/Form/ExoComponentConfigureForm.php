@@ -61,6 +61,13 @@ class ExoComponentConfigureForm extends FormBase {
   protected $blockManager;
 
   /**
+   * The UUID generator.
+   *
+   * @var \Drupal\Component\Uuid\UuidInterface
+   */
+  protected $uuidGenerator;
+
+  /**
    * The UUID of the component.
    *
    * @var string
@@ -113,7 +120,7 @@ class ExoComponentConfigureForm extends FormBase {
    *   The block manager.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
-   * @param Drupal\Component\Uuid\UuidInterface $uuid
+   * @param \Drupal\Component\Uuid\UuidInterface $uuid
    *   The uuid generator.
    * @param \Drupal\Core\Session\AccountInterface $current_user
    *   The current user.
