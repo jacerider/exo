@@ -593,8 +593,7 @@
           values.text = $item.html();
           values.selected = $item.is(':selected');
         }
-        if (this.multiple && (values.value === '' || values.value === '_none')) {
-          console.log('remove', values);
+        if (this.multiple && (values.value === '' || values.value === '_none' || values.text === '&lt;root&gt;')) {
           $item.remove();
         }
         else {
