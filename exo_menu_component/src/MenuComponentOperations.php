@@ -2,6 +2,7 @@
 
 namespace Drupal\exo_menu_component;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
@@ -65,26 +66,30 @@ class MenuComponentOperations implements ContainerInjectionInterface {
    *   An array of items.
    */
   public function replaceComponents(array &$items) {
-    $found = FALSE;
+    $found = [];
     foreach ($items as &$item) {
-      $below_found = FALSE;
+      $below_found = [];
       if (!empty($item['below'])) {
-        $below_found = $this->replaceComponents($item['below']);
+        $below_found += $this->replaceComponents($item['below']);
       }
       $url = $item['url'];
       if (!$url instanceof Url) {
-        return FALSE;
+        return [];
       }
       $menu_attributes = $url->getOption('attributes');
       if (isset($menu_attributes['data-exo-menu-component']) && !empty($menu_attributes['data-exo-menu-component'])) {
-        $item['markup'] = $this->menuComponentManager->viewMenuComponent($menu_attributes['data-exo-menu-component']);
+        $component = $this->menuComponentManager->getMenuComponent($menu_attributes['data-exo-menu-component']);
+        $item['markup'] = $this->menuComponentManager->viewMenuComponent($menu_attributes['data-exo-menu-component'], 'default', $component);
         $item['exo_menu_component'] = TRUE;
         $item['attributes']->addClass('exo-menu-component-wrapper');
-        $found = TRUE;
+        $found[$component->bundle()] = $component->bundle();
       }
       if ($below_found) {
         $item['exo_menu_component_below'] = TRUE;
         $item['attributes']->addClass('exo-menu-has-component');
+        foreach ($below_found as $type) {
+          $item['attributes']->addClass('exo-menu-has-component--' . Html::getClass($type));
+        }
       }
     }
     return $found;
