@@ -24,7 +24,7 @@
 
       // Disable on click.
       const $buttons = $('.exo-form-button-disable-on-click');
-      $buttons.each((index, element) => {
+      $('.exo-form-button-disable-on-click.is-disabled').each((index, element) => {
         const $button = $(element);
         const $form = $button.closest('form.exo-form');
         $form.removeClass('is-disabled');
@@ -33,28 +33,31 @@
           $button.text($button.data('exo-form-button-original-message'));
         }
       });
-      $buttons.once('exo.form.disable').on('mousedown', e => {
+      const disableButton = (e) => {
+        const $button = $(e.target);
+        const $form = $button.closest('form.exo-form');
+        const message = $button.data('exo-form-button-disable-message');
+        if (message) {
+          $button.css({
+            minWidth: $button.outerWidth() + 'px',
+            textAlign: 'center',
+          });
+          $button.data('exo-form-button-original-message', $button.text());
+          $button.text(message);
+        }
+        $button.addClass('is-disabled');
+        if ($button.data('exo-form-button-disable-form')) {
+          $form.addClass('is-disabled');
+        }
+      };
+      $('.exo-form-button-disable-on-click', context).once('exo.form.disable').on('mousedown', e => {
+        const $button = $(e.target);
         setTimeout(() => {
-          const $button = $(e.target);
-          const $form = $button.closest('form.exo-form');
-          const message = $button.data('exo-form-button-disable-message');
-          if (message) {
-            $button.css({
-              minWidth: $button.outerWidth() + 'px',
-              textAlign: 'center',
-            });
-            $button.data('exo-form-button-original-message', $button.text());
-            $button.text(message);
-          }
-          if ($button.data('exo-form-button-disable-form')) {
-            $form.addClass('is-disabled');
-          }
-          else {
-            $button.addClass('is-disabled');
+          if (!$button.hasClass('is-disabled')) {
+            disableButton(e);
           }
         }, 100);
-      })
-      ;
+      }).on('click', disableButton);
 
       // Form styling.
       $(context).find('td .dropbutton-wrapper').once('exo.form.td.compact').each((index, element) => {
