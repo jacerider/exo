@@ -242,7 +242,7 @@ class SiteSettingsGeneralForm extends FormBase {
         $element['#submit'] = ['::inlineButtonSubmit'];
         if (!empty($element['#validate'])) {
           $element['#inner_form_validate'] = $element['#validate'];
-          $element['#validate'] = '::inlineButtonValidate';
+          $element['#validate'][] = '::inlineButtonValidate';
         }
       }
       if (!empty($element['#process'])) {
