@@ -24,6 +24,7 @@ class ExoFormDemoForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    $form['#id'] = 'exo-form-demo';
 
     $form['mix'] = ['#open' => TRUE] + $this->buildMix($form_state);
     $form['file'] = ['#open' => TRUE] + $this->buildFile($form_state);
@@ -52,6 +53,43 @@ class ExoFormDemoForm extends FormBase {
     $form['actions']['other'] = [
       '#type' => 'submit',
       '#value' => $this->t('Other'),
+    ];
+    $form['disable'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Disable on Click'),
+      '#submit' => ['::delaySubmit'],
+      '#limit_validation_errors' => [],
+      '#attributes' => [
+        'class' => ['exo-form-button-disable-on-click'],
+        'data-exo-form-button-disable-message' => 'Please wait...',
+      ],
+    ];
+    $form['disable_form'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Disable form on Click'),
+      '#submit' => ['::delaySubmit'],
+      '#limit_validation_errors' => [],
+      '#attributes' => [
+        'class' => ['exo-form-button-disable-on-click'],
+        'data-exo-form-button-disable-message' => 'Please wait...',
+        'data-exo-form-button-disable-form' => '1',
+      ],
+    ];
+    $form['disable_ajax'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Ajax Disable on Click'),
+      '#submit' => ['::delaySubmit'],
+      '#limit_validation_errors' => [],
+      '#ajax' => [
+        'callback' => [get_class($this), 'refreshForm'],
+        'wrapper' => $form['#id'] . 'pops',
+        'effect' => 'fade',
+      ],
+      '#attributes' => [
+        'class' => ['exo-form-button-disable-on-click'],
+        'data-exo-form-button-disable-message' => 'Please wait...',
+        'data-exo-form-button-disable-form' => '1',
+      ],
     ];
 
     return $form;
@@ -917,6 +955,13 @@ class ExoFormDemoForm extends FormBase {
   }
 
   /**
+   * Callback for both ajax-enabled buttons.
+   */
+  public static function refreshForm(array $form, FormStateInterface $form_state) {
+    return $form;
+  }
+
+  /**
    * Submit handler for the "add-one-more" button.
    *
    * Increments the max counter and causes a rebuild.
@@ -951,6 +996,13 @@ class ExoFormDemoForm extends FormBase {
       }
     }
 
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function delaySubmit(array &$form, FormStateInterface $form_state) {
+    sleep(5);
   }
 
 }
