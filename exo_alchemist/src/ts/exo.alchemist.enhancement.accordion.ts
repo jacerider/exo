@@ -8,6 +8,7 @@
     protected $contents:JQuery;
     protected $current:JQuery;
     protected id:string = '';
+    protected count:string;
     protected idSelector:string = '';
     protected speed:number = 5000;
     protected interval:number;
@@ -17,6 +18,7 @@
 
     constructor(id:string, $wrapper:JQuery) {
       this.$wrapper = $wrapper;
+      this.count = $wrapper.data('ee--accordion-count');
       this.id = id;
       this.idSelector = 'data-ee--accordion-id="' + this.id + '"';
       this.$items = $wrapper.find('.ee--accordion-item[' + this.idSelector + ']');
@@ -33,7 +35,7 @@
       let forceShow = false;
 
       const hashTrigger = () => {
-        const hashTab = Drupal.ExoAlchemistEnhancement.getHashForKey('ee--accordion');
+        const hashTab = Drupal.ExoAlchemistEnhancement.getHashForKey('ee--accordion-' + this.count);
         if (hashTab && typeof hashTab[this.id] !== 'undefined') {
           const $item = this.$triggers.filter('[data-ee--accordion-item-id="' + hashTab[this.id] + '"]');
           if ($item.length) {
@@ -56,7 +58,7 @@
       });
 
       Drupal.Exo.$window.on('popstate.exo.alchemist.enhancement.tabs.' + this.id, e => {
-        const hashTab = Drupal.ExoAlchemistEnhancement.getHashForKey('ee--accordion');
+        const hashTab = Drupal.ExoAlchemistEnhancement.getHashForKey('ee--accordion-' + this.count);
         if (hashTab && typeof hashTab[this.id] !== 'undefined') {
           const $item = this.$triggers.filter('[data-ee--accordion-item-id="' + hashTab[this.id] + '"]');
           if ($item.length) {
@@ -115,7 +117,7 @@
         }
       });
       if (collapse === false || forceShow) {
-        Drupal.Exo.$window.on('ee--tab.open', (e, params) => {
+        Drupal.Exo.$window.on('ee--tab.open.' + this.id, (e, params) => {
           if (params.content.find(this.$wrapper).length) {
             this.show($show, true, true, false);
           }
@@ -149,7 +151,7 @@
           $shown.removeClass('show');
           $trigger.attr('aria-expanded', 'false');
           if (doHash && typeof itemId !== 'undefined') {
-            Drupal.ExoAlchemistEnhancement.removeHashForKey('ee--accordion', itemId, this.id);
+            Drupal.ExoAlchemistEnhancement.removeHashForKey('ee--accordion-' + this.count, itemId, this.id);
           }
           if (animate && this.style !== 'none') {
             if (this.style === 'horizontal') {
@@ -166,7 +168,7 @@
           }
         }
         if ((!current || keepOpen) && doHash && typeof itemId !== 'undefined') {
-          Drupal.ExoAlchemistEnhancement.setHashForKey('ee--accordion', itemId, this.id);
+          Drupal.ExoAlchemistEnhancement.setHashForKey('ee--accordion-' + this.count, itemId, this.id);
         }
         if (!current) {
           $item.addClass('show');
