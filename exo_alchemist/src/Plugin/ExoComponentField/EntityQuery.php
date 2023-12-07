@@ -143,6 +143,13 @@ class EntityQuery extends ExoComponentFieldComputedBase implements ContainerFact
       $query->range(0, $limit);
     }
 
+    if ($conditions = $field->getAdditionalValue('query_condition')) {
+      foreach ($conditions as $key => $condition) {
+        $operator = $condition['operator'] ?? NULL;
+        $query->condition($condition['field'], $condition['value'], $operator);
+      }
+    }
+
     if ($sort = $field->getAdditionalValue('query_sort')) {
       foreach ($sort as $key => $direction) {
         $query->sort($key, $direction);
