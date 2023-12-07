@@ -12,7 +12,7 @@ class ExoAlchemistEnhancement {
     if (hash) {
       const array = hash.replace('#', '').split('&');
       for (let i = 0; i < array.length; i++) {
-        const element = array[i];
+        const element = atob(array[i]);
         if (element.substring(0, 4) !== key.substring(0, 4)) {
           continue;
         }
@@ -37,7 +37,6 @@ class ExoAlchemistEnhancement {
   }
 
   public setHash(hash:string) {
-    // window.location.hash = hash;
     if(history.pushState) {
       history.pushState({hash: hash}, null, '#' + hash);
     }
@@ -54,7 +53,7 @@ class ExoAlchemistEnhancement {
         if (hash !== '') {
           hash += '&';
         }
-        hash += i + '~';
+        let val = i + '~';
         if (typeof element === 'object') {
           let hashValue = '';
           for (const ii in element) {
@@ -66,11 +65,12 @@ class ExoAlchemistEnhancement {
               hashValue += ii + '--' + value;
             }
           }
-          hash += hashValue;
+          val += hashValue;
         }
         else {
-          hash += element;
+          val += element;
         }
+        hash += btoa(val);
       }
     }
     this.setHash(hash);
