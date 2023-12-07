@@ -115,12 +115,12 @@
         }
       });
       if (collapse === false || forceShow) {
-        Drupal.Exo.$window.on('ee--tab.open.' + this.id, (e, params) => {
+        Drupal.Exo.$window.on('ee--tab.open', (e, params) => {
           if (params.content.find(this.$wrapper).length) {
             this.show($show, true, true, false);
           }
         });
-        this.show($show, false, true, false);
+        this.show($show, true, true, false);
       }
     }
 
