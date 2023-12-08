@@ -69,10 +69,10 @@
 
   &.is-disabled {
     cursor: progress !important;
-    opacity: 0.6;
 
-    * {
+    .exo-form-element {
       pointer-events: none !important;
+      opacity: 0.6 !important;
     }
   }
 

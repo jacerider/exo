@@ -45,7 +45,9 @@
         }
         $button.addClass('exo-form-button-displayed-has-clone').hide();
         if ($button.data('exo-form-button-disable-form')) {
-          $form.addClass('is-disabled');
+          setTimeout(function () {
+            $form.addClass('is-disabled');
+          }, 100);
         }
       };
       $('.exo-form-button-disable-on-click', context).once('exo.form.disable').on('mousedown', e => {
