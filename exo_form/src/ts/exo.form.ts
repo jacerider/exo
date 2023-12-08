@@ -23,30 +23,27 @@
       });
 
       // Disable on click.
-      $('.exo-form-button-disable-on-click.is-disabled').each((index, element) => {
-        const $button = $(element);
-        const $form = $button.closest('form.exo-form');
-        $form.removeClass('is-disabled');
-        $button.removeClass('is-disabled');
-        if ($button.data('exo-form-button-original-message')) {
-          $button.text($button.data('exo-form-button-original-message'));
-        }
+      $('.exo-form.is-disabled').each((index, element) => {
+        $(element).removeClass('is-disabled');
+      });
+      $('.exo-form-button-disabled-clone').each((index, element) => {
+        $(element).remove();
+      });
+      $('.exo-form-button-displayed-has-clone').each((index, element) => {
+        $(element).removeClass('exo-form-button-displayed-has-clone').show();
       });
       const disableButton = (e) => {
         const $button = $(e.target);
         const $form = $button.closest('form.exo-form');
         const message = $button.data('exo-form-button-disable-message');
+        const $clone = $button.clone().css({
+          minWidth: $button.outerWidth() + 'px',
+          textAlign: 'center',
+        }).addClass('exo-form-button-disabled-clone is-disabled').insertAfter($button);
         if (message) {
-          setTimeout(function () {
-            $button.css({
-              minWidth: $button.outerWidth() + 'px',
-              textAlign: 'center',
-            });
-            $button.data('exo-form-button-original-message', $button.text());
-            $button.text(message);
-          }, 200);
+          $clone.text(message);
         }
-        $button.addClass('is-disabled');
+        $button.addClass('exo-form-button-displayed-has-clone').hide();
         if ($button.data('exo-form-button-disable-form')) {
           $form.addClass('is-disabled');
         }
@@ -54,7 +51,7 @@
       $('.exo-form-button-disable-on-click', context).once('exo.form.disable').on('mousedown', e => {
         const $button = $(e.target);
         setTimeout(() => {
-          if (!$button.hasClass('is-disabled')) {
+          if (!$button.hasClass('exo-form-button-displayed-has-clone')) {
             disableButton(e);
           }
         }, 100);
