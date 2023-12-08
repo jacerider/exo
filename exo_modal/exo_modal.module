@@ -163,7 +163,7 @@ function exo_modal_ajax_render_alter(array &$data) {
         $attachmentProcessor = \Drupal::service('ajax_response.attachments_processor');
         $build = [
           '#attached' => [
-            'library' => ['exo_modal/ajax'],
+            'library' => ['core/drupal.dialog.ajax'],
           ],
         ];
         /** @var \Drupal\Core\Ajax\AjaxResponse $response */
@@ -219,7 +219,6 @@ function exo_modal_ajax_render_alter(array &$data) {
           $append = array_merge($commands, $append);
         }
       }
-      // die;
 
       // Build modal and set global settings.
       $modal = $command->getModal();
