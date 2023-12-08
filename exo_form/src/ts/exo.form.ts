@@ -23,7 +23,6 @@
       });
 
       // Disable on click.
-      const $buttons = $('.exo-form-button-disable-on-click');
       $('.exo-form-button-disable-on-click.is-disabled').each((index, element) => {
         const $button = $(element);
         const $form = $button.closest('form.exo-form');
