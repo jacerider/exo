@@ -44,7 +44,7 @@
             });
             $button.data('exo-form-button-original-message', $button.text());
             $button.text(message);
-          }, 100);
+          }, 200);
         }
         $button.addClass('is-disabled');
         if ($button.data('exo-form-button-disable-form')) {
