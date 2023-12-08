@@ -38,12 +38,14 @@
         const $form = $button.closest('form.exo-form');
         const message = $button.data('exo-form-button-disable-message');
         if (message) {
-          $button.css({
-            minWidth: $button.outerWidth() + 'px',
-            textAlign: 'center',
-          });
-          $button.data('exo-form-button-original-message', $button.text());
-          $button.text(message);
+          setTimeout(function () {
+            $button.css({
+              minWidth: $button.outerWidth() + 'px',
+              textAlign: 'center',
+            });
+            $button.data('exo-form-button-original-message', $button.text());
+            $button.text(message);
+          }, 100);
         }
         $button.addClass('is-disabled');
         if ($button.data('exo-form-button-disable-form')) {
