@@ -55,6 +55,7 @@ class ExoModal extends RenderElement {
         'id' => NULL,
         'rid' => NULL,
         'display_id' => NULL,
+        'link' => TRUE,
       ],
       '#entity_edit' => [
         'entity_type' => NULL,
@@ -132,6 +133,7 @@ class ExoModal extends RenderElement {
         'id' => NULL,
         'rid' => NULL,
         'display_id' => NULL,
+        'link' => TRUE,
       ];
       $query = $element['#entity']['query'] ?? [];
       if (empty($element['#entity']['no_destination'])) {
@@ -142,7 +144,7 @@ class ExoModal extends RenderElement {
       if (!$entity->access('view')) {
         return [];
       }
-      if ($entity->hasLinkTemplate('canonical')) {
+      if ($entity->hasLinkTemplate('canonical') && !empty($element['#entity']['link'])) {
         $element['#trigger_attributes']['href'] = $entity->toUrl()->toString();
       }
       $element['#modal_settings']['modal'] += [
