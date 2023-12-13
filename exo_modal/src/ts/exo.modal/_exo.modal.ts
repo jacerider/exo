@@ -228,6 +228,7 @@ class ExoModal extends ExoData {
     if (this.$content.find('.messages').length) {
       this.$wrap.scrollTop(0);
     }
+    this.bindClose();
     // If we have a focused modal we shoudl account for changes.
     this.createFooter();
   }
@@ -1339,21 +1340,7 @@ class ExoModal extends ExoData {
   }
 
   protected bindElement() {
-    // Close when button pressed.
-    this.$element.find('[data-' + this.name + '-close]').off('click.exo.modal').on('click.exo.modal', e => {
-        e.preventDefault();
-        var transition = $(e.currentTarget).attr('data-' + this.name + '-transitionOut');
-
-        if (transition !== undefined) {
-          this.close({
-            transition: transition
-          });
-        } else {
-          this.close();
-        }
-      })
-      .attr('tabindex', 0)
-      .attr('aria-label', 'Close modal');
+    this.bindClose();
     // Expand when button pressed.
     this.$element.off('click.exo.modal', '[data-' + this.name + '-fullscreen]')
       .on('click.exo.modal', '[data-' + this.name + '-fullscreen]', e => {
@@ -1399,6 +1386,24 @@ class ExoModal extends ExoData {
         e.preventDefault();
         this.prev(e);
       });
+  }
+
+  protected bindClose() {
+    // Close when button pressed.
+    this.$element.find('[data-' + this.name + '-close]').off('click.exo.modal').on('click.exo.modal', e => {
+      e.preventDefault();
+      var transition = $(e.currentTarget).attr('data-' + this.name + '-transitionOut');
+
+      if (transition !== undefined) {
+        this.close({
+          transition: transition
+        });
+      } else {
+        this.close();
+      }
+    })
+    .attr('tabindex', 0)
+    .attr('aria-label', 'Close modal');
   }
 
   protected startProgress(param?:any) {
