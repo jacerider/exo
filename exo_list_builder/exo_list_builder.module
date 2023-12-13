@@ -93,6 +93,15 @@ function exo_list_builder_entity_type_alter(array &$entity_types) {
 /**
  * Implements hook_query_TAG_alter().
  */
+function exo_list_query_sort_by_random_alter(AlterableInterface $query) {
+  if ($query instanceof SelectInterface) {
+    $query->orderRandom();
+  }
+}
+
+/**
+ * Implements hook_query_TAG_alter().
+ */
 function exo_list_builder_query_exo_list_query_alter(AlterableInterface $query) {
   if ($query instanceof SelectInterface) {
     /** @var \Drupal\exo_list_builder\ExoListBuilderInterface $exo_list_builder */
