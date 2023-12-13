@@ -694,6 +694,13 @@ function exo_alchemist_preprocess_block__page_title_block(&$variables) {
         $variables['attributes']['class'][] = 'visually-hidden';
       }
       break;
+    case 'entity.commerce_product.canonical':
+      $product = \Drupal::routeMatch()->getParameter('commerce_product');
+      // If field exists we can assume this is handled by layout builder.
+      if ($product && \Drupal::service('exo_alchemist.generator')->isLayoutCompatibleEntity($product)) {
+        $variables['attributes']['class'][] = 'visually-hidden';
+      }
+      break;
     case 'entity.taxonomy_term.canonical':
       $term = \Drupal::routeMatch()->getParameter('taxonomy_term');
       // If field exists we can assume this is handled by layout builder.
