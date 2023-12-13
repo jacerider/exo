@@ -65,6 +65,14 @@
   box-sizing: border-box !important;
 }
 
+.is-admin .button.button--small {
+  margin: 0;
+  line-height: math.div($button-height, 1.5) !important;
+  height: auto !important;
+  padding: 0 $button-padding * 0.5 !important;
+  box-sizing: border-box !important;
+}
+
 .exo-form .exo-form-button,
 .exo-form .button,
 .exo-form .exo-modal-trigger {

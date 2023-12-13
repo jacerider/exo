@@ -107,9 +107,9 @@
         &:first-child {
 
           > * {
+            @include flex;
+            @include flex-align(left, middle);
             float: none;
-            display: inline-block;
-            vertical-align: middle;
           }
         }
       }
