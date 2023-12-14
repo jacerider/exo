@@ -309,7 +309,7 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
         }
       }
     }
-    if (empty($values) && !$this->getFieldDefinition()->isEntityFieldOptional()) {
+    if (empty($values) && $this->getFieldDefinition()->isEntityFieldOptional()) {
       return;
     }
     $items->setValue($values);
