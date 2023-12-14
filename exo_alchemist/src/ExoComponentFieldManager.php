@@ -155,7 +155,14 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
       if (!$this->hasDefinition($field->getType())) {
         $field->setType($this->getFallbackPluginId($plugin_id, []));
       }
-      if (empty($definition['installed']) && $field->isRequired() && !$field->isEditable() && empty($field->getDefaults())) {
+      if (
+        empty($definition['installed']) &&
+        $field->isRequired() &&
+        !$field->isEditable() &&
+        empty($field->getDefaults()) &&
+        empty($field->getEntityField()) &&
+        !$field->isComputed()
+      ) {
         throw new PluginException(sprintf('eXo Component Field plugin property (%s) is required and not editable but does not supply a default.', $field->getType()));
       }
       $instance = $this->createFieldInstance($field);
