@@ -53,6 +53,9 @@ function exo_form_access() {
  */
 function exo_form_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   if (exo_form_access()) {
+    if (isset($form['#exo_form']) && $form['#exo_form'] === FALSE) {
+      return;
+    }
     exo_form_form_alter_process($form);
     $form['#after_build'][] = 'exo_form_after_build';
 
