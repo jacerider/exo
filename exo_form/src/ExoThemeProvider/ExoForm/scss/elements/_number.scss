@@ -1,33 +1,16 @@
 div.exo-form-number {
 
-  .field-prefix,
-  .field-suffix {
-    flex: 0 0 auto;
-    min-width: $input-height;
-    text-align: center;
-    font-weight: 300;
-    padding: 0 !important;
-    margin-right: 0 !important;
-    margin-left: 0 !important;
-    cursor: pointer;
-
-    .exo-icon {
-      line-height: $input-height;
-      vertical-align: middle;
-    }
-  }
-
   &.has-prefix {
 
     .exo-form-input-item {
-      padding-left: $global-padding !important;
+      padding-left: $global-padding * 0.5 !important;
     }
   }
 
   &.has-suffix {
 
     .exo-form-input-item {
-      padding-right: $global-padding !important;
+      padding-right: $global-padding * 0.5 !important;
     }
   }
 
@@ -44,6 +27,26 @@ div.exo-form-number {
     &::-webkit-outer-spin-button {
       -webkit-appearance: none;
       margin: 0;
+    }
+  }
+}
+
+div.field--widget-exo-number div.exo-form-number {
+
+  .field-prefix,
+  .field-suffix {
+    flex: 0 0 auto;
+    min-width: $input-height;
+    text-align: center;
+    font-weight: 300;
+    padding: 0 !important;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    cursor: pointer;
+
+    .exo-icon {
+      line-height: $input-height;
+      vertical-align: middle;
     }
   }
 }

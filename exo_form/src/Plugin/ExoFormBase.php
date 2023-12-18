@@ -125,6 +125,11 @@ abstract class ExoFormBase extends PluginBase implements ExoFormInterface, Trust
    * {@inheritdoc}
    */
   public function preRender($element) {
+
+    if (isset($element['#title']) && strlen((string) $element['#title']) > 80) {
+      $this->disableFloatSupport();
+      $this->disableIntersectSupport();
+    }
     $exo_wrapper_supported = $element['#exo_wrapper_supported'] ?? $this->wrapperSupported;
     if ($exo_wrapper_supported) {
       $element['#theme_wrappers'][] = 'exo_form_element_container';
