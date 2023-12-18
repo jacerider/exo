@@ -47,7 +47,7 @@
         if ($button.data('exo-form-button-disable-form')) {
           setTimeout(function () {
             $form.addClass('is-disabled');
-          }, 100);
+          }, 300);
         }
       };
       $('.exo-form-button-disable-on-click', context).once('exo.form.disable').on('mousedown', e => {
@@ -56,7 +56,7 @@
           if (!$button.hasClass('exo-form-button-displayed-has-clone')) {
             disableButton(e);
           }
-        }, 100);
+        }, 300);
       }).on('click', disableButton);
 
       // Form styling.
