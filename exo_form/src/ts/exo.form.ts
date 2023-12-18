@@ -41,13 +41,15 @@
           textAlign: 'center',
         }).addClass('exo-form-button-disabled-clone is-disabled').insertAfter($button);
         if (message) {
-          $clone.text(message);
+          setTimeout(function () {
+            $clone.text(message);
+          }, 100);
         }
         $button.addClass('exo-form-button-displayed-has-clone').hide();
         if ($button.data('exo-form-button-disable-form')) {
           setTimeout(function () {
             $form.addClass('is-disabled');
-          }, 300);
+          }, 100);
         }
       };
       $('.exo-form-button-disable-on-click', context).once('exo.form.disable').on('mousedown', e => {
@@ -56,7 +58,7 @@
           if (!$button.hasClass('exo-form-button-displayed-has-clone')) {
             disableButton(e);
           }
-        }, 300);
+        }, 100);
       }).on('click', disableButton);
 
       // Form styling.
