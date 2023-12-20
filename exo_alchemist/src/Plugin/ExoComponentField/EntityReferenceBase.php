@@ -387,8 +387,11 @@ class EntityReferenceBase extends ExoComponentFieldFieldableBase implements Cont
         $entity = $this->entityTypeManager()->getStorage($entity->getEntityTypeId())->load($entity->id());
       }
       $contexts['cacheable_metadata']->addCacheableDependency($entity);
+      $has_canonical = $entity->hasLinkTemplate('canonical');
       // Check view access when not a component entity.
-      if ($entity->getEntityTypeId() !== ExoComponentManager::ENTITY_TYPE && (!$entity->access('view') && !$this->getFieldDefinition()->getAdditionalValue('skip_access_check'))) {
+      if (!in_array($entity->getEntityTypeId(), [
+        ExoComponentManager::ENTITY_TYPE,
+      ]) && ($has_canonical && !$entity->access('view') && !$this->getFieldDefinition()->getAdditionalValue('skip_access_check'))) {
         return $value;
       }
       // Check status when publishable.
@@ -407,7 +410,7 @@ class EntityReferenceBase extends ExoComponentFieldFieldableBase implements Cont
         'entity_edit_url' => NULL,
       ];
       if (!$entity->isNew()) {
-        if ($entity->hasLinkTemplate('canonical')) {
+        if ($has_canonical) {
           $value['entity_view_url'] = $entity->toUrl()->toString();
         }
         if ($entity->hasLinkTemplate('edit-form')) {
