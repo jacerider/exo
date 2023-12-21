@@ -41,9 +41,9 @@
           textAlign: 'center',
         }).addClass('exo-form-button-disabled-clone is-disabled').insertAfter($button);
         if (message) {
-          setTimeout(function () {
-            $clone.text(message);
-          }, 100);
+          // setTimeout(function () {
+          //   $clone.text(message);
+          // }, 100);
         }
         $button.addClass('exo-form-button-displayed-has-clone').hide();
         if ($button.data('exo-form-button-disable-form')) {
