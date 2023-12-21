@@ -133,7 +133,6 @@ abstract class SectionBase extends ExoComponentFieldComputedBase implements Cont
    */
   public function onPostSaveLayoutBuilderEntity(ContentEntityInterface $entity, EntityInterface $parent_entity) {
     $data = ExoComponentManager::getFieldData($entity);
-    // $resave = FALSE;
     if (!empty($data['uuid'])) {
       // If we have a saved UUID, we use it to fetch the proper storage.
       $temporary_entity = $entity->createDuplicate();
