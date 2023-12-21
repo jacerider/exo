@@ -32,34 +32,34 @@
       $('.exo-form-button-displayed-has-clone').each((index, element) => {
         $(element).removeClass('exo-form-button-displayed-has-clone').show();
       });
-      const disableButton = (e) => {
-        const $button = $(e.target);
-        const $form = $button.closest('form.exo-form');
-        const message = $button.data('exo-form-button-disable-message');
-        const $clone = $button.clone().css({
-          minWidth: $button.outerWidth() + 'px',
-          textAlign: 'center',
-        }).addClass('exo-form-button-disabled-clone is-disabled').insertAfter($button);
-        if (message) {
-          // setTimeout(function () {
-          //   $clone.text(message);
-          // }, 100);
-        }
-        $button.addClass('exo-form-button-displayed-has-clone').hide();
-        if ($button.data('exo-form-button-disable-form')) {
-          setTimeout(function () {
-            $form.addClass('is-disabled');
-          }, 100);
-        }
-      };
-      $('.exo-form-button-disable-on-click', context).once('exo.form.disable').on('mousedown', e => {
-        const $button = $(e.target);
-        setTimeout(() => {
-          if (!$button.hasClass('exo-form-button-displayed-has-clone')) {
-            disableButton(e);
-          }
-        }, 100);
-      }).on('click', disableButton);
+      // const disableButton = (e) => {
+      //   const $button = $(e.target);
+      //   const $form = $button.closest('form.exo-form');
+      //   const message = $button.data('exo-form-button-disable-message');
+      //   const $clone = $button.clone().css({
+      //     minWidth: $button.outerWidth() + 'px',
+      //     textAlign: 'center',
+      //   }).addClass('exo-form-button-disabled-clone is-disabled').insertAfter($button);
+      //   if (message) {
+      //     // setTimeout(function () {
+      //     //   $clone.text(message);
+      //     // }, 100);
+      //   }
+      //   $button.addClass('exo-form-button-displayed-has-clone').hide();
+      //   if ($button.data('exo-form-button-disable-form')) {
+      //     setTimeout(function () {
+      //       $form.addClass('is-disabled');
+      //     }, 100);
+      //   }
+      // };
+      // $('.exo-form-button-disable-on-click', context).once('exo.form.disable').on('mousedown', e => {
+      //   const $button = $(e.target);
+      //   setTimeout(() => {
+      //     if (!$button.hasClass('exo-form-button-displayed-has-clone')) {
+      //       disableButton(e);
+      //     }
+      //   }, 100);
+      // }).on('click', disableButton);
 
       // Form styling.
       $(context).find('td .dropbutton-wrapper').once('exo.form.td.compact').each((index, element) => {
