@@ -202,6 +202,23 @@ class ExoComponentGenerator {
       // Call core's presave.
       layout_builder_entity_presave($entity);
 
+      // We need to remove the block_revision_id so that it is not exported.
+      // We will use the block_uuid to load the block.
+      if ($entity instanceof LayoutEntityDisplayInterface) {
+        $layout = $entity->getThirdPartySetting('layout_builder', 'sections');
+        foreach ($layout as $section) {
+          /** @var \Drupal\layout_builder\Section $section */
+          foreach ($section->getComponents() as $component) {
+            if (ExoComponentManager::isExoComponent($component)) {
+              $configuration = $component->get('configuration');
+              $configuration['block_revision_id'] = '';
+              $component->setConfiguration($configuration);
+            }
+          }
+        }
+        $layout = $entity->setThirdPartySetting('layout_builder', 'sections', $layout);
+      }
+
       // Support global components.
       if ($sections = $this->getEntitySections($entity)) {
         foreach ($sections as $section) {
@@ -334,17 +351,6 @@ class ExoComponentGenerator {
         }
         foreach ($storage as $key => $serialized_block) {
           $entity->setThirdPartySetting('exo_alchemist', $key, $serialized_block);
-        }
-      }
-      $layout = $entity->getThirdPartySetting('layout_builder', 'sections');
-      foreach ($layout as $section) {
-        /** @var \Drupal\layout_builder\Section $section */
-        foreach ($section->getComponents() as $component) {
-          if (ExoComponentManager::isExoComponent($component)) {
-            $configuration = $component->get('configuration');
-            $configuration['block_revision_id'] = '';
-            $component->setConfiguration($configuration);
-          }
         }
       }
       // Make sure to clear out any temp storage we might have.
