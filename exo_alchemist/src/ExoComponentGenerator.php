@@ -336,6 +336,17 @@ class ExoComponentGenerator {
           $entity->setThirdPartySetting('exo_alchemist', $key, $serialized_block);
         }
       }
+      $layout = $entity->getThirdPartySetting('layout_builder', 'sections');
+      foreach ($layout as $section) {
+        /** @var \Drupal\layout_builder\Section $section */
+        foreach ($section->getComponents() as $component) {
+          if (ExoComponentManager::isExoComponent($component)) {
+            $configuration = $component->get('configuration');
+            $configuration['block_revision_id'] = '';
+            $component->setConfiguration($configuration);
+          }
+        }
+      }
       // Make sure to clear out any temp storage we might have.
       $this->layoutTempstoreRepository->delete($this->getSectionStorageForEntity($entity));
     }
