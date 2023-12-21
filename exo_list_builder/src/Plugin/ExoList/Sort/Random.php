@@ -25,4 +25,11 @@ class Random extends ExoListSortBase {
     $query->addTag('entity_list_sort_by_random');
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheMaxAge() {
+    return 60 * 60 * 24;
+  }
+
 }

@@ -93,7 +93,7 @@ function exo_list_builder_entity_type_alter(array &$entity_types) {
 /**
  * Implements hook_query_TAG_alter().
  */
-function exo_list_query_sort_by_random_alter(AlterableInterface $query) {
+function exo_list_query_entity_list_sort_by_random_alter(AlterableInterface $query) {
   if ($query instanceof SelectInterface) {
     $query->orderRandom();
   }

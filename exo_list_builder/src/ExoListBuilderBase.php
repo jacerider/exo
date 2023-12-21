@@ -6,6 +6,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Batch\BatchBuilder;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -33,6 +34,13 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
   use ExoIconTranslationTrait;
   use RedirectDestinationTrait;
+
+  /**
+   * The cacheable metadata.
+   *
+   * @var \Drupal\Core\Cache\CacheableMetadata
+   */
+  protected $cacheableMetadata;
 
   /**
    * The key to use for the form element containing the entities.
@@ -577,17 +585,14 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   protected function addQuerySort(QueryInterface $query, $context = 'default') {
     $entity_list = $this->entityList;
-    $order = $this->getOption('order');
-
-    if (!$order) {
-      $order = $entity_list->getSort();
-    }
+    $order = $this->getOption('order') ?: $entity_list->getSort();
     if ($order) {
       $sort_plugin_id = $entity_list->getSortPluginId($order);
       $sort_plugin_value = $entity_list->getSortPluginValue($order);
       if ($sort_plugin_id && $this->sortManager->hasDefinition($sort_plugin_id)) {
         $sort = $this->getOption('sort');
         $instance = $this->sortManager->createInstance($sort_plugin_id);
+        $this->cacheableMetadata->addCacheableDependency($instance);
         $instance->sort($query, $entity_list, $sort, $sort_plugin_value);
         if ($context === 'default') {
           $this->setOption('order', $order);
@@ -678,6 +683,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   public function render() {
     $entity_list = $this->getEntityList();
+    $this->cacheableMetadata = new CacheableMetadata();
 
     if ($entity_list->getSetting('first_page_only_status') && $this->getOption('page') > 0) {
       return [
@@ -954,6 +960,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       unset($build['footer']['pager']['limit']);
       unset($build['footer']['pager']['pager_header']);
     }
+    $this->cacheableMetadata->applyTo($build);
 
     return $build;
   }

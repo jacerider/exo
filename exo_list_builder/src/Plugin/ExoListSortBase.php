@@ -3,6 +3,8 @@
 namespace Drupal\exo_list_builder\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\Cache\CacheableDependencyInterface;
+use Drupal\Core\Cache\CacheableDependencyTrait;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -13,10 +15,11 @@ use Drupal\exo_list_builder\EntityListInterface;
 /**
  * Base class for eXo list sort.
  */
-abstract class ExoListSortBase extends PluginBase implements ExoListSortInterface, ContainerFactoryPluginInterface {
+abstract class ExoListSortBase extends PluginBase implements ExoListSortInterface, ContainerFactoryPluginInterface, CacheableDependencyInterface {
 
   use StringTranslationTrait;
   use DependencySerializationTrait;
+  use CacheableDependencyTrait;
 
   /**
    * The entity type manager.
