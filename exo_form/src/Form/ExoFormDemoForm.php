@@ -63,6 +63,17 @@ class ExoFormDemoForm extends FormBase {
         'class' => ['exo-form-button-disable-on-click'],
         'data-exo-form-button-disable-message' => 'Please wait...',
       ],
+      '#weight' => -1000,
+    ];
+    $form['disable_no_message'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Disable on Click no message'),
+      '#submit' => ['::delaySubmit'],
+      '#limit_validation_errors' => [],
+      '#attributes' => [
+        'class' => ['exo-form-button-disable-on-click'],
+      ],
+      '#weight' => -1000,
     ];
     $form['disable_form'] = [
       '#type' => 'submit',
@@ -74,6 +85,7 @@ class ExoFormDemoForm extends FormBase {
         'data-exo-form-button-disable-message' => 'Please wait...',
         'data-exo-form-button-disable-form' => '1',
       ],
+      '#weight' => -1000,
     ];
     $form['disable_ajax'] = [
       '#type' => 'submit',
@@ -90,6 +102,7 @@ class ExoFormDemoForm extends FormBase {
         'data-exo-form-button-disable-message' => 'Please wait...',
         'data-exo-form-button-disable-form' => '1',
       ],
+      '#weight' => -1000,
     ];
 
     return $form;
@@ -1002,7 +1015,7 @@ class ExoFormDemoForm extends FormBase {
    * {@inheritdoc}
    */
   public function delaySubmit(array &$form, FormStateInterface $form_state) {
-    sleep(5);
+    sleep(2);
   }
 
 }
