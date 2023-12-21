@@ -265,7 +265,6 @@ trait ExoListContentTrait {
         }
       }
       if ($do_cache) {
-        // $cacheable_metadata->addCacheTags()
         \Drupal::cache()->set($cid, $values, Cache::PERMANENT, $cacheable_metadata->getCacheTags());
       }
     }
