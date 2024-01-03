@@ -18,6 +18,20 @@ use Psr\Log\LoggerInterface;
 class ReferenceEntityDisplay extends EntityDisplay {
 
   /**
+   * The parent entity type id.
+   *
+   * @var string
+   */
+  protected $parentEntityTypeId;
+
+  /**
+   * The parent bundle.
+   *
+   * @var string
+   */
+  protected $parentBundle;
+
+  /**
    * The field name.
    *
    * @var string
@@ -138,7 +152,7 @@ class ReferenceEntityDisplay extends EntityDisplay {
    *   The field name.
    */
   public static function getFieldNameFromPluginId($plugin_id) {
-    $parts = explode(static::DERIVATIVE_SEPARATOR, $plugin_id, 4);
+    $parts = explode(static::DERIVATIVE_SEPARATOR, $plugin_id, 5);
     return $parts[3];
   }
 
