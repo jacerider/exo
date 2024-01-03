@@ -40,26 +40,22 @@
           textAlign: 'center',
         }).addClass('exo-form-button-disabled-clone is-disabled').insertAfter($button);
         if (message) {
-          setTimeout(function () {
-            $clone.text(message);
-          }, 100);
+          $clone.text(message);
         }
         $button.addClass('exo-form-button-displayed-has-clone').hide();
         if ($button.data('exo-form-button-disable-form')) {
-          setTimeout(function () {
-            $form.addClass('is-disabled');
-          }, 100);
+          $form.addClass('is-disabled');
         }
       };
       let $disableButtons = $('.exo-form-button-disable-on-click', context);
       if ($disableButtons.length) {
         const $form = $disableButtons.closest('form.exo-form');
         let $button;
-        $disableButtons.on('mousedown', e => {
+        $disableButtons.filter('[data-once="drupal-ajax"]').on('mousedown', e => {
           $button = $(e.target);
-          if ($button.data('once') === 'drupal-ajax') {
+          $(document).one('ajaxStart', function () {
             disableButton($button);
-          }
+          });
         });
         $form.once('exo.form.disable').on('submit', e => {
           if ($button.length) {
