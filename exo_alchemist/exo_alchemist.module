@@ -701,6 +701,13 @@ function exo_alchemist_preprocess_block__page_title_block(&$variables) {
         $variables['attributes']['class'][] = 'visually-hidden';
       }
       break;
+    case 'entity.commerce_product_variation.canonical':
+      $product = \Drupal::routeMatch()->getParameter('commerce_product_variation');
+      // If field exists we can assume this is handled by layout builder.
+      if ($product && \Drupal::service('exo_alchemist.generator')->isLayoutCompatibleEntity($product)) {
+        $variables['attributes']['class'][] = 'visually-hidden';
+      }
+      break;
     case 'entity.taxonomy_term.canonical':
       $term = \Drupal::routeMatch()->getParameter('taxonomy_term');
       // If field exists we can assume this is handled by layout builder.
@@ -755,16 +762,25 @@ function exo_alchemist_block_content_create_access(AccountInterface $account, ar
  * Implements hook_ENTITY_TYPE_load().
  */
 function exo_alchemist_entity_view_display_load(array $entities) {
+  $cache = &drupal_static(__FUNCTION__, []);
   foreach ($entities as $entity) {
     if ($entity instanceof LayoutEntityDisplayInterface && $entity->isLayoutBuilderEnabled()) {
       $sections = $entity->getSections();
       foreach ($sections as $section) {
-        foreach ($section->getComponents() as $component) {
+        foreach ($section->getComponents() as  $component) {
           $configuration = $component->get('configuration');
+          // When we have the UUID stored, need to set the revision_id to that
+          // of the UUID so that the correct revision is loaded.
           if (!empty($configuration['block_uuid'])) {
-            $block = \Drupal::service('entity.repository')->loadEntityByUuid('block_content', $configuration['block_uuid']);
-            if ($block) {
-              $configuration['block_revision_id'] = $block->getRevisionId();
+            if (!isset($cache[$configuration['block_uuid']])) {
+              $cache[$configuration['block_uuid']] = \Drupal::database()->select('block_content', 'bc')
+                ->fields('bc', ['revision_id'])
+                ->condition('uuid', $configuration['block_uuid'])
+                ->execute()
+                ->fetchField();
+            }
+            if ($cache[$configuration['block_uuid']]) {
+              $configuration['block_revision_id'] = $cache[$configuration['block_uuid']];
               $component->setConfiguration($configuration);
             }
           }
