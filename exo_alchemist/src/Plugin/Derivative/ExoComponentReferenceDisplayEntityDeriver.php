@@ -151,7 +151,19 @@ class ExoComponentReferenceDisplayEntityDeriver extends DeriverBase implements C
             'view_mode' => new ContextDefinition('string'),
           ];
           $derivative_id = $entity_type_id . PluginBase::DERIVATIVE_SEPARATOR . $bundle . PluginBase::DERIVATIVE_SEPARATOR . $field_name;
-          $this->derivatives[$derivative_id] = $derivative;
+
+          // Config we have a real bundle. Else expose all bundles.
+          $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($derivative['targetEntityTypeId']);
+          if (!isset($bundles[$derivative['targetBundle']])) {
+            foreach ($bundles as $target_bundle => $data) {
+              $bundle_derivative_id = $derivative_id . PluginBase::DERIVATIVE_SEPARATOR . $target_bundle;
+              $this->derivatives[$bundle_derivative_id] = $derivative;
+              $this->derivatives[$bundle_derivative_id]['targetBundle'] = $target_bundle;
+            }
+          }
+          else {
+            $this->derivatives[$derivative_id] = $derivative;
+          }
         }
       }
     }
