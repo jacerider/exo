@@ -28,7 +28,7 @@ class Datetime extends Timestamp {
    * {@inheritdoc}
    */
   protected function viewItem(EntityInterface $entity, FieldItemInterface $field_item, array $field) {
-    return $field_item->date ? $this->formatTimestamp($field_item->date->getTimestamp()) : '';
+    return $field_item->date ? $this->formatTimestamp($field_item->date->getTimestamp(), $field_item->date->getTimezone()->getName()) : '';
   }
 
 }
