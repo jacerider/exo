@@ -75,7 +75,12 @@ class EntityListFilterForm extends FormBase {
     $handler->submitForm($form, $form_state);
     if ($url = $form_state->getRedirect()) {
       /** @var \Drupal\Core\Url $url */
-      $form_state->setRedirectUrl(Url::fromRoute($this->entity->getRouteName(), $url->getRouteParameters(), $url->getOptions()));
+      if ($this->entity->getUrl()) {
+        $form_state->setRedirectUrl(Url::fromRoute($this->entity->getRouteName(), $url->getRouteParameters(), $url->getOptions()));
+      }
+      else {
+        $form_state->setRedirectUrl(Url::fromRoute($url->getRouteName(), $url->getRouteParameters(), $url->getOptions()));
+      }
     }
   }
 
