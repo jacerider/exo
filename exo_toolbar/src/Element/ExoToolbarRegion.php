@@ -39,12 +39,12 @@ class ExoToolbarRegion extends RenderElement {
    *   A renderable array.
    */
   public static function preRenderRegion(array $element) {
-    /* @var \Drupal\exo_toolbar\Entity\ExoToolbarInterface $exo_toolbar */
+    /** @var \Drupal\exo_toolbar\Entity\ExoToolbarInterface $exo_toolbar */
     $exo_toolbar = $element['#exo_toolbar'];
-    /* @var \Drupal\exo_toolbar\Plugin\ExoToolbarRegionPluginInterface $exo_region */
     $exo_region_id = $element['#exo_toolbar_region_id'];
+    /** @var \Drupal\exo_toolbar\Plugin\ExoToolbarRegionPluginInterface $exo_region */
     $exo_region = $exo_toolbar->getRegion($exo_region_id);
-    /* @var \Drupal\exo_toolbar\Entity\ExoToolbarItemInterface[] $exo_toolbar_items */
+    /** @var \Drupal\exo_toolbar\Entity\ExoToolbarItemInterface[] $exo_toolbar_items */
     $exo_toolbar_items = $exo_toolbar->getVisibleItems();
     $element['#exo_toolbar_region'] = $exo_region;
 
@@ -78,12 +78,6 @@ class ExoToolbarRegion extends RenderElement {
           '#exo_toolbar_region_id' => $exo_region_id,
           '#exo_toolbar_section_id' => $exo_section_id,
           '#cache' => [
-            'keys' => [
-              'exo_toolbar',
-              $exo_toolbar->id(),
-              $exo_region_id,
-              $exo_section_id,
-            ],
             'contexts' => $exo_toolbar->getItemCacheContexts($exo_region_id, $exo_section_id),
             'tags' => $exo_toolbar->getItemCacheTags($exo_region_id, $exo_section_id),
             'max-age' => $exo_toolbar->getItemCacheMaxAge($exo_region_id, $exo_section_id),
