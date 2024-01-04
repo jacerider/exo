@@ -7,6 +7,33 @@
     margin-bottom: 0;
   }
 
+  &.has-sidebar {
+    @include exo-grid;
+    @include exo-gutters($negative: true);
+
+    > .exo-list-header {
+      @include exo-cell(12);
+    }
+
+    > .exo-list-sidebar {
+      @include exo-cell(12);
+      margin-bottom: $global-margin;
+
+      @include breakpoint(large) {
+        @include exo-cell(4);
+        margin-bottom: 0;
+      }
+    }
+
+    > .exo-list-content {
+      @include exo-cell(12);
+
+      @include breakpoint(large) {
+        @include exo-cell(8);
+      }
+    }
+  }
+
   thead {
 
     th {

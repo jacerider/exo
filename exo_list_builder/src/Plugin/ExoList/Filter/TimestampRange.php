@@ -144,10 +144,10 @@ class TimestampRange extends ExoListFilterBase implements ContainerFactoryPlugin
    */
   public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
     if (!empty($value['s'])) {
-      $query->condition($field['field_name'], $value['s'], '>=');
+      $query->condition($this->getQueryFieldName($field), $value['s'], '>=');
     }
     if (!empty($value['e'])) {
-      $query->condition($field['field_name'], $value['e'], '<=');
+      $query->condition($this->getQueryFieldName($field), $value['e'], '<=');
     }
   }
 

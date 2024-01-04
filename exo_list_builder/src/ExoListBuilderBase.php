@@ -734,6 +734,14 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     if (isset($build['footer']) && !Element::getVisibleChildren($build['footer'])) {
       $build['footer']['#access'] = FALSE;
     }
+    if (isset($build['sidebar'])) {
+      if (!Element::getVisibleChildren($build['sidebar'])) {
+        $build['sidebar']['#access'] = FALSE;
+      }
+      else {
+        $build['#attributes']['class'][] = 'has-sidebar';
+      }
+    }
 
     return $build;
   }
@@ -806,6 +814,13 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       '#tag' => 'div',
       '#weight' => -100,
       '#attributes' => ['class' => ['exo-list-header-second']],
+    ];
+
+    $build['sidebar'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
+      '#weight' => -50,
+      '#attributes' => ['class' => ['exo-list-sidebar']],
     ];
 
     $format = $this->entityList->getFormat();
@@ -1110,7 +1125,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
     // Skip reloading everything. This makes things faster.
     if ($user_input = $form_state->getUserInput()) {
-      if (isset($user_input['exo_filter_submit']) || isset($user_input['exo_filter_modal_submit'])) {
+      if (isset($user_input['exo_filter_submit']) || isset($user_input['exo_filter_modal_submit']) || isset($user_input['exo_filter_sidebar_submit'])) {
         $entity_list->setSetting('render_status', FALSE);
       }
     }
@@ -1141,6 +1156,10 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     if (!$hide_extras && $filter_status && ($entities || !$render_status || $this->isFiltered())) {
       // Filter.
       if ($subform = $this->buildFormFilters($form, $form_state)) {
+        if (!empty($subform['sidebar'])) {
+          $form['sidebar']['filters'] = $subform['sidebar'];
+          unset($subform['sidebar']);
+        }
         $form['header']['first']['filters'] = [
           '#access' => !empty(Element::getVisibleChildren($subform)),
         ] + $subform;
@@ -1794,6 +1813,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         '#type' => 'link',
         '#title' => $this->t('Reset'),
         '#url' => $this->getOptionsUrl(['show']),
+        '#attributes' => [
+          'class' => ['button', 'reset'],
+        ],
       ];
     }
 
@@ -1837,6 +1859,17 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       ],
       '#parents' => ['filters'],
     ];
+    $sidebar = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
+      '#attributes' => [
+        'class' => [
+          'exo-list-filters-sidebar',
+        ],
+      ],
+      '#parents' => ['filters'],
+      '#tree' => TRUE,
+    ];
     $modal = [
       '#type' => 'html_tag',
       '#tag' => 'div',
@@ -1850,6 +1883,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
     $show_modal = FALSE;
     $show_inline = FALSE;
+    $show_sidebar = FALSE;
     foreach ($this->buildFormFilterFields($filters, $form_state) as $field_id => $filter_form) {
       $settings = $filters[$field_id]['filter']['settings'];
       if (empty($settings['expose'])) {
@@ -1860,6 +1894,11 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           case 'header':
             $show_inline = TRUE;
             $inline[$field_id] = $filter_form;
+            break;
+
+          case 'sidebar':
+            $show_sidebar = TRUE;
+            $sidebar[$field_id] = $filter_form;
             break;
 
           default:
@@ -1877,8 +1916,15 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $modal['actions']['#type'] = 'actions';
     $modal['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Filter'),
+      '#value' => $this->getEntityList()->getSetting('submit_label', $this->t('Apply')),
       '#name' => 'exo_filter_modal_submit',
+    ];
+
+    $sidebar['actions']['#type'] = 'actions';
+    $sidebar['actions']['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->getEntityList()->getSetting('submit_label', $this->t('Apply')),
+      '#name' => 'exo_filter_sidebar_submit',
     ];
 
     if ($this->getOption('filter', FALSE)) {
@@ -1886,6 +1932,17 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         '#type' => 'link',
         '#title' => $this->t('Reset'),
         '#url' => $this->getOptionsUrl(['filter']),
+        '#attributes' => [
+          'class' => ['button', 'reset'],
+        ],
+      ];
+      $sidebar['actions']['reset'] = [
+        '#type' => 'link',
+        '#title' => $this->t('Reset'),
+        '#url' => $this->getOptionsUrl(['filter']),
+        '#attributes' => [
+          'class' => ['button', 'reset'],
+        ],
       ];
     }
 
@@ -1905,6 +1962,11 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         '#value' => $this->getEntityList()->getSetting('submit_label', $this->t('Apply')),
         '#name' => 'exo_filter_submit',
       ];
+    }
+    if ($show_sidebar) {
+      $form['sidebar'] = [
+        '#access' => !empty(Element::getVisibleChildren($sidebar)),
+      ] + $sidebar;
     }
     if ($show_modal) {
       $form['modal'] = [
@@ -2076,7 +2138,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       return;
     }
     foreach ($filters as $field) {
-      $form_field = $form['header']['first']['filters']['inline'][$field['id']] ?? $form['header']['first']['filters']['modal'][$field['id']] ?? NULL;
+      $form_field = $form['header']['first']['filters']['inline'][$field['id']] ?? $form['header']['first']['filters']['modal'][$field['id']] ?? $form['sidebar']['filters'][$field['id']] ?? NULL;
       if ($form_field && $field['filter']['instance']) {
         /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
         $instance = $field['filter']['instance'];
