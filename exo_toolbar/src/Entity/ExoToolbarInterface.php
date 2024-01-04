@@ -2,6 +2,7 @@
 
 namespace Drupal\exo_toolbar\Entity;
 
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
 
 /**
@@ -102,6 +103,11 @@ interface ExoToolbarInterface extends ConfigEntityInterface {
    *   A toolbar item entity object. NULL if no entity is found.
    */
   public function getItem($item_id);
+
+  /**
+   * Get visible items.
+   */
+  public function getVisibleItems($region_id = NULL, $section_id = NULL, CacheableMetadata $cacheable_metadata = NULL);
 
   /**
    * Encapsulates the creation of the region's LazyPluginCollection.

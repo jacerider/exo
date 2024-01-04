@@ -44,14 +44,14 @@ class ExoToolbarSection extends RenderElement {
    *   A renderable array.
    */
   public static function preRenderSection(array $element) {
-    /* @var \Drupal\exo_toolbar\Entity\ExoToolbarInterface $exo_toolbar */
+    /** @var \Drupal\exo_toolbar\Entity\ExoToolbarInterface $exo_toolbar */
     $exo_toolbar = $element['#exo_toolbar'];
-    /* @var \Drupal\exo_toolbar\Entity\ExoToolbarItemInterface[] $exo_toolbar_items */
+    /** @var \Drupal\exo_toolbar\Entity\ExoToolbarItemInterface[] $exo_toolbar_items */
     if ($element['#exo_toolbar_region_id'] == 'item:region') {
       $exo_toolbar_items = $exo_toolbar->getVisibleItems($element['#exo_toolbar_region_id'], $element['#exo_toolbar_section_id']);
     }
     $exo_toolbar_items = $exo_toolbar->getVisibleItems($element['#exo_toolbar_region_id'], $element['#exo_toolbar_section_id']);
-    /* @var \Drupal\exo_toolbar\ExoToolbarSectionInterface $exo_toolbar_section */
+    /** @var \Drupal\exo_toolbar\ExoToolbarSectionInterface $exo_toolbar_section */
     $exo_toolbar_section = $exo_toolbar->getRegion($element['#exo_toolbar_region_id'])->getSection($element['#exo_toolbar_section_id']);
     $is_admin_mode = $exo_toolbar->isAdminMode();
 
