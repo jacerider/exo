@@ -102,6 +102,7 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       '#options' => [
         'header' => $this->t('Header'),
         'modal' => $this->t('Modal'),
+        'sidebar' => $this->t('Sidebar'),
       ],
       '#default_value' => $configuration['position'] ?: 'header',
       '#states' => [
@@ -398,6 +399,17 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
    */
   public function allowQueryAlter(&$value, EntityListInterface $entity_list, array $field) {
     return !is_null($value);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getQueryFieldName(array $field) {
+    $field_name = $field['field_name'];
+    if (!empty($field['reference_field'])) {
+      $field_name = $field['reference_field'] . '.entity.' . $field_name;
+    }
+    return $field_name;
   }
 
   /**

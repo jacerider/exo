@@ -4,7 +4,6 @@ namespace Drupal\exo_list_builder\Plugin\ExoList\Filter;
 
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Datetime\DrupalDateTime;
-use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
@@ -146,14 +145,16 @@ class DatetimeRange extends ExoListFilterBase implements ContainerFactoryPluginI
     if (!empty($value['s'])) {
       $date = new DrupalDateTime($value['s']);
       $date->setTimezone(new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE));
+      $date->setTime(0, 0, 0);
       $date = $date->format(DateTimeItemInterface::DATETIME_STORAGE_FORMAT);
-      $query->condition($field['field_name'], $date, '>=');
+      $query->condition($this->getQueryFieldName($field), $date, '>=');
     }
     if (!empty($value['e'])) {
       $date = new DrupalDateTime($value['e']);
       $date->setTimezone(new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE));
+      $date->setTime(23, 59, 59);
       $date = $date->format(DateTimeItemInterface::DATETIME_STORAGE_FORMAT);
-      $query->condition($field['field_name'], $date, '<=');
+      $query->condition($this->getQueryFieldName($field), $date, '<=');
     }
   }
 

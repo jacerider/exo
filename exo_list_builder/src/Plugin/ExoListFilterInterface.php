@@ -235,6 +235,17 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
   public function allowQueryAlter(&$value, EntityListInterface $entity_list, array $field);
 
   /**
+   * Get the field name used in the query.
+   *
+   * @param array $field
+   *   The field definition.
+   *
+   * @return string
+   *   The field name.
+   */
+  public function getQueryFieldName(array $field);
+
+  /**
    * Alter the entity query.
    *
    * @param \Drupal\Core\Entity\Query\QueryInterface|\Drupal\Core\Entity\Query\ConditionInterface $query

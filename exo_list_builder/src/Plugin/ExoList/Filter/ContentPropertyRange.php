@@ -155,10 +155,10 @@ class ContentPropertyRange extends ExoListFilterBase implements ExoListFieldProp
    */
   public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
     if (!empty($value['s'])) {
-      $query->condition($field['field_name'] . '.' . $this->getConfiguration()['property'], $value['s'], '>=');
+      $query->condition($this->getQueryFieldName($field) . '.' . $this->getConfiguration()['property'], $value['s'], '>=');
     }
     if (!empty($value['e'])) {
-      $query->condition($field['field_name'] . '.' . $this->getConfiguration()['property'], $value['e'], '<=');
+      $query->condition($this->getQueryFieldName($field) . '.' . $this->getConfiguration()['property'], $value['e'], '<=');
     }
   }
 
