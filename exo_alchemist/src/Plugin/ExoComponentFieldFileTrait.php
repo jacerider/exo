@@ -72,6 +72,19 @@ trait ExoComponentFieldFileTrait {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  protected function componentFileData($file_uri, ExoComponentValue $value) {
+    $file_data = file_get_contents($value->get('path'));
+    // $file_uri = $this->getFileUri($value);
+    $file_directory = $this->getFileDirectory($value);
+    $file_system = \Drupal::service('file_system');
+    $file_system->prepareDirectory($file_directory, FileSystemInterface::CREATE_DIRECTORY);
+    ksm('save data to', $file_uri);
+    $file_system->saveData($file_data, $file_uri, FileSystemInterface::EXISTS_REPLACE);
+  }
+
+  /**
    * Get file uri.
    *
    * @param \Drupal\exo_alchemist\ExoComponentValue $value
