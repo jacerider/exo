@@ -61,7 +61,8 @@ abstract class MediaFileBase extends MediaBase {
         else {
           // We have a media entity but no file. Create it with default.
           $field = $this->getFieldDefinition();
-          $value = new ExoComponentValue($field, $field->getDefaultsAsArray()[$delta]);
+          $data = $field->getDefaultsAsArray()[$delta] ?? $this->getDefaultValue($field);
+          $value = new ExoComponentValue($field, $data);
           $this->validateValue($value);
           $file = $this->componentFile($value);
           $media->{$source_field_definition->getName()}->setValue($file);
