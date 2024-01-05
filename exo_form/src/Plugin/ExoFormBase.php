@@ -126,7 +126,7 @@ abstract class ExoFormBase extends PluginBase implements ExoFormInterface, Trust
    */
   public function preRender($element) {
 
-    if (isset($element['#title']) && strlen((string) $element['#title']) > 80) {
+    if (isset($element['#title']) && is_string($element['#title']) && strlen($element['#title']) > 80) {
       $this->disableFloatSupport();
       $this->disableIntersectSupport();
     }
