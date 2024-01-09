@@ -80,7 +80,6 @@ trait ExoComponentFieldFileTrait {
     $file_directory = $this->getFileDirectory($value);
     $file_system = \Drupal::service('file_system');
     $file_system->prepareDirectory($file_directory, FileSystemInterface::CREATE_DIRECTORY);
-    ksm('save data to', $file_uri);
     $file_system->saveData($file_data, $file_uri, FileSystemInterface::EXISTS_REPLACE);
   }
 
