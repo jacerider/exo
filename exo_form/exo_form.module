@@ -648,6 +648,11 @@ function exo_form_preprocess_field_multiple_value_form(&$variables) {
         $fieldset['#title'] = $variables['table']['#header'][0]['data']['#markup'];
         unset($variables['table']['#header'][0]['data']);
       }
+      elseif (!empty($variables['table']['#header'][0]['data']['#value'])) {
+        $fieldset['#title'] = $variables['table']['#header'][0]['data']['#value'];
+        $variables['table']['#header'][0]['class'] = [];
+        $variables['table']['#header'][0]['data']['#value'] = '';
+      }
       foreach ($variables['table']['#rows'] as &$row) {
         if (!empty($row['data'][1]['data']['#wrapper_attributes']['class'])) {
           $row['class'] = array_merge($row['class'], $row['data'][1]['data']['#wrapper_attributes']['class']);
