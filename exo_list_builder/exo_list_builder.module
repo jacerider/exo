@@ -116,8 +116,8 @@ function exo_list_builder_query_entity_list_natsort_alter(AlterableInterface $qu
           ':natsort_letter_regex' => '[0-9 ]+',
           ':natsort_replace' => '',
         ];
-        $query->addExpression('LENGTH(CAST(REGEXP_REPLACE(' . $field . ', :natsort_number_regex, :natsort_replace) as INTEGER))', 'number_length', $number_args);
-        $query->addExpression('CAST(REGEXP_REPLACE(' . $field . ', :natsort_number_regex, :natsort_replace) as INTEGER)', 'number', $number_args);
+        $query->addExpression('LENGTH(CAST(REGEXP_REPLACE(' . $field . ', :natsort_number_regex, :natsort_replace) as NCHAR))', 'number_length', $number_args);
+        $query->addExpression('CAST(REGEXP_REPLACE(' . $field . ', :natsort_number_regex, :natsort_replace) as UNSIGNED)', 'number', $number_args);
         $query->addExpression('REGEXP_REPLACE(' . $field . ', :natsort_letter_regex, :natsort_replace)', 'letter', $letter_args);
       }
       $order = ['number_length' => $direction, 'number' => $direction, 'letter' => $direction];
