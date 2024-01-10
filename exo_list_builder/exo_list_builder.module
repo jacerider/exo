@@ -104,6 +104,10 @@ function exo_list_builder_query_entity_list_sort_by_random_alter(AlterableInterf
  */
 function exo_list_builder_query_entity_list_natsort_alter(AlterableInterface $query) {
   if ($query instanceof SelectInterface) {
+    // Must be greater than 8.2.
+    if (version_compare(\Drupal::database()->version(), '8.2') < 0) {
+      return;
+    }
     $order =& $query->getOrderBy();
     if (!empty($order)) {
       $query->addTag('debug');
