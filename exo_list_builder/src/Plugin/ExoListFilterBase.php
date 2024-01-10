@@ -135,6 +135,12 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
       ],
       '#weight' => -80,
     ];
+    $form['remember'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Remember'),
+      '#default_value' => $configuration['remember'],
+      '#weight' => -80,
+    ];
     $form['allow_zero'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Allow 0 (zero) values'),

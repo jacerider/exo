@@ -511,6 +511,10 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       /** @var \Drupal\exo_list_builder\Plugin\ExoListFilterInterface $instance */
       $instance = $field['filter']['instance'];
       $filter_value = $this->getFilterValue($field_id);
+      if ($this->isModified() && !empty($field['filter']['settings']['remember'])) {
+        $key = $this->entityList->id() . '_' . $field_id . '_remember';
+        \Drupal::service('session')->set($key, $filter_value);
+      }
       if ($instance->allowQueryAlter($filter_value, $entity_list, $field)) {
         if (is_array($filter_value) && $instance->supportsMultiple()) {
           $group = NULL;
@@ -1855,6 +1859,15 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $filters = $filters ?: $this->getExposedFilters();
     if (empty($filters)) {
       return [];
+    }
+
+    foreach ($filters as $field_id => $filter) {
+      if (!empty($filter['filter']['settings']['remember'])) {
+        $key = $this->entityList->id() . '_' . $field_id . '_remember';
+        if ($value = \Drupal::service('session')->get($key)) {
+          $this->setOption(['filter', $field_id], $value);
+        }
+      }
     }
     $inline = [
       '#type' => 'html_tag',
