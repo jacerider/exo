@@ -77,15 +77,6 @@
           $td.addClass('exo-form-table-compact');
         }
       });
-      $(context).find('table').once('exo.form.table').each((index, element) => {
-        const $table = $(element);
-        if (!$table.closest('form.exo-form').length) {
-          $table.addClass('exo-form-table-wrap');
-        }
-        if ($table.outerWidth() > $table.parent().outerWidth() + 2) {
-          $table.wrap('<div class="exo-form-table-overflow" />');
-        }
-      });
 
       // Webform support.
       $(context).find('.webform-tabs').once('exo.form.refresh').each(function (e) {
@@ -135,6 +126,24 @@
             });
             if (innerWidth > Drupal.Exo.$window.width()) {
               $element.addClass('exo-form-inline-stack');
+            }
+          });
+
+          $(context).find('table').each((index, element) => {
+            const $table = $(element);
+            if (!$table.closest('form.exo-form').length) {
+              $table.addClass('exo-form-table-wrap');
+            }
+            const $parent = $table.parent();
+            if ($table.outerWidth() > $parent.outerWidth() + 2) {
+              if (!$parent.hasClass('exo-form-table-overflow')) {
+                $table.wrap('<div class="exo-form-table-overflow" />');
+              }
+            }
+            else {
+              if ($parent.hasClass('exo-form-table-overflow')) {
+                $table.unwrap('.exo-form-table-overflow');
+              }
             }
           });
         }
