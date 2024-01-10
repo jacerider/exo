@@ -492,12 +492,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
     if ($entity_list->getFormat() === 'table' && $context === 'default') {
       $header = $this->buildHeader();
-      foreach ($header as $field => $info) {
-        if (is_array($info) && !empty($info['sort'])) {
-          $query->tableSort($header);
-          break;
-        }
-      }
     }
     $this->addQuerySort($query, $context);
 
@@ -587,11 +581,25 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $entity_list = $this->entityList;
     $order = $this->getOption('order') ?: $entity_list->getSort();
     if ($order) {
+      $instance = NULL;
       $sort_plugin_id = $entity_list->getSortPluginId($order);
       $sort_plugin_value = $entity_list->getSortPluginValue($order);
       if ($sort_plugin_id && $this->sortManager->hasDefinition($sort_plugin_id)) {
-        $sort = $this->getOption('sort');
         $instance = $this->sortManager->createInstance($sort_plugin_id);
+      }
+      if (!$instance && $entity_list->getFormat() === 'table') {
+        // When using table-sorting, the order is actually the field label.
+        foreach ($entity_list->getFields() as $field) {
+          if (!empty($field['sort_field']) && (string) $field['display_label'] === $sort_plugin_id) {
+            $instance = $this->sortManager->createInstance('field');
+            $sort_plugin_value = $field['id'];
+            break;
+          }
+        }
+      }
+
+      if ($instance) {
+        $sort = $this->getOption('sort');
         $this->cacheableMetadata->addCacheableDependency($instance);
         $instance->sort($query, $entity_list, $sort, $sort_plugin_value);
         if ($context === 'default') {
