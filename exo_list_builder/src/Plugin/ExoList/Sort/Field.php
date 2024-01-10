@@ -34,6 +34,9 @@ class Field extends ExoListSortBase {
         $direction = $field['view']['sort'];
       }
       $query->sort($field['sort_field'], $direction);
+      if (!empty($field['view']['sort_natsort'])) {
+        $query->addTag('entity_list_natsort');
+      }
     }
   }
 

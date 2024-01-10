@@ -647,6 +647,18 @@ class EntityListForm extends EntityForm {
           ],
           '#default_value' => $field['view']['sort_desc_label'],
         ];
+        $row['view']['options']['sort']['sort_natsort'] = [
+          '#type' => 'checkbox',
+          '#title' => $this->t('Attempt Natural Sort'),
+          '#parents' => [
+            'fields',
+            $field_id,
+            'view',
+            'options',
+            'sort_natsort',
+          ],
+          '#default_value' => $field['view']['sort_natsort'] ?? FALSE,
+        ];
         $row['view']['options']['sort']['sort_default'] = [
           '#type' => 'radio',
           '#title' => $this->t('Default Sort'),

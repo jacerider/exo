@@ -93,9 +93,35 @@ function exo_list_builder_entity_type_alter(array &$entity_types) {
 /**
  * Implements hook_query_TAG_alter().
  */
-function exo_list_query_entity_list_sort_by_random_alter(AlterableInterface $query) {
+function exo_list_builder_query_entity_list_sort_by_random_alter(AlterableInterface $query) {
   if ($query instanceof SelectInterface) {
     $query->orderRandom();
+  }
+}
+
+/**
+ * Implements hook_query_TAG_alter().
+ */
+function exo_list_builder_query_entity_list_natsort_alter(AlterableInterface $query) {
+  if ($query instanceof SelectInterface) {
+    $order =& $query->getOrderBy();
+    if (!empty($order)) {
+      $query->addTag('debug');
+      foreach ($order as $field => $direction) {
+        $number_args = [
+          ':natsort_number_regex' => '[a-z ]+',
+          ':natsort_replace' => '',
+        ];
+        $letter_args = [
+          ':natsort_letter_regex' => '[0-9 ]+',
+          ':natsort_replace' => '',
+        ];
+        $query->addExpression('LENGTH(CAST(REGEXP_REPLACE(' . $field . ', :natsort_number_regex, :natsort_replace) as INTEGER))', 'number_length', $number_args);
+        $query->addExpression('CAST(REGEXP_REPLACE(' . $field . ', :natsort_number_regex, :natsort_replace) as INTEGER)', 'number', $number_args);
+        $query->addExpression('REGEXP_REPLACE(' . $field . ', :natsort_letter_regex, :natsort_replace)', 'letter', $letter_args);
+      }
+      $order = ['number_length' => $direction, 'number' => $direction, 'letter' => $direction];
+    }
   }
 }
 
