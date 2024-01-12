@@ -101,15 +101,6 @@ class RouteSubscriber extends RouteSubscriberBase {
           ]
         );
         $collection->add("exo_alchemist.component.display.{$view_mode}", $route);
-
-        // Access check for view modes handled by alchemist.
-        $route = $collection->get("entity.entity_view_display.{$entity_type_id}.view_mode");
-        $requirements = $route->getRequirements();
-        if (!isset($requirements['_exo_component_view_mode_access'])) {
-          $requirements['_exo_component_view_mode_access'] = $requirements['_field_ui_view_mode_access'];
-          unset($requirements['_field_ui_view_mode_access']);
-        }
-        $route->setRequirements($requirements);
       }
     }
   }
