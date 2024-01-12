@@ -2,7 +2,6 @@
 
 namespace Drupal\exo_modal\Ajax;
 
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Ajax\CommandInterface;
 use Drupal\Core\Ajax\CommandWithAttachedAssetsInterface;
 use Drupal\Core\Ajax\CommandWithAttachedAssetsTrait;

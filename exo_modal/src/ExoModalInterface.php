@@ -132,6 +132,14 @@ interface ExoModalInterface extends AttachmentsInterface, RenderableInterface, R
   public function setModalSetting($key, $value);
 
   /**
+   * Get javascript settings used in drupalSettings.
+   *
+   * @return array
+   *   An array ready to be used with drupalSettings.
+   */
+  public function getDrupalSettings();
+
+  /**
    * Sets the settings.
    *
    * @return $this
