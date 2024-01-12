@@ -8,7 +8,6 @@
 use Drupal\exo_modal\Ajax\ExoModalOpenCommand;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Ajax\AddJsCommand;
 use Drupal\Core\Render\Markup;
 use Drupal\exo_modal\Ajax\ExoModalCloseCommand;
 use Drupal\Core\Ajax\SettingsCommand;
@@ -144,202 +143,330 @@ function exo_modal_library_info_alter(&$libraries, $extension) {
  * Implements hook_ajax_render_alter().
  */
 function exo_modal_ajax_render_alter(array &$data) {
-  $modal_settings = [];
-  $append = [];
+  $modal_settings_collection = [];
   foreach ($data as $key => $item) {
-    if ($item['command'] === 'openDialog') {
-      $id = Html::getUniqueId($data[$key]['selector']);
-      $dialog_options = isset($data[$key]['dialogOptions']) ? $data[$key]['dialogOptions'] : NULL;
-      $options = [];
-      $command = new ExoModalOpenCommand($id, Markup::create($data[$key]['data']), $options);
-
-      if (isset($_POST['ajax_page_state']['libraries']) && strpos($_POST['ajax_page_state']['libraries'], 'exo_modal/ajax') === FALSE) {
-        // We need to make sure we have exo_moda/ajax library.
-        /** @var \Drupal\Core\Render\MainContent\MainContentRendererInterface $ajax_renderer */
-        $ajax_renderer = \Drupal::service('main_content_renderer.ajax');
-        $request = \Drupal::request();
-        $route_match = \Drupal::service('current_route_match');
-        /** @var \Drupal\Drupal\Core\Ajax\AjaxResponseAttachmentsProcessor $attachmentProcessor */
-        $attachmentProcessor = \Drupal::service('ajax_response.attachments_processor');
-        $build = [
-          '#attached' => [
-            'library' => ['core/drupal.dialog.ajax'],
-          ],
-        ];
-        /** @var \Drupal\Core\Ajax\AjaxResponse $response */
-        $response = $ajax_renderer->renderResponse($build, $request, $route_match);
-        $response = $attachmentProcessor->processAttachments($response);
-        $commands = [];
-        $setting_command = array_filter($response->getCommands(), function ($command) {
-          return $command['command'] === 'settings';
-        });
-        $js_command = array_filter($response->getCommands(), function ($command) {
-          return $command['command'] === 'add_js';
-        });
-        if (!empty($setting_command)) {
-          $setting_command = reset($setting_command);
-          $found = FALSE;
-          foreach ($data as $k => $i) {
-            if ($i['command'] === 'settings') {
-              $found = TRUE;
-              if (isset($data[$k]['settings']['ajaxPageState']['libraries'])) {
-                $data[$k]['settings']['ajaxPageState']['libraries'] = implode(',', array_unique(array_merge(explode(',', $data[$k]['settings']['ajaxPageState']['libraries']), explode(',', $setting_command['settings']['ajaxPageState']['libraries']))));
-              }
-              else {
-                $data[$k]['settings']['ajaxPageState']['libraries'] = $setting_command['settings']['ajaxPageState']['libraries'];
-              }
-            }
-          }
-          if (!$found) {
-            $commands = array_merge([$setting_command], $commands);
-          }
-        }
-        if (!empty($js_command)) {
-          $js_command = reset($js_command);
-          $found = FALSE;
-          foreach ($data as $k => $i) {
-            if ($i['command'] === 'add_js') {
-              foreach ($i['data'] as $d) {
-                if (strpos($d['src'], 'exo.modal.ajax.js') !== FALSE) {
-                  $found = TRUE;
-                  break;
-                }
-              }
-              if (!$found) {
-                $data[$k]['data'] = array_merge($i['data'], $js_command['data']);
-              }
-              $found = TRUE;
-            }
-          }
-          if (!$found) {
-            $commands = array_merge([$js_command], $commands);
-          }
-        }
-        if (!empty($commands)) {
-          $append = array_merge($commands, $append);
-        }
-      }
-
-      // Build modal and set global settings.
-      $modal = $command->getModal();
-      $modal->setSetting(['modal', 'padding'], '20px');
-      if (!empty($dialog_options)) {
-        if (isset($dialog_options['modal'])) {
-          // We do this before the switch as we may change this within the
-          // switch depending on our needs.
-          $value = $dialog_options['modal'];
-          $modal->setSetting(['modal', 'nest'], $value);
-          $modal->setSetting(['modal', 'overlay'], $value);
-          $modal->setSetting(['modal', 'bodyOverflow'], $value);
-        }
-        foreach ($dialog_options as $setting => $value) {
-          switch ($setting) {
-            case 'title':
-              $modal->setSetting(['modal', $setting], $value);
-              break;
-
-            case 'dialogClass':
-              $modal->addModalClass($value);
-              if ($value == 'token-tree-dialog') {
-                $modal->setSetting(['modal', 'nest'], TRUE);
-                $modal->setSetting(['modal', 'overlay'], FALSE);
-                $modal->setSetting(['modal', 'bodyOverflow'], FALSE);
-              }
-              break;
-
-            case 'width':
-              $modal->setSetting(['modal', $setting], $value);
-              break;
-
-            case 'position':
-              if (isset($value['at'])) {
-                // @see token browser.
-                foreach (explode(' ', $value['at']) as $position) {
-                  $parts = explode('-', $position);
-                  $modal->setSetting(['modal', $parts[0]], $parts[1]);
-                }
-                $modal->setSetting(['modal', 'fullscreen'], TRUE);
-              }
-              break;
-
-            case 'resizable':
-              $modal->setSetting(['modal', 'fullscreen'], !empty($value));
-              break;
-
-            case 'drupalOffCanvasPosition':
-              if ($value == 'side') {
-                $modal->setSetting('exo_preset', 'aside_right');
-              }
-              break;
-
-            case 'exoModal':
-            case 'exo_modal':
-              if (is_array($value)) {
-                foreach ($value as $k => $val) {
-                  if ($k === 'preset' || $k === 'exo_preset') {
-                    $presets = exo_presets('exo_modal');
-                    if (isset($presets[$val])) {
-                      $preset = $presets[$val];
-                      if (!empty($preset['theme'])) {
-                        $modal->setSetting('theme', $preset['theme']);
-                      }
-                      if (!empty($preset['theme_content'])) {
-                        $modal->setSetting('theme_content', $preset['theme_content']);
-                      }
-                      $modal->setSetting('exo_preset', $val);
-                    }
-                  }
-                  else {
-                    $modal->setSetting(['modal', $k], $val);
-                  }
-                }
-              }
-              break;
-          }
-          if ($item['selector'] == '#drupal-off-canvas') {
-            // Special treatment for drupal-off-canvas.
-            $modal->setSetting(['modal', 'width'], 400);
-            $modal->setSetting(['modal', 'overlay'], TRUE);
-            $modal->setSetting(['modal', 'nest'], FALSE);
-          }
-        }
-      }
-      $data[$key] = $command->render();
-      $modal_settings = exo_modal_js_settings_append_presets($modal->getDrupalSettings());
-      break;
-    }
     if ($item['command'] === 'webformCloseDialog') {
       $command = new ExoModalCloseCommand();
       $data[] = $command->render();
       break;
     }
+    if ($item['command'] === 'openDialog') {
+      $id = Html::getUniqueId($data[$key]['selector']);
+      $dialog_options = $data[$key]['dialogOptions'] ?? [];
+      $options = [];
+      $command = new ExoModalOpenCommand($id, Markup::create($data[$key]['data']), $options);
+      $modal = $command->getModal();
+      $modal->setSetting(['modal', 'padding'], '20px');
+      $modalOptions = $dialog_options['exoModal'] ?? $dialog_options['exo_modal'] ?? [];
+      if ($item['selector'] == '#drupal-off-canvas') {
+        // Special treatment for drupal-off-canvas.
+        $modal->setSetting(['modal', 'width'], 400);
+        $modal->setSetting(['modal', 'overlay'], TRUE);
+        $modal->setSetting(['modal', 'nest'], FALSE);
+      }
+      foreach ($dialog_options as $k => $val) {
+        switch ($k) {
+          case 'modal':
+            $modal->setSetting(['modal', 'nest'], $val);
+            $modal->setSetting(['modal', 'overlay'], $val);
+            $modal->setSetting(['modal', 'bodyOverflow'], $val);
+            break;
+
+          case 'title':
+            $modal->setSetting(['modal', $k], $val);
+            break;
+
+          case 'dialogClass':
+            $modal->addModalClass($val);
+            if ($val == 'token-tree-dialog') {
+              $modal->setSetting(['modal', 'nest'], TRUE);
+              $modal->setSetting(['modal', 'overlay'], FALSE);
+              $modal->setSetting(['modal', 'bodyOverflow'], FALSE);
+            }
+            break;
+
+          case 'width':
+            $modal->setSetting(['modal', $k], $val);
+            break;
+
+          case 'position':
+            if (isset($val['at'])) {
+              // @see token browser.
+              foreach (explode(' ', $val['at']) as $position) {
+                $parts = explode('-', $position);
+                $modal->setSetting(['modal', $parts[0]], $parts[1]);
+              }
+              $modal->setSetting(['modal', 'fullscreen'], TRUE);
+            }
+            break;
+
+          case 'resizable':
+            $modal->setSetting(['modal', 'fullscreen'], !empty($value));
+            break;
+
+          case 'drupalOffCanvasPosition':
+            if ($val == 'side') {
+              $modal->setSetting('exo_preset', 'aside_right');
+            }
+            break;
+        }
+      }
+      if (is_array($modalOptions)) {
+        foreach ($modalOptions as $k => $val) {
+          if ($k === 'preset' || $k === 'exo_preset') {
+            $presets = exo_presets('exo_modal');
+            if (isset($presets[$val])) {
+              $preset = $presets[$val];
+              if (!empty($preset['theme'])) {
+                $modal->setSetting('theme', $preset['theme']);
+              }
+              if (!empty($preset['theme_content'])) {
+                $modal->setSetting('theme_content', $preset['theme_content']);
+              }
+              $modal->setSetting('exo_preset', $val);
+            }
+          }
+          else {
+            $modal->setSetting(['modal', $k], $val);
+          }
+        }
+      }
+      $data[$key] = $command->render();
+      $modal_settings_collection[] = exo_modal_js_settings_append_presets($modal->getDrupalSettings());
+    }
   }
-  if ($modal_settings) {
-    $found = FALSE;
-    foreach ($data as $key => $item) {
-      if ($item['command'] === 'settings') {
-        if (isset($data[$key]['settings']['exoModal']['modals'])) {
-          $data[$key]['settings']['exoModal'] = NestedArray::mergeDeep($data[$key]['settings']['exoModal'], $modal_settings['exoModal']);
+  if ($modal_settings_collection) {
+    foreach ($modal_settings_collection as $modal_settings) {
+      foreach ($data as $key => $item) {
+        if ($item['command'] === 'settings') {
+          if (isset($data[$key]['settings']['exoModal']['modals'])) {
+            $data[$key]['settings']['exoModal'] = NestedArray::mergeDeep($data[$key]['settings']['exoModal'], $modal_settings['exoModal']);
+          }
+          else {
+            $data[$key]['settings'] += $modal_settings;
+          }
+          if (isset($data[$key]['settings']['dialog'])) {
+            $data[$key]['settings']['dialog'] = [];
+          }
+          $command = new SettingsCommand($modal_settings, TRUE);
+          array_unshift($data, $command->render());
+          break;
         }
-        else {
-          $data[$key]['settings'] += $modal_settings;
-        }
-        if (isset($data[$key]['settings']['dialog'])) {
-          $data[$key]['settings']['dialog'] = [];
-        }
-        $found = TRUE;
-        break;
       }
     }
-    if (!$found) {
-      $command = new SettingsCommand($modal_settings, TRUE);
-      array_unshift($data, $command->render());
-    }
-  }
-  if (!empty($append)) {
-    $data = array_merge($append, $data);
   }
 }
+
+// /**
+//  * Implements hook_ajax_render_alter().
+//  */
+// function exo_modal_ajax_render_alter_backup(array &$data) {
+//   $modal_settings = [];
+//   $append = [];
+//   foreach ($data as $key => $item) {
+//     if ($item['command'] === 'openDialog') {
+//       $id = Html::getUniqueId($data[$key]['selector']);
+//       $dialog_options = isset($data[$key]['dialogOptions']) ? $data[$key]['dialogOptions'] : NULL;
+//       $options = [];
+//       $command = new ExoModalOpenCommand($id, Markup::create($data[$key]['data']), $options);
+
+//       if (isset($_POST['ajax_page_state']['libraries']) && strpos($_POST['ajax_page_state']['libraries'], 'exo_modal/ajax') === FALSE) {
+//         // We need to make sure we have exo_modal/ajax library.
+//         /** @var \Drupal\Core\Render\MainContent\MainContentRendererInterface $ajax_renderer */
+//         $ajax_renderer = \Drupal::service('main_content_renderer.ajax');
+//         $request = \Drupal::request();
+//         $route_match = \Drupal::service('current_route_match');
+//         /** @var \Drupal\Drupal\Core\Ajax\AjaxResponseAttachmentsProcessor $attachmentProcessor */
+//         $attachmentProcessor = \Drupal::service('ajax_response.attachments_processor');
+//         $build = [
+//           '#attached' => [
+//             'library' => ['core/drupal.dialog.ajax'],
+//           ],
+//         ];
+//         /** @var \Drupal\Core\Ajax\AjaxResponse $response */
+//         $response = $ajax_renderer->renderResponse($build, $request, $route_match);
+//         $response = $attachmentProcessor->processAttachments($response);
+//         $commands = [];
+//         $setting_command = array_filter($response->getCommands(), function ($command) {
+//           return $command['command'] === 'settings';
+//         });
+//         $js_command = array_filter($response->getCommands(), function ($command) {
+//           return $command['command'] === 'add_js';
+//         });
+//         if (!empty($setting_command)) {
+//           $setting_command = reset($setting_command);
+//           $found = FALSE;
+//           foreach ($data as $k => $i) {
+//             if ($i['command'] === 'settings') {
+//               $found = TRUE;
+//               if (isset($data[$k]['settings']['ajaxPageState']['libraries'])) {
+//                 $libraries = $data[$k]['settings']['ajaxPageState']['libraries'];
+//                 $new_libraries = $setting_command['settings']['ajaxPageState']['libraries'];
+//                 if (method_exists(UrlHelper::class, 'uncompressQueryParameter')) {
+//                   $libraries = UrlHelper::uncompressQueryParameter($libraries);
+//                   $new_libraries = UrlHelper::uncompressQueryParameter($libraries) ?? '';
+//                 }
+//                 $libraries = implode(',', array_unique(array_merge(explode(',', $libraries), explode(',', $new_libraries))));
+//                 if (method_exists(UrlHelper::class, 'compressQueryParameter')) {
+//                   $libraries = UrlHelper::compressQueryParameter($libraries);
+//                 }
+//                 $data[$k]['settings']['ajaxPageState']['libraries'] = $libraries;
+//               }
+//               else {
+//                 $data[$k]['settings']['ajaxPageState']['libraries'] = $setting_command['settings']['ajaxPageState']['libraries'];
+//               }
+//             }
+//           }
+//           if (!$found) {
+//             $commands = array_merge([$setting_command], $commands);
+//           }
+//         }
+//         if (!empty($js_command)) {
+//           $js_command = reset($js_command);
+//           $found = FALSE;
+//           foreach ($data as $k => $i) {
+//             if ($i['command'] === 'add_js') {
+//               foreach ($i['data'] as $d) {
+//                 if (strpos($d['src'], 'exo.modal.ajax.js') !== FALSE) {
+//                   $found = TRUE;
+//                   break;
+//                 }
+//               }
+//               if (!$found) {
+//                 $data[$k]['data'] = array_merge($i['data'], $js_command['data']);
+//               }
+//               $found = TRUE;
+//             }
+//           }
+//           if (!$found) {
+//             $commands = array_merge([$js_command], $commands);
+//           }
+//         }
+//         if (!empty($commands)) {
+//           $append = array_merge($commands, $append);
+//         }
+//       }
+
+//       // Build modal and set global settings.
+//       $modal = $command->getModal();
+//       $modal->setSetting(['modal', 'padding'], '20px');
+//       if (!empty($dialog_options)) {
+//         if (isset($dialog_options['modal'])) {
+//           // We do this before the switch as we may change this within the
+//           // switch depending on our needs.
+//           $value = $dialog_options['modal'];
+//           $modal->setSetting(['modal', 'nest'], $value);
+//           $modal->setSetting(['modal', 'overlay'], $value);
+//           $modal->setSetting(['modal', 'bodyOverflow'], $value);
+//         }
+//         foreach ($dialog_options as $setting => $value) {
+//           switch ($setting) {
+//             case 'title':
+//               $modal->setSetting(['modal', $setting], $value);
+//               break;
+
+//             case 'dialogClass':
+//               $modal->addModalClass($value);
+//               if ($value == 'token-tree-dialog') {
+//                 $modal->setSetting(['modal', 'nest'], TRUE);
+//                 $modal->setSetting(['modal', 'overlay'], FALSE);
+//                 $modal->setSetting(['modal', 'bodyOverflow'], FALSE);
+//               }
+//               break;
+
+//             case 'width':
+//               $modal->setSetting(['modal', $setting], $value);
+//               break;
+
+//             case 'position':
+//               if (isset($value['at'])) {
+//                 // @see token browser.
+//                 foreach (explode(' ', $value['at']) as $position) {
+//                   $parts = explode('-', $position);
+//                   $modal->setSetting(['modal', $parts[0]], $parts[1]);
+//                 }
+//                 $modal->setSetting(['modal', 'fullscreen'], TRUE);
+//               }
+//               break;
+
+//             case 'resizable':
+//               $modal->setSetting(['modal', 'fullscreen'], !empty($value));
+//               break;
+
+//             case 'drupalOffCanvasPosition':
+//               if ($value == 'side') {
+//                 $modal->setSetting('exo_preset', 'aside_right');
+//               }
+//               break;
+
+//             case 'exoModal':
+//             case 'exo_modal':
+//               if (is_array($value)) {
+//                 foreach ($value as $k => $val) {
+//                   if ($k === 'preset' || $k === 'exo_preset') {
+//                     $presets = exo_presets('exo_modal');
+//                     if (isset($presets[$val])) {
+//                       $preset = $presets[$val];
+//                       if (!empty($preset['theme'])) {
+//                         $modal->setSetting('theme', $preset['theme']);
+//                       }
+//                       if (!empty($preset['theme_content'])) {
+//                         $modal->setSetting('theme_content', $preset['theme_content']);
+//                       }
+//                       $modal->setSetting('exo_preset', $val);
+//                     }
+//                   }
+//                   else {
+//                     $modal->setSetting(['modal', $k], $val);
+//                   }
+//                 }
+//               }
+//               break;
+//           }
+//           if ($item['selector'] == '#drupal-off-canvas') {
+//             // Special treatment for drupal-off-canvas.
+//             $modal->setSetting(['modal', 'width'], 400);
+//             $modal->setSetting(['modal', 'overlay'], TRUE);
+//             $modal->setSetting(['modal', 'nest'], FALSE);
+//           }
+//         }
+//       }
+//       $data[$key] = $command->render();
+//       $modal_settings = exo_modal_js_settings_append_presets($modal->getDrupalSettings());
+//       break;
+//     }
+//     if ($item['command'] === 'webformCloseDialog') {
+//       $command = new ExoModalCloseCommand();
+//       $data[] = $command->render();
+//       break;
+//     }
+//   }
+//   if ($modal_settings) {
+//     $found = FALSE;
+//     foreach ($data as $key => $item) {
+//       if ($item['command'] === 'settings') {
+//         if (isset($data[$key]['settings']['exoModal']['modals'])) {
+//           $data[$key]['settings']['exoModal'] = NestedArray::mergeDeep($data[$key]['settings']['exoModal'], $modal_settings['exoModal']);
+//         }
+//         else {
+//           $data[$key]['settings'] += $modal_settings;
+//         }
+//         if (isset($data[$key]['settings']['dialog'])) {
+//           $data[$key]['settings']['dialog'] = [];
+//         }
+//         $found = TRUE;
+//         break;
+//       }
+//     }
+//     if (!$found) {
+//       $command = new SettingsCommand($modal_settings, TRUE);
+//       array_unshift($data, $command->render());
+//     }
+//   }
+//   if (!empty($append)) {
+//     $data = array_merge($append, $data);
+//   }
+// }
 
 /**
  * Implements hook_exo_modal_alter().
