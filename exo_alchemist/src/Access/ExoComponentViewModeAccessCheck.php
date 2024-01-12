@@ -58,13 +58,12 @@ class ExoComponentViewModeAccessCheck extends ViewModeAccessCheck {
    *   The access result.
    */
   public function access(Route $route, RouteMatchInterface $route_match, AccountInterface $account, $view_mode_name = 'default', $bundle = NULL) {
-    $access = parent::access($route, $route_match, $account, $view_mode_name, $bundle);
     if ($entity_type_id = $route->getDefault('entity_type_id')) {
       if (substr($view_mode_name, 0, 10) === 'exo_field_') {
         return AccessResult::forbidden('This view mode is handled by Alchemist.');
       }
     }
-    return $access;
+    return parent::access($route, $route_match, $account, $view_mode_name, $bundle);
   }
 
 }
