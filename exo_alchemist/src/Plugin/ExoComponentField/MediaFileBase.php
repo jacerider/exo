@@ -52,9 +52,12 @@ abstract class MediaFileBase extends MediaBase {
             // We have a media entity and file entity, but the file does not
             // exist. Create it with default.
             $field = $this->getFieldDefinition();
-            $value = new ExoComponentValue($field, $field->getDefaultsAsArray()[$delta]);
-            $this->validateValue($value);
-            $this->componentFileData($file->getFileUri(), $value);
+            $val = $field->getDefaultsAsArray()[$delta] ?? NULL;
+            if ($val) {
+              $value = new ExoComponentValue($field, $val);
+              $this->validateValue($value);
+              $this->componentFileData($file->getFileUri(), $value);
+            }
           }
           return $this->viewFileValue($media, $file);
         }
