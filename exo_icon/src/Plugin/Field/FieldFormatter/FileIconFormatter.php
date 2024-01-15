@@ -173,13 +173,7 @@ class FileIconFormatter extends FileFormatterBase {
         $link_text = $items->getEntity()->label();
       }
       else {
-        $link_text = !empty($this->getSetting('title')) ? $this->getSetting('title') : (!empty($item->description) ? $item->description : $item->entity->label());
-      }
-      if (isset($file->_label)) {
-        $link_text = $file->_label;
-      }
-      if (empty($link_text)) {
-        $link_text = $item->getEntity()->label();
+        $link_text = $this->getSetting('title') ?: $item->description ?: $file->_label ?: $item->entity->label();
       }
       $position = $this->getSetting('position');
       $link_text = $this->icon($link_text)->setIcon($this->mimeManager()->getMimeIcon($file->getMimeType(), $this->getSetting('package')));
