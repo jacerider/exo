@@ -56,7 +56,10 @@ abstract class MediaFileBase extends MediaBase {
             if ($val) {
               $value = new ExoComponentValue($field, $val);
               $this->validateValue($value);
-              $this->componentFileData($file->getFileUri(), $value);
+              // Make sure we have default component files.
+              if ($this->getFileUri($value) === $file->getFileUri()) {
+                $this->componentFileData($file->getFileUri(), $value);
+              }
             }
           }
           return $this->viewFileValue($media, $file);
