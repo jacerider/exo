@@ -115,7 +115,12 @@ abstract class MediaBase extends EntityReferenceBase implements ExoComponentFiel
           // the definition.
           $entity_child = $this->entityTypeManager->getStorage($entity_child->getEntityTypeId())->load($entity_child->id());
           if ($entity_child) {
-            $entity_child->delete();
+            try {
+              $entity_child->delete();
+            }
+            catch (\Exception $e) {
+              // Do nothing.
+            }
           }
         }
       }

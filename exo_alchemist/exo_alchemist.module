@@ -495,6 +495,28 @@ function exo_alchemist_entity_operation_alter(array &$operations, EntityInterfac
 }
 
 /**
+ * Implements hook_cache_flush().
+ */
+function exo_alchemist_cache_flush() {
+  $state = \Drupal::state();
+  $rebuild = $state->get('exo_alchemist.component_rebuild', []);
+  if (!empty($rebuild)) {
+    // When a config import contains an update to a component, we need to
+    // check if the default entity needs to be built.
+    // @see \Drupal\exo_alchemist\EventSubscriber::onSave()
+    /** @var \Drupal\exo_alchemist\ExoComponentManager $exo_component_manager */
+    $exo_component_manager = \Drupal::service('plugin.manager.exo_component');
+    foreach ($exo_component_manager->getInstalledDefinitions() as $definition) {
+      /** @var \Drupal\exo_alchemist\Definition\ExoComponentDefinition $definition */
+      if (isset($rebuild[$definition->safeId()])) {
+        $exo_component_manager->buildEntity($definition);
+      }
+    }
+    $state->delete('exo_alchemist.component_rebuild');
+  }
+}
+
+/**
  * Implements hook_entity_base_field_info().
  */
 function exo_alchemist_entity_base_field_info(EntityTypeInterface $entity_type) {
@@ -767,7 +789,7 @@ function exo_alchemist_entity_view_display_load(array $entities) {
     if ($entity instanceof LayoutEntityDisplayInterface && $entity->isLayoutBuilderEnabled()) {
       $sections = $entity->getSections();
       foreach ($sections as $section) {
-        foreach ($section->getComponents() as  $component) {
+        foreach ($section->getComponents() as $component) {
           $configuration = $component->get('configuration');
           // When we have the UUID stored, need to set the revision_id to that
           // of the UUID so that the correct revision is loaded.

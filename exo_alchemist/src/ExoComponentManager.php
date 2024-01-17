@@ -319,19 +319,8 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
    */
   protected function findInstalledDefinitions() {
     $definitions = $this->getInstalledDiscovery()->getDefinitions();
-    $state = \Drupal::state();
-    $rebuild = $state->get('exo_alchemist.component_rebuild', []);
     foreach ($definitions as $plugin_id => &$definition) {
       $this->processInstalledDefinition($definition, $plugin_id);
-      // When a config import contains an update to a component, we need to
-      // check if the default entity needs to be built.
-      // @see \Drupal\exo_alchemist\EventSubscriber::onSave()
-      if (isset($rebuild[$definition->safeId()])) {
-        $this->buildEntity($definition);
-      }
-    }
-    if (!empty($rebuild)) {
-      $state->delete('exo_alchemist.component_rebuild');
     }
     return $definitions;
   }
