@@ -127,9 +127,9 @@ class Timestamp extends ExoListElementContentBase implements ContainerFactoryPlu
   /**
    * {@inheritdoc}
    */
-  protected function formatTimestamp($timestamp, $timezone = NULL) {
+  protected function formatTimestamp($timestamp, $timezone = NULL, $config_key = 'date_format') {
     $configuration = $this->getConfiguration();
-    $date_format = $configuration['date_format'];
+    $date_format = $configuration[$config_key];
     $langcode = NULL;
     return $this->dateFormatter->format($timestamp, $date_format, '', $timezone, $langcode);
   }

@@ -101,6 +101,9 @@ class Boolean extends ExoListElementContentBase {
     $configuration = $this->getConfiguration();
     $formats = $this->getOutputFormats($field);
     $format = $configuration['format'];
+    if ($format === 'custom') {
+      return !empty($field_item->value) ? $configuration['format_custom_true'] : $configuration['format_custom_false'];
+    }
     return !empty($field_item->value) ? $formats[$format][0] : $formats[$format][1];
   }
 

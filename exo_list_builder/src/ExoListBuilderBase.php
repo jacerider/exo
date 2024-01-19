@@ -490,9 +490,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $query->addTag('exo_list_query');
     $query->addMetaData('exo_list_builder', $this);
 
-    if ($entity_list->getFormat() === 'table' && $context === 'default') {
-      $header = $this->buildHeader();
-    }
+    // if ($entity_list->getFormat() === 'table' && $context === 'default') {
+    //   $header = $this->buildHeader();
+    // }
     $this->addQuerySort($query, $context);
 
     if ($entity_list->getTargetEntityType()->hasKey('bundle')) {
@@ -1120,6 +1120,26 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
         case 'div_span':
           $prefix = 'div class="' . Html::getClass('exo-list-field--' . $field['id']) . '"><span';
+          $suffix = 'span></div';
+          break;
+
+        case 'badge':
+          $prefix = 'div class="badge"><span';
+          $suffix = 'span></div';
+          break;
+
+        case 'badge_success':
+          $prefix = 'div class="badge badge--success"><span';
+          $suffix = 'span></div';
+          break;
+
+        case 'badge_warning':
+          $prefix = 'div class="badge badge--warning"><span';
+          $suffix = 'span></div';
+          break;
+
+        case 'badge_alert':
+          $prefix = 'div class="badge badge--alert"><span';
           $suffix = 'span></div';
           break;
       }

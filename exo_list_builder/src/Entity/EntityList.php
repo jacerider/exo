@@ -734,7 +734,15 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       /** @var \Drupal\Core\Field\FieldDefinitionInterface $definition */
       $definition = $field['definition'];
       $target_type = $definition->getSetting('target_type');
-      $target_bundles = $definition->getSetting('handler_settings')['target_bundles'] ?? [$target_type];
+      $target_bundles = $definition->getSetting('handler_settings')['target_bundles'] ?? NULL;
+      if (!$target_bundles) {
+        /** @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface $bundle_manager */
+        $bundle_manager = \Drupal::service('entity_type.bundle.info');
+        $target_bundles = array_keys($bundle_manager->getBundleInfo($target_type));
+      }
+      if (!$target_bundles) {
+        $target_bundles = [$target_type];
+      }
 
       /** @var \Drupal\exo_list_builder\EntityListInterface $temp_entity_list */
       $temp_entity_list = $this->entityTypeManager()->getStorage('exo_entity_list')->create([

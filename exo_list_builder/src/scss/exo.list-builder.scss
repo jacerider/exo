@@ -34,6 +34,29 @@
     }
   }
 
+  .badge {
+    display: inline-block;
+    text-align: center;
+    border-radius: rem-calc(3);
+    font-size: rem-calc(11);
+    padding: rem-calc(2 5);
+    background: gray(40);
+    color: gray(0);
+    font-weight: 700;
+
+    &.badge--success {
+      background: color(theme-success);
+    }
+
+    &.badge--warning {
+      background: color(theme-warning);
+    }
+
+    &.badge--alert {
+      background: color(theme-alert);
+    }
+  }
+
   thead {
 
     th {
@@ -843,7 +866,7 @@
 
     &:hover {
       background: gray(60);
-      color: gray(0);
+      color: gray(0) !important;
     }
 
     &.exo-list-states--active {
@@ -852,7 +875,7 @@
       color: gray(70);
 
       &:hover {
-        color: gray(70);
+        color: gray(70) !important;
       }
     }
   }

@@ -82,7 +82,7 @@ class EntityReferenceLabel extends ExoListElementContentBase {
     $configuration = $this->getConfiguration();
     $label = $configuration['override_label'] ?: ($reference_entity->label() ?: $reference_entity->id());
     $icon = '';
-    if ($configuration['link_reference'] && $reference_entity->getEntityType()->hasLinkTemplate('canonical')) {
+    if ($configuration['link_reference'] && $reference_entity->getEntityType()->hasLinkTemplate('canonical') && $reference_entity->access('view')) {
       $label = Link::fromTextAndUrl($label, $reference_entity->toUrl('canonical'))->toString();
     }
     if ($configuration['entity_icon']) {

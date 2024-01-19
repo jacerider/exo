@@ -238,6 +238,18 @@ class ExoListBuilderContentStates extends ExoListBuilderContent implements ExoLi
   /**
    * {@inheritDoc}
    */
+  protected function getShownFields() {
+    $fields = parent::getShownFields();
+    if ($this->getState()) {
+      unset($fields['prep_total']);
+      unset($fields['prep_current']);
+    }
+    return $fields;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   protected function getExposedFilters() {
     $fields = parent::getExposedFilters();
     if ($state = $this->getState()) {
