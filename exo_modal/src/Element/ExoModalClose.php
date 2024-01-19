@@ -16,6 +16,7 @@ class ExoModalClose extends ExoButton {
    */
   public static function preRenderButton($element) {
     $element['#wrapper_attributes']['data-exo-modal-close'] = '';
+    $element['#attributes']['data-exo-modal-close'] = '';
     $element['#wrapper_attributes']['class'][] = 'exo-modal-action';
     $element['#wrapper_attributes']['class'][] = 'exo-modal-close-button';
     $element['#as_button'] = TRUE;
