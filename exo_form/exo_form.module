@@ -40,6 +40,7 @@ function exo_form_access() {
     $route_name = \Drupal::routeMatch()->getRouteName();
     $status = !empty(exo_form_get_settings());
     switch ($route_name) {
+      case 'user.admin_permissions':
       case 'taxonomy_manager.admin_vocabulary':
         $status = FALSE;
         break;
