@@ -25,3 +25,15 @@
     }
   }
 }
+
+.exo-form .credit-card-form__expiration {
+
+  > .exo-form-element {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .form-item {
+    @include flex;
+  }
+}
