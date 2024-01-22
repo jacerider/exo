@@ -57,6 +57,16 @@
     }
   }
 
+  .exo-modal {
+    .exo-modal-close-button {
+      float: right;
+    }
+
+    .exo-modal-container {
+      margin: 0;
+    }
+  }
+
   thead {
 
     th {
@@ -844,7 +854,7 @@
   }
 }
 
-.exo-list-states--links {
+.exo-list .exo-list-states--links {
   @include flex;
   @include flex-align(right, bottom);
 
@@ -853,23 +863,27 @@
     display: block;
     // font-size: rem-calc(16);
     padding: $global-padding;
-    border: 1px solid gray(10);
+    border: 1px solid gray(3);
+    border-bottom-color: gray(7);
     margin-left: rem-calc(5);
     margin-bottom: -1px;
-    background: gray(40);
-    color: gray(0);
+    background: gray(3);
+    color: gray(60);
     border-radius: $global-radius $global-radius 0 0;
-    transition: background-color $global-speed;
+    transition: all $global-speed;
     overflow: hidden;
     z-index: 5;
     white-space: nowrap;
+    text-decoration: none;
 
     &:hover {
+      border: 1px solid gray(60);
       background: gray(60);
       color: gray(0) !important;
     }
 
     &.exo-list-states--active {
+      border: 1px solid gray(10);
       border-bottom-color: gray(0);
       background: gray(0);
       color: gray(70);
