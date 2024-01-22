@@ -185,6 +185,27 @@ function template_preprocess_exo_component_wrapper(array &$variables) {
  * Implements hook_form_alter().
  */
 function exo_alchemist_form_alter(&$form, FormStateInterface $form_state, $form_id) {// We use form id instead of route as we don't want this impacting component
+  if ($form_id === 'user_admin_permissions') {
+    // Speed up permissions form by removing unneeded exo permissions.
+    foreach ($form['permissions'] as $key => $permission) {
+      if (substr($key, -14) === ' block content' || substr($key, -24) === ' block content revisions' || substr($key, -22) === ' block content history') {
+        foreach ([
+          'create',
+          'delete any',
+          'edit any',
+          'revert any',
+          'view any',
+        ] as $prefix) {
+          $prefix = $prefix . ' exo_';
+          if (substr($key, 0, strlen($prefix)) === $prefix) {
+            // ksm($key);
+            unset($form['permissions'][$key]);
+          }
+        }
+      }
+    }
+    return;
+  }
   // forms inserted into content.
   if (substr($form['#form_id'], 0, 15) == 'layout_builder_') {
     foreach (['drupal_ajax', 'drupal_modal', 'drupal_dialog'] as $wrapper) {
