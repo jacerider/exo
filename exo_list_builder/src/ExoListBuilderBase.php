@@ -490,9 +490,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $query->addTag('exo_list_query');
     $query->addMetaData('exo_list_builder', $this);
 
-    // if ($entity_list->getFormat() === 'table' && $context === 'default') {
-    //   $header = $this->buildHeader();
-    // }
     $this->addQuerySort($query, $context);
 
     if ($entity_list->getTargetEntityType()->hasKey('bundle')) {
@@ -1838,18 +1835,23 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $form['actions']['#type'] = 'actions';
     $form['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Update'),
+      '#value' => $this->getEntityList()->getSetting('update_label', $this->t('Update')),
     ];
     if ($this->getOption('show', FALSE)) {
       $form['actions']['reset'] = [
         '#type' => 'link',
-        '#title' => $this->t('Reset'),
+        '#title' => $this->getEntityList()->getSetting('update_label', $this->t('Reset')),
         '#url' => $this->getOptionsUrl(['show']),
         '#attributes' => [
           'class' => ['button', 'reset'],
         ],
       ];
     }
+    $modal['actions']['cancel'] = [
+      '#type' => 'exo_modal_close',
+      '#value' => $this->getEntityList()->getSetting('cancel_label', $this->t('Cancel')),
+      '#name' => 'exo_filter_modal_cancel',
+    ];
 
     return [
       '#type' => 'exo_modal',
@@ -1917,10 +1919,10 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       '#attributes' => ['class' => ['exo-list-filters-modal']],
       '#parents' => ['filters'],
     ];
-    $modal['close'] = [
-      '#type' => 'exo_modal_close',
-      '#label' => exo_icon()->setIcon('regular-times'),
-    ];
+    // $modal['close'] = [
+    //   '#type' => 'exo_modal_close',
+    //   '#label' => exo_icon()->setIcon('regular-times'),
+    // ];
 
     $show_modal = FALSE;
     $show_inline = FALSE;
@@ -1958,7 +1960,13 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $modal['actions']['submit'] = [
       '#type' => 'submit',
       '#value' => $this->getEntityList()->getSetting('submit_label', $this->t('Apply')),
+      '#button_type' => 'primary',
       '#name' => 'exo_filter_modal_submit',
+    ];
+    $modal['actions']['cancel'] = [
+      '#type' => 'exo_modal_close',
+      '#value' => $this->getEntityList()->getSetting('cancel_label', $this->t('Cancel')),
+      '#name' => 'exo_filter_modal_cancel',
     ];
 
     $sidebar['actions']['#type'] = 'actions';
