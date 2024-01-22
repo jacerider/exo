@@ -49,6 +49,22 @@
     }
   }
 
+  .button--primary {
+    background-color: theme-val(map-get($themes, default), button-primary-bg-color, true) !important;
+    color: theme-val(map-get($themes, default), button-primary-color, true) !important;
+    border-color: theme-val(map-get($themes, default), button-primary-bg-color, true) !important;
+
+    &:before {
+      display: none;
+    }
+
+    &:hover {
+      background-color: theme-val(map-get($themes, default), button-primary-hover-bg-color, true) !important;
+      color: theme-val(map-get($themes, default), button-primary-hover-color, true) !important;
+      border-color: theme-val(map-get($themes, default), button-primary-hover-bg-color, true) !important;
+    }
+  }
+
   .sortable-heading.is-active > a::before {
     border-bottom-color: theme-val(map-get($themes, default), primary, true);
   }
