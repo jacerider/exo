@@ -1,17 +1,44 @@
 .exo-form {
 
-  .layout-region-node-main,
-  .layout-region-node-footer,
-  .layout-region-order-main,
-  .layout-region-product-main,
-  .layout-region-product-footer {
-    padding-right: $global-padding;
-    margin: 0;
-
-    > .exo-form-element-type-horizontal-tabs {
-      margin: 0;
-    }
+  .layout-node-form,
+  .layout-product-form {
+    @include exo-grid;
+    @include exo-gutters($negative: true);
+    margin-bottom: 0;
+    gap: 0;
   }
+
+  .layout-region--node-main,
+  .layout-region--product-main {
+    @include exo-cell(8);
+    gap: 0;
+  }
+
+  .layout-region--node-secondary,
+  .layout-region--product-secondary {
+    @include exo-cell(4);
+    margin-top: 0;
+    gap: 0;
+  }
+
+  .layout-region--node-footer,
+  .layout-region--product-footer {
+    @include exo-cell(12);
+    gap: 0;
+  }
+
+  // .layout-region-node-main,
+  // .layout-region-node-footer,
+  // .layout-region-order-main,
+  // .layout-region-product-main,
+  // .layout-region-product-footer {
+  //   padding-right: $global-padding;
+  //   margin: 0;
+
+  //   > .exo-form-element-type-horizontal-tabs {
+  //     margin: 0;
+  //   }
+  // }
 
   .layout-region-node-footer__content,
   .layout-region-product-footer__content,

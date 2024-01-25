@@ -2,6 +2,11 @@
   margin: 0;
   overflow: hidden;
 
+  .label.inline {
+    font-size: rem-calc(15);
+    font-style: normal;
+  }
+
   > .exo-form-container {
     padding: $global-padding;
   }
@@ -11,7 +16,7 @@
     > summary {
 
       &::-webkit-details-marker {
-        display:none;
+        display: none;
       }
     }
 
@@ -29,10 +34,19 @@
   }
 
   .claro-details__summary {
+    padding: $global-padding $global-padding $global-padding $global-padding * 2;
 
     &:after {
       display: none !important;
     }
+  }
+
+  .claro-details__wrapper {
+    margin: 0 !important;
+  }
+
+  .field-group-details-sidebar {
+    margin: 0;
   }
 
   .entity-meta__header {
@@ -149,13 +163,6 @@
   .entity-meta__header {
     padding-top: 0;
     padding-bottom: 0;
-  }
-
-  .entity-meta {
-
-    .claro-details__wrapper {
-      margin: 0 !important;
-    }
   }
 
   .gin-sticky {
