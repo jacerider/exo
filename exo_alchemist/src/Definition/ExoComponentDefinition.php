@@ -1332,13 +1332,13 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
    * @param array $dependents
    *   An array of dependents keyed by the type of dependent. One example:
    *   @code
-   *   array(
-   *     'module' => array(
+   *   [
+   *     'module' => [
    *       'node',
    *       'field',
    *       'image',
-   *     ),
-   *   );
+   *     ],
+   *   ];
    *   @endcode
    *
    * @see \Drupal\Core\Entity\DependencyTrait::addDependent
