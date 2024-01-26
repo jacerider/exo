@@ -171,6 +171,7 @@ function exo_media_smart_image_find(FieldItemListInterface $field, $path = []) {
           'fieldname' => $field->getName(),
           'entity' => $field->getEntity(),
           'path' => $path,
+          'token' => 'entity',
         ];
     }
   }
