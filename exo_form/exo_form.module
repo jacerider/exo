@@ -73,7 +73,8 @@ function exo_form_form_alter(&$form, FormStateInterface $form_state, $form_id) {
         $form['moderation_state']['widget'][0]['current']['#access'] = FALSE;
       }
     }
-    if ($form_state->getFormObject() instanceof ViewsForm) {
+    $form_object = $form_state->getFormObject();
+    if ($form_object instanceof ViewsForm) {
       if (isset($form['header'])) {
         foreach (array_keys($form['header']) as $key) {
           if (substr($key, -10) == '_bulk_form') {
