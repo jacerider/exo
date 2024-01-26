@@ -2,6 +2,7 @@
 
 namespace Drupal\exo_imagine\Plugin\Field\FieldFormatter;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\exo_media\Plugin\Field\FieldFormatter\ExoMediaFormatterTrait;
@@ -32,9 +33,12 @@ class ExoImagineMediaFormatter extends ExoImagineFormatter {
     foreach ($elements as $delta => $element) {
       // Add media cache tags.
       if (isset($this->mediaEntities[$delta])) {
+        /** @var \Drupal\media\MediaInterface $media */
+        $media = $this->mediaEntities[$delta];
         $cacheable_metadata = CacheableMetadata::createFromRenderArray($element);
-        $cacheable_metadata->addCacheableDependency($this->mediaEntities[$delta]);
+        $cacheable_metadata->addCacheableDependency($media);
         $cacheable_metadata->applyTo($elements[$delta]);
+        $elements[$delta]['#attributes']['class'][] = Html::getClass('media-type--' . $media->bundle());
       }
       $elements[$delta]['#item_attributes']['class'][] = 'exo-image';
     }
