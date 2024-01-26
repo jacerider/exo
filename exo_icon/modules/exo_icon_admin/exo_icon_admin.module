@@ -94,11 +94,13 @@ function exo_icon_admin_form_taxonomy_overview_terms_alter(&$form, $form_state, 
         ],
         'title' => $element['term'],
       ];
-      if ($term->isPublished()) {
-        $element['status']['#markup'] = exo_icon('Published')->setIcon('regular-toggle-on')->setIconOnly();
-      }
-      else {
-        $element['status']['#markup'] = exo_icon('Unpublished')->setIcon('regular-toggle-off')->setIconOnly();
+      if (isset($element['status'])) {
+        if ($term->isPublished()) {
+          $element['status']['#markup'] = exo_icon('Published')->setIcon('regular-toggle-on')->setIconOnly();
+        }
+        else {
+          $element['status']['#markup'] = exo_icon('Unpublished')->setIcon('regular-toggle-off')->setIconOnly();
+        }
       }
     }
   }
