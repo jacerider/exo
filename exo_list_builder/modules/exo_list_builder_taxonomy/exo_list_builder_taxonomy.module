@@ -8,6 +8,7 @@
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
+use Drupal\taxonomy\TermForm;
 
 /**
  * Implements hook_entity_type_alter().
@@ -32,9 +33,25 @@ function exo_list_builder_taxonomy_entity_operation(EntityInterface $entity) {
 }
 
 /**
+ * Implements hook_form_alter().
+ */
+function exo_list_builder_taxonomy_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form_object = $form_state->getFormObject();
+  if ($form_object instanceof TermForm) {
+    $term = $form_object->getEntity();
+    /** @var \Drupal\taxonomy\VocabularyInterface $vocabulary */
+    $vocabulary = \Drupal::entityTypeManager()->getStorage('taxonomy_vocabulary')->load($term->bundle());
+    $controls = $vocabulary->getThirdPartySettings('exo_list_builder');
+    if (isset($controls['nest']) && empty($controls['nest'])) {
+      $form['relations']['#access'] = FALSE;
+    }
+  }
+}
+
+/**
  * Implements hook_form_BASE_FORM_ID_alter().
  */
-function exo_list_builder_form_taxonomy_overview_terms_alter(&$form, FormStateInterface $form_state) {
+function exo_list_builder_taxonomy_form_taxonomy_overview_terms_alter(&$form, FormStateInterface $form_state) {
   /** @var \Drupal\taxonomy\VocabularyInterface $vocabulary */
   $vocabulary = $form_state->get(['taxonomy', 'vocabulary']);
   $controls = $vocabulary->getThirdPartySettings('exo_list_builder');
@@ -50,7 +67,7 @@ function exo_list_builder_form_taxonomy_overview_terms_alter(&$form, FormStateIn
 /**
  * Implements hook_form_BASE_FORM_ID_alter().
  */
-function exo_list_builder_form_taxonomy_vocabulary_form_alter(&$form, FormStateInterface $form_state) {
+function exo_list_builder_taxonomy_form_taxonomy_vocabulary_form_alter(&$form, FormStateInterface $form_state) {
   /** @var \Drupal\Core\Entity\EntityFormInterface $form_object */
   $form_object = $form_state->getFormObject();
   /** @var \Drupal\taxonomy\VocabularyInterface $vocabulary */
@@ -91,13 +108,13 @@ function exo_list_builder_form_taxonomy_vocabulary_form_alter(&$form, FormStateI
 	$pos = false === $index ? count($form) : $index + 1;
 	$form = array_merge( array_slice($form, 0, $pos), ['exo_list_builder' => $elements], array_slice($form, $pos) );
 
-  $form['actions']['submit']['#submit'][] = 'exo_list_builder_form_taxonomy_vocabulary_form_submit';
+  $form['actions']['submit']['#submit'][] = 'exo_list_builder_taxonomy_form_taxonomy_vocabulary_form_submit';
 }
 
 /**
  * Submit handler for commerce product form.
  */
-function exo_list_builder_form_taxonomy_vocabulary_form_submit(array $form, FormStateInterface $form_state) {
+function exo_list_builder_taxonomy_form_taxonomy_vocabulary_form_submit(array $form, FormStateInterface $form_state) {
   /** @var \Drupal\Core\Entity\EntityFormInterface $form_object */
   $form_object = $form_state->getFormObject();
   /** @var \Drupal\taxonomy\VocabularyInterface $vocabulary */
