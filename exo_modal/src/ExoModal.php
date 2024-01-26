@@ -687,7 +687,13 @@ class ExoModal implements ExoModalInterface {
     $build = [
       'trigger' => $this->toRenderableTrigger(),
     ];
-    if ($modal = $this->getContent() || $this->getSetting(['modal', 'iframe']) || $this->getSetting(['modal', 'contentAjax']) || $this->getSetting(['modal', 'contentSelector'])) {
+    if (
+      $modal = $this->getContent() ||
+      $this->getSetting(['modal', 'iframe']) ||
+      $this->getSetting(['modal', 'contentAjax']) ||
+      $this->getSetting(['modal', 'contentSelector']) ||
+      $this->getSetting(['modal', 'imageUrl'])
+    ) {
       $build['modal'] = $this->toRenderableModal();
     }
     return $build;

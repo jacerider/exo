@@ -27,6 +27,7 @@ modal:
   contentAjax: null # Address that will be called when the trigger is clicked and will dynamically load the content.
   contentAjaxCache: true # If true, ajax results will be cached and not called again.
   contentSelector: null # A selector specifying an existing page element to use within the modal. Example: .my-content.
+  imageUrl: null # An image url to place inside the modal content area.
   iframe: false # If true, an Iframe will be used inside the modal.
   iframeHeight: 400 #Fixed height of the iframe.
   iframeWidth: 800 #Fixed width of the iframe.

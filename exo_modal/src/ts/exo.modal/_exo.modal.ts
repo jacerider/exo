@@ -38,6 +38,7 @@ class ExoModal extends ExoData {
     iframeWidth: 800,
     iframeResponsive: false,
     iframeURL: null,
+    imageUrl: null,
     focusInput: true,
     group: '',
     nest: false,
@@ -134,6 +135,7 @@ class ExoModal extends ExoData {
   protected $contentAjaxPlaceholder:JQuery;
   protected ajaxLoaded:boolean = false;
   protected contentAjaxLoaded:boolean = false;
+  protected imageLoaded:boolean = false;
   protected $overlay:JQuery;
   protected $navigate:JQuery;
   protected $wrap:JQuery;
@@ -753,6 +755,40 @@ class ExoModal extends ExoData {
         modalWidth = this.$element.outerWidth();
       }
     }
+
+    if (this.get('imageUrl')) {
+      this.isSetHeight = true;
+      this.$element.addClass('isSetHeight');
+      const $image = this.$content.find('> img') as JQuery<HTMLImageElement>;
+      var windowHeight = Drupal.Exo.$window.height() - displace.offsets.top - displace.offsets.bottom;
+      var maxWindowWidth = windowWidth - 50;
+      var maxWindowHeight = windowHeight - 50;
+      var width = $image[0].naturalWidth;
+      var height = $image[0].naturalHeight;
+      var ratio;
+      var maxWidth;
+      var maxHeight;
+      if (width > height) {
+        ratio = height / width;
+        maxWidth = maxWindowWidth;
+        maxHeight = Math.round(maxWindowWidth * ratio);
+        if (maxHeight > maxWindowHeight) {
+          maxWidth = Math.round(maxWindowHeight / ratio);
+          maxHeight = maxWindowHeight;
+        }
+      }
+      else {
+        ratio = width / height;
+        maxWidth = Math.round(maxWindowHeight * ratio);
+        maxHeight = maxWindowHeight;
+        if (maxWidth > maxWindowWidth) {
+          maxWidth = maxWindowWidth;
+          maxHeight = Math.round(maxWindowWidth / ratio);
+        }
+      }
+      this.$element.css('max-width',  maxWidth + 'px');
+      this.$element.css('max-height', maxHeight + 'px');
+    }
   }
 
   protected recalcVerticalPos(first?:boolean) {
@@ -913,6 +949,19 @@ class ExoModal extends ExoData {
           successCallback(response, status, xmlhttprequest);
         };
         ajax.execute();
+        return;
+      }
+
+      if (this.get('imageUrl') && this.imageLoaded === false) {
+        const $content = this.$element.find('.' + this.name + '-content').first();
+        $content.html('<div class="' + this.name + '-content-loader' + '" style="height:80px"></div>');
+        const $image = $('<img src="' + this.get('imageUrl') + '" style="display:block;width:100%;height:100%;" />').on('load', (e) => {
+          this.imageLoaded = true;
+          this.set('width', null);
+          $content.html('');
+          $content.append($image);
+          this.open(param);
+        });
         return;
       }
 
