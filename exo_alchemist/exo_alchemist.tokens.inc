@@ -5,6 +5,7 @@
  * Builds placeholder replacement tokens for exo-media-related data.
  */
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Render\BubbleableMetadata;
@@ -13,14 +14,19 @@ use Drupal\Core\Render\BubbleableMetadata;
  * Impements hook_token_info_alter().
  */
 function exo_alchemist_token_info_alter(&$data) {
-  $data['tokens']['node']['exo_alchemist_smart_image'] = [
-    'name' => t('eXo Alchemist: Smart Image URL'),
-    'description' => t('Will determine the best image to use for representing this entity. Example: [node:exo_alchemist_smart_image:meta:url]'),
+  $data['tokens']['node']['exo_alchemist_smart_title'] = [
+    'name' => t('eXo Alchemist: Smart Title'),
+    'description' => t('Will determine the best title to use for representing this entity. Example: [node:exo_alchemist_smart_title:value]'),
     'type' => 'exo_alchemist',
   ];
   $data['tokens']['node']['exo_alchemist_smart_description'] = [
     'name' => t('eXo Alchemist: Smart Description'),
     'description' => t('Will determine the best description to use for representing this entity. Example: [node:exo_alchemist_smart_description:value]'),
+    'type' => 'exo_alchemist',
+  ];
+  $data['tokens']['node']['exo_alchemist_smart_image'] = [
+    'name' => t('eXo Alchemist: Smart Image URL'),
+    'description' => t('Will determine the best image to use for representing this entity. Example: [node:exo_alchemist_smart_image:meta:url]'),
     'type' => 'exo_alchemist',
   ];
 }
@@ -35,6 +41,16 @@ function exo_alchemist_tokens($type, $tokens, array $data, array $options, Bubbl
     /** @var \Drupal\node\NodeInterface $node */
     $node = $data['node'];
     $lookup = [
+      // Smart title.
+      'exo_alchemist_smart_title' => [
+        'alchemist_field_type' => 'text',
+        'field_type' => 'text',
+        'base_fields' => [
+          'field_metatags:title',
+          'field_meta:title',
+        ],
+        'fallback' => 'exo_alchemist_smart_title_fallback',
+      ],
       // Smart image.
       'exo_alchemist_smart_image' => [
         'alchemist_field_type' => 'media_image',
@@ -54,6 +70,8 @@ function exo_alchemist_tokens($type, $tokens, array $data, array $options, Bubbl
         'alchemist_field_type' => 'textarea',
         'field_type' => 'text_long',
         'base_fields' => [
+          'field_metatags:description',
+          'field_meta:description',
           'field_description',
           'field_teaser',
           'field_body',
@@ -64,14 +82,23 @@ function exo_alchemist_tokens($type, $tokens, array $data, array $options, Bubbl
     ];
     foreach ($lookup as $prefix => $info) {
       if ($found_tokens = $token_service->findWithPrefix($tokens, $prefix)) {
-        $data = exo_alchemist_smart_data($node, $info['alchemist_field_type'], $info['field_type'], $info['base_fields']);
-        if ($data) {
-          $entity_type = $data['entity']->getEntityTypeId();
-          $smart_tokens = [];
-          foreach ($found_tokens as $key => $value) {
-            $smart_tokens[$data['fieldname'] . ':' . $key] = '[' . $entity_type . ':' . $data['fieldname'] . ':entity:' . $key . ']';
+        $smart_data = exo_alchemist_smart_data($node, $info['alchemist_field_type'], $info['field_type'], $info['base_fields']);
+        if ($smart_data) {
+          if (!empty($smart_data['value'])) {
+            $smart_replacements[$smart_data['fieldname']] = $smart_data['value'];
           }
-          $smart_replacements = $token_service->generate($entity_type, $smart_tokens, [$entity_type => $data['entity']], $options, $bubbleable_metadata);
+          else {
+            $entity_type = $smart_data['entity']->getEntityTypeId();
+            $smart_tokens = [];
+            foreach ($found_tokens as $key => $value) {
+              $fieldname = $smart_data['fieldname'];
+              if (!empty($smart_data['token'])) {
+                $fieldname .= ':' . $smart_data['token'];
+              }
+              $smart_tokens[$smart_data['fieldname'] . ':' . $key] = '[' . $entity_type . ':' . $fieldname . ':' . $key . ']';
+            }
+            $smart_replacements = $token_service->generate($entity_type, $smart_tokens, [$entity_type => $smart_data['entity']], $options, $bubbleable_metadata);
+          }
           if (count($found_tokens) === count($smart_replacements)) {
             foreach ($smart_replacements as &$replacement) {
               if (!empty($info['truncate']) && is_string($replacement)) {
@@ -86,8 +113,25 @@ function exo_alchemist_tokens($type, $tokens, array $data, array $options, Bubbl
           }
         }
         elseif (!empty($info['fallback'])) {
-          $replacements = $info['fallback']($replacements, $found_tokens);
+          $replacements = $info['fallback']($replacements, $found_tokens, $data);
         }
+      }
+    }
+  }
+  return $replacements;
+}
+
+/**
+ * Smart description fallback.
+ */
+function exo_alchemist_smart_title_fallback($replacements, array $found_tokens, array $data) {
+  foreach ($found_tokens as $key => $value) {
+    if (!empty($data['node'])) {
+      if (\Drupal::service('path.matcher')->isFrontPage()) {
+        $replacements[$value] = \Drupal::config('system.site')->get('name') . ' | ' . $data['node']->label();
+      }
+      else {
+        $replacements[$value] = $data['node']->label() . ' | ' . \Drupal::config('system.site')->get('name');
       }
     }
   }
@@ -97,7 +141,7 @@ function exo_alchemist_tokens($type, $tokens, array $data, array $options, Bubbl
 /**
  * Smart image fallback.
  */
-function exo_alchemist_smart_image_fallback($replacements, array $found_tokens) {
+function exo_alchemist_smart_image_fallback($replacements, array $found_tokens, array $data) {
   // Handle fallbacks.
   // @todo Open this open to other modules.
   if (\Drupal::moduleHandler()->moduleExists('real_favicon')) {
@@ -114,7 +158,7 @@ function exo_alchemist_smart_image_fallback($replacements, array $found_tokens) 
 /**
  * Smart description fallback.
  */
-function exo_alchemist_smart_description_fallback($replacements, array $found_tokens) {
+function exo_alchemist_smart_description_fallback($replacements, array $found_tokens, array $data) {
   foreach ($found_tokens as $key => $value) {
     $replacements[$value] = \Drupal::config('system.site')->get('slogan');
   }
@@ -139,8 +183,11 @@ function exo_alchemist_smart_data(ContentEntityInterface $entity, $alchemist_fie
   if (!isset($cache[$key])) {
     $data = [];
     foreach ($base_fields as $fieldname) {
+      $parts = explode(':', $fieldname, 2);
+      $fieldname = $parts[0];
+      $path = isset($parts[1]) ? explode(':', $parts[1]) : [];
       if ($entity->hasField($fieldname)) {
-        $base_data = exo_alchemist_smart_find($entity->get($fieldname), $field_type);
+        $base_data = exo_alchemist_smart_find($entity->get($fieldname), $field_type, $path);
         if ($base_data) {
           $data = $base_data;
           break;
@@ -180,6 +227,18 @@ function exo_alchemist_smart_data(ContentEntityInterface $entity, $alchemist_fie
 function exo_alchemist_smart_find(FieldItemListInterface $field, $field_type, $path = []) {
   if (!$field->isEmpty()) {
     switch ($field->getFieldDefinition()->getType()) {
+      case 'metatag':
+        $value = metatag_data_decode($field->first()->value) ?? [];
+        $value = NestedArray::getValue($value, $path);
+        if ($value) {
+          return [
+            'fieldname' => $field->getName(),
+            'entity' => $field->getEntity(),
+            'path' => $path,
+            'value' => $value,
+          ];
+        }
+
       case 'entity_reference_revisions':
       case 'entity_reference':
         $subpath = $path;
@@ -191,9 +250,11 @@ function exo_alchemist_smart_find(FieldItemListInterface $field, $field_type, $p
             return substr($a->getName(), -3) === '_fg' ? -1 : 1;
           });
           foreach ($fields as $subfield) {
-            $image = exo_media_smart_image_find($subfield, $subpath);
-            if ($image) {
-              return $image;
+            if ($field_type === 'image') {
+              $image = exo_media_smart_image_find($subfield, $subpath);
+              if ($image) {
+                return $image;
+              }
             }
           }
         }
