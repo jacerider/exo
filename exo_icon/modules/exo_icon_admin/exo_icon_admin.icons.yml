@@ -98,6 +98,10 @@ admin.taxonomy:
   smart: taxonomy
   icon: regular-tags
   prefix: admin
+admin.terms:
+  text: terms
+  icon: regular-tags
+  prefix: admin
 admin.views:
   smart: views
   icon: regular-list-alt

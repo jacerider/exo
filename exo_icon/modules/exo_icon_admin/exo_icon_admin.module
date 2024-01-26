@@ -5,6 +5,7 @@
  * Contains exo_icon_admin.module.
  */
 
+use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\exo_icon\ExoIconTranslatableMarkup;
 
@@ -65,6 +66,40 @@ function exo_icon_admin_preprocess_links__dropbutton(&$variables) {
     // Local tasks first as they have more 'action' type links.
     if (!empty($item['link']['#title'])) {
       $item['link']['#title'] = exo_icon($item['link']['#title'])->match(['local_task', 'admin']);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function exo_icon_admin_form_taxonomy_overview_terms_alter(&$form, $form_state, $form_id) {
+  if ($form_id === 'taxonomy_overview_terms') {
+    foreach (Element::children($form['terms']) as $key) {
+      /** @var \Drupal\taxonomy\TermInterface $term */
+      if (!isset($form['terms'][$key]['term'])) {
+        continue;
+      }
+      $term = $form['terms'][$key]['#term'];
+      $element = &$form['terms'][$key];
+      $prefix = NULL;
+      if (!empty($element['term']['#prefix'])) {
+        $prefix['#markup'] = $element['term']['#prefix'];
+      }
+      $element['term']['#prefix'] = '&nbsp;';
+      $element['term'] = [
+        'prefix' => $prefix,
+        'icon' => [
+          '#markup' => exo_icon($element['term']['#title'])->setIcon(exo_icon_entity_icon($term))->setIconOnly(),
+        ],
+        'title' => $element['term'],
+      ];
+      if ($term->isPublished()) {
+        $element['status']['#markup'] = exo_icon('Published')->setIcon('regular-toggle-on')->setIconOnly();
+      }
+      else {
+        $element['status']['#markup'] = exo_icon('Unpublished')->setIcon('regular-toggle-off')->setIconOnly();
+      }
     }
   }
 }
