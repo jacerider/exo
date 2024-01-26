@@ -19,7 +19,7 @@ class Textarea extends Input {
    * {@inheritdoc}
    */
   public function preRender($element) {
-    if (!empty($element['#allowed_formats']) || !empty($element['#format'])) {
+    if (!empty($element['#allowed_formats']) || !empty($element['#format']) || !empty($element['#groups']['relations'])) {
       // This textarea has a format selector and does not support label
       // floating.
       $this->disableFloatSupport();
