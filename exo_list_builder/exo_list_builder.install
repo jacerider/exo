@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Convert field defaults to new format.
@@ -74,5 +75,20 @@ function exo_list_builder_update_8003() {
     }
     $exo_entity_list->set('fields', $fields);
     $exo_entity_list->save();
+  }
+}
+
+/**
+ * Enable taxonomy list builder as needed.
+ */
+function exo_list_builder_update_8004() {
+  foreach (\Drupal::entityTypeManager()->getStorage('exo_entity_list')->loadMultiple() as $exo_entity_list) {
+    /** @var \Drupal\exo_list_builder\EntityListInterface $exo_entity_list */
+    if ($exo_entity_list->getTargetEntityTypeId() === 'taxonomy_term') {
+      if (!\Drupal::moduleHandler()->moduleExists('exo_list_builder_taxonomy')) {
+        \Drupal::service('module_installer')->install(['exo_list_builder_taxonomy']);
+        return (string) new TranslatableMarkup("The eXo List Builder Taxonomy module has been enabled.");
+      }
+    }
   }
 }

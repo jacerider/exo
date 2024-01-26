@@ -3,6 +3,7 @@
 namespace Drupal\exo_list_builder\Plugin\ExoList\Filter;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\exo_list_builder\EntityListInterface;
 use Drupal\exo_list_builder\Plugin\ExoListContentTrait;
@@ -97,6 +98,7 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
       foreach ($entity_types as $type) {
         $options[$type->id()] = $type->getLabel();
       }
+      asort($options);
       $form['default_from_url']['entity_type'] = [
         '#type' => 'select',
         '#title' => $this->t('Entity Type'),
@@ -121,6 +123,7 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
             '@entity_type_label' => $entity_type->getLabel(),
           ]),
         ];
+        asort($field_options);
         if ($entity_type->hasKey('bundle') && $bundles = $bundle_manager->getBundleInfo($entity_type->id())) {
           foreach ($bundles as $bundle_id => $bundle) {
             foreach ($field_manager->getFieldDefinitions($entity_type_id, $bundle_id) as $field_id => $field) {
@@ -180,7 +183,12 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
           }
         }
         else {
-          return $entity->id();
+          if ($entity instanceof EntityInterface) {
+            return $entity->id();
+          }
+          if (is_string($entity)) {
+            return $entity;
+          }
         }
       }
     }

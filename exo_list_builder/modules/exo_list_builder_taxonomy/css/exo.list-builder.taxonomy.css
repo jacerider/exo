@@ -1,0 +1,18 @@
+.taxonomy-overview-terms table td {
+  height: auto;
+  width: 1%;
+  white-space: nowrap;
+}
+
+.taxonomy-overview-terms table td.tabledrag-cell {
+  width: 100%;
+  white-space: normal;
+}
+
+.taxonomy-overview-terms table .tabledrag-cell-content {
+  font-weight: 700;
+}
+
+.taxonomy-overview-terms table .field-input {
+  text-align: center;
+}

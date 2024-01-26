@@ -41,7 +41,7 @@ use Drupal\exo_list_builder\Plugin\ExoListFilterInterface;
  *     "id" = "id",
  *     "label" = "label",
  *     "uuid" = "uuid",
- *     "status" = "status"
+ *     "status" = "status",
  *   },
  *   config_export = {
  *     "id",
@@ -94,6 +94,13 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * @var string
    */
   protected $label;
+
+  /**
+   * The eXo Entity List status.
+   *
+   * @var bool
+   */
+  protected $status = TRUE;
 
   /**
    * The eXo Entity List label.
@@ -306,7 +313,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   /**
    * The entity handler.
    *
-   * @var \Drupal\exo_list_builder\EntityListInterface
+   * @var \Drupal\exo_list_builder\ExoListBuilderInterface
    */
   protected $entityHandler;
 
@@ -343,27 +350,12 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * {@inheritdoc}
    */
   public function toUrl($rel = 'canonical', array $options = []) {
-    if ($rel === 'canonical') {
+    if ($rel === 'canonical' && $this->isPublished()) {
       $key = $this->getKey();
       if (!empty($options['query'][$key])) {
         $options['query'][$key] = $this->optionsEncode($options['query'][$key]);
       }
-      if ($this->getUrl()) {
-        return Url::fromRoute($this->getRouteName(), [], $options);
-      }
-      if ($this->isOverride()) {
-        if ($this->getTargetEntityType()->getLinkTemplate('collection')) {
-          $target_entity_type = $this->getTargetEntityType();
-          return Url::fromRoute("entity.{$target_entity_type->id()}.collection");
-        }
-        if ($this->getTargetEntityTypeId() === 'taxonomy_term') {
-          foreach ($this->getTargetBundleIds() as $bundle) {
-            $route_name = 'exo_list_builder.' . $this->id() . '.' . $bundle . '.taxonomy_vocabulary.overview_form';
-            return Url::fromRoute($route_name);
-          }
-        }
-      }
-      return Url::fromRoute('<current>', [], $options);
+      return $this->getHandler()->toUrl($options);
     }
     return parent::toUrl($rel, $options);
   }
@@ -449,20 +441,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * {@inheritdoc}
    */
   public function allowOverride() {
-    $entity_type_id = $this->getTargetEntityTypeId();
-    $bundle_includes = $this->getTargetBundleIncludeIds();
-    $bundle_excludes = $this->getTargetBundleExcludeIds();
-    $bundles = $this->getTargetBundleIds();
-    if (
-      // An entity type without bundles.
-      (count($bundles) === 1 && key($bundles) === $this->getTargetEntityTypeId()) ||
-      // An entity type with all bundles.
-      (empty($bundle_includes) && empty($bundle_excludes)) ||
-      $entity_type_id === 'taxonomy_term' && count($bundles) === 1
-    ) {
-      return TRUE;
-    }
-    return FALSE;
+    return $this->getHandler()->allowOverride();
   }
 
   /**
@@ -490,18 +469,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * {@inheritdoc}
    */
   public function getRouteName() {
-    $route_name = 'entity.exo_entity_list.canonical';
-    $override = $this->isOverride();
-    if ($override) {
-      $route_name = 'entity.' . $this->getTargetEntityTypeId() . '.collection';
-      if ($this->getTargetEntityTypeId() === 'taxonomy_term') {
-        $route_name = 'exo_list_builder.' . $this->id() . '.taxonomy_vocabulary.overview_form';
-      }
-    }
-    elseif ($this->getUrl()) {
-      $route_name = 'exo_list_builder.' . $this->id();
-    }
-    return $route_name;
+    return $this->getHandler()->getRouteName();
   }
 
   /**
@@ -640,6 +608,9 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   public function getFields() {
     $fields = [];
     $available_fields = $this->getAvailableFields();
+    if (!is_array($this->fields)) {
+      return [];
+    }
     foreach ($this->fields as $field_id => $field) {
       if (!isset($available_fields[$field_id])) {
         continue;
@@ -933,6 +904,29 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       $cache = Cache::mergeTags($cache, [$this->getTargetEntityTypeId() . '_list:' . $bundle]);
     }
     return $cache;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isPublished() {
+    return (bool) $this->status;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setPublished() {
+    $this->status = TRUE;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUnpublished() {
+    $this->status = FALSE;
+    return $this;
   }
 
   /**

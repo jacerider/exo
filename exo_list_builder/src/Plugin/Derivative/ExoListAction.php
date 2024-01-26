@@ -46,6 +46,9 @@ class ExoListAction extends DeriverBase implements ContainerDeriverInterface {
   public function getDerivativeDefinitions($base_plugin_definition) {
     foreach ($this->entityListStorage->loadMultiple() as $id => $entity) {
       /** @var \Drupal\exo_list_builder\EntityListInterface $entity */
+      if (!$entity->isPublished()) {
+        continue;
+      }
       foreach ($entity->getActions() as $action) {
         // We do this instead of loading the handler as the handler can alter
         // the available actions and we need all enabled actions.

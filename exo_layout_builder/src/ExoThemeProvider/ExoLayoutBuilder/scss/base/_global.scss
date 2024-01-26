@@ -91,11 +91,13 @@
         }
 
         .button {
-          font-size: rem-calc(12);
+          font-size: rem-calc(12) !important;
           border-radius: 3px;
           transition: background-color $global-speed;
           border: 0;
-          padding: $global-padding;
+          padding: $global-padding !important;
+          border: 0 !important;
+          outline: none !important;
 
           &.exo-layout-builder-submit {
             font-weight: 700;

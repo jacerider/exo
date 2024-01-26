@@ -3,9 +3,9 @@
 namespace Drupal\exo_list_builder;
 
 use Drupal\Core\Entity\EntityListBuilderInterface;
-use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\Routing\RouteCollection;
 
 /**
  * Defines an interface to build entity listings.
@@ -29,6 +29,37 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
    * @return $this
    */
   public function setEntityList(EntityListInterface $entity_list);
+
+  /**
+   * Gets the URL object for the list.
+   *
+   * @param array $options
+   *   See \Drupal\Core\Routing\UrlGeneratorInterface::generateFromRoute() for
+   *   the available options.
+   *
+   * @return \Drupal\Core\Url
+   *   The URL object.
+   *
+   * @throws \Drupal\Core\Entity\EntityMalformedException
+   * @throws \Drupal\Core\Entity\Exception\UndefinedLinkTemplateException
+   */
+  public function toUrl(array $options = []);
+
+  /**
+   * Returns the route name.
+   *
+   * @return string
+   *   The route name.
+   */
+  public function getRouteName();
+
+  /**
+   * Check if entity list support overriding the list builder.
+   *
+   * @return bool
+   *   Return TRUE if the entity list support overriding the list builder.
+   */
+  public function allowOverride();
 
   /**
    * Get a query option.
@@ -207,6 +238,25 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
    *   The queue.
    */
   public function getQueue($action_id);
+
+  /**
+   * Add routes.
+   *
+   * @param \Symfony\Component\Routing\Route[] $current_routes
+   *   The current routes.
+   *
+   * @return \Symfony\Component\Routing\Route[]
+   *   An array of new routes.
+   */
+  public function routes(array $current_routes);
+
+  /**
+   * Alter routes.
+   *
+   * @param \Symfony\Component\Routing\RouteCollection $collection
+   *   The route collection.
+   */
+  public function alterRoutes(RouteCollection $collection);
 
   /**
    * Get cache contexts.

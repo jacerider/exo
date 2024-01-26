@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\exo_list_builder\Plugin\Derivative;
+namespace Drupal\exo_list_builder_taxonomy\Plugin\Derivative;
 
 use Drupal\Component\Plugin\Derivative\DeriverBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Defines dynamic local actions.
  */
-class ExoListBuilderLocalActions extends DeriverBase implements ContainerDeriverInterface {
+class ExoListBuilderTaxonomyLocalActions extends DeriverBase implements ContainerDeriverInterface {
 
   use StringTranslationTrait;
 
@@ -63,13 +63,16 @@ class ExoListBuilderLocalActions extends DeriverBase implements ContainerDeriver
     $bundle_info = \Drupal::service('entity_type.bundle.info')->getAllBundleInfo();
 
     foreach ($exo_entity_lists as $exo_entity_list) {
+      if (!$exo_entity_list->isPublished()) {
+        continue;
+      }
       $override = $exo_entity_list->isOverride();
       if ($override && $exo_entity_list->getTargetEntityTypeId() === 'taxonomy_term') {
         foreach ($exo_entity_list->getTargetBundleIds() as $bundle) {
-          $this->derivatives['exo_list_builder.' . $exo_entity_list->id() . '.' . $bundle . '.taxonomy_vocabulary.add_form'] = [
-            'route_name' => 'exo_list_builder.' . $exo_entity_list->id() . '.' . $bundle . '.taxonomy_vocabulary.add_form',
+          $this->derivatives['exo_list_builder.taxonomy_vocabulary.' . $bundle . '.add_form'] = [
+            'route_name' => 'exo_list_builder.taxonomy_vocabulary.' . $bundle . '.add_form',
             'title' => 'Add ' . $bundle_info['taxonomy_term'][$bundle]['label'] . ' Term',
-            'appears_on' => ['exo_list_builder.' . $exo_entity_list->id() . '.' . $bundle . '.taxonomy_vocabulary.overview_form'],
+            'appears_on' => ['exo_list_builder.taxonomy_vocabulary.' . $bundle . '.overview_form'],
           ] + $base_plugin_definition;
         }
       }

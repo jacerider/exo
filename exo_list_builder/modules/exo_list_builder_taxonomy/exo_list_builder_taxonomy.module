@@ -1,0 +1,110 @@
+<?php
+
+/**
+ * @file
+ * Contains exo_list_builder_taxonomy.module.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function exo_list_builder_taxonomy_entity_type_alter(array &$entity_types) {
+  $entity_types['taxonomy_term']->setHandlerClass('exo_list_builder', 'Drupal\exo_list_builder_taxonomy\ExoListBuilderTaxonomyTerm');
+}
+
+/**
+ * Implements hook_entity_operation().
+ */
+function exo_list_builder_taxonomy_entity_operation(EntityInterface $entity) {
+  $operations = [];
+  if ($entity->getEntityTypeId() == 'taxonomy_vocabulary') {
+    $operations['terms'] = [
+      'title' => t('Terms'),
+      'url' => $entity->toUrl('overview-form'),
+      'weight' => -10,
+    ];
+  }
+  return $operations;
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function exo_list_builder_form_taxonomy_overview_terms_alter(&$form, FormStateInterface $form_state) {
+  /** @var \Drupal\taxonomy\VocabularyInterface $vocabulary */
+  $vocabulary = $form_state->get(['taxonomy', 'vocabulary']);
+  $controls = $vocabulary->getThirdPartySettings('exo_list_builder');
+  if (isset($controls['order']) && empty($controls['order'])) {
+    unset($form['terms']['#tabledrag']);
+    unset($form['terms']['#header']['weight']);
+    foreach (Element::children($form['terms']) as $key) {
+      unset($form['terms'][$key]['weight']);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function exo_list_builder_form_taxonomy_vocabulary_form_alter(&$form, FormStateInterface $form_state) {
+  /** @var \Drupal\Core\Entity\EntityFormInterface $form_object */
+  $form_object = $form_state->getFormObject();
+  /** @var \Drupal\taxonomy\VocabularyInterface $vocabulary */
+  $vocabulary = $form_object->getEntity();
+
+  /** @var \Drupal\taxonomy\TermStorageInterface $taxonomy_storage */
+  $taxonomy_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+  $hierarchy_type = $taxonomy_storage->getVocabularyHierarchyType($vocabulary->id());
+
+  $controls = $vocabulary->getThirdPartySettings('exo_list_builder');
+  $elements = [
+    '#type' => 'fieldset',
+    '#title' => t('Settings'),
+    '#tree' => TRUE,
+  ];
+  $elements['order'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Enable Ordering'),
+    '#description' => t('Allow terms to be ordered.'),
+    '#default_value' => !empty($controls['order']) || !isset($controls['order']),
+  ];
+  $elements['nest'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Enable Nesting'),
+    '#description' => t('Allow terms to be nested.'),
+    '#disabled' => $hierarchy_type !== 0,
+    '#default_value' => !empty($controls['nest']) || !isset($controls['nest']) || $hierarchy_type !== 0,
+    '#states' => [
+      'visible' => [
+        ':input[name="exo_list_builder[order]"]' => ['checked' => TRUE],
+      ],
+    ],
+  ];
+
+  // Insert after description.
+  $keys = array_keys($form);
+	$index = array_search('description', $keys);
+	$pos = false === $index ? count($form) : $index + 1;
+	$form = array_merge( array_slice($form, 0, $pos), ['exo_list_builder' => $elements], array_slice($form, $pos) );
+
+  $form['actions']['submit']['#submit'][] = 'exo_list_builder_form_taxonomy_vocabulary_form_submit';
+}
+
+/**
+ * Submit handler for commerce product form.
+ */
+function exo_list_builder_form_taxonomy_vocabulary_form_submit(array $form, FormStateInterface $form_state) {
+  /** @var \Drupal\Core\Entity\EntityFormInterface $form_object */
+  $form_object = $form_state->getFormObject();
+  /** @var \Drupal\taxonomy\VocabularyInterface $vocabulary */
+  $vocabulary = $form_object->getEntity();
+
+  $controls = $form_state->getValue('exo_list_builder');
+  $vocabulary->setThirdPartySetting('exo_list_builder', 'order', !empty($controls['order']));
+  $vocabulary->setThirdPartySetting('exo_list_builder', 'nest', !empty($controls['order']) && !empty($controls['nest']));
+  $vocabulary->save();
+}

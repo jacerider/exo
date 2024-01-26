@@ -5,7 +5,6 @@ namespace Drupal\exo_list_builder\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\exo_list_builder\EntityListInterface;
-use Drupal\taxonomy\VocabularyInterface;
 
 /**
  * Defines a generic controller to list entities.
@@ -48,14 +47,6 @@ class ExoListController extends ControllerBase {
       }
     }
     return $label;
-  }
-
-  /**
-   * Simple route redirection.
-   */
-  public function vocabularyEditRedirect(VocabularyInterface $taxonomy_vocabulary) {
-    $url = $taxonomy_vocabulary->toUrl('edit-form');
-    return $this->redirect($url->getRouteName(), $url->getRouteParameters());
   }
 
 }

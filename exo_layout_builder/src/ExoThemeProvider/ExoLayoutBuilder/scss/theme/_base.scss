@@ -19,32 +19,32 @@
       .form-actions {
 
         .button {
-          color: color(theme-white);
+          color: color(theme-white) !important;
 
           &.exo-layout-builder-submit {
-            background: color(theme-primary);
-            text-shadow: 0 0 3px color-scale-direct(theme-primary, 10%);
+            background: color(theme-primary) !important;
+            text-shadow: 0 0 3px color-scale-direct(theme-primary, 10%) !important;
 
             &:hover {
-              background: color-scale-direct(theme-primary, 10%);
+              background: color-scale-direct(theme-primary, 10%) !important;
             }
           }
 
           &.exo-layout-builder-discard {
-            background: color(theme-warning);
-            text-shadow: 0 0 3px color-scale-direct(theme-warning, 10%);
+            background: color(theme-warning) !important;
+            text-shadow: 0 0 3px color-scale-direct(theme-warning, 10%) !important;
 
             &:hover {
-              background: color-scale-direct(theme-warning, 10%);
+              background: color-scale-direct(theme-warning, 10%) !important;
             }
           }
 
           &.exo-layout-builder-revert {
-            background: color(theme-alert);
-            text-shadow: 0 0 3px color-scale-direct(theme-alert, 10%);
+            background: color(theme-alert) !important;
+            text-shadow: 0 0 3px color-scale-direct(theme-alert, 10%) !important;
 
             &:hover {
-              background: color-scale-direct(theme-alert, 10%);
+              background: color-scale-direct(theme-alert, 10%) !important;
             }
           }
         }

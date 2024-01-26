@@ -18,7 +18,3 @@ entity.exo_entity_list.delete_form:
   base_route:  entity.exo_entity_list.canonical
   title: Delete
   weight: 10
-
-exo_list_builder.local_tasks:
-  deriver: 'Drupal\exo_list_builder\Plugin\Derivative\ExoListBuilderLocalTasks'
-  weight: 100

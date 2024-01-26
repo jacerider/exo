@@ -1,0 +1,5 @@
+list:
+  version: VERSION
+  css:
+    component:
+      css/exo.list-builder.taxonomy.css: { minified: true }

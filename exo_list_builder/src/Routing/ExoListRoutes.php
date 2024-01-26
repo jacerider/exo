@@ -18,44 +18,25 @@ class ExoListRoutes {
     $entity_type_manager = \Drupal::entityTypeManager();
     /** @var \Drupal\exo_list_builder\EntityListInterface[] $exo_entity_lists */
     $exo_entity_lists = $entity_type_manager->getStorage('exo_entity_list')->loadMultiple();
-    $bundle_info = \Drupal::service('entity_type.bundle.info')->getAllBundleInfo();
 
     foreach ($exo_entity_lists as $exo_entity_list) {
-      $override = $exo_entity_list->isOverride();
-      $defaults = [
-        '_controller' => '\Drupal\exo_list_builder\Controller\ExoListController::listing',
-        '_title_callback' => '\Drupal\exo_list_builder\Controller\ExoListController::listingTitle',
-        'exo_entity_list' => $exo_entity_list->id(),
-      ];
-      $requirements = [
-        '_entity_access'  => 'exo_entity_list.view',
-      ];
-      if ($override && $exo_entity_list->getTargetEntityTypeId() === 'taxonomy_term') {
-        // Special condition allowing for override of taxonomy management page.
-        foreach ($exo_entity_list->getTargetBundleIds() as $bundle) {
-          // Overview.
-          $routes['exo_list_builder.' . $exo_entity_list->id() . '.' . $bundle . '.taxonomy_vocabulary.overview_form'] = new Route('/admin/structure/taxonomy/manage/' . $bundle . '/overview', $defaults + [
-            'taxonomy_vocabulary' => $bundle,
-          ], $requirements);
-          // Add.
-          $routes['exo_list_builder.' . $exo_entity_list->id() . '.' . $bundle . '.taxonomy_vocabulary.add_form'] = new Route('/admin/structure/taxonomy/manage/' . $bundle . '/add', [
-            '_controller' => '\Drupal\taxonomy\Controller\TaxonomyController::addForm',
-            '_title' => 'Add ' . $bundle_info['taxonomy_term'][$bundle]['label'] . ' Term',
-            'taxonomy_vocabulary' => $bundle,
-          ], [
-            '_entity_create_access' => 'taxonomy_term:' . $bundle,
-          ]);
-        }
-        $override = FALSE;
+      if (!$exo_entity_list->isPublished()) {
+        continue;
       }
-      if (!$override && ($url = $exo_entity_list->getUrl())) {
-        $routes['exo_list_builder.' . $exo_entity_list->id()] = new Route($url, $defaults, $requirements);
+
+      $list_routes = $exo_entity_list->getHandler()->routes($routes);
+      if ($list_routes) {
+        $routes += $list_routes;
       }
     }
 
+    // Support entity exo_list_builder entity definitions.
     foreach ($entity_type_manager->getDefinitions() as $entity_type_id => $entity_type) {
       if ($exo_list_builder = $entity_type->get('exo_list_builder')) {
         foreach ($exo_list_builder as $link_template => $data) {
+          if (!$exo_entity_list->isPublished()) {
+            continue;
+          }
           if (!is_array($data)) {
             continue;
           }
@@ -67,7 +48,7 @@ class ExoListRoutes {
           $exo_entity_list_id = $data['id'];
           if ($entity_type->hasLinkTemplate($link_template) && isset($exo_entity_lists[$exo_entity_list_id])) {
             $exo_entity_list = $exo_entity_lists[$exo_entity_list_id];
-            $route = new Route($entity_type->getLinkTemplate('archive-collection'));
+            $route = new Route($entity_type->getLinkTemplate($link_template));
             $route
               ->addDefaults([
                 '_controller' => $data['controller'],

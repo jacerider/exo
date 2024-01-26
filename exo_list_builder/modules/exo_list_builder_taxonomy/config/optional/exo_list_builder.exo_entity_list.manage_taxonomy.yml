@@ -1,0 +1,71 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - taxonomy
+id: manage_taxonomy
+label: 'Manage Taxonomy'
+key: q
+target_entity_type: taxonomy_vocabulary
+target_bundles_include:
+  taxonomy_vocabulary: taxonomy_vocabulary
+target_bundles_exclude: {  }
+override: true
+format: table
+url: ''
+limit: 0
+limit_options:
+  - '10'
+  - '20'
+  - '50'
+  - '100'
+offset: 0
+actions: {  }
+sorts: {  }
+sort: null
+references: null
+fields:
+  _label:
+    display_label: Name
+    view:
+      type: entity_label
+      settings:
+        entity_icon: '1'
+        override_label: ''
+        link_label: '1'
+        empty: '-'
+        entity_id: 0
+      toggle: false
+      show: true
+      wrapper: ''
+      sort: ''
+      sort_asc_label: '@label A-Z'
+      sort_desc_label: '@label Z-A'
+      align: left
+      size: stretch
+      group_by_sort: asc
+      sort_natsort: 0
+      group_by: 0
+    filter:
+      type: ''
+    weight: 0
+settings:
+  list_link: 0
+  limit_status: 1
+  pagerer_header: ''
+  pagerer_footer: ''
+  remember_limit: 0
+  render_status: 1
+  operations_status: 1
+  result_status: 0
+  sort_status: 1
+  filter_status: 1
+  filter_overview_status: 0
+  block_status: 0
+  first_page_only_status: 0
+  hide_no_results: 0
+  item_wrapper_status: 1
+  submit_label: ''
+  empty_message: 'No vocabularies available. <a href="/admin/structure/taxonomy/add">Add Vocabulary</a>.'
+  empty_filter_message: ''
+weight: 0

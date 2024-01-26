@@ -296,13 +296,6 @@
       text-align: center;
       background-image: none;
       min-height: 0;
-      // padding: rem-calc(2);
-      // font-size: rem-calc(14);
-      // background: none;
-      // min-height: 0;
-      // line-height: inherit;
-      // appearance: auto;
-      // border: 1px solid gray(40);
     }
 
     [type='number'] {
@@ -718,6 +711,10 @@
 
   tr.draggable {
 
+    .tabledrag-cell-content__item {
+      padding-right: 0;
+    }
+
     td.table-select {
       width: 1%;
       order: 2;
@@ -726,7 +723,6 @@
     .tabledrag-handle {
       margin: 0 $global-margin * 0.5 0 0 !important;
       overflow: visible;
-      height: 16px;
       width: 16px;
       padding: 0;
       margin: 0;
@@ -861,7 +857,6 @@
   a {
     position: relative;
     display: block;
-    // font-size: rem-calc(16);
     padding: $global-padding;
     border: 1px solid gray(3);
     border-bottom-color: gray(7);

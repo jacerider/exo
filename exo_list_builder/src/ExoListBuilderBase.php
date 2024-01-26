@@ -26,6 +26,8 @@ use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\exo_list_builder\Plugin\ExoListActionSettingsInterface;
 use Drupal\exo_list_builder\Plugin\ExoListFilterInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollection;
 
 /**
  * Provides a base class for exo list builder.
@@ -289,6 +291,58 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   public function setEntityList(EntityListInterface $entity_list) {
     $this->entityList = $entity_list;
     $this->buildOptions();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function toUrl(array $options = []) {
+    $entity_list = $this->getEntityList();
+    if ($entity_list->getUrl()) {
+      return Url::fromRoute($entity_list->getRouteName(), [], $options);
+    }
+    if ($entity_list->isOverride()) {
+      if ($entity_list->getTargetEntityType()->getLinkTemplate('collection')) {
+        $target_entity_type = $entity_list->getTargetEntityType();
+        return Url::fromRoute("entity.{$target_entity_type->id()}.collection", [], $options);
+      }
+    }
+    return Url::fromRoute('<current>', [], $options);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRouteName() {
+    $entity_list = $this->getEntityList();
+    $route_name = 'entity.exo_entity_list.canonical';
+    $override = $entity_list->isOverride();
+    if ($override) {
+      $route_name = 'entity.' . $entity_list->getTargetEntityTypeId() . '.collection';
+    }
+    elseif ($entity_list->getUrl()) {
+      $route_name = 'exo_list_builder.' . $entity_list->id();
+    }
+    return $route_name;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function allowOverride() {
+    $entity_list = $this->getEntityList();
+    $bundle_includes = $entity_list->getTargetBundleIncludeIds();
+    $bundle_excludes = $entity_list->getTargetBundleExcludeIds();
+    $bundles = $entity_list->getTargetBundleIds();
+    if (
+      // An entity type without bundles.
+      (count($bundles) === 1 && key($bundles) === $entity_list->getTargetEntityTypeId()) ||
+      // An entity type with all bundles.
+      (empty($bundle_includes) && empty($bundle_excludes))
+    ) {
+      return TRUE;
+    }
+    return FALSE;
   }
 
   /**
@@ -601,7 +655,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
       if ($instance) {
         $sort = $this->getOption('sort');
-        $this->cacheableMetadata->addCacheableDependency($instance);
+        if ($this->cacheableMetadata) {
+          $this->cacheableMetadata->addCacheableDependency($instance);
+        }
         $instance->sort($query, $entity_list, $sort, $sort_plugin_value);
         if ($context === 'default') {
           $this->setOption('order', $order);
@@ -1919,10 +1975,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       '#attributes' => ['class' => ['exo-list-filters-modal']],
       '#parents' => ['filters'],
     ];
-    // $modal['close'] = [
-    //   '#type' => 'exo_modal_close',
-    //   '#label' => exo_icon()->setIcon('regular-times'),
-    // ];
 
     $show_modal = FALSE;
     $show_inline = FALSE;
@@ -2670,6 +2722,67 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       $this->queues[$action_id] = $queue_factory->get('exo_list_action:' . $this->getEntityList()->id() . ':' . $action_id, TRUE);
     }
     return $this->queues[$action_id];
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function routes(array $current_routes) {
+    $routes = [];
+    $entity_list = $this->entityList;
+    if (!$entity_list->isOverride() && ($url = $entity_list->getUrl())) {
+      $routes['exo_list_builder.' . $entity_list->id()] = new Route($url, [
+        '_controller' => '\Drupal\exo_list_builder\Controller\ExoListController::listing',
+        '_title_callback' => '\Drupal\exo_list_builder\Controller\ExoListController::listingTitle',
+        'exo_entity_list' => $entity_list->id(),
+      ], [
+        '_entity_access'  => 'exo_entity_list.view',
+      ]);
+    }
+    return $routes;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function alterRoutes(RouteCollection $collection) {
+    $entity_list = $this->entityList;
+    if ($entity_list->isOverride()) {
+      $route_name = 'entity.' . $entity_list->getTargetEntityTypeId() . '.collection';
+      if ($entity_list->getTargetEntityTypeId() === 'node') {
+        $route_name = 'system.admin_content';
+      }
+      $route = $collection->get($route_name);
+      if ($entity_list->getTargetEntityTypeId() === 'media') {
+        $route->setRequirement('_permission', 'access media overview');
+      }
+      if ($route) {
+        $this->overrideRoute($route);
+      }
+    }
+  }
+
+  /**
+   * Override a route.
+   *
+   * @param \Symfony\Component\Routing\Route $route
+   *   The route.
+   */
+  protected function overrideRoute(Route $route) {
+    $entity_list = $this->entityList;
+    if ($url = $entity_list->getUrl()) {
+      $route->setPath($url);
+    }
+    $defaults = $route->getDefaults();
+    $defaults['_controller'] = '\Drupal\exo_list_builder\Controller\ExoListController::listing';
+    $defaults['_title_callback'] = '\Drupal\exo_list_builder\Controller\ExoListController::listingTitle';
+    $defaults['exo_entity_list'] = $entity_list->id();
+    unset($defaults['_entity_list']);
+    unset($defaults['title']);
+    $route->setDefaults($defaults);
+    $options = $route->getOptions();
+    $options['parameters']['exo_entity_list']['type'] = 'entity:exo_entity_list';
+    $route->setOptions($options);
   }
 
   /**

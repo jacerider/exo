@@ -88,6 +88,7 @@ class EntityListAddForm extends EntityForm {
     foreach ($entity_types as $type) {
       $options[$type->id()] = $type->getLabel();
     }
+    asort($options);
     $form['target_entity_type'] = [
       '#type' => 'select',
       '#title' => $this->t('Entity Type'),

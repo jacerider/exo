@@ -1,0 +1,3 @@
+exo_list_builder_taxonomy.local_actions:
+  deriver: 'Drupal\exo_list_builder_taxonomy\Plugin\Derivative\ExoListBuilderTaxonomyLocalActions'
+  weight: 100

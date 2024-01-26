@@ -3,11 +3,12 @@
 namespace Drupal\exo_list_builder;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
+use Drupal\Core\Entity\EntityPublishedInterface;
 
 /**
  * Provides an interface for defining eXo Entity List entities.
  */
-interface EntityListInterface extends ConfigEntityInterface {
+interface EntityListInterface extends ConfigEntityInterface, EntityPublishedInterface {
 
   /**
    * Get the query key.

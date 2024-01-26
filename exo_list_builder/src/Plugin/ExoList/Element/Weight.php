@@ -3,6 +3,7 @@
 namespace Drupal\exo_list_builder\Plugin\ExoList\Element;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
+use Drupal\Core\Config\Entity\ConfigEntityStorageInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\Sql\SqlEntityStorageInterface;
@@ -132,6 +133,14 @@ class Weight extends ExoListElementBase {
         $query->condition($bundle_key, $entity_list->getTargetBundleIds(), 'IN');
       }
       $query->execute();
+    }
+    elseif ($storage instanceof ConfigEntityStorageInterface) {
+      /** @var \Drupal\Core\Config\Entity\ConfigEntityInterface[] $entities */
+      $entities = $storage->loadMultiple();
+      foreach ($entities as $entity) {
+        $entity->set($field['field_name'], 0);
+        $entity->save();
+      }
     }
     else {
       \Drupal::messenger()->addWarning('Non SQL weight updating not yet supported.');

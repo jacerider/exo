@@ -25,14 +25,14 @@ class EntityListAccessControlHandler extends EntityAccessControlHandler {
     }
     $admin_permission = $this->entityType->getAdminPermission();
     if ($admin_permission && $account->hasPermission($admin_permission)) {
-      return AccessResult::allowedIfHasPermission($account, $admin_permission);
+      return AccessResult::allowed();
     }
     if ($operation === 'view') {
       $permission = 'access ' . $entity->id() . ' list';
       if ($account->hasPermission($permission)) {
         return AccessResult::allowed()->addCacheContexts(['user.permissions']);
       }
-      if ($entity->isOverride() && $this->entityType->getLinkTemplate('collection')) {
+      if ($entity->isPublished() && $entity->isOverride() && $this->entityType->getLinkTemplate('collection')) {
         $target_entity_type = $entity->getTargetEntityType();
         $route_name = "entity.{$target_entity_type->id()}.collection";
         $url = new Url($route_name);
