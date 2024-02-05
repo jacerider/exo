@@ -12,7 +12,7 @@
       // Support eXo modals. Drupal wants to use its default modals, but when
       // eXo modals are used in it's place, many modules will still call this
       // command to close the "dialog" it thinks is open.
-      Drupal.AjaxCommands.prototype.exoModalClose(ajax, response, status);
+      Drupal.AjaxCommands.prototype.exoModalDialogClose(ajax, response, status);
     }
   };
 
@@ -35,7 +35,7 @@
     }
   };
 
-  Drupal.AjaxCommands.prototype.exoModalClose = function (ajax, response, status) {
+  Drupal.AjaxCommands.prototype.exoModalDialogClose = function (ajax, response, status) {
     if (Drupal.ExoModal) {
       var modals = Drupal.ExoModal.getVisible();
       if (modals.count()) {

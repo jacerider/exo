@@ -15,6 +15,17 @@
 
   .exo-form {
     margin-bottom: 0 !important;
+
+    &.js-media-library-add-form {
+      margin-bottom: $global-margin !important;
+    }
+
+    > div {
+
+      &:last-child {
+        margin: 0;
+      }
+    }
   }
 
   .js-media-library-menu {

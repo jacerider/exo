@@ -260,7 +260,7 @@ function exo_media_exo_form_settings_alter(array &$settings, array $context) {
   switch ($context['route_name']) {
     case 'editor.media_dialog':
     case 'media_library.ui':
-      $settings['theme'] = $context['admin']['theme'];
+      $settings['theme'] = 'black';
       $settings['style'] = $context['admin']['style'];
       break;
   }

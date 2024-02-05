@@ -8,4 +8,14 @@
       font-size: rem-calc(11);
     }
   }
+
+  .field-input {
+    font-size: rem-calc(11);
+    flex-wrap: wrap !important;
+
+    > .counter {
+      flex-basis: 100%;
+      margin: rem-calc(5 0 0);
+    }
+  }
 }
