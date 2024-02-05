@@ -82,18 +82,8 @@ function exo_icon_admin_form_taxonomy_overview_terms_alter(&$form, $form_state, 
       }
       $term = $form['terms'][$key]['#term'];
       $element = &$form['terms'][$key];
-      $prefix = NULL;
-      if (!empty($element['term']['#prefix'])) {
-        $prefix['#markup'] = $element['term']['#prefix'];
-      }
-      $element['term']['#prefix'] = '&nbsp;';
-      $element['term'] = [
-        'prefix' => $prefix,
-        'icon' => [
-          '#markup' => exo_icon($element['term']['#title'])->setIcon(exo_icon_entity_icon($term))->setIconOnly(),
-        ],
-        'title' => $element['term'],
-      ];
+      $element['term']['#prefix'] = $element['term']['#prefix'] ?? '';
+      $element['term']['#prefix'] .= exo_icon($element['term']['#title'])->setIcon(exo_icon_entity_icon($term))->setIconOnly();
       if (isset($element['status'])) {
         if ($term->isPublished()) {
           $element['status']['#markup'] = exo_icon('Published')->setIcon('regular-toggle-on')->setIconOnly();

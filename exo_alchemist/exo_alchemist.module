@@ -854,6 +854,9 @@ function exo_alchemist_exo_modal_alter(ExoModalInterface $modal, array $context)
  */
 function exo_alchemist_exo_form_settings_alter(array &$settings, array $context) {
   // Act on layout builder routes except for the overrides page.
+  if (empty($context['admin'])) {
+    return;
+  }
   switch ($context['route_name']) {
     case 'layout_builder.field.update':
       $trigger_name = \Drupal::request()->request->get('_triggering_element_name');
@@ -861,7 +864,7 @@ function exo_alchemist_exo_form_settings_alter(array &$settings, array $context)
       // layout.
       if (!$trigger_name || ($trigger_name && $trigger_name !== 'op')) {
         $settings['theme'] = 'black';
-        $settings['style'] = 'intersect';
+        $settings['style'] = $context['admin']['style'];
       }
       break;
   }
