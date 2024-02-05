@@ -289,30 +289,49 @@ function exo_form_get_settings($page_settings = []) {
   $settings = &drupal_static(__FUNCTION__);
   $active_theme_id = \Drupal::theme()->getActiveTheme()->getName();
   // Media library always uses the admin theme.
-  if (\Drupal::request()->query->get('media_library_opener_id')) {
-    if ($admin_theme = \Drupal::config('system.theme')->get('admin')) {
-      $active_theme_id = $admin_theme;
-    }
+  $request = \Drupal::request();
+  $routeMatch = \Drupal::routeMatch();
+  $query = $request->query->all();
+  if (!empty($query['ajax_page_state']['theme'])) {
+    $active_theme_id = $query['ajax_page_state']['theme'];
   }
   if (!isset($settings[$active_theme_id]) || !empty($page_settings)) {
     $settings[$active_theme_id] = [];
-    $theme_settings = [];
+    $themes = [];
     $global_settings = \Drupal::service('exo_form.settings')->getSettings();
-    $enabled = isset($global_settings['themes'][$active_theme_id]);
-    if ($enabled) {
+    foreach ($global_settings['themes'] as $theme_id => $theme_settings) {
+      $theme_settings = $page_settings;
+      $theme_settings += !empty($global_settings['themes'][$theme_id]) ? $global_settings['themes'][$theme_id] : [];
+      $theme_settings += $global_settings;
+      unset($theme_settings['themes'], $theme_settings['exo_default'], $theme_settings['exo_preset']);
+      $themes[$theme_id] = $theme_settings;
+    }
+    if (isset($themes[$active_theme_id])) {
       $theme_settings = $page_settings;
       $theme_settings += !empty($global_settings['themes'][$active_theme_id]) ? $global_settings['themes'][$active_theme_id] : [];
       $theme_settings += $global_settings;
       unset($theme_settings['themes'], $theme_settings['exo_default'], $theme_settings['exo_preset']);
       $settings[$active_theme_id] = $theme_settings;
+      $context = [
+        'route_name' => $routeMatch->getRouteName(),
+        'request' => $request,
+        'themes' => $themes,
+        'admin' => $themes[exo_form_get_admin_theme()] ?? NULL,
+      ];
+      \Drupal::moduleHandler()->alter('exo_form_settings', $settings[$active_theme_id], $context);
     }
-    $context = [
-      'route_name' => \Drupal::routeMatch()->getRouteName(),
-      'request' => \Drupal::request(),
-    ];
-    \Drupal::moduleHandler()->alter('exo_form_settings', $settings[$active_theme_id], $context);
   }
   return $settings[$active_theme_id];
+}
+
+/**
+ * Get the admin theme.
+ *
+ * @return string
+ *   The admin theme.
+ */
+function exo_form_get_admin_theme() {
+  return \Drupal::config('system.theme')->get('admin');
 }
 
 /**
