@@ -235,28 +235,23 @@ function exo_modal_ajax_render_alter(array &$data) {
     }
   }
   if ($modal_settings_collection) {
-    foreach ($modal_settings_collection as $modal_settings) {
-      $merge = FALSE;
-      foreach ($data as $key => $item) {
-        if ($item['command'] === 'settings') {
-          $merge = TRUE;
-          if (isset($data[$key]['settings']['exoModal']['modals'])) {
-            $data[$key]['settings']['exoModal'] = NestedArray::mergeDeep($data[$key]['settings']['exoModal'], $modal_settings['exoModal']);
-          }
-          else {
-            $data[$key]['settings'] += $modal_settings;
-          }
-          if (isset($data[$key]['settings']['dialog'])) {
-            $data[$key]['settings']['dialog'] = [];
-          }
-          $command = new SettingsCommand($modal_settings, TRUE);
-          array_unshift($data, $command->render());
-          break;
-        }
+    $settingsCommand = NULL;
+    foreach ($data as $key => $item) {
+      if ($item['command'] === 'settings') {
+        $settingsCommand = &$data[$key];
       }
-      if (!$merge) {
-        $command = new SettingsCommand($modal_settings, TRUE);
-        array_unshift($data, $command->render());
+    }
+    if (!$settingsCommand) {
+      $command = new SettingsCommand([], TRUE);
+      array_unshift($data, $command->render());
+      $settingsCommand = &$data[0];
+    }
+    foreach ($modal_settings_collection as $modal_settings) {
+      if (isset($settingsCommand['settings']['exoModal']['modals'])) {
+        $settingsCommand['settings']['exoModal'] = NestedArray::mergeDeep($settingsCommand['settings']['exoModal'], $modal_settings['exoModal']);
+      }
+      else {
+        $settingsCommand['settings'] += $modal_settings;
       }
     }
   }
