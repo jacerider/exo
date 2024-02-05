@@ -194,6 +194,22 @@ function exo_media_page_attachments_alter(array &$attachments) {
 }
 
 /**
+ * Implements hook_ajax_render_alter().
+ */
+function exo_media_ajax_render_alter(array &$data) {
+  $query = \Drupal::request()->query;
+  if ($query->get('media_library_opener_id') && $query->get('page')) {
+    // Media library is currently re-loading all js/css when paging.
+    // @see https://www.drupal.org/project/drupal/issues/3399951
+    foreach ($data as $key => $item) {
+      if (in_array($item['command'], ['add_css', 'add_js'])) {
+        unset($data[$key]);
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function exo_media_form_media_library_add_form_upload_alter(array &$form, FormStateInterface $form_state) {
@@ -236,18 +252,18 @@ function exo_media_exo_modal_alter(ExoModalInterface $modal, array $context) {
  * Implements hook_exo_form_settings_alter().
  */
 function exo_media_exo_form_settings_alter(array &$settings, array $context) {
+  // Act on layout builder routes except for the overrides page.
+  if (empty($context['admin'])) {
+    return;
+  }
+
   switch ($context['route_name']) {
     case 'editor.media_dialog':
     case 'media_library.ui':
-      $settings['theme'] = 'black';
-      $settings['style'] = 'intersect';
+      $settings['theme'] = $context['admin']['theme'];
+      $settings['style'] = $context['admin']['style'];
       break;
   }
-  // $trigger_name = $context['request']->request->get('_triggering_element_name');
-  // if ($trigger_name && strpos($trigger_name, 'media-library') !== FALSE) {
-  //   $settings['theme'] = 'black';
-  //   $settings['style'] = 'intersect';
-  // }
 }
 
 /**
