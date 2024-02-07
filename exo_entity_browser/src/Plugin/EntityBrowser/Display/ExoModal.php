@@ -9,7 +9,8 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\exo_modal\Ajax\ExoModalOpenCommand;
 use Drupal\Core\Entity\EntityInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
+
 
 /**
  * Presents entity browser in an Modal.
@@ -113,10 +114,11 @@ class ExoModal extends Modal {
    * Intercepts default response and injects response that will trigger JS to
    * propagate selected entities upstream.
    *
-   * @param \Symfony\Component\HttpKernel\Event\FilterResponseEvent $event
+   * @param \Symfony\Component\HttpKernel\Event\ResponseEvent $event
+   * 
    *   Response event.
    */
-  public function propagateSelection(FilterResponseEvent $event) {
+  public function propagateSelection(ResponseEvent $event) {
     $render = [
       'labels' => [
         '#markup' => 'Labels: ' . implode(', ', array_map(function (EntityInterface $item) {
