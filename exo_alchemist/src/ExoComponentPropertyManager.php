@@ -271,7 +271,6 @@ class ExoComponentPropertyManager extends DefaultPluginManager implements ExoCom
             }
             if ($instance = $this->getModifierAttribute($property, $value)) {
               $instance->alter($definition, $entity, $contexts);
-              // $modifier_attributes[$modifier_name] = NestedArray::mergeDeep($modifier_attributes[$modifier_name], $instance->asAttributeArray());
             }
           }
         }
