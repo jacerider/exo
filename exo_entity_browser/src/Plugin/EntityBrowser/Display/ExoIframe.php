@@ -3,7 +3,7 @@
 namespace Drupal\exo_entity_browser\Plugin\EntityBrowser\Display;
 
 use Drupal\entity_browser\Plugin\EntityBrowser\Display\IFrame;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Drupal\Core\Entity\EntityInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Drupal\Core\Form\FormStateInterface;
@@ -34,7 +34,7 @@ class ExoIframe extends IFrame {
   /**
    * {@inheritdoc}
    */
-  public function propagateSelection(FilterResponseEvent $event) {
+  public function propagateSelection(ResponseEvent $event) {
     $render = [
       'labels' => [
         '#markup' => 'Labels: ' . implode(', ', array_map(function (EntityInterface $item) {
