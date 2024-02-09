@@ -15,6 +15,7 @@ use Drupal\taxonomy\TermForm;
  */
 function exo_list_builder_taxonomy_entity_type_alter(array &$entity_types) {
   $entity_types['taxonomy_term']->setHandlerClass('exo_list_builder', 'Drupal\exo_list_builder_taxonomy\ExoListBuilderTaxonomyTerm');
+  $entity_types['taxonomy_vocabulary']->setHandlerClass('exo_list_builder', 'Drupal\exo_list_builder_taxonomy\ExoListBuilderTaxonomyVocabulary');
 }
 
 /**

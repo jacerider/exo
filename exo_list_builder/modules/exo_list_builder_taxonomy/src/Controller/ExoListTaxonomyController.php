@@ -6,6 +6,7 @@ use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\exo_list_builder\Controller\ExoListController;
 use Drupal\exo_list_builder\EntityListInterface;
 use Drupal\taxonomy\VocabularyInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Defines a generic controller to list entities.
@@ -15,15 +16,8 @@ class ExoListTaxonomyController extends ExoListController {
 
   /**
    * Provides the listing page for any entity type.
-   *
-   * @param \Drupal\exo_list_builder\EntityListInterface $exo_entity_list
-   *   The exo entity list to render.
-   *
-   * @return array
-   *   A render array as expected by
-   *   \Drupal\Core\Render\RendererInterface::render().
    */
-  public function listing(EntityListInterface $exo_entity_list) {
+  public function listing(Request $request, EntityListInterface $exo_entity_list) {
     $vocabulary = \Drupal::routeMatch()->getParameter('taxonomy_vocabulary');
     if (is_string($vocabulary)) {
       $vocabulary = $this->entityTypeManager()->getStorage('taxonomy_vocabulary')->load($vocabulary);
@@ -44,7 +38,7 @@ class ExoListTaxonomyController extends ExoListController {
       $form['#attached']['library'][] = 'exo_list_builder_taxonomy/list';
       return $form;
     }
-    return parent::listing($exo_entity_list);
+    return parent::listing($request, $exo_entity_list);
   }
 
   /**
