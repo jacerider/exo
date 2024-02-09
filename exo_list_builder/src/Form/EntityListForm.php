@@ -300,6 +300,7 @@ class EntityListForm extends EntityForm {
       $default_label => [
         '' => $this->t('Drupal core pager'),
         '_hide' => $this->t('Hide pager'),
+        '_show_all' => $this->t('Show All (ajax)'),
       ],
     ];
     if ($this->moduleHandler->moduleExists('pagerer')) {

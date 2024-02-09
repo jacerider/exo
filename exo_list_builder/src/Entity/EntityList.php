@@ -357,6 +357,14 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       }
       return $this->getHandler()->toUrl($options);
     }
+    // This is the frontend view available to the public.
+    if ($rel === 'view' && $this->isPublished()) {
+      $key = $this->getKey();
+      if (!empty($options['query'][$key])) {
+        $options['query'][$key] = $this->optionsEncode($options['query'][$key]);
+      }
+      return Url::fromRoute('entity.exo_entity_list.view', ['exo_entity_list' => $this->id()], $options);
+    }
     return parent::toUrl($rel, $options);
   }
 

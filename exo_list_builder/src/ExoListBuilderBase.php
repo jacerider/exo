@@ -550,7 +550,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       $query->condition($entity_list->getTargetEntityType()->getKey('bundle'), $entity_list->getTargetBundleIds(), 'IN');
     }
 
-    // Use an set query conditions.
+    // Use any set query conditions.
     $this->buildQueryConditions($query, $context);
 
     // Filter.
@@ -1026,7 +1026,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     ];
 
     if (!$hide_extras) {
-      $pager = $this->buildPager($build);
+      $pager = $this->buildPager($build, $build);
       $build['header']['second']['pager'] = $pager;
       // Remove pages from header.
       unset($build['header']['second']['pager']['pages']);
@@ -1705,16 +1705,16 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   public function getLimit() {
     if (!isset($this->limit)) {
       $limit = $this->getOption('limit');
-      if ($limit) {
-        $options = $this->entityList->getLimitOptions();
-        if (!isset($options[$limit])) {
-          $limit = $this->entityList->getLimit();
-        }
-      }
       // Use stored session limit.
       if ($this->entityList->getSetting('limit_status') && $this->entityList->getSetting('remember_limit')) {
         $key = $this->entityList->id() . '_remember_limit';
         $limit = (int) \Drupal::service('session')->get($key) ?: $limit;
+      }
+      if ($limit || $limit === '0') {
+        $options = $this->entityList->getLimitOptions();
+        if (!isset($options[$limit])) {
+          $limit = $this->entityList->getLimit();
+        }
       }
       $this->limit = $limit;
     }
@@ -1724,7 +1724,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   /**
    * Build form pager.
    */
-  protected function buildPager(array $form) {
+  protected function buildPager(array $form, &$build) {
     $entity_list = $this->getEntityList();
     $form = [
       '#type' => 'html_tag',
@@ -1807,6 +1807,35 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
       if ($pagerer_footer === '_hide') {
         unset($form['pager_footer']);
+      }
+      if ($pagerer_header === '_show_all' || $pagerer_footer === '_show_all') {
+        $id = Html::getUniqueId('list');
+        $build['#attributes']['data-list-key'] = $id;
+        $query = [];
+        $query['limit'] = 0;
+        $query['lkey'] = $id;
+        if ($query_conditions = $this->getQueryConditions()) {
+          $query['lqc'] = $entity_list->optionsEncode($query_conditions);
+        }
+        $url = $entity_list->toUrl('view', [
+          'query' => $query,
+        ]);
+        if ($pagerer_header === '_show_all') {
+          unset($form['pager_header']);
+        }
+        if ($pagerer_footer === '_show_all') {
+          $form['pager_footer'] = [
+            '#type' => 'link',
+            '#title' => $this->t('Show More'),
+            '#url' => $url,
+            '#attributes' => [
+              'class' => ['exo-list-show-more', 'use-ajax'],
+            ],
+            '#attached' => [
+              'library' => ['core/drupal.ajax'],
+            ],
+          ];
+        }
       }
     }
 

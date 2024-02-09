@@ -31,3 +31,11 @@ entity.exo_entity_list.action_cancel_form:
     _title: 'Cancel Entity List Action'
   requirements:
     _entity_access: 'exo_entity_list.view'
+
+entity.exo_entity_list.view:
+  path: '/list/{exo_entity_list}'
+  defaults:
+    _controller: '\Drupal\exo_list_builder\Controller\ExoListController::listing'
+    _title_callback: '\Drupal\exo_list_builder\Controller\ExoListController::listingTitle'
+  requirements:
+    _entity_access: 'exo_entity_list.view'
