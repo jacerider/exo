@@ -34,7 +34,7 @@ class TaxonomyManage extends ExoToolbarItemConfigurableEntityBase {
    *
    * @var string
    */
-  protected $adminPermission = 'administer taxonomy';
+  protected $adminPermission = 'access taxonomy overview';
 
   /**
    * The entity create route name.
