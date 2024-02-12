@@ -198,7 +198,6 @@ function exo_alchemist_form_alter(&$form, FormStateInterface $form_state, $form_
         ] as $prefix) {
           $prefix = $prefix . ' exo_';
           if (substr($key, 0, strlen($prefix)) === $prefix) {
-            // ksm($key);
             unset($form['permissions'][$key]);
           }
         }
