@@ -87,7 +87,8 @@ class PromotionUsageLimit extends ExoListElementContentBase implements Container
       $usage = $current_usage . ' / ' . $usage_limit;
     }
     else {
-      $usage = 'blek';
+      $customer_limit = $entity->getCustomerUsageLimit();
+      $usage = $customer_limit ?: $this->t('Unlimited');
     }
     return $usage;
   }
