@@ -166,7 +166,6 @@ class ExoModalOpenCommand implements CommandInterface, CommandWithAttachedAssets
       'route_name' => \Drupal::routeMatch()->getRouteName(),
     ];
     \Drupal::moduleHandler()->invokeAll('exo_modal_alter', [$modal, $context]);
-    // ksm($modal->getSettings());
     $content = $modal->toRenderableModal();
     $content['#attached']['library'][] = 'exo_modal/ajax';
     $this->content = $content;
