@@ -97,7 +97,11 @@ class EntityLabel extends ExoListElementBase {
    */
   protected function getEntityAsLink($label, EntityInterface $entity) {
     if ($entity->getEntityType()->hasLinkTemplate('canonical') && $entity->access('view')) {
-      return Link::fromTextAndUrl($label, $entity->toUrl('canonical'))->toString();
+      try {
+        return Link::fromTextAndUrl($label, $entity->toUrl('canonical'))->toString();
+      }
+      catch (\Exception $e) {
+      }
     }
   }
 
