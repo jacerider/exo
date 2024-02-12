@@ -1,0 +1,149 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - commerce_promotion
+id: manage_coupons
+label: 'Manage Coupons'
+key: q
+target_entity_type: commerce_promotion_coupon
+target_bundles_include:
+  commerce_promotion_coupon: commerce_promotion_coupon
+target_bundles_exclude: {  }
+override: true
+format: table
+url: ''
+limit: 10
+limit_options:
+  - 10
+  - 20
+  - 50
+  - 100
+offset: 0
+actions: {  }
+sorts: {  }
+sort: null
+references: {  }
+fields:
+  _label:
+    display_label: Name
+    view:
+      type: entity_label
+      settings:
+        entity_icon: '1'
+        override_label: ''
+        link_label: '1'
+        empty: '-'
+        entity_id: 0
+      toggle: false
+      show: true
+      wrapper: ''
+      sort: ''
+      sort_asc_label: '@label A-Z'
+      sort_desc_label: '@label Z-A'
+      align: left
+      size: stretch
+      group_by_sort: asc
+      sort_natsort: 0
+      group_by: 0
+    filter:
+      type: ''
+    weight: -10
+  promotion_id:
+    display_label: Promotion
+    view:
+      type: ''
+      toggle: false
+      show: true
+      wrapper: small
+      sort: ''
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
+      sort_natsort: false
+      align: left
+      size: compact
+      group_by: false
+      group_by_sort: asc
+    filter:
+      type: content_property
+      settings:
+        position: header
+        label: ''
+        multiple_join: or
+        default_from_url:
+          status: '1'
+          entity_type: commerce_promotion
+          field_name: ''
+        match_operator: '='
+        property: target_id
+        widget: textfield
+        expose: 0
+        expose_block: 0
+        remember: 0
+        allow_zero: 0
+        multiple: 0
+        default:
+          status: 0
+    weight: -9
+  usage_limit:
+    display_label: Usage
+    view:
+      type: commerce_usage_limit
+      settings:
+        empty: '-'
+        link: 0
+      toggle: false
+      show: true
+      wrapper: small
+      sort: ''
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
+      align: left
+      size: compact
+      group_by_sort: asc
+      sort_natsort: 0
+      group_by: 0
+    filter:
+      type: ''
+    weight: -8
+  usage_limit_customer:
+    display_label: 'Per-customer limit'
+    view:
+      type: commerce_usage_limit
+      settings:
+        empty: '-'
+        link: 0
+      toggle: false
+      show: true
+      wrapper: small
+      sort: ''
+      sort_asc_label: '@label: Up'
+      sort_desc_label: '@label: Down'
+      align: left
+      size: compact
+      group_by_sort: asc
+      sort_natsort: 0
+      group_by: 0
+    filter:
+      type: ''
+    weight: -7
+settings:
+  list_link: 0
+  limit_status: 1
+  pagerer_header: ''
+  pagerer_footer: ''
+  remember_limit: 0
+  render_status: 1
+  operations_status: 1
+  result_status: 1
+  sort_status: 1
+  filter_status: 1
+  filter_overview_status: 1
+  block_status: 0
+  first_page_only_status: 0
+  hide_no_results: 0
+  item_wrapper_status: 1
+  submit_label: ''
+  empty_message: ''
+  empty_filter_message: ''
+weight: 0

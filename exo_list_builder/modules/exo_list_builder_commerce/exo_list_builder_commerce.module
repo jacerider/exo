@@ -4,3 +4,21 @@
  * @file
  * Contains exo_list_builder_commerce.module.
  */
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function exo_list_builder_commerce_entity_type_alter(array &$entity_types) {
+  /** @var \Drupal\Core\Entity\EntityTypeInterface[] $entity_types */
+  foreach ($entity_types as $entity_type_id => $entity_type) {
+    if ($entity_type_id === 'commerce_promotion') {
+      $entity_type->setHandlerClass('exo_list_builder', 'Drupal\exo_list_builder_commerce\ExoListBuilderCommercePrommotion');
+    }
+    if ($entity_type_id === 'commerce_promotion_coupon') {
+      $entity_type->setLinkTemplate('add-form', '/admin/commerce/promotions/{commerce_promotion}/coupons/add');
+      $entity_type->setLinkTemplate('edit-form', '/admin/commerce/promotions/{commerce_promotion}/coupons/{commerce_promotion_coupon}/edit');
+      $entity_type->setLinkTemplate('delete-form', '/admin/commerce/promotions/{commerce_promotion}/coupons/{commerce_promotion_coupon}/delete');
+      $entity_type->setLinkTemplate('collection', '/admin/commerce/promotions/{commerce_promotion}/coupons');
+    }
+  }
+}

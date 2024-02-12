@@ -8,6 +8,10 @@ function exo_list_builder_commerce_install() {
   if ($config) {
     $config->set('status', FALSE)->save(TRUE);
   }
+  $config = \Drupal::configFactory()->getEditable('views.view.commerce_promotion_coupons');
+  if ($config) {
+    $config->set('status', FALSE)->save(TRUE);
+  }
 }
 
 /**
@@ -15,6 +19,10 @@ function exo_list_builder_commerce_install() {
  */
 function exo_list_builder_commerce_uninstall() {
   $config = \Drupal::configFactory()->getEditable('views.view.commerce_promotions');
+  if ($config) {
+    $config->set('status', TRUE)->save(TRUE);
+  }
+  $config = \Drupal::configFactory()->getEditable('views.view.commerce_promotion_coupons');
   if ($config) {
     $config->set('status', TRUE)->save(TRUE);
   }

@@ -2,6 +2,8 @@
 
 namespace Drupal\exo_list_builder_commerce\Plugin\ExoList\Element;
 
+use Drupal\commerce_promotion\Entity\CouponInterface;
+use Drupal\commerce_promotion\Entity\PromotionInterface;
 use Drupal\commerce_promotion\PromotionUsageInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -19,6 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   field_type = {},
  *   entity_type = {
  *     "commerce_promotion",
+ *     "commerce_promotion_coupon",
  *   },
  *   bundle = {},
  *   field_name = {
@@ -78,11 +81,16 @@ class PromotionUsageLimit extends ExoListElementContentBase implements Container
    *   A renderable array or string.
    */
   protected function view(EntityInterface $entity, array $field) {
-    /** @var \Drupal\commerce_promotion\Entity\PromotionInterface $entity */
     // Gets the promotion|coupon usage.
     if ($field['field_name'] === 'usage_limit') {
-      $current_usage = $this->usage->load($entity);
-      $usage_limit = $entity->getUsageLimit();
+      if ($entity instanceof PromotionInterface) {
+        $current_usage = $this->usage->load($entity);
+        $usage_limit = $entity->getUsageLimit();
+      }
+      elseif ($entity instanceof CouponInterface) {
+        $current_usage = $this->usage->loadByCoupon($entity);
+        $usage_limit = $entity->getUsageLimit();
+      }
       $usage_limit = $usage_limit ?: $this->t('Unlimited');
       $usage = $current_usage . ' / ' . $usage_limit;
     }
