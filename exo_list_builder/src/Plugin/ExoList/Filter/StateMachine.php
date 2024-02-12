@@ -93,7 +93,11 @@ class StateMachine extends ExoListFilterBase implements ContainerFactoryPluginIn
     $form = parent::buildConfigurationForm($form, $form_state, $entity_list, $field);
     $configuration = $this->getConfiguration();
     $options = [];
-    foreach ($this->workflowManager->getGroupedLabels($entity_list->getTargetEntityTypeId()) as $group_label => $workflows) {
+    $entity_type_id = $entity_list->getTargetEntityTypeId();
+    if (!empty($field['reference_field'])) {
+      $entity_type_id = $field['definition']->getTargetEntityTypeId();
+    }
+    foreach ($this->workflowManager->getGroupedLabels($entity_type_id) as $group_label => $workflows) {
       foreach ($workflows as $workflow_id => $workflow_label) {
         $options[$workflow_id] = $group_label . ': ' . $workflow_label;
       }
