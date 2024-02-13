@@ -130,7 +130,21 @@ class Weight extends ExoListElementBase {
           \Drupal::messenger()->addWarning('SQL weight joins not yet supported.');
           return;
         }
-        $query->condition($bundle_key, $entity_list->getTargetBundleIds(), 'IN');
+        $bundles = $entity_list->getTargetBundleIds();
+        $handler = $entity_list->getHandler();
+        $filters = $handler->getFilters();
+        if (isset($filters[$bundle_key])) {
+          // Support filtered resets.
+          $filter_value = $handler->getFilterValue($bundle_key);
+          if (!empty($filter_value)) {
+            if (!is_array($filter_value)) {
+              $filter_value = [$filter_value];
+            }
+            $filter_value = array_combine($filter_value, $filter_value);
+            $bundles = array_intersect_key($bundles, $filter_value);
+          }
+        }
+        $query->condition($bundle_key, $bundles, 'IN');
       }
       $query->execute();
     }
