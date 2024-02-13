@@ -254,6 +254,9 @@ trait ExoListContentTrait {
                   }
                 }
                 elseif ($a instanceof TermInterface && $b instanceof TermInterface) {
+                  if ($a->getWeight() === $b->getWeight()) {
+                    return strnatcasecmp($a->label(), $b->label());
+                  }
                   return $a->getWeight() <=> $b->getWeight();
                 }
                 return strnatcasecmp($a->label(), $b->label());
