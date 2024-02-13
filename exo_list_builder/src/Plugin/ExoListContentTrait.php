@@ -168,6 +168,7 @@ trait ExoListContentTrait {
     $faceted = !empty($field['filter']['settings']['widget_settings']['facet']);
     $group_property = $field['filter']['settings']['widget_settings']['group'] ?? NULL;
     $do_cache = empty($faceted) && empty($condition);
+    $do_cache = FALSE;
     if ($do_cache && ($cache = \Drupal::cache()->get($cid))) {
       return $cache->data;
     }
@@ -191,13 +192,18 @@ trait ExoListContentTrait {
           // Experimental support for query conditions.
           $query_conditions = $handler->getQueryConditions();
           if (isset($query_conditions[$field['field_name']])) {
-            $field_id_key = $query->getMetaData('field_id_key') ?: $query->getMetaData('base_id_key');
             /** @var \Drupal\Core\Field\FieldDefinitionInterface $definition */
             $condition = $query_conditions[$field['field_name']];
-            $query->condition('f.' . $field_id_key, $condition['value'], $condition['operator']);
-            $cid .= ':' . $field['field_name'] . ':' . implode('.', $condition['value']);
-            if ($do_cache && ($cache = \Drupal::cache()->get($cid))) {
-              return $cache->data;
+            if (!empty($condition['value'])) {
+              $field_alias = $query->getMetaData('field_alias') ?: $query->getMetaData('base_alias');
+              $field_id_key = $query->getMetaData('field_id_key') ?: $query->getMetaData('base_id_key');
+              $key = is_array($condition['value']) ? implode('.', $condition['value']) : $condition['value'];
+              $cid .= ':' . $field['field_name'] . ':' . $key;
+              if ($do_cache && ($cache = \Drupal::cache()->get($cid))) {
+                return $cache->data;
+              }
+              $operator = $condition['operator'] ?? '=';
+              $query->condition($field_alias . '.' . $field_id_key, $condition['value'], $operator);
             }
           }
 
