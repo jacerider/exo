@@ -88,6 +88,7 @@ class ExoLinkitWidget extends ExoLinkWidget {
     else {
       $uri_as_url = !empty($uri) ? Url::fromUri($uri)->toString() : '';
     }
+    $uri_as_url = LinkitHelper::getPathByAlias($uri_as_url);
     $linkit_profile_id = $this->getSetting('linkit_profile');
 
     // The current field value could have been entered by a different user.
