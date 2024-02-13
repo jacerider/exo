@@ -2,6 +2,7 @@
 
 namespace Drupal\exo_list_builder_taxonomy;
 
+use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Url;
 use Drupal\exo_list_builder\ExoListBuilderContent;
 use Drupal\taxonomy\VocabularyInterface;
@@ -56,6 +57,16 @@ class ExoListBuilderTaxonomyTerm extends ExoListBuilderContent {
       return TRUE;
     }
     return parent::allowOverride();
+  }
+
+  /**
+   * Add the sort query.
+   *
+   * This only impacts non-table lists.
+   */
+  protected function addQuerySort(QueryInterface $query, $context = 'default') {
+    parent::addQuerySort($query, $context);
+    $query->sort('name');
   }
 
   /**
