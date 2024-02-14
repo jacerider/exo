@@ -622,10 +622,6 @@ function exo_form_preprocess_fieldset(&$variables) {
   else {
     $variables['attributes']['class'][] = 'has-legend';
   }
-  if (!empty($variables['attributes']['data-drupal-states']) && isset($variables['element']['#theme_wrappers']) && in_array('exo_form_element_container', $variables['element']['#theme_wrappers'])) {
-    // Exo form element container will handle states.
-    // unset($variables['attributes']['data-drupal-states']);
-  }
 }
 
 /**
