@@ -112,6 +112,7 @@ class ExoModalAccount extends ExoModalBlockBase {
       $build['account']['menu'] = \Drupal::service('exo_menu.generator')->generate('simple', 'tree', [
         'account',
       ], ['depth' => 1])->toRenderable();
+      unset($build['account']['menu']['#items']['user.logout']);
 
       $build['logout'] = [
         '#type' => 'html_tag',
