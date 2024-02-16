@@ -166,58 +166,70 @@ class ExoComponentConfigureForm extends FormBase {
     $definition = $this->exoComponentManager->getInstalledDefinition($plugin_id);
     $this->entity = $form_state->get('parent_entity') ?: $this->exoComponentManager->cloneEntity($definition);
     $required_paths = $this->exoComponentManager->getExoComponentFieldManager()->getRequiredPaths($definition);
-    $delta = $form_state->get('required_path_delta') ?: 0;
-    $processed = $form_state->get('required_processed') ?: [];
-    $finished = count($required_paths) == count($processed);
-    $path = $required_paths[$delta];
-    $parents = explode('.', $path);
-    $field_name = $this->getFieldNameFromParents($parents);
-    $child_entity = $this->getTargetEntity($this->entity, $parents);
-    $child_definition = $this->exoComponentManager()->getEntityComponentDefinition($child_entity);
-    $component_field = $child_definition->getFieldBySafeId($field_name);
-
-    $form['#id'] = 'exo-component-configure';
-    $form['wrapper'] = [
-      '#type' => 'fieldset',
-      '#title' => $this->t('Configure %label', [
-        '%label' => $component_field->getLabel(),
-      ]),
-      '#suffix' => $this->t('Step %done of %total', [
-        '%done' => $delta + 1,
-        '%total' => count($required_paths),
-      ]),
-      '#description' => $component_field->getDescription(),
-    ];
-    $form['wrapper']['#allow_multiple'] = TRUE;
-    $form['wrapper'] += $this->getTargetForm($form['wrapper'], $form_state, $this->entity, $parents);
-
-    $form['actions'] = ['#type' => 'actions'];
-    if (isset($required_paths[$delta - 1])) {
-      $form['actions']['previous'] = [
-        '#type' => 'submit',
-        '#value' => $this->t('Previous'),
-        '#submit' => ['::continueSubmit'],
-        '#required_path_delta' => $delta - 1,
-        '#limit_validation_errors' => [],
-        '#ajax' => [
-          'callback' => '::ajaxContinueSubmit',
-          'wrapper' => 'exo-component-configure',
-        ],
-      ];
+    foreach ($definition->getFields() as $field) {
+      if ($field->isFilter() && $field->isRequired()) {
+        $component_field = $this->exoComponentManager->getExoComponentFieldManager()->createFieldInstance($field);
+        $required_paths[] = $component_field->getItemParentsAsPath(0);
+      }
     }
-    if (isset($required_paths[$delta + 1])) {
-      $form['actions']['next'] = [
-        '#type' => 'submit',
-        '#value' => $this->t('Continue'),
-        '#button_type' => $finished ? '' : 'primary',
-        '#submit' => ['::continueSubmit'],
-        '#required_path_process' => TRUE,
-        '#required_path_delta' => $delta + 1,
-        '#ajax' => [
-          'callback' => '::ajaxContinueSubmit',
-          'wrapper' => 'exo-component-configure',
-        ],
+    $finished = TRUE;
+    if (isset($required_paths[$delta])) {
+      $delta = $form_state->get('required_path_delta') ?: 0;
+      $processed = $form_state->get('required_processed') ?: [];
+      $finished = count($required_paths) == count($processed);
+      $path = $required_paths[$delta];
+      $parents = explode('.', $path);
+      $field_name = $this->getFieldNameFromParents($parents);
+      $child_entity = $this->getTargetEntity($this->entity, $parents);
+      $child_definition = $this->exoComponentManager()->getEntityComponentDefinition($child_entity);
+      $component_field = $child_definition->getFieldBySafeId($field_name);
+
+      $form['#id'] = 'exo-component-configure';
+      $form['wrapper'] = [
+        '#type' => 'fieldset',
+        '#title' => $this->t('Configure %label', [
+          '%label' => $component_field->getLabel(),
+        ]),
+        '#suffix' => $this->t('Step %done of %total', [
+          '%done' => $delta + 1,
+          '%total' => count($required_paths),
+        ]),
+        '#description' => $component_field->getDescription(),
       ];
+      $form['wrapper']['#allow_multiple'] = TRUE;
+      $form['wrapper'] += $this->getTargetForm($form['wrapper'], $form_state, $this->entity, $parents);
+
+      $form['actions'] = ['#type' => 'actions'];
+      if (isset($required_paths[$delta - 1])) {
+        $form['actions']['previous'] = [
+          '#type' => 'submit',
+          '#value' => $this->t('Previous'),
+          '#submit' => ['::continueSubmit'],
+          '#required_path_delta' => $delta - 1,
+          '#limit_validation_errors' => [],
+          '#ajax' => [
+            'callback' => '::ajaxContinueSubmit',
+            'wrapper' => 'exo-component-configure',
+          ],
+        ];
+      }
+      if (isset($required_paths[$delta + 1])) {
+        $form['actions']['next'] = [
+          '#type' => 'submit',
+          '#value' => $this->t('Continue'),
+          '#button_type' => $finished ? '' : 'primary',
+          '#submit' => ['::continueSubmit'],
+          '#required_path_process' => TRUE,
+          '#required_path_delta' => $delta + 1,
+          '#ajax' => [
+            'callback' => '::ajaxContinueSubmit',
+            'wrapper' => 'exo-component-configure',
+          ],
+        ];
+      }
+    }
+    else {
+      ksm('hit');
     }
     if ($finished || !isset($required_paths[$delta + 1])) {
       $form['actions']['submit'] = [

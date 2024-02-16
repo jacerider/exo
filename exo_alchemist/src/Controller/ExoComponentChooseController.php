@@ -130,6 +130,7 @@ class ExoComponentChooseController implements ContainerInjectionInterface {
         $image = $image_style->buildUrl($thumbnail);
       }
       $required_field_paths = $this->exoComponentManager->getExoComponentFieldManager()->getRequiredPaths($definition);
+      $url = NULL;
       if (!empty($required_field_paths)) {
         $url = Url::fromRoute(
           'layout_builder.component.configure', [
@@ -142,15 +143,30 @@ class ExoComponentChooseController implements ContainerInjectionInterface {
         );
       }
       else {
-        $url = Url::fromRoute(
-          'layout_builder.component.add', [
-            'section_storage_type' => $section_storage->getStorageType(),
-            'section_storage' => $section_storage->getStorageId(),
-            'delta' => $delta,
-            'region' => $region,
-            'plugin_id' => $plugin_id,
-          ]
-        );
+        foreach ($definition->getFields() as $field) {
+          if ($field->isFilter() && $field->isRequired()) {
+            $url = Url::fromRoute(
+              'layout_builder.component.configure', [
+                'section_storage_type' => $section_storage->getStorageType(),
+                'section_storage' => $section_storage->getStorageId(),
+                'delta' => $delta,
+                'region' => $region,
+                'plugin_id' => $plugin_id,
+              ]
+            );
+          }
+        }
+        if (empty($url)) {
+          $url = Url::fromRoute(
+            'layout_builder.component.add', [
+              'section_storage_type' => $section_storage->getStorageType(),
+              'section_storage' => $section_storage->getStorageId(),
+              'delta' => $delta,
+              'region' => $region,
+              'plugin_id' => $plugin_id,
+            ]
+          );
+        }
       }
       $item = [
         '#type' => 'link',
