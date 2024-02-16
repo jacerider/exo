@@ -166,12 +166,6 @@ class ExoComponentConfigureForm extends FormBase {
     $definition = $this->exoComponentManager->getInstalledDefinition($plugin_id);
     $this->entity = $form_state->get('parent_entity') ?: $this->exoComponentManager->cloneEntity($definition);
     $required_paths = $this->exoComponentManager->getExoComponentFieldManager()->getRequiredPaths($definition);
-    foreach ($definition->getFields() as $field) {
-      if ($field->isFilter() && $field->isRequired()) {
-        $component_field = $this->exoComponentManager->getExoComponentFieldManager()->createFieldInstance($field);
-        $required_paths[] = $component_field->getItemParentsAsPath(0);
-      }
-    }
     $finished = TRUE;
     if (isset($required_paths[$delta])) {
       $delta = $form_state->get('required_path_delta') ?: 0;
