@@ -505,6 +505,39 @@ class ExoComponentGenerator {
   }
 
   /**
+   * Clone components usage.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity.
+   * @param \Drupal\layout_builder\SectionStorageInterface $to_storage
+   *   The new section storage.
+   */
+  protected function cloneComponentsUsage(EntityInterface $entity, SectionStorageInterface $to_storage) {
+    // For all unlocked sections, we want to clone the component.
+    foreach (static::getUnlockedSections($to_storage->getSections()) as $section) {
+      foreach ($section->getComponents() as $component) {
+        if (ExoComponentManager::isExoComponent($component)) {
+          $component_entity = NULL;
+          $configuration = $component->get('configuration');
+          if (!empty($configuration['block_revision_id'])) {
+            $component_entity = $this->exoComponentManager->entityLoadByRevisionId($configuration['block_revision_id']);
+          }
+          if (!empty($configuration['block_uuid'])) {
+            $component_entity = $this->exoComponentManager->entityLoadByUuid($configuration['block_uuid']);
+          }
+          if ($component_entity) {
+            // We need to save usage.
+            /** @var \Drupal\layout_builder\InlineBlockUsage $inline_block_usage */
+            $inline_block_usage = \Drupal::service('inline_block.usage');
+            $inline_block_usage->deleteUsage([$component_entity->id()]);
+            $inline_block_usage->addUsage($component_entity->id(), $entity);
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * When moving from default storage to override storage.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
@@ -585,8 +618,27 @@ class ExoComponentGenerator {
     if ($this->isComponentTypeEntity($entity)) {
       $this->handleComponentTypeEntityPostSave($entity);
     }
+    if ($this->isLayoutCompatibleEntity($entity)) {
+      $this->handleLayoutEntityPostSave($entity);
+    }
     $this->exoComponentManager->handleEntityEvent('postSave', $entity);
     return $this;
+  }
+
+  /**
+   * Called after layout-enabled entity has been saved.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The layout-enabled entity.
+   *
+   * @return $this
+   */
+  protected function handleLayoutEntityPostSave(EntityInterface $entity) {
+    if (!empty($entity->exoAlchemistClone)) {
+      ksm('after clone');
+      $to_storage = $this->getSectionStorageForEntity($entity);
+      $this->cloneComponentsUsage($entity, $to_storage);
+    }
   }
 
   /**
