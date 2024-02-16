@@ -435,6 +435,9 @@ class ExoComponentDefinitionField implements \ArrayAccess {
    *   TRUE if field is editable.
    */
   public function isEditable() {
+    if ($this->isFilter()) {
+      return TRUE;
+    }
     return $this->definition['edit'] === TRUE && !$this->isInvisible() && !$this->isComputed();
   }
 
