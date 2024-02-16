@@ -16,6 +16,15 @@ abstract class ExoComponentFieldComputedBase extends ExoComponentFieldBase imple
   /**
    * {@inheritdoc}
    */
+  public function processDefinition() {
+    $field = $this->getFieldDefinition();
+    $field->setComputed(TRUE);
+    parent::processDefinition($field);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function onFieldClean(ContentEntityInterface $entity, $update = TRUE) {}
 
   /**
