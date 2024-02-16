@@ -155,6 +155,8 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
       if (!$this->hasDefinition($field->getType())) {
         $field->setType($this->getFallbackPluginId($plugin_id, []));
       }
+      $instance = $this->createFieldInstance($field);
+      $instance->processDefinition();
       if (
         empty($definition['installed']) &&
         $field->isRequired() &&
@@ -163,10 +165,8 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
         empty($field->getEntityField()) &&
         !$field->isComputed()
       ) {
-        throw new PluginException(sprintf('eXo Component Field plugin property (%s) is required and not editable but does not supply a default.', $field->getType()));
+        throw new PluginException(sprintf('eXo Component Field plugin property (%s) in (%s) is required and not editable but does not supply a default.', $field->getType(), $definition['label']));
       }
-      $instance = $this->createFieldInstance($field);
-      $instance->processDefinition();
       if ($instance instanceof ExoComponentFieldFieldableInterface) {
         // Validate previews.
         $values = ExoComponentValues::fromFieldDefaults($field);
@@ -1077,6 +1077,9 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
           if (!$field->isInvisible()) {
             $is_hidden = FALSE;
           }
+        }
+        if ($field->isFilter()) {
+          $is_hidden = FALSE;
         }
         $field_name = $field->getFieldName();
         $attribute_type = $field->getType();
