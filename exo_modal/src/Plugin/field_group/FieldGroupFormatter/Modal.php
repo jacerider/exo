@@ -65,7 +65,7 @@ class Modal extends FieldGroupFormatterBase {
 
     $form_state = new FormState();
     $complete_form = [];
-    ExoModal::processContainer($element, $form_state, $complete_form);
+    ExoModal::processModal($element, $form_state, $complete_form);
   }
 
   /**

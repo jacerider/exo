@@ -14,6 +14,19 @@
       margin-top: $global-margin;
     }
   }
+
+  .error .exo-form-radio,
+  .error .exo-element-options .exo-form-radio {
+
+    .field-label label.option {
+      color: color(theme-alert);
+      border-color: color(theme-alert);
+
+      &:before {
+        border-color: color(theme-alert);
+      }
+    }
+  }
 }
 
 .exo-form-radio {

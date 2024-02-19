@@ -104,7 +104,7 @@ class ExoOptionsButtonsWidget extends OptionsButtonsWidget {
     }
     else {
       $element['#type'] = 'exo_radios';
-      $element['#default_value'] = $selected ? reset($selected) : '_none';
+      $element['#default_value'] = $selected ? reset($selected) : ($this->required ? NULL : '_none');
     }
 
     if ($this->getSetting('reverse')) {

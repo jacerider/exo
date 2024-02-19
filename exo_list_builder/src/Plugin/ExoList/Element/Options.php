@@ -35,7 +35,7 @@ class Options extends ExoListElementContentBase {
     $provider = $field_item->getFieldDefinition()->getFieldStorageDefinition()->getOptionsProvider('value', $entity);
     // Flatten the possible options, to support opt groups.
     $options = OptGroup::flattenOptions($provider->getPossibleOptions());
-    return $options[$field_item->value];
+    return $options[$field_item->value] ?? NULL;
   }
 
 }

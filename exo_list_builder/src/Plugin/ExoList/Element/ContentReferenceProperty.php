@@ -49,7 +49,8 @@ class ContentReferenceProperty extends ContentProperty {
   protected function viewItem(EntityInterface $entity, FieldItemInterface $field_item, array $field) {
     $configuration = $this->getConfiguration();
     [$field_name, $property] = explode('.', $configuration['property']);
-    return $field_item->entity->get($field_name)->{$property};
+    $entity = $field_item->entity;
+    return $entity ? $entity->get($field_name)->{$property} : NULL;
   }
 
 }
