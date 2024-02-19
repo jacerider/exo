@@ -114,15 +114,6 @@ abstract class SectionBase extends ExoComponentFieldComputedBase implements Cont
   /**
    * {@inheritdoc}
    */
-  public function onClone(ContentEntityInterface $entity, $all = FALSE) {
-    // Clone children components.
-    $entity->exoAlchemistClone = TRUE;
-    $entity->save();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function onPreSaveLayoutBuilderEntity(ContentEntityInterface $entity, EntityInterface $parent_entity) {
     if ($entity->isNew()) {
       // Layout builder will duplicate this component giving it a new UUID when

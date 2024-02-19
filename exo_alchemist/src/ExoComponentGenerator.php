@@ -494,6 +494,7 @@ class ExoComponentGenerator {
           }
           if ($component_entity) {
             $definition = $this->exoComponentManager->getEntityComponentDefinition($component_entity);
+            $component_entity->exoAlchemistClone = TRUE;
             $component_entity = $this->exoComponentManager->cloneEntity($definition, $component_entity);
             $configuration['block_revision_id'] = $configuration['block_uuid'] = NULL;
             $configuration['block_serialized'] = serialize($component_entity);
@@ -635,10 +636,10 @@ class ExoComponentGenerator {
    */
   protected function handleLayoutEntityPostSave(EntityInterface $entity) {
     if (!empty($entity->exoAlchemistClone)) {
-      ksm('after clone');
       $to_storage = $this->getSectionStorageForEntity($entity);
       $this->cloneComponentsUsage($entity, $to_storage);
     }
+    return $this;
   }
 
   /**
