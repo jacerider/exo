@@ -51,14 +51,20 @@
       if ($disableButtons.length) {
         const $form = $disableButtons.closest('form.exo-form');
         let $button;
-        $disableButtons.filter('[data-once="drupal-ajax"]').on('mousedown', e => {
+        $disableButtons.on('mousedown', e => {
           $button = $(e.target);
-          $(document).one('ajaxStart', function () {
-            disableButton($button);
-          });
         });
+        if ($disableButtons.filter('[data-once="drupal-ajax"]').length) {
+          $(document).once('exo.form.disable').one('ajaxStart', function () {
+            setTimeout(function () {
+              if ($button && $button.length) {
+                disableButton($button);
+              }
+            });
+          });
+        }
         $form.once('exo.form.disable').on('submit', e => {
-          if ($button.length) {
+          if ($button && $button.length) {
             disableButton($button);
           }
         });
