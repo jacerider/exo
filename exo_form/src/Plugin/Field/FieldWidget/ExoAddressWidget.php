@@ -7,7 +7,9 @@ use Drupal\address\Plugin\Field\FieldWidget\AddressDefaultWidget;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\address\FieldHelper;
+use Drupal\address\LabelHelper;
 use Drupal\Core\Render\Element;
+use Drupal\Core\Render\Markup;
 
 /**
  * Plugin implementation of the 'address_exo' widget.
@@ -30,6 +32,7 @@ class ExoAddressWidget extends AddressDefaultWidget {
     return [
       'wrapper' => 'fieldset',
       'force_address' => FALSE,
+      'hidden' => [],
     ] + parent::defaultSettings();
   }
 
@@ -54,7 +57,32 @@ class ExoAddressWidget extends AddressDefaultWidget {
       '#default_value' => $this->getSetting('force_address'),
     ];
 
+    $options = LabelHelper::getGenericFieldLabels();
+    foreach ($this->fieldDefinition->getSetting('field_overrides') as $field => $data) {
+      if ($data['override'] === 'hidden') {
+        unset($options[$field]);
+      }
+    }
+
+    $element['hidden'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Hidden fields'),
+      '#options' => $options,
+      '#default_value' => $this->getSetting('hidden'),
+      '#description' => $this->t('These fields will be hidden from the user.'),
+      '#element_validate' => [
+        [get_class($this), 'validateHiddenFields'],
+      ],
+    ];
+
     return $element;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function validateHiddenFields(array $element, FormStateInterface $form_state) {
+    $form_state->setValue($element['#parents'], array_filter($form_state->getValue($element['#parents'])));
   }
 
   /**
@@ -63,6 +91,11 @@ class ExoAddressWidget extends AddressDefaultWidget {
   public function settingsSummary() {
     $summary = parent::settingsSummary();
     $summary[] = $this->t('Wrapper type: @value', ['@value' => $this->getWrapperOptions()[$this->getSetting('wrapper')]]);
+    if ($hidden = array_filter($this->getSetting('hidden'))) {
+      $options = array_intersect_key(LabelHelper::getGenericFieldLabels(), $hidden);
+      $markup = Markup::create('<small><br> - ' . implode('<br> - ', $options) . '</small>');
+      $summary[] = $this->t('Hidden fields: %fields', ['%fields' => $markup]);
+    }
     return $summary;
   }
 
@@ -86,6 +119,12 @@ class ExoAddressWidget extends AddressDefaultWidget {
         get_class($this),
         'validateAddressFieldByDefault',
       ];
+    }
+
+    if ($hidden = array_filter($this->getSetting('hidden'))) {
+      $element['address']['#field_overrides'] += array_map(function ($item) {
+        return 'hidden';
+      }, $hidden);
     }
     return $element;
   }
