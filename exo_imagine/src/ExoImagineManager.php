@@ -605,6 +605,9 @@ class ExoImagineManager {
     if (!$this->exoImagineSettings->getSetting('webp')) {
       return FALSE;
     }
+    if ($this->moduleHandler->moduleExists('stage_file_proxy')) {
+      return FALSE;
+    }
     // Assume webp is supported.
     return TRUE;
   }
