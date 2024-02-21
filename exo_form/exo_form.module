@@ -604,6 +604,17 @@ function exo_form_preprocess_fieldset(&$variables) {
   if (!exo_form_access()) {
     return;
   }
+  $element = $variables['element'];
+  if (!empty($element['#legend_attributes']) && isset($variables['legend']['attributes'])) {
+    /** @var \Drupal\Core\Template\Attribute $attributes */
+    $attributes = $variables['legend']['attributes'];
+    $variables['legend']['attributes'] = new Attribute(NestedArray::mergeDeep($element['#legend_attributes'], $attributes->toArray()));
+  }
+  if (!empty($element['#legend_span_attributes']) && isset($variables['legend_span']['attributes'])) {
+    /** @var \Drupal\Core\Template\Attribute $attributes */
+    $attributes = $variables['legend_span']['attributes'];
+    $variables['legend_span']['attributes'] = new Attribute(NestedArray::mergeDeep($element['#legend_span_attributes'], $attributes->toArray()));
+  }
   exo_form_preprocess_form_element($variables);
   if (isset($variables['attributes'])) {
     if ($variables['attributes'] instanceof Attribute) {
