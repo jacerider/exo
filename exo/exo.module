@@ -318,6 +318,28 @@ function exo_presets($key) {
 }
 
 /**
+ * Preprocess HTML.
+ */
+function exo_page_attachments_alter(array &$page) {
+  $colors = exo_theme_colors();
+  if ($colors) {
+    $vars = [];
+    foreach ($colors as $key => $data) {
+      list($r, $g, $b) = sscanf($data['hex'], "#%02x%02x%02x");
+      $vars[] = '--theme-' . $key . ':' . $data['hex'];
+      $vars[] = '--theme-' . $key . '-rgb:' . $r . ', ' . $g . ', ' . $b;
+    }
+    $page['#attached']['html_head'][] = [
+      [
+        '#tag' => 'style',
+        '#value' => ':root {' . implode(';', $vars) . '}',
+      ],
+      'exo'
+    ];
+  }
+}
+
+/**
  * Implements hook_entity_extra_field_info().
  */
 function exo_entity_extra_field_info() {
