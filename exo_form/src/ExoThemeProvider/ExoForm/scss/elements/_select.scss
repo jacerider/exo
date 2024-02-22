@@ -6,13 +6,18 @@
 
   select {
     position: absolute;
-    // left: -9999px;
-    height: 0;
+    left: -9999px;
     opacity: 0;
     width: 100%;
     box-sizing: border-box;
     border: 0;
     border-bottom: 1px solid transparent;
+
+    &.exo-form-select-supported {
+      display: none;
+      left: 0;
+      height: 0;
+    }
 
     &.overlay {
       left: 0;

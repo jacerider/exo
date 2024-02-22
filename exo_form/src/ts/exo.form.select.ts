@@ -51,6 +51,7 @@
       this.$trigger.text(this.placeholder);
       this.$hidden = this.$element.find('.exo-form-select-hidden');
       if (this.supported) {
+        this.$field.addClass('exo-form-select-supported');
         this.$hidden
           .attr('id', 'exo-form-select-hidden-' + this.uniqueId)
           .attr('aria-labelledby', 'exo-form-select-label-' + this.uniqueId + ' exo-form-select-trigger-' + this.uniqueId + ' exo-form-select-hidden-' + this.uniqueId);
