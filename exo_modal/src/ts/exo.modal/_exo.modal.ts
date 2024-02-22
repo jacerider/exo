@@ -975,7 +975,7 @@ class ExoModal extends ExoData {
       }
       this.state = this.states.OPENING;
       this.$element.trigger(this.states.OPENING);
-      this.$element.attr('aria-hidden', 'false');
+      this.$element.removeAttr('aria-hidden');
 
       if (this.get('timeoutProgressbar') === true) {
         this.$element.find('.' + this.name + '-progressbar > div').width('100%');

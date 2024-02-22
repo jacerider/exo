@@ -26,7 +26,7 @@ class ExoModals extends ExoDataManager<ExoModal> {
     instance.event('opening').on('modals', (modal:ExoModal) => {
       this.event('opening').trigger(modal);
       if (modal.get('appendTo') === this.globalWrapper) {
-        this.$wrapper.addClass('exo-modals-active').attr('aria-hidden', 'false');
+        this.$wrapper.addClass('exo-modals-active').removeAttr('aria-hidden');
       }
     });
     instance.event('opened').on('modals', (modal:ExoModal) => {
