@@ -66,7 +66,7 @@
    */
   Drupal.Ajax.prototype.setProgressIndicatorThrobber = function () {
     var _this = this;
-    this.progress.element = $('<div class="ajax-progress ajax-progress-throbber"><div class="ajax-loader">' + drupalSettings.exoLoader.markup + '</div></div>');
+    this.progress.element = $('<div class="ajax-progress ajax-progress-throbber" role="status"><div class="ajax-loader">' + drupalSettings.exoLoader.markup + '</div></div>');
     if (this.progress.message && !drupalSettings.exoLoader.hideAjaxMessage) {
       this.progress.element.find('.ajax-loader').after('<div class="message">' + this.progress.message + '</div>');
     }
@@ -81,7 +81,7 @@
    */
   Drupal.Ajax.prototype.setProgressIndicatorFullscreen = function () {
     var _this = this;
-    this.progress.element = $('<div class="ajax-progress ajax-progress-fullscreen">' + drupalSettings.exoLoader.markup + '</div>');
+    this.progress.element = $('<div class="ajax-progress ajax-progress-fullscreen" role="status">' + drupalSettings.exoLoader.markup + '</div>');
     $(drupalSettings.exoLoader.throbberPosition).after(this.progress.element);
     setTimeout(function () {
       _this.progress.element.addClass('active');
