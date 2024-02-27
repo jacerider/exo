@@ -7,7 +7,6 @@ use Drupal\exo_list_builder\EntityListInterface;
 use Drupal\exo_list_builder\Plugin\ExoListContentTrait;
 use Drupal\exo_list_builder\Plugin\ExoListFieldValuesInterface;
 use Drupal\exo_list_builder\Plugin\ExoListFilterMatchBase;
-use Drupal\exo_list_builder\Plugin\ExoListFilterStringBase;
 
 /**
  * Defines a eXo list element for rendering a content entity field.
