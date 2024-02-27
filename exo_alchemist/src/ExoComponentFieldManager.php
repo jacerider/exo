@@ -158,7 +158,7 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
       $instance = $this->createFieldInstance($field);
       $instance->processDefinition();
       if (
-        empty($definition['installed']) &&
+        !$definition->isInstalled() &&
         $field->isRequired() &&
         !$field->isEditable() &&
         empty($field->getDefaults()) &&
