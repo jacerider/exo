@@ -168,7 +168,6 @@ trait ExoListContentTrait {
     $faceted = !empty($field['filter']['settings']['widget_settings']['facet']);
     $group_property = $field['filter']['settings']['widget_settings']['group'] ?? NULL;
     $do_cache = empty($faceted) && empty($condition);
-    $do_cache = FALSE;
     if ($do_cache && ($cache = \Drupal::cache()->get($cid))) {
       return $cache->data;
     }
