@@ -29,6 +29,7 @@ class Links extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
     return [
       'group' => NULL,
       'total' => FALSE,
+      'limit' => 50,
     ] + parent::defaultConfiguration();
   }
 
@@ -60,6 +61,12 @@ class Links extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
         }
       }
     }
+    $form['limit'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Maximum Results'),
+      '#default_value' => $configuration['limit'],
+      '#required' => TRUE,
+    ];
     return $form;
   }
 

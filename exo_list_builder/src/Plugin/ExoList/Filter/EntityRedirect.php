@@ -34,8 +34,9 @@ class EntityRedirect extends ExoListFilterMatchBase implements ExoListFieldValue
   public function getValueOptions(EntityListInterface $entity_list, array $field, $input = NULL) {
     $available = $entity_list->getAvailableFields();
     $property = $entity_list->getTargetEntityType()->getKey('id');
-    $field = $available[$property];
-    return $this->getAvailableFieldValues($entity_list, $field, $property, $input);
+    $id_field = $available[$property];
+    $id_field['filter'] = $field['filter'];
+    return $this->getAvailableFieldValues($entity_list, $id_field, $property, $input);
   }
 
   /**

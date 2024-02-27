@@ -26,6 +26,7 @@ class Select extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
     return [
       'empty_option' => NULL,
       'empty_value' => NULL,
+      'limit' => 50,
     ] + parent::defaultConfiguration();
   }
 
@@ -44,6 +45,12 @@ class Select extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
       '#type' => 'textfield',
       '#title' => $this->t('Empty value'),
       '#default_value' => $configuration['empty_value'],
+    ];
+    $form['limit'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Maximum Results'),
+      '#default_value' => $configuration['limit'],
+      '#required' => TRUE,
     ];
     return $form;
   }

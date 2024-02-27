@@ -161,12 +161,13 @@ trait ExoListContentTrait {
   /**
    * Get available field values.
    */
-  public function getAvailableFieldValues(EntityListInterface $entity_list, array $field, $property, $condition) {
+  public function getAvailableFieldValues(EntityListInterface $entity_list, array $field, $property, $condition, $limit = NULL) {
     $field_id = $field['id'];
     $cid = 'exo_list_buider:filter:' . $entity_list->id() . ':' . $field_id . ':' . $property;
     // Field can enable facet support.
     $faceted = !empty($field['filter']['settings']['widget_settings']['facet']);
     $group_property = $field['filter']['settings']['widget_settings']['group'] ?? NULL;
+    $limit = $limit ?? $field['filter']['settings']['widget_settings']['limit'] ?? 50;
     $do_cache = empty($faceted) && empty($condition);
     if ($do_cache && ($cache = \Drupal::cache()->get($cid))) {
       return $cache->data;
@@ -184,7 +185,7 @@ trait ExoListContentTrait {
         // class. See getComputedFilterClass().
       }
       else {
-        $query = $this->getAvailableFieldValuesQuery($entity_list, $field, $property, $condition, $cacheable_metadata);
+        $query = $this->getAvailableFieldValuesQuery($entity_list, $field, $property, $condition, $cacheable_metadata, $limit);
         if ($query) {
           $handler = $entity_list->getHandler();
 
@@ -282,7 +283,7 @@ trait ExoListContentTrait {
   /**
    * Get available field values query.
    */
-  protected function getAvailableFieldValuesQuery(EntityListInterface $entity_list, array $field, $property, $condition, CacheableMetadata $cacheable_metadata) {
+  protected function getAvailableFieldValuesQuery(EntityListInterface $entity_list, array $field, $property, $condition, CacheableMetadata $cacheable_metadata, $limit = NULL) {
     /** @var \Drupal\Core\Field\FieldDefinitionInterface $definition */
     $definition = $field['definition'];
     $entity_type_id = $definition->getTargetEntityTypeId();
@@ -312,7 +313,7 @@ trait ExoListContentTrait {
       $query = $connection->select($field_table, 'f')
         ->fields('f', $fields)
         ->distinct(TRUE)
-        ->range(0, 50);
+        ->range(0, $limit);
       if (!empty($condition)) {
         $query->condition($field_column, '%' . $connection->escapeLike($condition) . '%', 'LIKE');
       }
@@ -421,8 +422,9 @@ trait ExoListContentTrait {
   /**
    * Get referenced available field values query.
    */
-  protected function getReferencedAvailableFieldValuesQuery(EntityListInterface $entity_list, array $field, $property, $condition, CacheableMetadata $cacheable_metadata) {
+  protected function getReferencedAvailableFieldValuesQuery(EntityListInterface $entity_list, array $field, $property, $condition, CacheableMetadata $cacheable_metadata, $limit = NULL) {
     $query = NULL;
+    $limit = $limit ?? $field['filter']['settings']['widget_settings']['limit'] ?? 50;
     /** @var \Drupal\Core\Field\FieldDefinitionInterface $field_definition */
     $field_definition = $field['definition'];
     /** @var \Drupal\Core\Entity\EntityFieldManager $entity_field_manager */
@@ -475,7 +477,7 @@ trait ExoListContentTrait {
       }
       $query->fields('f', [$reference_field_column])
         ->distinct(TRUE);
-
+      $query->range(0, $limit);
       $query->addMetaData('field_alias', $reference_field_table);
       $query->addMetaData('field_id_key', $reference_id_key);
 

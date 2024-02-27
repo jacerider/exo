@@ -43,8 +43,8 @@ class ContentReferenceProperty extends ContentProperty {
   /**
    * Get available field values query.
    */
-  protected function getAvailableFieldValuesQuery(EntityListInterface $entity_list, array $field, $property, $condition, CacheableMetadata $cacheable_metadata) {
-    $query = $this->getReferencedAvailableFieldValuesQuery($entity_list, $field, $property, $condition, $cacheable_metadata);
+  protected function getAvailableFieldValuesQuery(EntityListInterface $entity_list, array $field, $property, $condition, CacheableMetadata $cacheable_metadata, $limit = NULL) {
+    $query = $this->getReferencedAvailableFieldValuesQuery($entity_list, $field, $property, $condition, $cacheable_metadata, $limit);
     return $query;
   }
 
