@@ -32,7 +32,7 @@ function exo_filter_views_data_alter(array &$data) {
   $manager = \Drupal::entityTypeManager();
   $field_config_storage = $manager->getStorage('field_config');
   foreach ($manager->getDefinitions() as $entity_type) {
-    if (!$entity_type->isSubclassOf(FieldableEntityInterface::class)) {
+    if (!$entity_type->entityClassImplements(FieldableEntityInterface::class)) {
       continue;
     }
     // We cannot alter Views data if we cannot map fields to tables.
