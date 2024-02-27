@@ -154,7 +154,6 @@ class ExoComponentChooseController implements ContainerInjectionInterface {
                 'plugin_id' => $plugin_id,
               ]
             );
-            ksm('hit');
             break;
           }
         }

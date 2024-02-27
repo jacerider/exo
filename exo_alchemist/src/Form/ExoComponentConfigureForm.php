@@ -222,9 +222,6 @@ class ExoComponentConfigureForm extends FormBase {
         ];
       }
     }
-    else {
-      ksm('hit');
-    }
     if ($finished || !isset($required_paths[$delta + 1])) {
       $form['actions']['submit'] = [
         '#type' => 'submit',
