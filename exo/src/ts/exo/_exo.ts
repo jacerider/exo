@@ -7,6 +7,7 @@ class Exo {
   public $exoBody:JQuery;
   public $exoCanvas:JQuery;
   public $exoContent:JQuery;
+  public $exoStyle:JQuery;
   protected $exoShadow:JQuery;
   protected $elementPositions:JQuery;
   protected resizeCallbacks:ExoCallbacks = {};
@@ -20,6 +21,7 @@ class Exo {
   protected scrollThrottle:number = 99;
   protected observer:{[s: string]: IntersectionObserver} = {};
   protected observerThreshold:Array<number> = [0, 1];
+  protected styleProps = {};
   public observables = [];
   private readonly events = {
     init: new ExoEvent<void>(),
@@ -45,6 +47,7 @@ class Exo {
     this.$exoCanvas = $('#exo-canvas');
     this.$exoContent = $('#exo-content');
     this.$exoShadow = $('#exo-shadow');
+    this.$exoStyle = $('<style id="exo-style" type="text/css" />').appendTo('head');
     this.animationEvent = this.whichAnimationEvent();
     this.transitionEvent = this.whichTransitionEvent();
     this.refreshBreakpoint();
@@ -221,6 +224,27 @@ class Exo {
     }
   }
 
+  public addStyleProp(property:string, value:string) {
+    this.styleProps[property] = value;
+  }
+
+  public removeStyleProp(property:string) {
+    if (typeof this.styleProps[property] !== 'undefined') {
+      delete this.styleProps[property];
+    }
+  }
+
+  public updateStyle() {
+    let style = ':root {';
+    for (const key in this.styleProps) {
+      if (this.styleProps.hasOwnProperty(key)) {
+        style += '--' + key + ': ' + this.styleProps[key] + ';';
+      }
+    }
+    style += '}';
+    this.$exoStyle.html(style);
+  }
+
   /**
    * Displace content area.
    *
@@ -235,6 +259,11 @@ class Exo {
       paddingLeft: offsets.left,
       paddingRight: offsets.right,
     });
+    this.addStyleProp('displace-top', offsets.top + 'px');
+    this.addStyleProp('displace-bottom', offsets.bottom + 'px');
+    this.addStyleProp('displace-left', offsets.left + 'px');
+    this.addStyleProp('displace-right', offsets.right + 'px');
+    this.updateStyle();
     ['top', 'right', 'bottom', 'left'].forEach(side => {
       if (offsets[side]) {
         this.$exoBody.find('.exo-displace-' + side).css('top', offsets[side] + 'px');

@@ -140,11 +140,19 @@
 
       if (this.themed === false && direction === 'down' && scrollTop >= this.themeStart) {
         this.themed = true;
+        this.$element.one(Drupal.Exo.transitionEvent, () => {
+          this.updateStyleProps(floatOffset);
+        });
         this.$element.addClass('exo-fixed-theme');
+        this.updateStyleProps(floatOffset);
       }
       else if (this.themed === true && direction === 'up' && scrollTop <= this.themeEnd) {
         this.themed = false;
+        this.$element.one(Drupal.Exo.transitionEvent, () => {
+          this.updateStyleProps(floatOffset);
+        });
         this.$element.removeClass('exo-fixed-theme');
+        this.updateStyleProps(floatOffset);
       }
 
       if (this.type === 'scroll') {
@@ -164,6 +172,24 @@
       else if (this.lastDirection === 'up' && this.fixed === true && scrollTop <= (this.floatEnd - floatOffset)) {
         this.unFloat();
       }
+    }
+
+    protected updateStyleProps(floatOffset:number) {
+      let height = this.$element.outerHeight();
+      var transformMatrix = this.$element.css("-webkit-transform") ||
+        this.$element.css("-moz-transform") ||
+        this.$element.css("-ms-transform") ||
+        this.$element.css("-o-transform") ||
+        this.$element.css("transform");
+      var matrix = transformMatrix.replace(/[^0-9\-.,]/g, '').split(',');
+      var x = matrix[12] || matrix[4];
+      var y = matrix[13] || matrix[5];
+      Drupal.Exo.addStyleProp('fixed-' + this.getId() + '-top', (height + floatOffset) + 'px');
+      Drupal.Exo.addStyleProp('fixed-' + this.getId() + '-x', x + 'px');
+      Drupal.Exo.addStyleProp('fixed-' + this.getId() + '-y', y + 'px');
+      Drupal.Exo.addStyleProp('fixed-' + this.getId() + '-left', this.offset.left + 'px');
+      Drupal.Exo.addStyleProp('fixed-' + this.getId() + '-right', this.offset.right + 'px');
+      Drupal.Exo.updateStyle();
     }
 
     protected resetScroll() {
@@ -193,15 +219,24 @@
           right: displace.offsets.right
         });
       }
+
+      this.$element.one(Drupal.Exo.transitionEvent, () => {
+        this.updateStyleProps(floatOffset);
+      });
       this.$element.addClass('exo-fixed-float');
+      setTimeout(() => {
+        this.updateStyleProps(floatOffset);
+      });
+
     }
 
     protected unFloat() {
       this.reset();
       this.setSize();
       this.$element.removeClass('exo-fixed-float');
-      // this.$element.removeAttr('data-offset-top');
-      // displace.calculateOffset('top');
+      Drupal.Exo.removeStyleProp('fixed-' + this.getId() + '-top');
+      Drupal.Exo.removeStyleProp('fixed-' + this.getId() + '-left');
+      Drupal.Exo.removeStyleProp('fixed-' + this.getId() + '-right');
     }
 
     protected lock() {
