@@ -18,6 +18,7 @@ use Drupal\exo_list_builder\EntityListInterface;
  *   weight = 0,
  *   field_type = {
  *     "entity_reference",
+ *     "entity_reference_revisions",
  *   },
  *   entity_type = {},
  *   bundle = {},

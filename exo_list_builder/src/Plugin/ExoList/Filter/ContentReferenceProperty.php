@@ -17,6 +17,7 @@ use Drupal\exo_list_builder\EntityListInterface;
  *   weight = 0,
  *   field_type = {
  *     "entity_reference",
+ *     "entity_reference_revisions",
  *   },
  *   entity_type = {},
  *   bundle = {},
@@ -37,7 +38,11 @@ class ContentReferenceProperty extends ContentProperty {
    * {@inheritdoc}
    */
   public function queryFieldAlter($query, $value, EntityListInterface $entity_list, array $field) {
-    $this->queryAlterByField($field['field_name'] . '.entity.' . $this->getConfiguration()['property'], $query, $value, $entity_list, $field);
+    $field_id = $field['field_name'];
+    if ($field['definition']->getType() === 'entity_reference_revisions') {
+      $field_id .= '.target_revision_id';
+    }
+    $this->queryAlterByField($field_id . '.entity.' . $this->getConfiguration()['property'], $query, $value, $entity_list, $field);
   }
 
   /**

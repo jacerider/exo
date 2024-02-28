@@ -127,7 +127,10 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
         if ($entity_type->hasKey('bundle') && $bundles = $bundle_manager->getBundleInfo($entity_type->id())) {
           foreach ($bundles as $bundle_id => $bundle) {
             foreach ($field_manager->getFieldDefinitions($entity_type_id, $bundle_id) as $field_id => $field) {
-              if ($field->getType() == 'entity_reference') {
+              if (in_array($field->getType(), [
+                'entity_reference',
+                'entity_reference_revisions',
+              ])) {
                 $field_options[$field_id] = $this->t('@entity_type_label -> @field_label ID', [
                   '@entity_type_label' => $entity_type->getLabel(),
                   '@field_label' => $field->getLabel(),
@@ -225,7 +228,11 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
    *   The field definition.
    */
   protected function queryFieldAlter($query, $value, EntityListInterface $entity_list, array $field) {
-    $this->queryAlterByField($field['field_name'] . '.' . $this->getConfiguration()['property'], $query, $value, $entity_list, $field);
+    $field_id = $field['field_name'];
+    if ($field['definition']->getType() === 'entity_reference_revisions') {
+      $field_id .= '.target_revision_id';
+    }
+    $this->queryAlterByField($field_id . '.' . $this->getConfiguration()['property'], $query, $value, $entity_list, $field);
   }
 
   /**
