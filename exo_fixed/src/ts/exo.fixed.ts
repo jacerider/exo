@@ -110,6 +110,7 @@
         this.themeStart = this.floatStart;
         this.themeEnd = Math.round(this.floatStart + 1);
       }
+      this.updateStyleProps(this.floatOffset);
     }
 
     protected setSize() {
