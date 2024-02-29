@@ -27,6 +27,7 @@ class Exo {
     init: new ExoEvent<void>(),
     ready: new ExoEvent<void>(),
     reveal: new ExoEvent<void>(),
+    finished: new ExoEvent<void>(),
     breakpoint: new ExoEvent<any>(),
   };
 
@@ -94,7 +95,7 @@ class Exo {
     // Trigger resize event.
     this.onResize();
 
-    // Ready will be fired after 3 seconds to matter what.
+    // Ready will be fired after 3 seconds no matter what.
     const initTimer = setTimeout(() => {
       this.ready();
     }, 3000);
@@ -130,13 +131,14 @@ class Exo {
   }
 
   // This runs as a standard attach.
-  public attach() {
+  public attach(context) {
     this.event('init').trigger();
     this.event('ready').trigger();
     this.$document.trigger('exoReady');
     this.event('reveal').trigger();
     this.$document.trigger('exoReveal');
     this.checkElementPosition();
+    this.bindAnchors(context);
   }
 
   protected ready() {
@@ -147,6 +149,16 @@ class Exo {
     this.$document.trigger('exoReady');
     this.displaceContent();
     this.resizeContent();
+
+    // Will fire finished once when the page is revealed.
+    let finishedTimer;
+    Drupal.Exo.event('reveal').on('exo.reveal', () => {
+      clearTimeout(finishedTimer);
+      finishedTimer = setTimeout(() => {
+        Drupal.Exo.event('finished').trigger();
+        Drupal.Exo.event('reveal').off('exo.reveal');
+      }, 300);
+    });
 
     // Once all the dependencies have finished, unleashed the init.
     this.debug('log', this.label, 'Reveal Promises', this.revealPromises);
@@ -243,6 +255,52 @@ class Exo {
     }
     style += '}';
     this.$exoStyle.html(style);
+  }
+
+  public getOffsetTop() {
+    let top = displace.offsets.top;
+    const $fixed = $('.header.exo-fixed-element');
+    if ($fixed.length) {
+      top += $fixed.outerHeight();
+    }
+    return top;
+  }
+
+  protected bindAnchors(context) {
+    Drupal.Exo.$window.once('exo.hash').on('popstate.exo', e => {
+      let hash = location.hash;
+      if (hash) {
+        hash = hash.substring(1);
+        const $anchor = $('a[name="' + hash + '"]');
+        if ($anchor.length) {
+          $('html, body').animate({
+            scrollTop: $anchor.offset().top,
+          }, 500);
+        }
+      }
+    });
+
+    $('a[href^="#"]', context).once('exo.hash').each((index, element) => {
+      const $link = $(element);
+      const hash = $link.attr('href').substring(1);
+      if (hash) {
+        const $anchor = $('a[name="' + hash + '"]');
+        if ($anchor.length) {
+          $link.on('click', e => {
+            e.preventDefault();
+            $('html, body').animate({
+              scrollTop: $anchor.offset().top,
+            }, 500);
+            if(history.pushState) {
+              history.pushState({hash: hash}, null, '#' + hash);
+            }
+            else {
+              location.hash = hash;
+            }
+          });
+        }
+      }
+    });
   }
 
   /**

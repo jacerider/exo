@@ -17,6 +17,24 @@ TSinclude('./exo/_exo.event.ts')
   Drupal.behaviors.exo = {};
   document.body.style.position = 'relative';
 
+  // Prevent default anchor behavior.
+  let hash = window.location.hash;
+  if (typeof hash === 'string' && hash.length) {
+    hash = hash.replace('#', '');
+    document.addEventListener("DOMContentLoaded", function () {
+      window.scrollTo(0, 0);
+      const $anchor = $('a[name="' + hash + '"]');
+      if ($anchor.length) {
+        Drupal.Exo.event('finished').on('exo.hash', () => {
+          $('html, body').animate({
+            scrollTop: $anchor.offset().top,
+          }, 500);
+          Drupal.Exo.event('finished').off('exo.hash');
+        });
+      }
+    });
+  }
+
   // Maximum time allotted for loading.
   let loadTimeout = setTimeout(() => {
     Drupal.Exo.init(document.body);

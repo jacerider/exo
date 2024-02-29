@@ -47,6 +47,13 @@ html {
   }
 }
 
+a[name]:not([href]) {
+  display: block;
+  position: relative;
+  top: calc(0px - var(--displace-top, 0px) - var(--fixed-header-top, 0px) - var(--fixed-ash-header-top, 0px) - 10px);
+  visibility: hidden;
+}
+
 .exo-ready-show {
   visibility: hidden;
 }

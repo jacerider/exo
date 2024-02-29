@@ -10,24 +10,27 @@ class ExoAlchemistEnhancement {
     let hash = this.getHash();
     const object = {};
     if (hash) {
-      const array = hash.replace('#', '').split('&');
+      const array = hash.replace('#', '').split('+');
       for (let i = 0; i < array.length; i++) {
-        const element = atob(array[i]);
-        if (element.substring(0, 4) !== key.substring(0, 4)) {
-          continue;
-        }
-        const parts = element.split('~');
-        if (typeof parts[1] !== 'undefined') {
-          const elementValues = parts[1].split('|');
-          for (let ii = 0; ii < elementValues.length; ii++) {
-            const value = elementValues[ii];
-            const valueParts = value.split('--');
-            if (valueParts.length > 1) {
-              object[parts[0]] = {};
-              object[parts[0]][valueParts[0]] = valueParts[1];
-            }
-            else {
-              object[parts[0]] = valueParts[0];
+        const base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
+        if (base64regex.test(array[i]) !== false) {
+          const element = atob(array[i]);
+          if (element.substring(0, 4) !== key.substring(0, 4)) {
+            continue;
+          }
+          const parts = element.split('~');
+          if (typeof parts[1] !== 'undefined') {
+            const elementValues = parts[1].split('|');
+            for (let ii = 0; ii < elementValues.length; ii++) {
+              const value = elementValues[ii];
+              const valueParts = value.split('--');
+              if (valueParts.length > 1) {
+                object[parts[0]] = {};
+                object[parts[0]][valueParts[0]] = valueParts[1];
+              }
+              else {
+                object[parts[0]] = valueParts[0];
+              }
             }
           }
         }
@@ -37,11 +40,13 @@ class ExoAlchemistEnhancement {
   }
 
   public setHash(hash:string) {
-    if(history.pushState) {
-      history.pushState({hash: hash}, null, '#' + hash);
-    }
-    else {
-      location.hash = hash;
+    if ('#' + hash !== window.location.hash) {
+      if(history.pushState) {
+        history.pushState({hash: hash}, null, '#' + hash);
+      }
+      else {
+        window.location.hash = hash;
+      }
     }
   }
 
@@ -51,7 +56,7 @@ class ExoAlchemistEnhancement {
       if (Object.prototype.hasOwnProperty.call(object, i)) {
         const element = object[i];
         if (hash !== '') {
-          hash += '&';
+          hash += '+';
         }
         let val = i + '~';
         if (typeof element === 'object') {

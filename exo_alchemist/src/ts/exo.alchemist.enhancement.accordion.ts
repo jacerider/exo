@@ -6,7 +6,6 @@
     protected $items:JQuery;
     protected $triggers:JQuery;
     protected $contents:JQuery;
-    protected $current:JQuery;
     protected id:string = '';
     protected count:string;
     protected idSelector:string = '';
@@ -14,6 +13,7 @@
     protected interval:number;
     protected history:boolean = false;
     protected require:boolean = false;
+    protected collapse:boolean = false;
     protected style:string;
 
     constructor(id:string, $wrapper:JQuery) {
@@ -27,7 +27,7 @@
       this.history = typeof $wrapper.data('ee--accordion-history') !== 'undefined';
       this.require = typeof $wrapper.data('ee--accordion-require') !== 'undefined';
       this.style = $wrapper.data('ee--accordion-style') || 'vertical';
-      const collapse = typeof $wrapper.data('ee--accordion-collapse') !== 'undefined';
+      this.collapse = typeof $wrapper.data('ee--accordion-collapse') !== 'undefined';
       if (this.style !== 'none') {
         this.$contents.hide();
       }
@@ -40,6 +40,12 @@
           const $item = this.$triggers.filter('[data-ee--accordion-item-id="' + hashTab[this.id] + '"]');
           if ($item.length) {
             $show = $item.first();
+
+            Drupal.Exo.event('finished').on('exo.alchemist.enhancement.accordion.' + this.id, () => {
+              $('html, body').stop().animate({
+                scrollTop: $show.offset().top - Drupal.Exo.getOffsetTop() - 10
+              }, 500);
+            });
             forceShow = true;
           }
         }
@@ -64,6 +70,11 @@
           if ($item.length) {
             this.show($item.first(), true, true, false);
           }
+        }
+        else if (this.collapse === true) {
+          this.$triggers.closest('.show.ee--accordion-item[' + this.idSelector + ']').each((index, element) => {
+            this.show($(element), true, false, false);
+          });
         }
         else {
           this.show(this.$triggers.first(), true, true, false);
@@ -116,7 +127,7 @@
             break;
         }
       });
-      if (collapse === false || forceShow) {
+      if (this.collapse === false || forceShow) {
         Drupal.Exo.$window.on('ee--tab.open.' + this.id, (e, params) => {
           if (params.content.find(this.$wrapper).length) {
             this.show($show, true, true, false);
@@ -150,7 +161,7 @@
         if ((current && !keepOpen) || !current) {
           $shown.removeClass('show');
           $trigger.attr('aria-expanded', 'false');
-          if (doHash && typeof itemId !== 'undefined') {
+          if (doHash && typeof itemId !== 'undefined' && $shown.filter($item).length) {
             Drupal.ExoAlchemistEnhancement.removeHashForKey('ee--accordion-' + this.count, itemId, this.id);
           }
           if (animate && this.style !== 'none') {
@@ -167,7 +178,7 @@
             $shown.removeClass('shown');
           }
         }
-        if ((!current || keepOpen) && doHash && typeof itemId !== 'undefined') {
+        if ((!current || keepOpen) && doHash && typeof itemId !== 'undefined' && !this.isLayoutBuilder()) {
           Drupal.ExoAlchemistEnhancement.setHashForKey('ee--accordion-' + this.count, itemId, this.id);
         }
         if (!current) {
