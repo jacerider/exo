@@ -202,7 +202,9 @@ class ExoModal extends ExoData {
     if (this.getElement().length) {
       if (this.get('autoOpen')) {
         if (Drupal.Exo.isInitialized()) {
-          this.open();
+          setTimeout(() => {
+            this.open();
+          });
         }
         else {
           Drupal.Exo.event('ready').on('exo.modal.' + this.getId(), () => {
