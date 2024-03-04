@@ -57,6 +57,12 @@ class ExoAlchemistAdmin {
         this.scrollTop = $(document).scrollTop();
       }
     });
+
+    Drupal.Exo.$document.on('exoAlchemistAppearanceRefresh', (element) => {
+      if (this.$activeComponent) {
+        this.sizeComponentOverlay(this.$activeComponent);
+      }
+    });
   }
 
   protected buildElements() {
