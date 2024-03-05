@@ -424,19 +424,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   }
 
   /**
-   * Get options url.
-   *
-   * @param array $exclude_options
-   *   An array of query options to exclude.
-   * @param array $exclude_filters
-   *   An array of query filters to exclude.
-   * @param array $query
-   *   Additional query parameters.
-   *
-   * @return \Drupal\Core\Url
-   *   The url.
+   * {@inheritdoc}
    */
-  protected function getOptionsUrl(array $exclude_options = [], array $exclude_filters = [], array $query = []) {
+  public function getOptionsUrl(array $exclude_options = [], array $exclude_filters = [], array $query = []) {
     $entity_list = $this->getEntityList();
     $options = $this->getOptions();
     $defaults = $this->getOptionDefaults();

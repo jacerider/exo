@@ -77,6 +77,21 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
   public function setOption($key, $value);
 
   /**
+   * Get options url.
+   *
+   * @param array $exclude_options
+   *   An array of query options to exclude.
+   * @param array $exclude_filters
+   *   An array of query filters to exclude.
+   * @param array $query
+   *   Additional query parameters.
+   *
+   * @return \Drupal\Core\Url
+   *   The url.
+   */
+  public function getOptionsUrl(array $exclude_options = [], array $exclude_filters = [], array $query = []);
+
+  /**
    * Get limit.
    *
    * @return int
