@@ -246,6 +246,26 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
   /**
    * {@inheritdoc}
    */
+  public function toPreview($value, EntityListInterface $entity_list, array $field) {
+    if ($this->getConfiguration()['property'] === 'target_id' && in_array($field['type'], [
+      'entity_reference',
+      'entity_reference_revisions',
+    ])) {
+      if (!is_array($value)) {
+        $value = [$value];
+      }
+      foreach ($value as $key => $id) {
+        if ($entity = $this->entityTypeManager()->getStorage($field['definition']->getSetting('target_type'))->load($id)) {
+          $value[$key] = $entity->label();
+        }
+      }
+    }
+    return parent::toPreview($value, $entity_list, $field);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function applies(array $field) {
     // Fields can compute their own values.
     if ($this->getComputedFilterClass($field['definition'])) {
