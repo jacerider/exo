@@ -28,6 +28,7 @@ class Modal extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
     $multiple = $filter->allowsMultiple($field);
 
     $element['#type'] = 'exo_modal';
+    $element['#access'] = count($options) > 1;
     $element['#use_close'] = FALSE;
     $element['#modal_settings'] = [
       'exo_preset' => 'aside_right',
