@@ -457,7 +457,7 @@ class ExoComponentBuilder {
    *   The value if it exists.
    */
   public function getTemporaryValue($key) {
-    return isset($this->entity->_exoComponent[$this->viewMode][$key]) ? $this->entity->_exoComponent[$this->viewMode][$key] : NULL;
+    return $this->entity->_exoComponent[$this->viewMode][$key] ?? NULL;
   }
 
   /**
