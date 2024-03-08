@@ -7,7 +7,6 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Field\FieldItemInterface;
-use Drupal\Core\Field\FieldItemList;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\exo_alchemist\ExoComponentFieldManager;
 use Drupal\exo_alchemist\ExoComponentManager;
@@ -74,7 +73,7 @@ class Sequence extends EntityReferenceBase {
       throw new PluginException(sprintf('eXo Component Field plugin (%s) requires [fields] be set.', $field->getType()));
     }
 
-    $component_definition = $this->getComponentDefinition();
+    $component_definition = $this->getComponentDefinition(TRUE);
 
     // Merge in base defaults.
     foreach ($field->getDefaults() as $default) {
@@ -129,6 +128,7 @@ class Sequence extends EntityReferenceBase {
     parent::onFieldInstall();
 
     $component = $this->getComponentDefinition();
+    $component->addAdditional('alchemist_default', TRUE);
     $this->exoComponentManager()->installEntityType($component);
   }
 
@@ -138,6 +138,7 @@ class Sequence extends EntityReferenceBase {
   public function onFieldUpdate() {
     parent::onFieldUpdate();
     $component = $this->getComponentDefinition();
+    $component->addAdditional('alchemist_default', TRUE);
     $this->exoComponentManager()->updateEntityType($component);
     // On update, we need to make sure we build the entity.
     $values = ExoComponentValues::fromFieldDefaults($this->getFieldDefinition());
@@ -268,7 +269,8 @@ class Sequence extends EntityReferenceBase {
    */
   protected function onCloneValue(FieldItemInterface $item, $all) {
     $component = $this->getComponentDefinition();
-    return $this->exoComponentManager()->cloneEntity($component, $item->entity);
+    $entity = $this->exoComponentManager()->cloneEntity($component, $item->entity, $all);
+    return $entity;
   }
 
   /**
@@ -386,6 +388,30 @@ class Sequence extends EntityReferenceBase {
   /**
    * {@inheritdoc}
    */
+  public function getValues(ExoComponentValues $values, FieldItemListInterface $items) {
+    $entity = $items->getEntity();
+    // When a new component is passed in, we make the assumption that we need
+    // the whole sequence as a standalone entity.
+    if ($entity->isNew()) {
+      $field_values = [];
+      $base = NULL;
+      foreach ($values as $delta => $value) {
+        $component = $this->getComponentDefinitionWithValue($value);
+        if (!$base) {
+          $base = $this->exoComponentManager()->loadEntity($component);
+        }
+        $child = $this->exoComponentManager()->cloneEntity($component, $base);
+        $this->exoComponentManager()->populateEntity($component, $child);
+        $field_values[$delta] = $child;
+      }
+      return $field_values;
+    }
+    return parent::getValues($values, $items);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   protected function getValueEntity(ExoComponentValue $value, FieldItemInterface $item = NULL) {
     $component = $this->getComponentDefinitionWithValue($value);
     $entity = $this->exoComponentManager()->loadEntity($component);
@@ -431,10 +457,13 @@ class Sequence extends EntityReferenceBase {
   /**
    * Get the component definition.
    *
+   * @param bool $validate
+   *   (optional) If TRUE, the definition is validated.
+   *
    * @return \Drupal\exo_alchemist\Definition\ExoComponentDefinition
    *   The component definition.
    */
-  public function getComponentDefinition() {
+  public function getComponentDefinition($validate = FALSE) {
     if (!isset($this->componentDefinition)) {
       $field = $this->getFieldDefinition();
       $definition = [
@@ -451,7 +480,7 @@ class Sequence extends EntityReferenceBase {
       // Sequence fields do not need to be inherited.
       unset($definition['additional']['sequence_fields']);
       unset($definition['additional']['sequence_modifier']);
-      $this->exoComponentManager()->processDefinition($definition, $this->getPluginId());
+      $this->exoComponentManager()->processDefinition($definition, $this->getPluginId(), $validate);
       /** @var \Drupal\exo_alchemist\Definition\ExoComponentDefinition $definition */
       $definition->addParentField($field);
       $this->componentDefinition = $definition;

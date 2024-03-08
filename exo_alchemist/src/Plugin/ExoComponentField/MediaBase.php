@@ -19,6 +19,13 @@ abstract class MediaBase extends EntityReferenceBase implements ExoComponentFiel
   protected $entityType = 'media';
 
   /**
+   * Prevent media file cleanup.
+   *
+   * @var bool
+   */
+  protected static $preventMediaFileClean = FALSE;
+
+  /**
    * {@inheritdoc}
    */
   public function getStorageConfig() {
@@ -37,6 +44,18 @@ abstract class MediaBase extends EntityReferenceBase implements ExoComponentFiel
     return [
       'type' => 'media_library_widget',
     ];
+  }
+
+  /**
+   * Prevent media file cleanup.
+   *
+   * Can be useful when importing components.
+   *
+   * @param bool $prevent
+   *   Prevent media file cleanup.
+   */
+  public static function preventMediaFileCleanup($prevent = TRUE) {
+    static::$preventMediaFileClean = !empty($prevent);
   }
 
   /**
@@ -104,6 +123,9 @@ abstract class MediaBase extends EntityReferenceBase implements ExoComponentFiel
    *   The media entity.
    */
   protected function componentMediaSourceFieldClean(MediaInterface $entity) {
+    if (static::$preventMediaFileClean === TRUE) {
+      return;
+    }
     $entity_type = $entity->bundle->entity;
     $entity_field_name = $entity_type->getSource()->getSourceFieldDefinition($entity_type)->getName();
     if ($entity->hasField($entity_field_name) && !$entity->get($entity_field_name)->isEmpty()) {
@@ -132,6 +154,9 @@ abstract class MediaBase extends EntityReferenceBase implements ExoComponentFiel
    */
   protected function getValueEntity(ExoComponentValue $value, FieldItemInterface $item = NULL) {
     $media = NULL;
+    if ($reference_value = parent::getValueEntity($value, $item)) {
+      return $reference_value;
+    }
     $key = $this->getMediaKey($value);
     if (!$key) {
       return;
@@ -205,7 +230,7 @@ abstract class MediaBase extends EntityReferenceBase implements ExoComponentFiel
     $key = $value->get('key');
     if (empty($key)) {
       // Use the path as the default key.
-      $key = $value->get('path');
+      $key = $value->get('path') ?: $value->get('target_id');
     }
     return $key;
   }
@@ -232,9 +257,7 @@ abstract class MediaBase extends EntityReferenceBase implements ExoComponentFiel
     if ($all) {
       return [];
     }
-    else {
-      return parent::onCloneValue($item, $all);
-    }
+    return parent::onCloneValue($item, $all);
   }
 
   /**

@@ -76,6 +76,21 @@ class ExoComponentContainer {
   }
 
   /**
+   * Set a modifier's value.
+   *
+   * @param string $modifier_name
+   *   The component modifier name.
+   * @param mixed $value
+   *   The value to set on the modifier.
+   * @param string $group
+   *   The modifier group.
+   */
+  public function setModifierValue($modifier_name, $value, $group = '_global') {
+    $this->getComponent()->_exoComponentModifiers[$group][$modifier_name] = $value;
+    return $this;
+  }
+
+  /**
    * Set a field's value.
    *
    * @param string $field_name
@@ -85,7 +100,12 @@ class ExoComponentContainer {
    */
   public function setFieldValue($field_name, $values) {
     if ($field = $this->getFieldDefinition($field_name)) {
-      $this->getComponent()->_exoComponentValues[$field_name] = new ExoComponentValues($field, $values);
+      if (empty($values)) {
+        $this->getComponent()->_exoComponentValues[$field_name] = NULL;
+      }
+      else {
+        $this->getComponent()->_exoComponentValues[$field_name] = new ExoComponentValues($field, $values);
+      }
     }
     return $this;
   }

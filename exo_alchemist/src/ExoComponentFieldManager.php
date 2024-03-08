@@ -149,8 +149,10 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
    *
    * @param \Drupal\exo_alchemist\Definition\ExoComponentDefinition $definition
    *   The component definition.
+   * @param bool $validate
+   *   (optional) If TRUE, the definition is validated.
    */
-  public function processComponentDefinition(ExoComponentDefinition $definition) {
+  public function processComponentDefinition(ExoComponentDefinition $definition, $validate = TRUE) {
     foreach ($definition->getFields() as $plugin_id => $field) {
       if (!$this->hasDefinition($field->getType())) {
         $field->setType($this->getFallbackPluginId($plugin_id, []));
@@ -167,7 +169,7 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
       ) {
         throw new PluginException(sprintf('eXo Component Field plugin property (%s) in (%s) is required and not editable but does not supply a default.', $field->getType(), $definition['label']));
       }
-      if ($instance instanceof ExoComponentFieldFieldableInterface) {
+      if ($validate && $instance instanceof ExoComponentFieldFieldableInterface) {
         // Validate previews.
         $values = ExoComponentValues::fromFieldDefaults($field);
         foreach ($values as $value) {

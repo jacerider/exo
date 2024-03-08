@@ -121,9 +121,35 @@ class ExoComponentBuilder {
    */
   public function create($component_type_id, $position, $delta = 0, $region = 'content') {
     $container = new ExoComponentContainer($this->exoComponentManager, $component_type_id);
+    $container->preventMediaFileCleanup();
     $this->insertSectionComponent($container, $position, $delta, $region);
     $this->flagForSave();
     return $container;
+  }
+
+  /**
+   * Remove all components from an entity.
+   *
+   * @param int $delta
+   *   The delta of the section.
+   * @param string $region
+   *   The region within the section.
+   *
+   * @return $this
+   */
+  public function clearComponents($delta = 0, $region = 'content') {
+    $section = $this->getSection($delta);
+    if (empty($section->getLayoutSettings()['exo_section_lock'])) {
+      // Make sure region exists within component.
+      $layout = $this->layoutPluginManager()->getDefinition($section->getLayoutId());
+      $regions = $layout->getRegions();
+      if (isset($regions[$region])) {
+        foreach ($section->getComponents() as $component) {
+          $section->removeComponent($component->getUuid());
+        }
+      }
+    }
+    return $this;
   }
 
   /**
@@ -256,8 +282,10 @@ class ExoComponentBuilder {
       $configuration = $component->get('configuration');
       if (!empty($configuration['block_revision_id'])) {
         $entity_for_removal = $this->exoComponentManager->entityLoadByRevisionId($configuration['block_revision_id']);
+        $definition = $this->exoComponentManager->getEntityComponentDefinition($entity_for_removal);
         if ($entity_for_removal) {
           $entity_for_removal->delete();
+          $this->exoComponentManager->getExoComponentFieldManager()->onPostDeleteLayoutBuilderEntity($definition, $entity_for_removal, $this->entity);
         }
       }
     }
@@ -319,11 +347,36 @@ class ExoComponentBuilder {
         $configuration = $component->get('configuration');
         if (isset($configuration['exo_component'])) {
           $entity = $configuration['exo_component'];
+          /** @var \Drupal\exo_alchemist\Definition\ExoComponentDefinition $definition */
+          $definition = $entity->alchemistDefinition;
+          // Set any temporary modifiers as actual modifier values.
+          if (!empty($entity->_exoComponentModifiers)) {
+            $modifier_values = $entity->get(ExoComponentPropertyManager::MODIFIERS_FIELD_NAME)->getValue();
+            $modifiers = $definition->getModifiers();
+            foreach ($entity->_exoComponentModifiers as $group => $props) {
+              if (isset($modifiers[$group])) {
+                $modifier_properties = $modifiers[$group]->getProperties();
+                foreach ($props as $prop_key => $prop_values) {
+                  if (isset($modifier_properties[$prop_key])) {
+                    $modifier_values[0]['value'][$group][$prop_key] = $prop_values;
+                  }
+                }
+              }
+            }
+            $entity->get(ExoComponentPropertyManager::MODIFIERS_FIELD_NAME)->setValue($modifier_values);
+          }
           // Set any temporary values as actual field values.
           if (!empty($entity->_exoComponentValues)) {
-            foreach ($entity->_exoComponentValues as $values) {
-              $this->exoComponentManager->getExoComponentFieldManager()->setEntityFieldValue($values, $entity);
+            foreach ($entity->_exoComponentValues as $field_name => $values) {
+              if ($values instanceof ExoComponentValues) {
+                $this->exoComponentManager->getExoComponentFieldManager()->setEntityFieldValue($values, $entity);
+                ExoComponentFieldManager::setVisibleFieldName($entity, $field_name);
+              }
+              else {
+                ExoComponentFieldManager::setHiddenFieldName($entity, $field_name);
+              }
             }
+            $this->exoComponentManager->onDraftUpdateLayoutBuilderEntity($definition, $entity);
           }
           // Serialize any exo components and place it where layout builder
           // needs it.

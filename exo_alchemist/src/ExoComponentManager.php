@@ -418,14 +418,14 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
   /**
    * {@inheritdoc}
    */
-  public function processDefinition(&$definition, $plugin_id) {
+  public function processDefinition(&$definition, $plugin_id, $validate = TRUE) {
     $this->processDefinitionCategory($definition);
     // You can add validation of the plugin definition here.
     if (empty($definition['id'])) {
       throw new PluginException(sprintf('eXo Component plugin (%s) definition "id" is required.', $plugin_id));
     }
     $definition = new ExoComponentDefinition($definition);
-    $this->exoComponentFieldManager->processComponentDefinition($definition);
+    $this->exoComponentFieldManager->processComponentDefinition($definition, $validate);
     $this->exoComponentPropertyManager->processComponentDefinition($definition);
     $this->exoComponentEnhancementManager->processComponentDefinition($definition);
   }
@@ -1064,13 +1064,17 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
    *   The component definition.
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The content entity to populate.
+   * @param bool $save
+   *   Flag to save entity after population.
    */
-  public function populateEntity(ExoComponentDefinition $definition, ContentEntityInterface $entity) {
+  public function populateEntity(ExoComponentDefinition $definition, ContentEntityInterface $entity, $save = TRUE) {
     // Populate properties before fields as we use the form_display save hook
     // to create the default entity.
     $this->exoComponentPropertyManager->populateEntity($definition, $entity);
     $this->exoComponentFieldManager->populateEntity($definition, $entity);
-    $entity->save();
+    if ($save) {
+      $entity->save();
+    }
   }
 
   /**
