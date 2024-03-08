@@ -192,7 +192,6 @@ class ExoComponentGenerator {
    */
   public function handlePreSave(EntityInterface $entity) {
     if ($this->isLayoutCompatibleEntity($entity)) {
-      $this->exoComponentManager->handleEntityEvent('preSave', $entity);
       $this->handleLayoutEntityPreSave($entity);
       if ($entity->getEntityTypeId() == 'entity_view_display') {
         // Because layout builder removed block_serialized before we can get to
@@ -238,6 +237,7 @@ class ExoComponentGenerator {
     if ($this->isComponentEntity($entity)) {
       $this->handleComponentEntityPreSave($entity);
     }
+    $this->exoComponentManager->handleEntityEvent('preSave', $entity);
     return $this;
   }
 
