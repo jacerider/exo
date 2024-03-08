@@ -4,6 +4,7 @@ namespace Drupal\exo_alchemist;
 
 use Drupal\Component\Uuid\UuidInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\exo_alchemist\Plugin\ExoComponentField\MediaBase;
 use Drupal\layout_builder\LayoutTempstoreRepositoryInterface;
 use Drupal\layout_builder\Plugin\SectionStorage\OverridesSectionStorage;
 use Drupal\layout_builder\Section;
@@ -121,7 +122,7 @@ class ExoComponentBuilder {
    */
   public function create($component_type_id, $position, $delta = 0, $region = 'content') {
     $container = new ExoComponentContainer($this->exoComponentManager, $component_type_id);
-    $container->preventMediaFileCleanup();
+    MediaBase::preventMediaFileCleanup();
     $this->insertSectionComponent($container, $position, $delta, $region);
     $this->flagForSave();
     return $container;
