@@ -141,7 +141,6 @@ abstract class ExoComponentFieldFieldableBase extends ExoComponentFieldBase impl
       // and then hide the field so that it can later be restored.
       $values = ExoComponentValues::fromFieldDefaults($field);
       $items->setValue($this->populateValues($values, $items));
-
     }
   }
 
