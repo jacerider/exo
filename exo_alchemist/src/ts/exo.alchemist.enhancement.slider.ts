@@ -21,10 +21,11 @@
         navigation: {},
         scrollbar: {},
         thumbs: {},
+        autoplay: false,
         on: {
           init: () => {
             $(document).trigger('exoComponentSliderInit');
-          },
+          }
         }
       };
       if ($pagination.length) {
@@ -61,10 +62,6 @@
       }
 
       const settings = $.extend(true, {}, defaultSettings, this.$wrapper.data('ee--slider-settings') || {});
-      if (isLayoutBuilder) {
-        settings['watchSlidesProgress'] = true;
-        settings['loop'] = false;
-      }
 
       const $navSlider = $wrapper.closest('.exo-component').find('.ee--slider-nav[data-ee--slider-id="' + id + '"]');
       if ($navSlider.length) {

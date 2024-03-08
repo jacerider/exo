@@ -55,7 +55,8 @@ class Slider extends ExoComponentEnhancementBase {
     $settings = $this->getEnhancementDefinition()->getAdditionalValue('settings');
     if ($is_layout_builder) {
       $settings['loop'] = FALSE;
-      $settings['slidesOffsetAfter'] = 1000;
+      // $settings['slidesOffsetAfter'] = 1000;
+      $settings['watchSlidesProgress'] = TRUE;
     }
     $view = [
       '#attached' => [
