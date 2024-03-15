@@ -17,6 +17,15 @@ trait ExoComponentFieldFileTrait {
    */
   public function validateValueFile(ExoComponentValue $value, $required = FALSE) {
     $field = $value->getDefinition();
+    // Support passing in target ids.
+    $target_id = $value->get('target_id');
+    if (is_string($target_id) || is_int($target_id)) {
+      $media = $this->entityTypeManager->getStorage('media')->load($target_id);
+      if ($media) {
+        // We have a valid media entity.
+        return;
+      }
+    }
     if ($required && !$value->has('path')) {
       throw new PluginException(sprintf('eXo Component Field plugin (%s) requires [default.path] be set.', $field->getType()));
     }

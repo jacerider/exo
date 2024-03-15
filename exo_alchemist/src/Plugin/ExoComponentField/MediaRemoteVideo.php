@@ -59,6 +59,9 @@ class MediaRemoteVideo extends MediaBase {
    */
   public function validateValue(ExoComponentValue $value) {
     parent::validateValue($value);
+    if ($value->get('target_id')) {
+      return;
+    }
     if ($value->get('value')) {
       $value->set('path', $value->get('value'));
       $value->unset('value');

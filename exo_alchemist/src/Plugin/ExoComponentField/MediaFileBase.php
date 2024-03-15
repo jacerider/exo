@@ -24,16 +24,6 @@ abstract class MediaFileBase extends MediaBase {
       $value->set('path', $base_value);
       $value->unset('value');
     }
-    // Support passing in target ids.
-    $target_id = $value->get('target_id');
-    if (is_string($target_id) || is_int($target_id)) {
-      $media = $this->entityTypeManager->getStorage('media')->load($target_id);
-      if ($media) {
-        $value->set('path', $target_id);
-        // We have a valid media entity.
-        return;
-      }
-    }
     $this->validateValueFile($value, TRUE);
   }
 
