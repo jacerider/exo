@@ -634,7 +634,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
       if (!$instance && $entity_list->getFormat() === 'table') {
         // When using table-sorting, the order is actually the field label.
-        foreach ($entity_list->getFields() as $field) {
+        foreach ($this->getFields() as $field) {
           if (!empty($field['sort_field']) && (string) $field['display_label'] === $sort_plugin_id) {
             $instance = $this->sortManager->createInstance('field');
             $sort_plugin_value = $field['id'];
@@ -1838,8 +1838,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * Build form columns.
    */
   protected function buildFormColumns(array $form, FormStateInterface $form_state) {
-    $entity_list = $this->getEntityList();
-    $all_fields = $entity_list->getFields();
+    $all_fields = $this->getFields();
     if (empty($all_fields)) {
       return [];
     }
@@ -2609,13 +2608,23 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   }
 
   /**
+   * Get fields from entity list.
+   *
+   * @return array
+   *   The fields.
+   */
+  protected function getFields() {
+    return $this->getEntityList()->getFields();
+  }
+
+  /**
    * Get fields accounting for shown/hidden.
    *
    * @return array
    *   The fields.
    */
   protected function getShownFields() {
-    $fields = $this->getEntityList()->getFields();
+    $fields = $this->getFields();
     $show = $this->getOption('show');
     if (!empty($show)) {
       $fields = array_replace(array_flip($show), array_intersect_key($fields, array_flip($show)));
@@ -2665,7 +2674,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   public function getFilters() {
     if (!isset($this->filters)) {
-      $filters = $this->getEntityList()->getFields();
+      $filters = $this->getFields();
       $filters = array_filter($filters, function ($field) {
         return !empty($field['filter']['type']);
       });
