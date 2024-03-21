@@ -1847,10 +1847,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       '#tag' => 'div',
       '#attributes' => ['class' => ['exo-list-columns']],
     ];
-    $form['close'] = [
-      '#type' => 'exo_modal_close',
-      '#label' => exo_icon()->setIcon('regular-times'),
-    ];
     $form['show'] = [
       '#type' => 'table',
       '#header' => [
@@ -1909,7 +1905,16 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $form['actions']['#type'] = 'actions';
     $form['actions']['submit'] = [
       '#type' => 'submit',
+      '#button_type' => 'primary',
       '#value' => $this->getEntityList()->getSetting('update_label', $this->t('Update')),
+    ];
+    $form['actions']['close'] = [
+      '#type' => 'exo_modal_close',
+      '#value' => $this->getEntityList()->getSetting('cancel_label', $this->t('Cancel')),
+      '#name' => 'exo_filter_modal_cancel',
+      '#attributes' => [
+        'class' => ['exo-form-element', 'button', 'reset'],
+      ],
     ];
     if ($this->getOption('show', FALSE)) {
       $form['actions']['reset'] = [
@@ -1919,13 +1924,10 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         '#attributes' => [
           'class' => ['button', 'reset'],
         ],
+        '#prefix' => '<div class="exo-form-element">',
+        '#suffix' => '</div>',
       ];
     }
-    $modal['actions']['cancel'] = [
-      '#type' => 'exo_modal_close',
-      '#value' => $this->getEntityList()->getSetting('cancel_label', $this->t('Cancel')),
-      '#name' => 'exo_filter_modal_cancel',
-    ];
 
     return [
       '#type' => 'exo_modal',
