@@ -162,7 +162,7 @@ class ExoComponentSectionStorage extends ExoOverridesSectionStorage implements E
    * {@inheritdoc}
    */
   private function extractEntityFromRoute($value, array $defaults) {
-    list($layout_entity_type_id, $layout_entity_id) = explode('.', $value, 4);
+    [$layout_entity_type_id, $layout_entity_id] = explode('.', $value, 4);
     $entity = $this->entityRepository->getActive($layout_entity_type_id, $layout_entity_id);
     if ($entity instanceof FieldableEntityInterface && $entity->hasField(static::FIELD_NAME)) {
       return $entity;

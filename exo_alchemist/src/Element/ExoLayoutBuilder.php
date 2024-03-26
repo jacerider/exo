@@ -480,6 +480,21 @@ class ExoLayoutBuilder extends LayoutBuilder {
       if (substr($field->getType(), 0, 15) === 'section_column_') {
         $build['#' . $field->getName()]['render'] = $this->buildAdministrativeComponentSection($section_storage, $entity, $field, $delta);
       }
+      // if ($field->getType() === 'sequence') {
+      //   /** @var \Drupal\exo_alchemist\ExoComponentFieldManager $exoComponentFieldManager */
+      //   $exoComponentFieldManager = \Drupal::service('plugin.manager.exo_component_field');
+      //   /** @var \Drupal\exo_alchemist\Plugin\ExoComponentField\Sequence */
+      //   $instance = $exoComponentFieldManager->createFieldInstance($field);
+      //   $sequence_component = $instance->getComponentDefinition();
+      //   foreach ($sequence_component->getFields() as $sequence_field) {
+      //     if (substr($sequence_field->getType(), 0, 15) === 'section_column_') {
+      //       foreach ($build['#' . $field->getName()]['value'] as $sequence_delta => &$sequence_value) {
+      //         $sequence_entity = $sequence_value['entity'];
+      //         $sequence_value[$sequence_field->getName()]['render'] = $this->buildAdministrativeComponentSection($section_storage, $sequence_entity, $sequence_field, $sequence_delta);
+      //       }
+      //     }
+      //   }
+      // }
     }
     return $build;
   }
