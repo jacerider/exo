@@ -11,6 +11,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\Core\Image\ImageFactory;
+use Drupal\Core\Render\Markup;
+use Drupal\exo_link\Plugin\Block\LinkBlock;
 
 /**
  * Provides a block to display a config file image.
@@ -20,7 +22,7 @@ use Drupal\Core\Image\ImageFactory;
  *   admin_label = @Translation("Image"),
  * )
  */
-class ImageBlock extends BlockBase implements ContainerFactoryPluginInterface {
+class ImageBlock extends LinkBlock implements ContainerFactoryPluginInterface {
 
   /**
    * The current user.
@@ -97,6 +99,10 @@ class ImageBlock extends BlockBase implements ContainerFactoryPluginInterface {
     $form = parent::blockForm($form, $form_state);
     $image = $this->configuration['image'];
 
+    $form['title']['#title'] = $this->t('Alt text');
+    $form['uri']['#required'] = FALSE;
+    $form['icon']['#access'] = FALSE;
+
     $form['image'] = [
       '#type' => 'exo_config_file',
       '#title' => !$image ? $this->t('Image') : $this->t('Replace Image'),
@@ -150,6 +156,9 @@ class ImageBlock extends BlockBase implements ContainerFactoryPluginInterface {
           '#width' => $image->getWidth(),
           '#height' => $image->getHeight(),
           '#uri' => $image->getSource(),
+          '#attributes' => [
+            'alt' => $this->configuration['title'],
+          ],
           '#cache' => [
             'tags' => $cache_tags,
           ],
@@ -161,9 +170,19 @@ class ImageBlock extends BlockBase implements ContainerFactoryPluginInterface {
           '#width' => $image->getWidth(),
           '#height' => $image->getHeight(),
           '#uri' => $image->getSource(),
+          '#attributes' => [
+            'alt' => $this->configuration['title'],
+          ],
           '#cache' => [
             'tags' => $cache_tags,
           ],
+        ];
+      }
+      if (!empty($this->configuration['uri'])) {
+        $build['image'] = [
+          '#title' => $build['image'],
+          '#type' => 'link',
+          '#url' => Url::fromUri($this->configuration['uri']),
         ];
       }
     }
