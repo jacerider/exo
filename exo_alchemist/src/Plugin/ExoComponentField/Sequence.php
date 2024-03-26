@@ -126,7 +126,6 @@ class Sequence extends EntityReferenceBase {
    */
   public function onFieldInstall() {
     parent::onFieldInstall();
-
     $component = $this->getComponentDefinition();
     $component->addAdditional('alchemist_default', TRUE);
     $this->exoComponentManager()->installEntityType($component);
@@ -153,6 +152,7 @@ class Sequence extends EntityReferenceBase {
   public function onFieldUninstall() {
     parent::onFieldUninstall();
     $component = $this->getComponentDefinition();
+    $component->addAdditional('alchemist_default', TRUE);
     $this->exoComponentManager()->uninstallEntityType($component);
   }
 
@@ -390,6 +390,7 @@ class Sequence extends EntityReferenceBase {
    */
   public function getValues(ExoComponentValues $values, FieldItemListInterface $items) {
     $entity = $items->getEntity();
+    $component = $this->getComponentDefinition();
     // When a new component is passed in, we make the assumption that we need
     // the whole sequence as a standalone entity.
     if ($entity->isNew()) {
@@ -400,11 +401,15 @@ class Sequence extends EntityReferenceBase {
         if (!$base) {
           $base = $this->exoComponentManager()->loadEntity($component);
         }
-        $child = $this->exoComponentManager()->cloneEntity($component, $base);
-        $this->exoComponentManager()->populateEntity($component, $child);
-        $field_values[$delta] = $child;
+        if ($base) {
+          $child = $this->exoComponentManager()->cloneEntity($component, $base);
+          $this->exoComponentManager()->populateEntity($component, $child);
+          $field_values[$delta] = $child;
+        }
       }
-      return $field_values;
+      if (!empty($field_values)) {
+        return $field_values;
+      }
     }
     return parent::getValues($values, $items);
   }
