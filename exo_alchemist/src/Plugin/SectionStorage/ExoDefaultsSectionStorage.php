@@ -38,7 +38,7 @@ class ExoDefaultsSectionStorage extends DefaultsSectionStorage implements ExoCom
   public function getRegionSize($delta, $region) {
     $section = $this->getSection($delta);
     $settings = $section->getLayoutSettings();
-    return isset($settings['column_sizes'][$region]) ? $settings['column_sizes'][$region] : 'full';
+    return $settings['column_sizes'][$region] ?? 'full';
   }
 
 }
