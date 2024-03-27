@@ -5,6 +5,7 @@ namespace Drupal\exo_alchemist\Plugin\SectionStorage;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\Context\ContextDefinition;
 use Drupal\Core\Plugin\Context\EntityContext;
@@ -25,7 +26,7 @@ use Symfony\Component\Routing\RouteCollection;
  *     "component_entity" = @ContextDefinition("entity", constraints = {
  *       "EntityHasField" = \Drupal\layout_builder\Plugin\SectionStorage\OverridesSectionStorage::FIELD_NAME,
  *     }),
- *     "layout_entity" = @ContextDefinition("entity", constraints = {
+ *     "entity" = @ContextDefinition("entity", constraints = {
  *       "EntityHasField" = \Drupal\layout_builder\Plugin\SectionStorage\OverridesSectionStorage::FIELD_NAME,
  *     }),
  *     "view_mode" = @ContextDefinition("string", default_value = "default"),
@@ -58,7 +59,15 @@ class ExoComponentSectionStorage extends ExoOverridesSectionStorage implements E
    * {@inheritdoc}
    */
   public function getParentEntity() {
-    return $this->getContextValue('layout_entity');
+    if (!empty($this->getContextDefinitions()['layout_builder.entity'])) {
+      return $this->getContextValue('layout_builder.entity');
+    }
+    if (!empty($this->getContextDefinitions()['entity'])) {
+      return $this->getContextValue('entity');
+    }
+    if (!empty($this->getContextDefinitions()['layout_entity'])) {
+      return $this->getContextValue('layout_entity');
+    }
   }
 
   /**
@@ -141,7 +150,7 @@ class ExoComponentSectionStorage extends ExoOverridesSectionStorage implements E
     $layout_entity = $this->extractEntityFromRoute($value, $defaults);
     $component_entity = NULL;
     if ($layout_entity) {
-      $contexts['layout_entity'] = EntityContext::fromEntity($layout_entity);
+      $contexts['entity'] = EntityContext::fromEntity($layout_entity);
       $component_entity = $this->extractComponentEntityFromLayoutEntity($value, $layout_entity);
     }
 
@@ -175,7 +184,7 @@ class ExoComponentSectionStorage extends ExoOverridesSectionStorage implements E
    */
   private function extractComponentEntityFromLayoutEntity($value, EntityInterface $layout_entity) {
     $entity = NULL;
-    list(,, $entity_type_id, $entity_id) = explode('.', $value, 4);
+    [,, $entity_type_id, $entity_id] = explode('.', $value, 4);
     $entity = $this->entityRepository->getActive($entity_type_id, $entity_id);
     if (!$entity) {
       /** @var \Drupal\exo_alchemist\ExoComponentRepository $repository */
@@ -184,6 +193,15 @@ class ExoComponentSectionStorage extends ExoOverridesSectionStorage implements E
       foreach ($components_with_section as $component_with_section) {
         if ($component_with_section->uuid() === $entity_id) {
           return $component_with_section;
+        }
+        foreach ($component_with_section->getFields() as $field) {
+          if ($field instanceof EntityReferenceFieldItemListInterface && !$field->isEmpty()) {
+            foreach ($field->referencedEntities() as $ref) {
+              if ($ref->uuid() === $entity_id) {
+                return $ref;
+              }
+            }
+          }
         }
       }
     }
