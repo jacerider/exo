@@ -24,7 +24,7 @@ class SectionColumnOneLarge extends SectionBase {
    */
   protected function getRegionSizes() {
     return [
-      'first' => 'large',
+      'content' => 'large',
     ];
   }
 
