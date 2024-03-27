@@ -385,7 +385,7 @@ class ExoLayoutBuilder extends LayoutBuilder {
       'delta' => $delta,
       'region' => $region_id,
       'uuid' => $component_id,
-      'info' => 'Click to focus: <strong>' . $exo_component->getLabel(). '</strong>',
+      'info' => 'Click to focus: <strong>' . $exo_component->getLabel() . '</strong>',
       'info_icon' => 'regular-cog',
       'label' => $exo_component->getLabel(),
     ];
@@ -477,24 +477,25 @@ class ExoLayoutBuilder extends LayoutBuilder {
     }
 
     foreach ($exo_component->getFields() as $field) {
+      /** @var \Drupal\exo_alchemist\Plugin\SectionStorage\ExoOverridesSectionStorage $section_storage */
       if (substr($field->getType(), 0, 15) === 'section_column_') {
-        $build['#' . $field->getName()]['render'] = $this->buildAdministrativeComponentSection($section_storage, $entity, $field, $delta);
+        $build['#' . $field->getName()]['render'] = $this->buildAdministrativeComponentSection($section_storage->getEntity(), $entity, $field, $delta);
       }
-      // if ($field->getType() === 'sequence') {
-      //   /** @var \Drupal\exo_alchemist\ExoComponentFieldManager $exoComponentFieldManager */
-      //   $exoComponentFieldManager = \Drupal::service('plugin.manager.exo_component_field');
-      //   /** @var \Drupal\exo_alchemist\Plugin\ExoComponentField\Sequence */
-      //   $instance = $exoComponentFieldManager->createFieldInstance($field);
-      //   $sequence_component = $instance->getComponentDefinition();
-      //   foreach ($sequence_component->getFields() as $sequence_field) {
-      //     if (substr($sequence_field->getType(), 0, 15) === 'section_column_') {
-      //       foreach ($build['#' . $field->getName()]['value'] as $sequence_delta => &$sequence_value) {
-      //         $sequence_entity = $sequence_value['entity'];
-      //         $sequence_value[$sequence_field->getName()]['render'] = $this->buildAdministrativeComponentSection($section_storage, $sequence_entity, $sequence_field, $sequence_delta);
-      //       }
-      //     }
-      //   }
-      // }
+      if ($field->getType() === 'sequence') {
+        /** @var \Drupal\exo_alchemist\ExoComponentFieldManager $exoComponentFieldManager */
+        $exoComponentFieldManager = \Drupal::service('plugin.manager.exo_component_field');
+        /** @var \Drupal\exo_alchemist\Plugin\ExoComponentField\Sequence */
+        $instance = $exoComponentFieldManager->createFieldInstance($field);
+        $sequence_component = $instance->getComponentDefinition();
+        foreach ($sequence_component->getFields() as $sequence_field) {
+          if (substr($sequence_field->getType(), 0, 15) === 'section_column_') {
+            foreach ($build['#' . $field->getName()]['value'] as $sequence_delta => &$sequence_value) {
+              $sequence_entity = $sequence_value['entity'];
+              $sequence_value[$sequence_field->getName()]['render'] = $this->buildAdministrativeComponentSection($section_storage->getEntity(), $sequence_entity, $sequence_field, $sequence_delta);
+            }
+          }
+        }
+      }
     }
     return $build;
   }
@@ -502,10 +503,10 @@ class ExoLayoutBuilder extends LayoutBuilder {
   /**
    * Build nested section.
    *
-   * @param \Drupal\layout_builder\SectionStorageInterface $section_storage
-   *   The section storage.
+   * @param \Drupal\Core\Entity\ContentEntityInterface $parent
+   *   The parent entity.
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
-   *   The render array.
+   *   The child entity.
    * @param Drupal\exo_alchemist\Definition\ExoComponentDefinitionField $field
    *   The field definition.
    * @param int $delta
@@ -514,11 +515,10 @@ class ExoLayoutBuilder extends LayoutBuilder {
    * @return array
    *   The render array for a given component.
    */
-  protected function buildAdministrativeComponentSection(SectionStorageInterface $section_storage, ContentEntityInterface $entity, ExoComponentDefinitionField $field, $delta) {
+  protected function buildAdministrativeComponentSection(ContentEntityInterface $parent, ContentEntityInterface $entity, ExoComponentDefinitionField $field, $delta) {
     $component_field = \Drupal::service('plugin.manager.exo_component_field')->createFieldInstance($field);
-    /** @var \Drupal\exo_alchemist\Plugin\SectionStorage\ExoOverridesSectionStorage $section_storage */
     /** @var \Drupal\exo_alchemist\Plugin\SectionStorage\ExoOverridesSectionStorage $component_section_storage */
-    $component_section_storage = $component_field->getTemporarySectionStorage($entity, $section_storage->getEntity());
+    $component_section_storage = $component_field->getTemporarySectionStorage($entity, $parent);
     $this->parentSection = $this->section;
     return $this->buildAdministrativeSection($component_section_storage, 0);
   }
@@ -541,36 +541,6 @@ class ExoLayoutBuilder extends LayoutBuilder {
         }
       }
     }
-  }
-
-  /**
-   * Returns all populated contexts, both global and section-storage-specific.
-   *
-   * Drupal 8 support.
-   *
-   * @param \Drupal\layout_builder\SectionStorageInterface $section_storage
-   *   The section storage.
-   *
-   * @return \Drupal\Core\Plugin\Context\ContextInterface[]
-   *   The array of context objects.
-   */
-  protected function getAvailableContexts(SectionStorageInterface $section_storage): array {
-    $key = $section_storage->getStorageId();
-    if (isset($this->delta)) {
-      $key .= '.' . $this->delta;
-    }
-    if (!isset($this->contexts[$key])) {
-      $this->contexts[$key] = parent::getAvailableContexts($section_storage);
-      if ($this->section) {
-        $is_nested_storage = $this->isNestedStorage($section_storage);
-        $this->contexts[$key]['default_storage'] = new Context(new ContextDefinition('boolean'), $this->isDefaultStorage($section_storage));
-        $this->contexts[$key]['nested_storage'] = new Context(new ContextDefinition('boolean'), $is_nested_storage);
-        // Nested storage inherity parent's locked status.
-        $is_locked = $is_nested_storage ? $this->isSectionLocked($this->parentSection) : $this->isSectionLocked();
-        $this->contexts[$key]['exo_section_lock'] = new Context(new ContextDefinition('boolean'), $is_locked);
-      }
-    }
-    return $this->contexts[$key];
   }
 
   /**
