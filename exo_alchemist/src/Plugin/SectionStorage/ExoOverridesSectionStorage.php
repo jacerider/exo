@@ -33,6 +33,22 @@ class ExoOverridesSectionStorage extends OverridesSectionStorage implements ExoC
 
   /**
    * {@inheritdoc}
+   *
+   * @return \Drupal\Core\Plugin\Context\ContextInterface
+   *   The context object.
+   */
+  public function getContext($name) {
+    // Check for a valid context value.
+    if ($name === 'entity' && !isset($this->context[$name])) {
+      if (isset($this->context['layout_entity'])) {
+        return $this->context['layout_entity'];
+      }
+    }
+    return parent::getContext($name);
+  }
+
+  /**
+   * {@inheritdoc}
    */
   protected function getSectionList() {
     /** @var \Drupal\layout_builder\Field\LayoutSectionItemList $sections */
@@ -78,7 +94,7 @@ class ExoOverridesSectionStorage extends OverridesSectionStorage implements ExoC
   public function getRegionSize($delta, $region) {
     $section = $this->getSection($delta);
     $settings = $section->getLayoutSettings();
-    return isset($settings['column_sizes'][$region]) ? $settings['column_sizes'][$region] : 'full';
+    return $settings['column_sizes'][$region] ?? 'full';
   }
 
 }
