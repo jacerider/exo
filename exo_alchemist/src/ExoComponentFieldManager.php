@@ -1025,10 +1025,6 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
       // Apply context.
       if ($component_field instanceof ContextAwarePluginInterface) {
         if (!empty($component_field->getContexts())) {
-          $component_field->setContextMapping(['entity' => 'layout_builder.entity']);
-          if (isset($contexts['layout_entity'])) {
-            $component_field->setContextMapping(['entity' => 'layout_entity']);
-          }
           \Drupal::service('context.handler')->applyContextMapping($component_field, $contexts);
         }
       }
@@ -1104,8 +1100,8 @@ class ExoComponentFieldManager extends DefaultPluginManager implements ContextAw
         if ($component_field instanceof ContextAwarePluginInterface) {
           if (!empty($component_field->getContexts())) {
             $component_field->setContextMapping(['entity' => 'layout_builder.entity']);
-            if (isset($contexts['layout_entity'])) {
-              $component_field->setContextMapping(['entity' => 'layout_entity']);
+            if (isset($contexts['entity'])) {
+              $component_field->setContextMapping(['entity' => 'entity']);
             }
             \Drupal::service('context.handler')->applyContextMapping($component_field, $contexts);
           }

@@ -155,7 +155,7 @@ class EntityDisplay extends ExoComponentFieldComputedBase implements ContextAwar
     $values = [];
     if ($entity = $this->getReferencedEntity($contexts)) {
       $contexts['layout_builder.entity'] = EntityContext::fromEntity($entity);
-      unset($contexts['layout_entity']);
+      unset($contexts['entity']);
       $values['entity'] = $entity;
       $values['entity_id'] = $entity->id();
       $values['entity_label'] = $entity->label();

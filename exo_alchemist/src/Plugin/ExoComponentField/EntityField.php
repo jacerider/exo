@@ -221,7 +221,7 @@ class EntityField extends ExoComponentFieldFieldableBase implements ContextAware
     $field = $this->getFieldDefinition();
     $entity = $this->getReferencedEntity($contexts);
     $contexts['layout_builder.entity'] = EntityContext::fromEntity($entity);
-    unset($contexts['layout_entity']);
+    unset($contexts['entity']);
     if ($items->isEmpty()) {
       $items->appendItem();
     }

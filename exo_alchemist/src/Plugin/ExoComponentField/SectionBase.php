@@ -280,7 +280,7 @@ abstract class SectionBase extends ExoComponentFieldComputedBase implements Cont
       $storage_type = 'component_defaults';
     }
     else {
-      $contexts['layout_entity'] = EntityContext::fromEntity($layout_entity);
+      $contexts['entity'] = EntityContext::fromEntity($layout_entity);
       $storage_type = 'components';
     }
     $contexts['view_mode'] = new Context(new ContextDefinition('string'), $view_mode);

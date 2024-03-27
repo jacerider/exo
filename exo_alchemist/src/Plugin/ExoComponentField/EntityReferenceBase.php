@@ -419,7 +419,7 @@ class EntityReferenceBase extends ExoComponentFieldFieldableBase implements Cont
       }
       if ($this->useDisplay()) {
         $contexts['layout_builder.entity'] = EntityContext::fromEntity($entity);
-        unset($contexts['layout_entity']);
+        unset($contexts['entity']);
         $value += $this->viewValueFieldDisplay($entity, $contexts);
       }
       elseif ($view_mode = $this->getViewMode()) {

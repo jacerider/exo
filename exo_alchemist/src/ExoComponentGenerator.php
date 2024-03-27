@@ -191,6 +191,7 @@ class ExoComponentGenerator {
    * @return $this
    */
   public function handlePreSave(EntityInterface $entity) {
+    $this->exoComponentManager->handleEntityEvent('preSave', $entity);
     if ($this->isLayoutCompatibleEntity($entity)) {
       $this->handleLayoutEntityPreSave($entity);
       if ($entity->getEntityTypeId() == 'entity_view_display') {
@@ -237,7 +238,6 @@ class ExoComponentGenerator {
     if ($this->isComponentEntity($entity)) {
       $this->handleComponentEntityPreSave($entity);
     }
-    $this->exoComponentManager->handleEntityEvent('preSave', $entity);
     return $this;
   }
 
@@ -460,7 +460,7 @@ class ExoComponentGenerator {
     // @todo Take into account other view modes in
     //   https://www.drupal.org/node/3008924.
     $view_mode = 'full';
-    $contexts['layout_entity'] = EntityContext::fromEntity($parent_entity);
+    $contexts['entity'] = EntityContext::fromEntity($parent_entity);
     $contexts['component_entity'] = EntityContext::fromEntity($entity);
     if ($entity instanceof FieldableEntityInterface) {
       $view_mode = LayoutBuilderEntityViewDisplay::collectRenderDisplay($entity, $view_mode)->getMode();
