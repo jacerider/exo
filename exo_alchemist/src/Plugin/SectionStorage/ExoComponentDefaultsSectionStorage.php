@@ -2,7 +2,6 @@
 
 namespace Drupal\exo_alchemist\Plugin\SectionStorage;
 
-use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -220,7 +219,7 @@ class ExoComponentDefaultsSectionStorage extends ExoDefaultsSectionStorage imple
    * {@inheritdoc}
    */
   private function extractEntityFromRoute($value, array $defaults) {
-    list(, $entity_type_id, $bundle, $view_mode) = explode('.', $value, 6);
+    [, $entity_type_id, $bundle, $view_mode] = explode('.', $value, 6);
     $value = $entity_type_id . '.' . $bundle . '.' . $view_mode;
     $storage = $this->entityTypeManager->getStorage('entity_view_display');
     // If the display does not exist, create a new one.
@@ -232,7 +231,7 @@ class ExoComponentDefaultsSectionStorage extends ExoDefaultsSectionStorage imple
    * {@inheritdoc}
    */
   private function extractComponentEntityFromLayoutEntity($value, EntityInterface $display_entity) {
-    list(,,,,, $entity_id) = explode('.', $value, 6);
+    [,,,,, $entity_id] = explode('.', $value, 6);
     /** @var \Drupal\exo_alchemist\ExoComponentRepository $repository */
     $repository = \Drupal::service('exo_alchemist.repository');
     $components_with_section = $repository->getComponents($display_entity, TRUE);
