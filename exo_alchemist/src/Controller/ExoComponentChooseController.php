@@ -73,11 +73,6 @@ class ExoComponentChooseController implements ContainerInjectionInterface {
    *   The render array.
    */
   public function build(SectionStorageInterface $section_storage, $delta, $region) {
-    $context_definitions = $section_storage->getContextDefinitions();
-    if (!isset($context_definitions['entity'])) {
-      $section_storage->setContext('entity', $section_storage->getContext('layout_entity'));
-    }
-
     $output = [
       '#type' => 'container',
       '#attributes' => [
