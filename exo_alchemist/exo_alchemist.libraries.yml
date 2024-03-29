@@ -1,10 +1,10 @@
 front:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.alchemist.js: { minified: true }
 
 admin:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.alchemist.admin.js: { minified: true }
   css:
@@ -24,7 +24,7 @@ admin:
     - exo_alchemist/theme
 
 admin.appearance:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.alchemist.admin.appearance.js: { minified: true }
   dependencies:
@@ -33,7 +33,7 @@ admin.appearance:
     - core/underscore
 
 admin.choose:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.alchemist.admin.choose.js: { minified: true }
   css:
@@ -45,7 +45,7 @@ admin.choose:
     - exo_alchemist/theme
 
 admin.preview:
-  version: VERSION
+  version: 1.0.0
   css:
     component:
       css/exo-alchemist.admin.preview.css: { minified: true }
@@ -53,7 +53,7 @@ admin.preview:
     - exo_alchemist/admin.appearance
 
 property:
-  version: VERSION
+  version: 1.0.0
   css:
     component:
       css/exo-alchemist.property.css: { minified: true }
@@ -64,7 +64,7 @@ property:
 ## eXo Enhancements
 ################################################################################
 enhancement:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.alchemist.enhancement.js: { minified: true }
   dependencies:
@@ -72,7 +72,7 @@ enhancement:
     - core/jquery.once
 
 enhancement.rotator:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.alchemist.enhancement.rotator.js: { minified: true }
   dependencies:
@@ -80,7 +80,7 @@ enhancement.rotator:
     - exo_alchemist/enhancement
 
 enhancement.accordion:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.alchemist.enhancement.accordion.js: { minified: true }
   dependencies:
@@ -88,14 +88,14 @@ enhancement.accordion:
     - core/drupalSettings
 
 enhancement.tabs:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.alchemist.enhancement.tabs.js: { minified: true }
   dependencies:
     - exo_alchemist/enhancement
 
 enhancement.slider:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.alchemist.enhancement.slider.js: { minified: true }
   dependencies:
@@ -103,7 +103,7 @@ enhancement.slider:
     - exo/swiper
 
 enhancement.count:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.alchemist.enhancement.count.js: { minified: true }
   dependencies:
@@ -111,7 +111,7 @@ enhancement.count:
     - exo/countup
 
 enhancement.stack:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.alchemist.enhancement.stack.js: { minified: true }
   css:
@@ -122,7 +122,7 @@ enhancement.stack:
     - core/drupal.displace
 
 enhancement.split-text:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.alchemist.enhancement.split-text.js: { minified: true }
   css:
@@ -138,7 +138,7 @@ enhancement.split-text:
 ################################################################################
 
 theme:
-  version: VERSION
+  version: 1.0.0
   css:
     component:
       css/exo-alchemist.css: { minified: true }
