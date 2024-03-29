@@ -25,7 +25,22 @@
         on: {
           init: () => {
             $(document).trigger('exoComponentSliderInit');
-          }
+          },
+          afterInit: (swiper) => {
+            if ('ee-SliderHeightFirst' in swiper.el.dataset) {
+              swiper.el.style.height = swiper.slides[0].offsetHeight + 'px';
+            }
+          },
+          beforeResize: (swiper) => {
+            if ('ee-SliderHeightFirst' in swiper.el.dataset) {
+              swiper.el.style.height = null;
+            }
+          },
+          resize: (swiper) => {
+            if ('ee-SliderHeightFirst' in swiper.el.dataset) {
+              swiper.el.style.height = swiper.slides[0].offsetHeight + 'px';
+            }
+          },
         }
       };
       if ($pagination.length) {

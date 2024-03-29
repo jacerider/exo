@@ -55,18 +55,22 @@ class Slider extends ExoComponentEnhancementBase {
     $settings = $this->getEnhancementDefinition()->getAdditionalValue('settings');
     if ($is_layout_builder) {
       $settings['loop'] = FALSE;
-      // $settings['slidesOffsetAfter'] = 1000;
       $settings['watchSlidesProgress'] = TRUE;
+    }
+    $wrapper_attributes = [
+      'class' => ['ee--slider-wrapper', 'swiper'],
+      'data-ee--slider-id' => $id,
+      'data-ee--slider-settings' => $settings ? Json::encode($settings) : NULL,
+    ];
+    // If set, will set slider to be full height of first slide.
+    if ($this->getEnhancementDefinition()->getAdditionalValue('slider_height_first')) {
+      $wrapper_attributes['data-ee--slider-height-first'] = 1;
     }
     $view = [
       '#attached' => [
         'library' => ['exo_alchemist/enhancement.slider'],
       ],
-      'wrapper' => new ExoComponentAttribute([
-        'class' => ['ee--slider-wrapper', 'swiper'],
-        'data-ee--slider-id' => $id,
-        'data-ee--slider-settings' => $settings ? Json::encode($settings) : NULL,
-      ], $is_layout_builder),
+      'wrapper' => new ExoComponentAttribute($wrapper_attributes, $is_layout_builder),
       'items' => new ExoComponentAttribute([
         'class' => ['ee--slider-items', 'swiper-wrapper'],
       ], $is_layout_builder),
