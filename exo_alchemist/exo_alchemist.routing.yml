@@ -197,6 +197,18 @@ layout_builder.component.move:
       section_storage:
         layout_builder_tempstore: TRUE
 
+layout_builder.component.clone:
+  path: '/layout_builder/clone/component/{section_storage_type}/{section_storage}/{delta}/{region}/{uuid}'
+  defaults:
+    _form: '\Drupal\exo_alchemist\Form\ExoComponentCloneForm'
+  requirements:
+    _layout_builder_access: 'view'
+  options:
+    _admin_route: TRUE
+    parameters:
+      section_storage:
+        layout_builder_tempstore: TRUE
+
 layout_builder.component.remove:
   path: '/layout_builder/delete/component/{section_storage_type}/{section_storage}/{delta}/{region}/{uuid}'
   defaults:

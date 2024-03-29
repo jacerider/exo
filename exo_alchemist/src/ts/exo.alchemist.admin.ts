@@ -19,6 +19,7 @@
     if ($component.length) {
       $('#layout-builder').on('exo.alchemist.ready', e => {
         Drupal.ExoAlchemistAdmin.setComponentActive($component, true);
+        $("html, body").animate({ scrollTop: $component.offset().top - displace.offsets.top - 30 }, 1000);
       });
     }
   }

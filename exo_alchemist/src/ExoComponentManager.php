@@ -1437,6 +1437,11 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
           'route' => 'layout_builder.component.move',
           'description' => $this->t('Reorder components.'),
         ],
+        'clone' => [
+          'label' => $this->t('Clone'),
+          'route' => 'layout_builder.component.clone',
+          'description' => $this->t('Clone component.'),
+        ],
         'restore' => [
           'label' => $this->t('Restore'),
           'route' => 'layout_builder.component.restore',
