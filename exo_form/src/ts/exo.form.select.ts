@@ -840,9 +840,15 @@
             // Can move up.
             direction = 'bottom';
           }
+          else if (Drupal.Exo.$document.height() < dropdownBottom) {
+            // Dropdown will fall off the bottom of the screen.
+            direction = 'bottom';
+            Drupal.Exo.$window.scrollTop(dropdownTop - fixedHeaderHeight - dropdownHeight);
+          }
           else {
             // Can't fully move up or down. Allow down but scoll.
             const available = windowBottom - (windowTop + fixedHeaderHeight);
+            console.log(Drupal.Exo.$document.height(), dropdownBottom);
             Drupal.Exo.$window.scrollTop(dropdownTop - fixedHeaderHeight - ((available - dropdownHeight) / 2));
           }
         }
