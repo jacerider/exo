@@ -21,6 +21,7 @@ abstract class ExoListFilterStringBase extends ExoListFilterMatchBase {
       '=' => t('Equals'),
       'STARTS_WITH' => t('Starts with'),
       'CONTAINS' => t('Contains'),
+      'CONTAINS_ANY' => t('Contains any'),
       'ENDS_WITH' => t('Ends with'),
     ];
   }

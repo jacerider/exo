@@ -44,6 +44,7 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase implements ExoLi
       'NOT IN' => t('NOT IN'),
       'STARTS_WITH' => t('Starts with'),
       'CONTAINS' => t('Contains'),
+      'CONTAINS_ANY' => t('Contains any'),
       'ENDS_WITH' => t('Ends with'),
       'IS NOT NULL' => t('IS NOT NULL'),
       'IS NULL' => t('IS NULL'),
@@ -145,6 +146,13 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase implements ExoLi
       $group = $query->orConditionGroup();
       $group->condition($field_id, NULL, 'IS NULL');
       $group->condition($field_id, '', '=');
+      $query->condition($group);
+    }
+    elseif ($match_operator === 'CONTAINS_ANY') {
+      $group = $query->orConditionGroup();
+      foreach (explode(' ', $value) as $part) {
+        $group->condition($field_id, $part, 'CONTAINS');
+      }
       $query->condition($group);
     }
     else {
