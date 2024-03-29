@@ -1,5 +1,5 @@
 base:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.form.js: { minified: true }
   dependencies:
@@ -7,7 +7,7 @@ base:
     - exo_form/theme
 
 tooltip:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.form.tooltip.js: { minified: true }
   dependencies:
@@ -15,42 +15,42 @@ tooltip:
     - exo_form/base
 
 input:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.form.input.js: { minified: true }
   dependencies:
     - exo_form/base
 
 radio:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.form.radio.js: { minified: true }
   dependencies:
     - exo_form/base
 
 file:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.form.file.js: { minified: true }
   dependencies:
     - exo_form/base
 
 managedfile:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.form.managedfile.js: { minified: true }
   dependencies:
     - exo_form/base
 
 checkbox:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.form.checkbox.js: { minified: true }
   dependencies:
     - exo_form/base
 
 select:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.form.select.js: { minified: true }
   dependencies:
@@ -62,7 +62,7 @@ select:
     - exo_form/checkbox
 
 date:
-  version: VERSION
+  version: 1.0.0
   css:
     component:
       lib/pickadate/themes/default.date.css: { minified: true }
@@ -75,7 +75,7 @@ date:
     - exo_form/base
 
 time:
-  version: VERSION
+  version: 1.0.0
   css:
     component:
       lib/pickadate/themes/default.time.css: { minified: true }
@@ -88,14 +88,14 @@ time:
     - exo_form/base
 
 number:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.form.number.js: { minified: true }
   dependencies:
     - exo_form/base
 
 autogrow:
-  version: VERSION
+  version: 1.0.0
   js:
     js/exo.form.autogrow.js: { minified: true }
   dependencies:
@@ -107,7 +107,7 @@ autogrow:
 ################################################################################
 
 theme:
-  version: VERSION
+  version: 1.0.0
   css:
     component:
       css/exo-form.css: { minified: true }
@@ -117,7 +117,7 @@ theme:
 ################################################################################
 
 jquery.pickadate:
-  version: VERSION
+  version: 1.0.0
   css:
     component:
       lib/pickadate/themes/default.css: { minified: true }
@@ -127,6 +127,6 @@ jquery.pickadate:
     - core/jquery
 
 input-month:
-  version: VERSION
+  version: 1.0.0
   js:
     lib/input-month/input-month.js: { minified: true }
