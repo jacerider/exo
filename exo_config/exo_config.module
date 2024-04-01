@@ -69,7 +69,9 @@ function exo_config_user_role_update(RoleInterface $role) {
  * Implements hook_config_readonly_whitelist_patterns().
  */
 function exo_config_config_readonly_whitelist_patterns() {
-  return \Drupal::config('config_ignore.settings')->get('ignored_config_entities');
+  return array_merge(\Drupal::config('config_ignore.settings')->get('ignored_config_entities'), [
+    'taxonomy.vocabulary.*',
+  ]);
 }
 
 /**
