@@ -153,7 +153,7 @@ class StateMachine extends ExoListFilterBase implements ContainerFactoryPluginIn
    * {@inheritdoc}
    */
   public function isEmpty($raw_value) {
-    return $this->checkEmpty($raw_value['state']);
+    return $this->checkEmpty($raw_value['state'] ?? '');
   }
 
   /**
