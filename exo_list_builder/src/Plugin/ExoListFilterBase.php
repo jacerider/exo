@@ -501,6 +501,17 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
   }
 
   /**
+   * {@inheritDoc}
+   */
+  public function getOverviewValue(EntityListInterface $entity_list, array $field) {
+    $value = NULL;
+    if (!empty($field['filter']['settings']['default']['value'])) {
+      $value = $field['filter']['settings']['default']['value'];
+    }
+    return $value;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function applies(array $field) {

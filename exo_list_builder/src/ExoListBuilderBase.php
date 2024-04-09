@@ -2195,8 +2195,10 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     }
     if (!$this->isModified()) {
       foreach ($filters as $field_id => $field) {
-        if (!isset($values[$field_id]) && !empty($field['filter']['settings']['default']['value'])) {
-          $values[$field_id] = $field['filter']['settings']['default']['value'];
+        if (!isset($values[$field_id])) {
+          if ($value = $field['filter']['instance']->getOverviewValue($field)) {
+            $values[$field_id] = $value;
+          }
         }
       }
     }

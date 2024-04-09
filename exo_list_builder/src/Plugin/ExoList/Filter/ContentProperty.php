@@ -184,7 +184,7 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
       if ($entity) {
         if (!empty($configuration['default_from_url']['field_name'])) {
           $field_name = $configuration['default_from_url']['field_name'];
-          if (empty($configuration['default_from_url']['show_in_overview']) && $entity->hasField($field_name)) {
+          if ($entity->hasField($field_name)) {
             // We return an empty string so that the filter is used and no
             // results are returned.
             // @todo Support optional arguments. Would just need to return null.
@@ -267,6 +267,20 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
       }
     }
     return parent::toPreview($value, $entity_list, $field);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function getOverviewValue(EntityListInterface $entity_list, array $field) {
+    $value = parent::getOverviewValue($entity_list, $field);
+    if (!$value) {
+      $configuration = $this->getConfiguration();
+      if (!empty($configuration['default_from_url']['show_in_overview'])) {
+        return $this->getDefaultValue($entity_list, $field);
+      }
+    }
+    return $value;
   }
 
   /**

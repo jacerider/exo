@@ -290,6 +290,21 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
   public function getOptionTotal($value, EntityListInterface $entity_list, array $field);
 
   /**
+   * Get the overview value.
+   *
+   * If a value is provided, the value will be shown in the filter overview.
+   *
+   * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
+   *   The entity list.
+   * @param array $field
+   *   The field definition.
+   *
+   * @return mixed
+   *   The overview value.
+   */
+  public function getOverviewValue(EntityListInterface $entity_list, array $field);
+
+  /**
    * Whether this theme negotiator should be used to set the theme.
    *
    * @param array $field
