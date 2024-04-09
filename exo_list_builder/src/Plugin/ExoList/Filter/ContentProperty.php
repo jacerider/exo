@@ -149,7 +149,7 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
         $form['default_from_url']['show_in_overview'] = [
           '#type' => 'checkbox',
           '#title' => $this->t('Show in overview'),
-          '#default_value' => $configuration['default_from_url']['show_in_overview'],
+          '#default_value' => !empty($configuration['default_from_url']['show_in_overview']),
         ];
       }
     }
