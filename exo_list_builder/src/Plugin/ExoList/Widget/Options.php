@@ -13,11 +13,11 @@ use Drupal\exo_list_builder\Plugin\ExoListWidgetValuesInterface;
  *
  * @ExoListWidget(
  *   id = "checkboxes",
- *   label = @Translation("Checkboxes"),
- *   description = @Translation("Checkboxes widget."),
+ *   label = @Translation("Check boxes/radio buttons"),
+ *   description = @Translation("Check box/radio widget."),
  * )
  */
-class Checkboxes extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
+class Options extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
 
   /**
    * {@inheritdoc}
@@ -47,13 +47,13 @@ class Checkboxes extends ExoListWidgetBase implements ExoListWidgetValuesInterfa
    * {@inheritDoc}
    */
   public function alterElement(array &$element, EntityListInterface $entity_list, ExoListFilterInterface $filter, array $field) {
-    $configuration = $this->getConfiguration();
     $options = $filter->getFilteredValueOptions($entity_list, $field);
-    $element['#type'] = 'checkboxes';
+    $element['#type'] = 'radios';
     $element['#title'] = $filter->getConfiguration()['label'];
     $element['#options'] = $options;
-    $element['#multiple'] = $filter->allowsMultiple($field);
-    $element['#default_value'] = $options;
+    if ($filter->allowsMultiple($field)) {
+      $element['#type'] = 'checkboxes';
+    }
     $element['#element_validate'] = [[get_class($this), 'validateElement']];
   }
 
