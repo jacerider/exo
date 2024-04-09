@@ -44,6 +44,7 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
         'status' => FALSE,
         'entity_type' => NULL,
         'field_name' => NULL,
+        'show_in_overview' => FALSE,
       ],
     ] + parent::defaultConfiguration();
   }
@@ -145,6 +146,11 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
           '#options' => $field_options,
           '#default_value' => $configuration['default_from_url']['field_name'] ?? NULL,
         ];
+        $form['default_from_url']['show_in_overview'] = [
+          '#type' => 'checkbox',
+          '#title' => $this->t('Show in overview'),
+          '#default_value' => $configuration['default_from_url']['show_in_overview'],
+        ];
       }
     }
     return $form;
@@ -178,7 +184,7 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
       if ($entity) {
         if (!empty($configuration['default_from_url']['field_name'])) {
           $field_name = $configuration['default_from_url']['field_name'];
-          if ($entity->hasField($field_name)) {
+          if (empty($configuration['default_from_url']['show_in_overview']) && $entity->hasField($field_name)) {
             // We return an empty string so that the filter is used and no
             // results are returned.
             // @todo Support optional arguments. Would just need to return null.
