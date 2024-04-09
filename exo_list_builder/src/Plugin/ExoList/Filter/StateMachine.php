@@ -5,7 +5,9 @@ namespace Drupal\exo_list_builder\Plugin\ExoList\Filter;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\exo_list_builder\EntityListInterface;
+use Drupal\exo_list_builder\Plugin\ExoListFieldValuesInterface;
 use Drupal\exo_list_builder\Plugin\ExoListFilterBase;
+use Drupal\exo_list_builder\Plugin\ExoListFilterMatchBase;
 use Drupal\state_machine\WorkflowGroupManagerInterface;
 use Drupal\state_machine\WorkflowManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -28,7 +30,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   provider = "state_machine",
  * )
  */
-class StateMachine extends ExoListFilterBase implements ContainerFactoryPluginInterface {
+class StateMachine extends ExoListFilterMatchBase implements ContainerFactoryPluginInterface, ExoListFieldValuesInterface {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $supportsMultiple = TRUE;
 
   /**
    * The workflow group manager service.
@@ -83,6 +90,7 @@ class StateMachine extends ExoListFilterBase implements ContainerFactoryPluginIn
   public function defaultConfiguration() {
     return [
       'workflow_id' => '',
+      'widget' => 'select',
     ] + parent::defaultConfiguration();
   }
 
@@ -115,16 +123,8 @@ class StateMachine extends ExoListFilterBase implements ContainerFactoryPluginIn
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $value, EntityListInterface $entity_list, array $field) {
-    $form = parent::buildForm($form, $form_state, $value, $entity_list, $field);
-    $form['state'] = [
-      '#type' => 'select',
-      '#title' => $field['display_label'],
-      '#options' => $this->getStateOptions($entity_list),
-      '#empty_option' => $this->t('- Show All -'),
-      '#default_value' => $value,
-    ];
-    return $form;
+  public function getValueOptions(EntityListInterface $entity_list, array $field, $input = NULL) {
+    return $this->getStateOptions($entity_list);
   }
 
   /**
@@ -145,30 +145,9 @@ class StateMachine extends ExoListFilterBase implements ContainerFactoryPluginIn
   /**
    * {@inheritdoc}
    */
-  public function toUrlQuery(array $raw_value, EntityListInterface $entity_list, array $field) {
-    return $raw_value['state'];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isEmpty($raw_value) {
-    return $this->checkEmpty($raw_value['state'] ?? '');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function toPreview($value, EntityListInterface $entity_list, array $field) {
     $options = $this->getStateOptions($entity_list);
     return $options[$value] ?? '';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function queryAlter($query, $value, EntityListInterface $entity_list, array $field) {
-    $query->condition($this->getQueryFieldName($field), $value, '=');
   }
 
 }
