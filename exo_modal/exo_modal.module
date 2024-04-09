@@ -156,7 +156,7 @@ function exo_modal_ajax_render_alter(array &$data) {
       $options = [];
       $command = new ExoModalOpenCommand($id, Markup::create($data[$key]['data']), $options);
       $modal = $command->getModal();
-      $modal->setSetting(['modal', 'padding'], '20px');
+      $set_padding = TRUE;
       $modalOptions = $dialog_options['exoModal'] ?? $dialog_options['exo_modal'] ?? [];
       if ($item['selector'] == '#drupal-off-canvas') {
         $modal->setSetting(['modal', 'width'], 400);
@@ -218,6 +218,9 @@ function exo_modal_ajax_render_alter(array &$data) {
             $presets = exo_presets('exo_modal');
             if (isset($presets[$val])) {
               $preset = $presets[$val];
+              if (isset($preset['modal']['padding'])) {
+                $set_padding = FALSE;
+              }
               if (!empty($preset['theme'])) {
                 $modal->setSetting('theme', $preset['theme']);
               }
@@ -231,6 +234,9 @@ function exo_modal_ajax_render_alter(array &$data) {
             $modal->setSetting(['modal', $k], $val);
           }
         }
+      }
+      if ($set_padding && !$modal->getSetting(['modal', 'padding'])) {
+        $modal->setSetting(['modal', 'padding'], '20px');
       }
       $data[$key] = $command->render();
       $modal_settings_collection[] = exo_modal_js_settings_append_presets($modal->getDrupalSettings());

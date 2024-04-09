@@ -41,7 +41,6 @@ trait ExoModalResponseTrait {
       'modal' => [
         'autoOpen' => TRUE,
         'destroyOnClose' => TRUE,
-        'padding' => 20,
       ],
     ], $settings));
     $modal->setContent($build);
