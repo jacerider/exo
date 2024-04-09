@@ -621,7 +621,7 @@ function exo_alchemist_entity_view(array &$build, EntityInterface $entity, Entit
  * Implements tempalte_preprocess_node().
  */
 function exo_alchemist_preprocess_node(&$variables) {
-  if (isset($variables['content']['_layout_builder'])) {
+  if (isset($variables['content']['_layout_builder']) && !Element::isEmpty($variables['content']['_layout_builder'])){
     $variables['page'] = TRUE;
   }
 }
