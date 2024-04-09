@@ -53,6 +53,12 @@ class Options extends ExoListWidgetBase implements ExoListWidgetValuesInterface 
     $element['#options'] = $options;
     if ($filter->allowsMultiple($field)) {
       $element['#type'] = 'checkboxes';
+      if (empty($element['#default_value'])) {
+        $element['#default_value'] = [];
+      }
+      elseif (!is_array($element['#default_value'])) {
+        $element['#default_value'] = [$element['#default_value']];
+      }
     }
     $element['#element_validate'] = [[get_class($this), 'validateElement']];
   }
@@ -61,9 +67,9 @@ class Options extends ExoListWidgetBase implements ExoListWidgetValuesInterface 
    * Element validate callback.
    */
   public static function validateElement($element, FormStateInterface $form_state) {
-    $value = array_filter($form_state->getValue($element['#parents']));
-    if ($value && isset($element['#exo_configuration']['empty_value']) && $element['#exo_configuration']['empty_value'] === $value) {
-      $value = NULL;
+    $value = $form_state->getValue($element['#parents']);
+    if (is_array($value)) {
+      $value = array_filter($value);
     }
     $form_state->setValue($element['#parents'], $value);
   }
