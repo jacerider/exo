@@ -185,7 +185,9 @@ function exo_modal_ajax_render_alter(array &$data) {
             break;
 
           case 'width':
-            $modal->setSetting(['modal', $k], $val);
+            if ($val != 'auto') {
+              $modal->setSetting(['modal', 'width'], $val);
+            }
             break;
 
           case 'position':
