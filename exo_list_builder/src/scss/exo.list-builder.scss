@@ -360,7 +360,10 @@
   }
 
   .exo-list-total {
-    margin-left: auto;
+
+    @include breakpoint(medium) {
+      margin-left: auto;
+    }
 
     + .pager {
       margin-left: $global-margin;
@@ -384,8 +387,15 @@
 
     > .exo-list-footer-first {
       @include flex;
+      @include flex-align(center, top);
+      margin-bottom: $global-margin;
 
-      @include breakpoint(large) {
+      @include breakpoint(medium) {
+        @include flex-align(left, top);
+        margin-bottom: 0;
+      }
+
+      @include breakpoint(medium) {
         flex: 0 0 auto;
         margin-right: $global-margin;
       }
@@ -402,6 +412,11 @@
 
     > .exo-list-footer-last {
       @include flex;
+      @include flex-align(center, top);
+
+      @include breakpoint(medium) {
+        @include flex-align(left, top);
+      }
 
       @include breakpoint(large) {
         flex: 0 0 auto;
@@ -419,8 +434,12 @@
     }
 
     .exo-list-pager {
-      @include flex-align(right, middle);
+      @include flex-align(center, middle);
       flex-wrap: wrap;
+
+      @include breakpoint(medium) {
+        @include flex-align(right, middle);
+      }
     }
   }
 
@@ -816,13 +835,18 @@
 
 .exo-list-top {
   @include flex;
-  @include flex-align(right, bottom);
+  @include flex-align(left, stretch);
   position: relative;
   margin-bottom: $global-margin;
   background: gray(3);
   border: 1px solid gray(7);
   border-bottom: 1px solid gray(10);
-  padding: $global-padding $global-padding 0;
+  padding: $global-padding * 0.5;
+
+  @include breakpoint(medium) {
+    @include flex-align(right, bottom);
+    padding: $global-padding $global-padding 0;
+  }
 
   .exo-list-top--shadow {
     position: absolute;
@@ -852,24 +876,36 @@
 
 .exo-list .exo-list-states--links {
   @include flex;
-  @include flex-align(right, bottom);
+  @include flex-align(left, stretch);
+  flex-direction: column;
+  flex: 1 1 auto;
+
+  @include breakpoint(medium) {
+    @include flex-align(right, bottom);
+    flex-direction: row;
+    flex: 0 0 auto;
+  }
 
   a {
     position: relative;
     display: block;
     padding: $global-padding;
     border: 1px solid gray(3);
-    border-bottom-color: gray(7);
-    margin-left: rem-calc(5);
-    margin-bottom: -1px;
     background: gray(3);
     color: gray(60);
-    border-radius: $global-radius $global-radius 0 0;
+    border-radius: $global-radius;
     transition: all $global-speed;
     overflow: hidden;
     z-index: 5;
     white-space: nowrap;
     text-decoration: none;
+
+    @include breakpoint(medium) {
+      border-radius: $global-radius $global-radius 0 0;
+      border-bottom-color: gray(7);
+      margin-bottom: -1px;
+      margin-left: rem-calc(5);
+    }
 
     &:hover {
       border: 1px solid gray(60);
@@ -879,9 +915,12 @@
 
     &.exo-list-states--active {
       border: 1px solid gray(10);
-      border-bottom-color: gray(0);
       background: gray(0);
       color: gray(70);
+
+      @include breakpoint(medium) {
+        border-bottom-color: gray(0);
+      }
 
       &:hover {
         color: gray(70) !important;
