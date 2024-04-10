@@ -211,7 +211,7 @@
 
     .exo-list-filters-inline {
       @include flex;
-      @include flex-align(left, stretch);
+      @include flex-align(left, bottom);
       flex-wrap: wrap;
       margin-left: 0;
       margin-right: 0;
@@ -222,6 +222,37 @@
 
       > div {
         flex: 1 1 100%;
+      }
+
+      .exo-form-element-type-fieldset {
+
+        .exo-form-element-inner {
+          border: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+        }
+
+        .fieldset-wrapper {
+          margin-bottom: 0 !important;
+        }
+
+        fieldset {
+          position: relative;
+        }
+
+        legend {
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+
+        .fieldset-wrapper {
+          padding: 0;
+
+          > .exo-form-element {
+            margin-bottom: 0;
+          }
+        }
       }
 
       .exo-form-container-form-actions {
