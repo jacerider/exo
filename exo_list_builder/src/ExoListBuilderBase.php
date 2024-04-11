@@ -966,9 +966,14 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           foreach ($row['#group_by'] as $field_name => $rendered) {
             unset($build[$this->entitiesKey]['#header'][$field_name]);
             $key = md5((string) $rendered);
-            $group_by[$field_name]['sort'] = $row['#group_by_sort'][$field_name];
+            $group_by[$field_name]['sort'] = $row['#group_by_sort'][$field_name] ?? $row['row']['#group_by_sort'][$field_name];
             $group_by[$field_name]['data'][$key]['rendered'] = $rendered;
-            $group_by[$field_name]['data'][$key]['rows'][$row['#entity_id']] = $row;
+            if (isset($row['#entity_id'])) {
+              $group_by[$field_name]['data'][$key]['rows'][$row['#entity_id']] = $row;
+            }
+            else {
+              $group_by[$field_name]['data'][$key]['rows'][$row['row']['#entity_id']] = $row;
+            }
           }
         }
       }
