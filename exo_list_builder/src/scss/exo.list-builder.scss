@@ -290,12 +290,15 @@
 
     .exo-form-container-form-actions {
 
-      div,
-      button,
-      a {
+      .is-admin & {
 
-        @include breakpoint(medium) {
-          height: 100%;
+        div,
+        button,
+        a {
+
+          @include breakpoint(medium) {
+            height: 100%;
+          }
         }
       }
     }
