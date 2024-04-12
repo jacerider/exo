@@ -1,5 +1,5 @@
 list:
-  version: VERSION
+  version: 1.0.0
   css:
     component:
       css/exo.list-builder.css: { minified: true }
@@ -11,6 +11,7 @@ list:
     - core/drupal
 
 download:
+  version: 1.0.0
   js:
     js/exo.list-builder.download.js: { minified: true }
   dependencies:
