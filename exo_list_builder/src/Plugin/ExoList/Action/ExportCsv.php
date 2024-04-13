@@ -111,12 +111,14 @@ class ExportCsv extends ExoListActionBase {
     parent::executeStart($entity_list, $context);
 
     $file_path = $this->prepareCsvFile($entity_list, $context);
-    $headers = $this->getCsvHeader($entity_list, $context);
     $handle = fopen($file_path, 'w');
     // Add BOM to fix UTF-8 in Excel.
     fwrite($handle, (chr(0xEF) . chr(0xBB) . chr(0xBF)));
-    // Write headers now.
-    fputcsv($handle, $headers, static::DELIMITER);
+    $headers = $this->getCsvHeader($entity_list, $context);
+    if ($headers) {
+      // Write headers now.
+      fputcsv($handle, $headers, static::DELIMITER);
+    }
     fclose($handle);
   }
 
