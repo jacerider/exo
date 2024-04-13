@@ -62,7 +62,7 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
    * {@inheritdoc}
    */
   public function label() {
-    return $this->getPluginDefinition()['label'];
+    return $this->getConfiguration()['label'] ?: $this->getPluginDefinition()['label'];
   }
 
   /**
@@ -87,7 +87,9 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
-    $defaults = [];
+    $defaults = [
+      'label' => '',
+    ];
     if ($this->supportsJobQueue()) {
       $defaults['queue_limit'] = 1000;
       $defaults['queue_email'] = '';
@@ -114,6 +116,11 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state, EntityListInterface $entity_list, array $action) {
     $configuration = $this->getConfiguration();
+    $form['label'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Label'),
+      '#default_value' => $configuration['label'],
+    ];
     if ($this->supportsJobQueue()) {
       $form['queue_limit'] = [
         '#type' => 'number',
