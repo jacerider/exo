@@ -297,7 +297,7 @@
         a {
 
           @include breakpoint(medium) {
-            height: 100%;
+            min-height: 100%;
           }
         }
       }
