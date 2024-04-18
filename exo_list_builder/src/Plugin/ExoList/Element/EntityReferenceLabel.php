@@ -105,6 +105,9 @@ class EntityReferenceLabel extends ExoListElementContentBase {
   protected function viewPlainItem(EntityInterface $entity, FieldItemInterface $field_item, array $field) {
     /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $field_item */
     $reference_entity = $field_item->entity;
+    if (!$reference_entity) {
+      return NULL;
+    }
     $configuration = $this->getConfiguration();
     $label = $reference_entity->label();
     if ($configuration['entity_id']) {
