@@ -139,7 +139,7 @@ class ExportCsv extends ExoListActionBase {
     parent::executeFinish($entity_list, $results);
     // Hide default message.
     $results['entity_list_hide_message'] = TRUE;
-    if (empty($results['queue']) && isset($results['csv_file_uri']) && file_exists($results['csv_file_uri'])) {
+    if (PHP_SAPI !== 'cli' && isset($results['csv_file_uri']) && file_exists($results['csv_file_uri'])) {
       $file_uri = $results['csv_file_uri'];
       /** @var \Drupal\Core\Access\CsrfTokenGenerator $csrf_token */
       $csrf_token = \Drupal::service('csrf_token');

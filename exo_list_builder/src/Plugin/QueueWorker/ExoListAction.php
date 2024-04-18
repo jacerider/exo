@@ -82,6 +82,9 @@ class ExoListAction extends QueueWorkerBase implements ContainerFactoryPluginInt
           throw new SuspendQueueException('Another process is running this job.');
         }
         while ($do) {
+          if (!empty($data['timeout']) && $data['timeout'] < time()) {
+            throw new SuspendQueueException('Job has timed out.');
+          }
           $context = $this->getContext();
           $processing = count($context['results']['entity_ids_complete']);
           $entity_id = array_slice($context['results']['entity_ids'], $processing, 1);

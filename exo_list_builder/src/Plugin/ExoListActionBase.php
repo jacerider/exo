@@ -29,6 +29,13 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
   protected $entityTypeManager;
 
   /**
+   * The account switcher.
+   *
+   * @var \Drupal\Core\Session\AccountSwitcherInterface
+   */
+  protected $accountSwitcher;
+
+  /**
    * LogGeneratorBase constructor.
    *
    * @param array $configuration
@@ -159,19 +166,6 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
    * {@inheritdoc}
    */
   public function executeStart(EntityListInterface $entity_list, array &$context) {
-    if (!empty($context['results']['queue'])) {
-      if ($email = $this->getNotifyEmail()) {
-        \Drupal::messenger()->addMessage($this->t('Started action "@action". This process will continue in the background. When finished, a notification email will be sent to %email.', [
-          '@action' => $this->label(),
-          '%email' => $email,
-        ]));
-      }
-      else {
-        \Drupal::messenger()->addMessage($this->t('Started action "@action". This process will continue in the background and you can view the status of the action in the "active actions overview" section of this page.', [
-          '@action' => $this->label(),
-        ]));
-      }
-    }
   }
 
   /**
@@ -196,12 +190,9 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
   }
 
   /**
-   * An optional email no notify when the job queue has finished.
-   *
-   * @return string
-   *   The email to notify.
+   * {@inheritdoc}
    */
-  protected function getNotifyEmail() {
+  public function getNotifyEmail() {
     $emails = [];
     if ($email = \Drupal::currentUser()->getEmail()) {
       $emails[] = $email;

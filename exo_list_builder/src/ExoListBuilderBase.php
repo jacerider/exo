@@ -19,6 +19,7 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
+use Drupal\Core\Queue\SuspendQueueException;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RedirectDestinationTrait;
 use Drupal\Core\Url;
@@ -1647,6 +1648,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         '#submit' => ['::submitBatchForm'],
         '#attributes' => [
           'style' => 'display:none',
+          'class' => ['exo-form-button-disable-on-click'],
+          'data-exo-form-button-disable-message' => 'Please wait...',
         ],
         '#states' => [
           'visible' => [
@@ -1663,6 +1666,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         '#submit' => ['::submitBatchForm'],
         '#attributes' => [
           'style' => 'display:none',
+          'class' => ['exo-form-button-disable-on-click'],
+          'data-exo-form-button-disable-message' => 'Please wait...',
         ],
         '#states' => [
           '!visible' => [
@@ -2447,6 +2452,32 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         'selected' => $selected,
         'queue' => TRUE,
       ]);
+
+      try {
+        while ($item = $queue->claimItem()) {
+          // Allow to run for set amount of time. After that, cron will
+          // take over.
+          $queue_worker->processItem($item->data + [
+            'timeout' => strtotime('+5 seconds'),
+          ]);
+          $queue->deleteItem($item);
+        }
+      }
+      catch (SuspendQueueException $e) {
+        if (!empty($context['results']['queue'])) {
+          if ($email = $instance->getNotifyEmail()) {
+            $this->messenger()->addMessage($this->t('Started action "@action". This process will continue in the background. When finished, a notification email will be sent to %email.', [
+              '@action' => $instance->label(),
+              '%email' => $email,
+            ]));
+          }
+          else {
+            $this->messenger()->addMessage($this->t('Started action "@action". This process will continue in the background and you can view the status of the action in the "active actions overview" section of this page.', [
+              '@action' => $instance->label(),
+            ]));
+          }
+        }
+      }
     }
     else {
       $batch_builder = (new BatchBuilder())
