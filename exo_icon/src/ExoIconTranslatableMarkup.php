@@ -331,6 +331,7 @@ class ExoIconTranslatableMarkup extends TranslatableMarkup {
    *   A Markup object.
    */
   public function toMarkup($is_root_call = FALSE) {
+    $is_root_call = PHP_SAPI == 'cli' ? TRUE : $is_root_call;
     $renderer = \Drupal::service('renderer');
     $elements = $this->toRenderable();
     $output = $is_root_call ? $renderer->renderPlain($elements) : $renderer->render($elements);
