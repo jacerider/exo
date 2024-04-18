@@ -40,7 +40,12 @@
           textAlign: 'center',
         }).addClass('exo-form-button-disabled-clone is-disabled').insertAfter($button);
         if (message) {
-          $clone.text(message);
+          if ($clone.is('input')) {
+            $clone.val(message);
+          }
+          else {
+            $clone.text(message);
+          }
         }
         $button.addClass('exo-form-button-displayed-has-clone').hide();
         if ($button.data('exo-form-button-disable-form')) {
