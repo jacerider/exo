@@ -2,6 +2,8 @@
 
 namespace Drupal\exo_list_builder;
 
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilderInterface;
 use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -116,6 +118,19 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
    *   The entity fields.
    */
   public function loadFields();
+
+  /**
+   * Get field entity.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity.
+   * @param array $field
+   *   The field.
+   *
+   * @return \Drupal\Core\Entity\ContentEntityInterface
+   *   The field entity.
+   */
+  public function getFieldEntity(EntityInterface $entity, array $field);
 
   /**
    * Add a condition to the query.

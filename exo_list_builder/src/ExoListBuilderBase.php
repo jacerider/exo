@@ -273,6 +273,13 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   }
 
   /**
+   * {@inheritDoc}
+   */
+  public function getFieldEntity(EntityInterface $entity, array $field) {
+    return $entity;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getFormId() {
@@ -1134,21 +1141,15 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected function renderField(EntityInterface $entity, array $field) {
     /** @var \Drupal\exo_list_builder\Plugin\ExoListElementInterface $instance */
     $instance = $this->elementManager->createInstance($field['view']['type'], $field['view']['settings']);
-    $instance_entity = $entity;
-    if (!empty($field['reference_field']) && $entity instanceof ContentEntityInterface) {
-      $reference_entity = $this->getFieldEntity($instance_entity, explode(':', $field['reference_field']));
-      if ($reference_entity = $this->getFieldEntity($instance_entity, explode(':', $field['reference_field']))) {
-        $instance_entity = $reference_entity;
-      }
-      else {
-        return [
-          '#markup' => $instance->getConfiguration()['empty'],
-        ];
-      }
+    $field_entity = $this->getFieldEntity($entity, $field);
+    if (!$field_entity) {
+      return [
+        '#markup' => $instance->getConfiguration()['empty'],
+      ];
     }
-    $instance_entity->exoEntityList = $this->getEntityList();
-    $instance_entity->exoEntityListField = $field;
-    $build = $instance->buildView($instance_entity, $field);
+    $field_entity->exoEntityList = $this->getEntityList();
+    $field_entity->exoEntityListField = $field;
+    $build = $instance->buildView($field_entity, $field);
     if (!is_array($build)) {
       if (!is_null($build)) {
         $build = [
@@ -2586,26 +2587,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     ];
 
     return $row;
-  }
-
-  /**
-   * Get field entity.
-   *
-   * @return \Drupal\Core\Entity\ContentEntityInterface
-   *   The field entity.
-   */
-  protected function getFieldEntity(ContentEntityInterface $entity, array $path) {
-    if (!empty($path)) {
-      $field_name = array_shift($path);
-      if ($entity->hasField($field_name) && !empty($entity->get($field_name)->entity)) {
-        $entity = $entity->get($field_name)->entity;
-        if (!empty($path)) {
-          return $this->getFieldEntity($entity, $path);
-        }
-        return $entity;
-      }
-    }
-    return NULL;
   }
 
   /**
