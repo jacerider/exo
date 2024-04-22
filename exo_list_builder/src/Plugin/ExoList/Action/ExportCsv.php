@@ -297,6 +297,10 @@ class ExportCsv extends ExoListActionBase {
     $entity = $this->loadEntity($entity_list->getTargetEntityTypeId(), $entity_id);
     foreach ($entity_list->getFields() as $field_id => $field) {
       $field_entity = $entity_list->getHandler()->getFieldEntity($entity, $field);
+      if (!$field_entity) {
+        $row[$field_id] = '';
+        continue;
+      }
       /** @var \Drupal\exo_list_builder\Plugin\ExoListElementInterface $instance */
       $instance = $this->elementManager->createInstance($field['view']['type'], $field['view']['settings']);
       $row[$field_id] = $instance->buildPlainView($field_entity, $field);
