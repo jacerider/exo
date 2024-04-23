@@ -9,10 +9,6 @@ class ExoToolbarDialog {
   }
 
   public attach(toolbar:ExoToolbar) {
-    const regions = toolbar.getRegions();
-    // setTimeout(() => {
-    //   this.debug('log', 'Attach Items', toolbar.getItems().getAll());
-    // }, 100);
     toolbar.getItems().each((item:ExoToolbarItem) => {
       const dialogType = item.get('dialog_type');
       if (dialogType && !this.items.has(item.getId())) {
