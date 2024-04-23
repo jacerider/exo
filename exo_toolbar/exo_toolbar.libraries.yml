@@ -23,7 +23,7 @@ toggle:
 dialog:
   version: VERSION
   js:
-    js/exo.toolbar.dialog.js: { minified: true }
+    js/exo.toolbar.dialog.js: { minified: true, attributes: { defer: true } }
   dependencies:
     - core/drupal.ajax
 
