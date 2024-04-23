@@ -7,6 +7,7 @@ dependencies:
   - exo:exo
   - exo:exo_layout_builder
   - exo:exo_media
+  - exo:exo_icon
   - exo:exo_form
   - core:block_content
   - core:media
