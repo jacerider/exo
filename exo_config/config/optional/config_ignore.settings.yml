@@ -1,6 +1,7 @@
 ignored_config_entities:
   - system.site
   - core.menu.static_menu_link_overrides
+  - 'google_tag.container.*'
   - system.menu.*
   - redirect_404.settings
   - redirect.settings
