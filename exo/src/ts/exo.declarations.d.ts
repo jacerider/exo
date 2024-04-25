@@ -20,6 +20,7 @@ declare var Swiper:any;
 declare var SplitType:any;
 declare var once:any;
 declare var Fuse:any;
+declare var turnstile:any;
 
 interface JQuery {
   once(id?): JQuery;

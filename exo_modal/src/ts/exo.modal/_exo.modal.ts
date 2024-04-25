@@ -1138,6 +1138,13 @@ class ExoModal extends ExoData {
           this.$element.trigger('focus');
         }
       }
+      // Cloudflare Turnstile support. Resolves issue where turnstyle does
+      // not load within a modal.
+      if (typeof turnstile !== 'undefined') {
+        if (this.$element.find('.cf-turnstile').length) {
+          turnstile.reset();
+        }
+      }
     });
   }
 
@@ -1156,7 +1163,6 @@ class ExoModal extends ExoData {
           break;
       }
     });
-
     // Support drimage module.
     if (typeof Drupal.drimage !== 'undefined') {
       setTimeout(() => {
