@@ -2,7 +2,6 @@
 
 namespace Drupal\exo_list_builder;
 
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilderInterface;
 use Drupal\Core\Form\FormInterface;
@@ -239,6 +238,23 @@ interface ExoListBuilderInterface extends EntityListBuilderInterface, FormInterf
    *   The weight field.
    */
   public function getWeightField();
+
+  /**
+   * Build action job queue.
+   *
+   * @param string $action_id
+   *   The action id.
+   * @param array $selected
+   *   An array of selected entity ids.
+   * @param array $settings
+   *   An array of settings.
+   * @param array $emails
+   *   An array of email addresses to notify after the action has finished.
+   *
+   * @return array
+   *   An array that contains the 'queue' and the 'queue_worker'.
+   */
+  public function buildQueue($action_id, array $selected = [], array $settings = [], array $emails = []);
 
   /**
    * Check if the entity list is filtered.

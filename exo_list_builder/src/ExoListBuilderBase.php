@@ -2398,7 +2398,12 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       return;
     }
     $entity_list = $this->getEntityList();
-    $action = $entity_list->getAvailableActions()[$form_state->getValue('action')];
+    $action_id = $form_state->getValue('action');
+    $actions = $entity_list->getAvailableActions();
+    if (!isset($actions[$action_id])) {
+      return;
+    }
+    $action = $actions[$action_id];
     $selected = [];
     $selected_keys = array_filter($form_state->getValue($this->entitiesKey) ?? [], function ($item) {
       return $item !== 0;
@@ -2411,65 +2416,39 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
     $instance = $this->getActions()[$action['id']];
     if ($instance instanceof ExoListActionSettingsInterface && empty($form_state->get('action_settings_status'))) {
-      $form_state->set('action_settings_action', $form_state->getValue('action'));
+      $form_state->set('action_settings_action', $action_id);
       $form_state->set('action_settings_selected', $selected);
       $form_state->setRebuild();
       return;
     }
+
     $action['settings'] = $instance->getConfiguration();
     $settings = $form_state->getValue(['action_settings']) ?? [];
     $ids = $instance->getEntityIds($selected, $this);
     $ids = array_combine($ids, $ids);
     $shown_field_ids = array_keys($this->getShownFields());
     if ($instance->runAsJobQueue(count($ids))) {
-      $queue = $this->getQueue($instance->getPluginId());
-      $queue->deleteQueue();
-      /** @var \Drupal\exo_list_builder\QueueWorker\ExoListActionProcess $queue_worker */
-      $queue_worker = \Drupal::service('plugin.manager.queue_worker')->createInstance('exo_list_action:' . $entity_list->id() . ':' . $instance->getPluginId());
-      $context = $queue_worker->getContext();
-      if (!empty($context['results']['entity_list_id'])) {
-        // If we have an existing list that never finished. Append selected
-        // ids to unprocessed ids.
-        if (!empty($selected)) {
-          $ids = array_diff_key($context['results']['entity_ids'], $context['results']['entity_ids_complete']) + $ids;
+      if ($data = $this->buildQueue($action_id, $selected, $settings)) {
+        $queue = $data['queue'];
+        $queue_worker = $data['queue_worker'];
+        try {
+          while ($item = $queue->claimItem()) {
+            // Allow to run for set amount of time. After that, cron will
+            // take over.
+            $queue_worker->processItem([
+              'email_send' => FALSE,
+              'timeout' => strtotime('+5 seconds'),
+            ] + $item->data);
+            $queue->deleteItem($item);
+          }
         }
-      }
-      $queue_worker->processItem([
-        'op' => 'start',
-        'action' => $action,
-        'list_id' => $this->getEntityList()->id(),
-        'field_ids' => $shown_field_ids,
-        'entity_ids' => $ids,
-        'settings' => $settings,
-        'total' => count($ids),
-        'queue' => TRUE,
-      ]);
-      $queue->createItem([
-        'op' => 'run',
-        'action' => $action,
-        'list_id' => $this->getEntityList()->id(),
-        'field_ids' => $shown_field_ids,
-        'settings' => $settings,
-        'selected' => $selected,
-        'queue' => TRUE,
-      ]);
-
-      try {
-        while ($item = $queue->claimItem()) {
-          // Allow to run for set amount of time. After that, cron will
-          // take over.
-          $queue_worker->processItem($item->data + [
-            'timeout' => strtotime('+5 seconds'),
-          ]);
-          $queue->deleteItem($item);
-        }
-      }
-      catch (SuspendQueueException $e) {
-        if (!empty($context['results']['queue'])) {
-          if ($email = $instance->getNotifyEmail()) {
+        catch (SuspendQueueException $e) {
+          $context = $queue_worker->getContext();
+          $emails = $context['results']['emails'] ?? [];
+          if ($emails) {
             $this->messenger()->addMessage($this->t('Started action "@action". This process will continue in the background. When finished, a notification email will be sent to %email.', [
               '@action' => $instance->label(),
-              '%email' => $email,
+              '%email' => implode(', ', $emails),
             ]));
           }
           else {
@@ -2509,6 +2488,69 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         batch_set($batch_builder->toArray());
       }
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildQueue($action_id, array $selected = [], array $settings = [], array $emails = []) {
+    $actions = $this->getActions();
+    if (!isset($actions[$action_id])) {
+      return;
+    }
+    $entity_list = $this->getEntityList();
+    /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
+    $instance = $this->getActions()[$action_id];
+    $action = $entity_list->getAvailableActions()[$action_id];
+    $action['settings'] = $instance->getConfiguration();
+    $ids = $instance->getEntityIds($selected, $this);
+    $ids = array_combine($ids, $ids);
+    $shown_field_ids = array_keys($this->getShownFields());
+
+    $queue = $this->getQueue($instance->getPluginId());
+    $queue->deleteQueue();
+    /** @var \Drupal\exo_list_builder\QueueWorker\ExoListActionProcess $queue_worker */
+    $queue_worker = \Drupal::service('plugin.manager.queue_worker')->createInstance('exo_list_action:' . $entity_list->id() . ':' . $instance->getPluginId());
+    $context = $queue_worker->getContext();
+    if (!empty($context['results']['entity_list_id'])) {
+      // If we have an existing list that never finished. Append selected
+      // ids to unprocessed ids.
+      if (!empty($selected)) {
+        $ids = array_diff_key($context['results']['entity_ids'], $context['results']['entity_ids_complete']) + $ids;
+      }
+    }
+    if (empty($emails)) {
+      if ($email = $instance->getConfiguration()['queue_email'] ?? NULL) {
+        $emails[] = $email;
+      }
+      elseif ($email = \Drupal::currentUser()->getEmail()) {
+        $emails[] = $email;
+      }
+    }
+    $emails = array_unique(array_map('trim', $emails));
+    $queue_worker->processItem([
+      'op' => 'start',
+      'action' => $action,
+      'list_id' => $this->getEntityList()->id(),
+      'field_ids' => $shown_field_ids,
+      'entity_ids' => $ids,
+      'settings' => $settings,
+      'total' => count($ids),
+      'emails' => $emails,
+    ]);
+    $queue->createItem([
+      'op' => 'run',
+      'action' => $action,
+      'list_id' => $this->getEntityList()->id(),
+      'field_ids' => $shown_field_ids,
+      'settings' => $settings,
+      'selected' => $selected,
+    ]);
+
+    return [
+      'queue' => $queue,
+      'queue_worker' => $queue_worker,
+    ];
   }
 
   /**

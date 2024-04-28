@@ -123,14 +123,6 @@ interface ExoListActionInterface extends PluginInspectionInterface, Configurable
   public function overview(array $context);
 
   /**
-   * An optional email no notify when the job queue has finished.
-   *
-   * @return string
-   *   The email to notify.
-   */
-  public function getNotifyEmail();
-
-  /**
    * Whether this theme negotiator should be used on the current list.
    *
    * @param \Drupal\exo_list_builder\ExoListBuilderInterface $exo_list

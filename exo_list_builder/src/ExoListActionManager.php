@@ -149,7 +149,6 @@ class ExoListActionManager extends DefaultPluginManager implements ExoListAction
     $context['results']['entity_ids'] = $entity_ids;
     $context['results']['entity_ids_complete'] = [];
     $context['results']['action_settings'] = $settings;
-    $context['results']['queue'] = !empty($context['results']['queue']);
     // Start.
     $instance->executeStart($entity_list, $context);
   }

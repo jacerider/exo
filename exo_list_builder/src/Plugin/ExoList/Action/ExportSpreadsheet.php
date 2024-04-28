@@ -7,52 +7,58 @@ use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Url;
 use Drupal\exo_list_builder\EntityListInterface;
+use Drupal\exo_list_builder\ExoListBuilderInterface;
 use Drupal\exo_list_builder\ExoListManagerInterface;
 use Drupal\exo_list_builder\Plugin\ExoListActionBase;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Defines a eXo list action for batch operations.
  *
+ * Requres the PhpOffice\PhpSpreadsheet library.
+ * Run: composer require phpoffice/phpspreadsheet.
+ *
  * @ExoListAction(
- *   id = "export_csv",
- *   label = @Translation("Export to CSV"),
- *   description = @Translation("Export to CSV file."),
+ *   id = "export_spreadsheet",
+ *   label = @Translation("Export to Spreadsheet"),
+ *   description = @Translation("Export to spreadsheet file."),
  *   weight = 0,
  *   entity_type = {},
  *   bundle = {},
  *   queue = true,
  * )
  */
-class ExportCsv extends ExoListActionBase {
+class ExportSpreadsheet extends ExoListActionBase {
 
   /**
    * The private export directory.
    *
    * @var string
    */
-  const CSV_DIRECTORY = 'private://exo-entity-list/export';
+  const SPREADSHEET_DIRECTORY = 'private://exo-entity-list/export';
 
   /**
-   * Store CSV permanently.
+   * Store spreadsheet permanently.
    *
    * @var bool
    */
-  const CSV_PRESERVE = FALSE;
+  const SPREADSHEET_PRESERVE = FALSE;
 
   /**
-   * Store CSV as a managed file.
+   * Store spreadsheet as a managed file.
    *
    * @var bool
    */
-  const CSV_MANAGED = TRUE;
+  const SPREADSHEET_MANAGED = TRUE;
 
   /**
    * The delimiter.
    *
    * @var string
    */
-  const DELIMITER = ',';
+  const SPREADSHEET_TYPE = 'Xlsx';
 
   /**
    * The renderer.
@@ -109,38 +115,50 @@ class ExportCsv extends ExoListActionBase {
    */
   public function executeStart(EntityListInterface $entity_list, array &$context) {
     parent::executeStart($entity_list, $context);
-
-    $file_path = $this->prepareCsvFile($entity_list, $context);
-    $handle = fopen($file_path, 'w');
-    // Add BOM to fix UTF-8 in Excel.
-    fwrite($handle, (chr(0xEF) . chr(0xBB) . chr(0xBF)));
-    $headers = $this->getCsvHeader($entity_list, $context);
+    $file_path = $this->prepareSpreadsheetFile($entity_list, $context);
+    $headers = $this->getSpreadsheetHeader($entity_list, $context);
     if ($headers) {
-      // Write headers now.
-      fputcsv($handle, $headers, static::DELIMITER);
+      $spreadsheet = IOFactory::load($file_path);
+      $sheet = $spreadsheet->getActiveSheet();
+      $sheet->fromArray($headers, NULL, 'A1');
+      $writer = IOFactory::createWriter($spreadsheet, self::SPREADSHEET_TYPE);
+      $writer->save($file_path);
     }
-    fclose($handle);
   }
 
   /**
    * {@inheritdoc}
    */
   public function execute($entity_id, EntityListInterface $entity_list, $selected, array &$context) {
-    $handle = fopen($context['results']['csv_file_path'], 'a');
-    $row = $this->getCsvRow($entity_id, $entity_list, $selected, $context);
-    fputcsv($handle, $row, static::DELIMITER);
-    fclose($handle);
+    $spreadsheet = IOFactory::load($context['results']['spreadsheet_file_path']);
+
+    $sheet = $spreadsheet->getActiveSheet();
+    $row = $this->getSpreadsheetRow($entity_id, $entity_list, $selected, $context);
+    $delta = count($context['results']['entity_ids_complete']);
+    $sheet->fromArray($row, NULL, 'A' . $delta + 2);
+
+    $writer = IOFactory::createWriter($spreadsheet, self::SPREADSHEET_TYPE);
+    $writer->save($context['results']['spreadsheet_file_path']);
   }
 
   /**
    * {@inheritdoc}
    */
   public function executeFinish(EntityListInterface $entity_list, array &$results) {
+    $spreadsheet = IOFactory::load($results['spreadsheet_file_path']);
+    $sheet = $spreadsheet->getActiveSheet();
+    $sheet->setAutoFilter(
+      $sheet->calculateWorksheetDimension()
+    );
+    $writer = IOFactory::createWriter($spreadsheet, self::SPREADSHEET_TYPE);
+    $writer->save($results['spreadsheet_file_path']);
+
     parent::executeFinish($entity_list, $results);
+
     // Hide default message.
     $results['entity_list_hide_message'] = TRUE;
-    if (PHP_SAPI !== 'cli' && isset($results['csv_file_uri']) && file_exists($results['csv_file_uri'])) {
-      $file_uri = $results['csv_file_uri'];
+    if (PHP_SAPI !== 'cli' && isset($results['spreadsheet_file_uri']) && file_exists($results['spreadsheet_file_uri'])) {
+      $file_uri = $results['spreadsheet_file_uri'];
       /** @var \Drupal\Core\Access\CsrfTokenGenerator $csrf_token */
       $csrf_token = \Drupal::service('csrf_token');
       $token = $csrf_token->get($file_uri);
@@ -165,13 +183,18 @@ class ExportCsv extends ExoListActionBase {
    */
   protected function notifyEmailFinish(EntityListInterface $entity_list, array $results, $email, $subject = NULL, $message = NULL, $link_text = NULL, $link_url = NULL, $attachments = []) {
     if ($this->supportsJobQueue()) {
-      $link_text = $link_text ?: $this->t('Download CSV');
-      $link_url = \Drupal::service('file_url_generator')->generateAbsoluteString($results['csv_file_uri']);
+      $message = $this->t('A submission spreadsheet has been prepared.', [
+        '%label' => $entity_list->label(),
+        '%action' => $this->label(),
+        '@url' => $entity_list->toUrl()->setAbsolute()->toString(),
+      ]);
+      $link_text = $link_text ?: $this->t('Download Spreadsheet');
+      $link_url = \Drupal::service('file_url_generator')->generateAbsoluteString($results['spreadsheet_file_uri']);
 
       $attachments[] = [
-        'filepath' => $results['csv_file_uri'],
-        'filename' => $results['csv_filename'],
-        'filemime' => 'text/csv',
+        'filepath' => $results['spreadsheet_file_uri'],
+        'filename' => $results['spreadsheet_filename'],
+        'filemime' => 'application/vnd.ms-excel',
       ];
     }
     return parent::notifyEmailFinish($entity_list, $results, $email, $subject, $message, $link_text, $link_url, $attachments);
@@ -190,23 +213,25 @@ class ExportCsv extends ExoListActionBase {
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function prepareCsvFile(EntityListInterface $entity_list, array &$context) {
+  public function prepareSpreadsheetFile(EntityListInterface $entity_list, array &$context) {
     /** @var \Drupal\Core\File\FileSystemInterface $file_system */
     $file_system = \Drupal::service('file_system');
-    $directory = $this->getCsvDirectory($entity_list, $context);
+    $directory = $this->getSpreadsheetDirectory($entity_list, $context);
     $file_system->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
-    $filename = $this->getCsvFilename($entity_list, $context);
+    $filename = $this->getSpreadsheetFilename($entity_list, $context);
     $file_uri = $directory . '/' . $filename;
     $file_path = $file_system->realpath($file_uri);
+    $spreadsheet = new Spreadsheet();
+    $writer = IOFactory::createWriter($spreadsheet, self::SPREADSHEET_TYPE);
 
-    if (static::CSV_MANAGED) {
+    if (static::SPREADSHEET_MANAGED) {
       /** @var \Drupal\file\FileRepositoryInterface $file_repository */
       $file_repository = \Drupal::service('file.repository');
       if (file_exists($file_uri)) {
         $file_system->delete($file_uri);
       }
       $file = $file_repository->writeData('', $file_uri, FileSystemInterface::EXISTS_ERROR);
-      if (static::CSV_PRESERVE) {
+      if (static::SPREADSHEET_PRESERVE) {
         $file->setPermanent();
       }
       else {
@@ -223,15 +248,16 @@ class ExportCsv extends ExoListActionBase {
       }
       $file_system->saveData('', $file_uri);
     }
+    $writer->save($file_uri);
 
-    $context['results']['csv_filename'] = $filename;
-    $context['results']['csv_file_path'] = $file_path;
-    $context['results']['csv_file_uri'] = $file_uri;
+    $context['results']['spreadsheet_filename'] = $filename;
+    $context['results']['spreadsheet_file_path'] = $file_path;
+    $context['results']['spreadsheet_file_uri'] = $file_uri;
     return $file_path;
   }
 
   /**
-   * Get CSV file directory.
+   * Get spreadsheet file directory.
    *
    * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
    *   The entity list.
@@ -241,12 +267,12 @@ class ExportCsv extends ExoListActionBase {
    * @return string
    *   The file directory.
    */
-  protected function getCsvDirectory(EntityListInterface $entity_list, array &$context) {
-    return static::CSV_DIRECTORY;
+  protected function getSpreadsheetDirectory(EntityListInterface $entity_list, array &$context) {
+    return static::SPREADSHEET_DIRECTORY;
   }
 
   /**
-   * Get CSV file filename.
+   * Get spreadsheet file filename.
    *
    * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
    *   The entity list.
@@ -256,16 +282,16 @@ class ExportCsv extends ExoListActionBase {
    * @return string
    *   The file name.
    */
-  protected function getCsvFilename(EntityListInterface $entity_list, array &$context) {
+  protected function getSpreadsheetFilename(EntityListInterface $entity_list, array &$context) {
     $filename = md5($entity_list->id() . $this->getPluginId());
-    if (static::CSV_PRESERVE) {
+    if (static::SPREADSHEET_PRESERVE) {
       $filename .= '-' . \Drupal::time()->getRequestTime();
     }
-    return $filename . '.csv';
+    return $filename . '.xlsx';
   }
 
   /**
-   * Get CSV file headers.
+   * Get spreadsheet file headers.
    *
    * @param \Drupal\exo_list_builder\EntityListInterface $entity_list
    *   The entity list.
@@ -273,9 +299,9 @@ class ExportCsv extends ExoListActionBase {
    *   The batch context.
    *
    * @return array
-   *   The CSV file headers.
+   *   The spreadsheet file headers.
    */
-  protected function getCsvHeader(EntityListInterface $entity_list, array &$context) {
+  protected function getSpreadsheetHeader(EntityListInterface $entity_list, array &$context) {
     $headers = [];
     foreach ($entity_list->getFields() as $field_id => $field) {
       $headers[$field_id] = $field['display_label'] ?: $field['label'];
@@ -284,7 +310,7 @@ class ExportCsv extends ExoListActionBase {
   }
 
   /**
-   * Get CSV file row.
+   * Get spreadsheet file row.
    *
    * @param string $entity_id
    *   The entity id.
@@ -294,22 +320,22 @@ class ExportCsv extends ExoListActionBase {
    *   Will be true if entity was selected.
    * @param array $context
    *   The batch context.
-   *
-   * @return array
-   *   The CSV file row.
    */
-  protected function getCsvRow($entity_id, EntityListInterface $entity_list, $selected, array &$context) {
+  protected function getSpreadsheetRow($entity_id, EntityListInterface $entity_list, $selected, array &$context) {
     $row = [];
     $entity = $this->loadEntity($entity_list->getTargetEntityTypeId(), $entity_id);
     foreach ($entity_list->getFields() as $field_id => $field) {
       $field_entity = $entity_list->getHandler()->getFieldEntity($entity, $field);
       if (!$field_entity) {
-        $row[$field_id] = '';
+        $row[$field_id] = NULL;
         continue;
       }
       /** @var \Drupal\exo_list_builder\Plugin\ExoListElementInterface $instance */
       $instance = $this->elementManager->createInstance($field['view']['type'], $field['view']['settings']);
       $row[$field_id] = $instance->buildPlainView($field_entity, $field);
+      if ($row[$field_id] === $instance->getConfiguration()['empty']) {
+        $row[$field_id] = NULL;
+      }
     }
     return $row;
   }
@@ -321,11 +347,18 @@ class ExportCsv extends ExoListActionBase {
     if (!empty($context['job_finish'])) {
       return [
         '#type' => 'link',
-        '#title' => $this->t('Download CSV'),
-        '#url' => \Drupal::service('file_url_generator')->generate($context['results']['csv_file_uri']),
+        '#title' => $this->t('Download spreadsheet'),
+        '#url' => \Drupal::service('file_url_generator')->generate($context['results']['spreadsheet_file_uri']),
       ];
     }
     return parent::overview($context);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function applies(ExoListBuilderInterface $exo_list) {
+    return class_exists('PhpOffice\PhpSpreadsheet\Spreadsheet');
   }
 
 }

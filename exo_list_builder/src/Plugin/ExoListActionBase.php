@@ -178,8 +178,8 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
    * {@inheritdoc}
    */
   public function executeFinish(EntityListInterface $entity_list, array &$results) {
-    if (!empty($results['queue']) && ($email = $this->getNotifyEmail())) {
-      $this->notifyEmailFinish($entity_list, $results, $email);
+    if (!empty($results['email_send']) && !empty($results['emails'])) {
+      $this->notifyEmailFinish($entity_list, $results, implode(',', $results['emails']));
     }
   }
 
@@ -187,23 +187,6 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
    * {@inheritdoc}
    */
   public function overview(array $context) {
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getNotifyEmail() {
-    $emails = [];
-    if ($email = \Drupal::currentUser()->getEmail()) {
-      $emails[] = $email;
-    }
-    if ($email = $this->getConfiguration()['queue_email'] ?? NULL) {
-      $emails[] = $email;
-    }
-    if (!empty($emails)) {
-      return implode(',', $emails);
-    }
-    return NULL;
   }
 
   /**
@@ -223,8 +206,16 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
    *   The link text.
    * @param Drupal\Core\Url|string $link_url
    *   The link url.
+   * @param array $attachments
+   *   An array of file attachments.
+   *   Example:
+   *     $attachments[] = [
+   *       'filepath' => $uri,
+   *       'filename' => $this->getFilename('form') . '.pdf',
+   *       'filemime' => 'application/pdf',
+   *     ];.
    */
-  protected function notifyEmailFinish(EntityListInterface $entity_list, array $results, $email, $subject = NULL, $message = NULL, $link_text = NULL, $link_url = NULL) {
+  protected function notifyEmailFinish(EntityListInterface $entity_list, array $results, $email, $subject = NULL, $message = NULL, $link_text = NULL, $link_url = NULL, $attachments = []) {
     $subject = $subject ?: $this->t('@label: @action: Finished', [
       '@label' => $entity_list->label(),
       '@action' => $this->label(),
@@ -234,7 +225,7 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
       '%action' => $this->label(),
       '@url' => $entity_list->toUrl()->setAbsolute()->toString(),
     ]);
-    return $entity_list->notifyEmail($email, $subject, $message, $link_text, $link_url);
+    return $entity_list->notifyEmail($email, $subject, $message, $link_text, $link_url, $attachments);
   }
 
   /**

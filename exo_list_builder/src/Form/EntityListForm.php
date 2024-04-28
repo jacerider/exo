@@ -903,33 +903,35 @@ class EntityListForm extends EntityForm {
       '#empty' => $this->t('No actions available.'),
     ];
     foreach ($exo_entity_list->getAvailableActions() as $action_id => $action) {
-      $enabled = isset($actions[$action_id]);
-      $row = [];
-      $row['status'] = [
-        '#type' => 'checkbox',
-        '#default_value' => $enabled,
-        '#ajax' => [
-          'event' => 'change',
-          'method' => 'replace',
-          'wrapper' => 'actions-wrapper',
-          'callback' => [__CLASS__, 'ajaxReplaceActionsCallback'],
-        ],
-      ];
-      $row['name'] = [
-        '#markup' => '<strong>' . $action['label'] . '</strong>',
-      ];
-      $row['settings'] = [];
-      if ($enabled) {
-        $row['settings'] = [
-          '#type' => 'container',
-          '#tree' => TRUE,
+      /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
+      $instance = $this->actionManager->createInstance($action_id, $actions[$action_id]['settings'] ?? $action['settings']);
+      if ($instance->applies($exo_entity_list->getHandler())) {
+        $enabled = isset($actions[$action_id]);
+        $row = [];
+        $row['status'] = [
+          '#type' => 'checkbox',
+          '#default_value' => $enabled,
+          '#ajax' => [
+            'event' => 'change',
+            'method' => 'replace',
+            'wrapper' => 'actions-wrapper',
+            'callback' => [__CLASS__, 'ajaxReplaceActionsCallback'],
+          ],
         ];
-        /** @var \Drupal\exo_list_builder\Plugin\ExoListActionInterface $instance */
-        $instance = $this->actionManager->createInstance($action_id, $actions[$action_id]['settings'] ?? $action['settings']);
-        $subform_state = SubformState::createForSubform($row['settings'], $form, $form_state);
-        $row['settings'] = $instance->buildConfigurationForm($row['settings'], $subform_state, $exo_entity_list, $action);
+        $row['name'] = [
+          '#markup' => '<strong>' . $action['label'] . '</strong>',
+        ];
+        $row['settings'] = [];
+        if ($enabled) {
+          $row['settings'] = [
+            '#type' => 'container',
+            '#tree' => TRUE,
+          ];
+          $subform_state = SubformState::createForSubform($row['settings'], $form, $form_state);
+          $row['settings'] = $instance->buildConfigurationForm($row['settings'], $subform_state, $exo_entity_list, $action);
+        }
+        $form['actions_container']['actions'][$action_id] = $row;
       }
-      $form['actions_container']['actions'][$action_id] = $row;
     }
   }
 

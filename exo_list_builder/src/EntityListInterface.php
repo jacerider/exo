@@ -357,8 +357,16 @@ interface EntityListInterface extends ConfigEntityInterface, EntityPublishedInte
    *   The link text.
    * @param Drupal\Core\Url|string $link_url
    *   The link url.
+   * @param array $attachments
+   *   An array of file attachments.
+   *   Example:
+   *     $attachments[] = [
+   *       'filepath' => $uri,
+   *       'filename' => $this->getFilename('form') . '.pdf',
+   *       'filemime' => 'application/pdf',
+   *     ];.
    */
-  public function notifyEmail($email, $subject, $message, $link_text = NULL, $link_url = NULL);
+  public function notifyEmail($email, $subject, $message, $link_text = NULL, $link_url = NULL, $attachments = []);
 
   /**
    * Gets the settings.

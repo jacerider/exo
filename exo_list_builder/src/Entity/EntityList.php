@@ -845,7 +845,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   /**
    * {@inheritdoc}
    */
-  public function notifyEmail($email, $subject, $message, $link_text = NULL, $link_url = NULL) {
+  public function notifyEmail($email, $subject, $message, $link_text = NULL, $link_url = NULL, $attachments = []) {
     $module = 'exo_list_builder';
     $key = 'notify';
     $langcode = \Drupal::currentUser()->getPreferredLangcode();
@@ -861,6 +861,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
     $params = [
       'subject' => $subject,
       'message' => $message,
+      'attachments' => $attachments,
     ];
 
     try {
@@ -899,6 +900,15 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   public function setSetting($key, $value) {
     NestedArray::setValue($this->settings, (array) $key, $value);
     return $this;
+  }
+
+  /**
+   * Method that is called when a private file is attached to this entity.
+   *
+   * Called when the private file is downloaded.
+   */
+  public function getFieldDefinitions() {
+    return [];
   }
 
   /**

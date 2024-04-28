@@ -59,6 +59,33 @@ class ExoListAction extends QueueWorkerBase implements ContainerFactoryPluginInt
   }
 
   /**
+   * Get the context.
+   *
+   * @return array
+   *   The context.
+   */
+  public function getContext() {
+    return $this->state->get($this->getStateId(), [
+      'sandbox' => [],
+      'results' => [
+        'entity_list_id' => NULL,
+        'entity_list_action' => [],
+        'entity_list_fields' => [],
+        'entity_ids' => [],
+        'entity_ids_complete' => [],
+        'action_settings' => [],
+        'email_send' => TRUE,
+        'email_title' => NULL,
+        'email_message' => NULL,
+        'emails' => [],
+      ],
+      'last' => 0,
+      'finished' => 1,
+      'message' => '',
+    ]);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function processItem($data) {
@@ -67,6 +94,7 @@ class ExoListAction extends QueueWorkerBase implements ContainerFactoryPluginInt
         // Reset whenever we start a new batch.
         $this->deleteContext();
         $context = $this->getContext();
+        $context['results']['emails'] = $data['emails'] ?? [];
         $context['job_start'] = \Drupal::time()->getRequestTime();
         ExoListActionManager::batchStart($data['action'], $data['list_id'], $data['field_ids'], $data['entity_ids'], $data['settings'], $context);
         $this->state->set($this->getStateId(), $context);
@@ -75,6 +103,8 @@ class ExoListAction extends QueueWorkerBase implements ContainerFactoryPluginInt
       case 'run':
         $do = TRUE;
         $context = $this->getContext();
+        // Allow data to pass in email send override.
+        $context['results']['email_send'] = $data['email_send'] ?? $context['results']['email_send'];
         $requestTime = \Drupal::time()->getRequestTime();
         if ($context['last'] && $context['last'] > strtotime('-30 second', $requestTime)) {
           // If this action has been run within the last 30 seconds, prevent
@@ -83,9 +113,10 @@ class ExoListAction extends QueueWorkerBase implements ContainerFactoryPluginInt
         }
         while ($do) {
           if (!empty($data['timeout']) && $data['timeout'] < time()) {
+            $context['results']['email_send'] = TRUE;
+            $this->state->set($this->getStateId(), $context);
             throw new SuspendQueueException('Job has timed out.');
           }
-          $context = $this->getContext();
           $processing = count($context['results']['entity_ids_complete']);
           $entity_id = array_slice($context['results']['entity_ids'], $processing, 1);
           if ($entity_id) {
@@ -115,30 +146,6 @@ class ExoListAction extends QueueWorkerBase implements ContainerFactoryPluginInt
    */
   protected function getStateId() {
     return 'exo_list_action:' . $this->getPluginId();
-  }
-
-  /**
-   * Get the context.
-   *
-   * @return array
-   *   The context.
-   */
-  public function getContext() {
-    return $this->state->get($this->getStateId(), [
-      'sandbox' => [],
-      'results' => [
-        'entity_list_id' => NULL,
-        'entity_list_action' => [],
-        'entity_list_fields' => [],
-        'entity_ids' => [],
-        'entity_ids_complete' => [],
-        'action_settings' => [],
-        'queue' => TRUE,
-      ],
-      'last' => 0,
-      'finished' => 1,
-      'message' => '',
-    ]);
   }
 
   /**
