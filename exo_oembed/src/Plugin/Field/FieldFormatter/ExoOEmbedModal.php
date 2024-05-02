@@ -420,8 +420,6 @@ class ExoOEmbedModal extends ExoModalFieldFormatterBase {
       return $element;
     }
     $element += $render;
-    $modal->setSetting(['modal', 'closeButton'], FALSE);
-    $modal->setSetting(['modal', 'closeInBody'], TRUE);
 
     // Use iframe functionality if possible.
     if (isset($element[0]['#attributes']['src'])) {
@@ -429,11 +427,9 @@ class ExoOEmbedModal extends ExoModalFieldFormatterBase {
       $ratio = $resolution[0] / $resolution[1];
       $modal->setSetting(['modal', 'iframe'], TRUE);
       $modal->setSetting(['modal', 'iframeURL'], $element[0]['#attributes']['src']);
-      $modal->setSetting(['modal', 'width'], '96%');
       $modal->setSetting(['modal', 'iframeWidth'], '800px');
       $modal->setSetting(['modal', 'iframeHeight'], 800 * $ratio . 'px');
       $modal->setSetting(['modal', 'iframeResponsive'], TRUE);
-      $modal->setSetting(['modal', 'closeInBody'], TRUE);
       $element = [];
     }
     return $element;
