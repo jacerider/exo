@@ -25,12 +25,12 @@
         on: {
           init: () => {
             $(document).trigger('exoComponentSliderInit');
-            this.$wrapper.trigger('exoComponentSliderInit', this.swiper);
           },
           afterInit: (swiper) => {
             if ('ee-SliderHeightFirst' in swiper.el.dataset) {
               swiper.el.style.height = swiper.slides[0].offsetHeight + 'px';
             }
+            this.$wrapper.trigger('exoComponentSliderAfterInit', this.swiper);
           },
           beforeResize: (swiper) => {
             if ('ee-SliderHeightFirst' in swiper.el.dataset) {
