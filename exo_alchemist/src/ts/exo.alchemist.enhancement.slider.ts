@@ -31,9 +31,8 @@
               swiper.el.style.height = swiper.slides[0].offsetHeight + 'px';
             }
             setTimeout(() => {
-              console.log('running init', this.$wrapper);
               this.$wrapper.trigger('exoComponentSliderAfterInit', this.swiper);
-            }, 100);
+            });
           },
           beforeResize: (swiper) => {
             if ('ee-SliderHeightFirst' in swiper.el.dataset) {
