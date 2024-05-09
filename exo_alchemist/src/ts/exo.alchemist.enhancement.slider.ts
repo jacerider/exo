@@ -25,6 +25,7 @@
         on: {
           init: () => {
             $(document).trigger('exoComponentSliderInit');
+            this.$wrapper.trigger('exoComponentSliderInit', this.swiper);
           },
           afterInit: (swiper) => {
             if ('ee-SliderHeightFirst' in swiper.el.dataset) {
