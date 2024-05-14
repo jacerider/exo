@@ -98,7 +98,7 @@ abstract class ExoListActionBase extends PluginBase implements ExoListActionInte
       'label' => '',
     ];
     if ($this->supportsJobQueue()) {
-      $defaults['queue_limit'] = 1000;
+      $defaults['queue_limit'] = 10000;
       $defaults['queue_email'] = '';
     }
     return $defaults;
