@@ -379,6 +379,16 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
     if ($instance = $this->getListWidgetInstance()) {
       $instance->alterOptions($options, $entity_list, $this, $field);
     }
+    if ($this->isDefaultValueLocked($field)) {
+      if ($default = $this->getDefaultValue($entity_list, $field)) {
+        if (is_array($default)) {
+          $options = array_diff_key($options, $default);
+        }
+        else {
+          unset($options[$default]);
+        }
+      }
+    }
     return $options;
   }
 
@@ -404,6 +414,13 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
    */
   public function getDefaultValue(EntityListInterface $entity_list, array $field) {
     return !empty($field['filter']['settings']['default']['status']) && !is_null($field['filter']['settings']['default']['value']) ? $field['filter']['settings']['default']['value'] : NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isDefaultValueLocked(array $field) {
+    return !empty($field['filter']['settings']['default']['lock']);
   }
 
   /**

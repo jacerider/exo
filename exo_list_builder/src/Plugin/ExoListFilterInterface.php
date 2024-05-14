@@ -204,6 +204,17 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
   public function getDefaultValue(EntityListInterface $entity_list, array $field);
 
   /**
+   * Check if default value is locked.
+   *
+   * @param array $field
+   *   The field definition.
+   *
+   * @return bool
+   *   Returns TRUE if default value is locked.
+   */
+  public function isDefaultValueLocked(array $field);
+
+  /**
    * Helper function to get filtered options.
    *
    * Only applies to filters that implement ExoListFieldValuesElementInterface

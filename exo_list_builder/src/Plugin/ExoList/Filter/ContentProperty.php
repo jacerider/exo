@@ -42,6 +42,7 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
       'property' => NULL,
       'default_from_url' => [
         'status' => FALSE,
+        'lock' => FALSE,
         'entity_type' => NULL,
         'field_name' => NULL,
         'show_in_overview' => FALSE,
@@ -93,6 +94,12 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
     ];
 
     if ($configuration['default_from_url']['status']) {
+      $form['default_from_url']['lock'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Lock value'),
+        '#description' => $this->t('Prevent users from changing the default value.'),
+        '#default_value' => !empty($configuration['default_from_url']['lock']),
+      ];
       $entity_types = $this->entityTypeManager()->getDefinitions();
       $entity_type_id = $configuration['default_from_url']['entity_type'] ?? NULL;
       $options = [];
@@ -202,6 +209,13 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
       }
     }
     return parent::getDefaultValue($entity_list, $field);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isDefaultValueLocked(array $field) {
+    return !empty($field['filter']['settings']['default_from_url']['lock']) || parent::isDefaultValueLocked($field);
   }
 
   /**

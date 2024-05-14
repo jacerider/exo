@@ -620,6 +620,19 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         if (empty($filter_value) && !$this->isModified() && !is_null($default_value)) {
           $filter_value = $default_value;
         }
+        if ($default_value && $instance->isDefaultValueLocked($field)) {
+          if (is_array($filter_value)) {
+            if (is_array($default_value)) {
+              $filter_value += $default_value;
+            }
+            else {
+              $filter_value[$default_value] = $default_value;
+            }
+          }
+          else {
+            $filter_value = $default_value;
+          }
+        }
       }
     }
     return $filter_value;
@@ -2150,10 +2163,11 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    */
   protected function buildFormFilterField(array $field, ExoListFilterInterface $instance, FormStateInterface $form_state) {
     $form = [];
+    $default = $instance->getDefaultValue($this->entityList, $field);
     $value = $this->getOption([
       'filter',
       $field['id'],
-    ], ($this->isModified() ? NULL : $instance->getDefaultValue($this->entityList, $field) ?? $instance->defaultValue()));
+    ], ($this->isModified() ? NULL : $default ?? $instance->defaultValue()));
     $form = $instance->buildForm($form, $form_state, $value, $this->entityList, $field);
     $form = $instance->buildFormAfter($form, $form_state, $value, $this->entityList, $field);
     $form['#access'] = !empty(Element::getVisibleChildren($form));
