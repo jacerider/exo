@@ -22,6 +22,7 @@ interface ExoListFilterInterface extends PluginInspectionInterface, Configurable
     'expose' => TRUE,
     'default' => [
       'status' => FALSE,
+      'lock' => FALSE,
       'value' => NULL,
     ],
     'expose_block' => FALSE,

@@ -197,6 +197,12 @@ abstract class ExoListFilterBase extends PluginBase implements ExoListFilterInte
     ];
 
     if ($default_status) {
+      $form['default']['lock'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Lock value'),
+        '#description' => $this->t('Prevent users from changing the default value.'),
+        '#default_value' => !empty($configuration['default']['lock']),
+      ];
       $form['default']['value'] = [
         '#type' => 'html_tag',
         '#tag' => 'div',
