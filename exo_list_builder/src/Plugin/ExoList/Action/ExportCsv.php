@@ -5,6 +5,7 @@ namespace Drupal\exo_list_builder\Plugin\ExoList\Action;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\TempStore\SharedTempStoreFactory;
 use Drupal\Core\Url;
 use Drupal\exo_list_builder\EntityListInterface;
 use Drupal\exo_list_builder\ExoListManagerInterface;
@@ -69,6 +70,13 @@ class ExportCsv extends ExoListActionBase {
   protected $elementManager;
 
   /**
+   * The temp storage.
+   *
+   * @var \Drupal\Core\TempStore\SharedTempStore
+   */
+  protected $temp;
+
+  /**
    * LogGeneratorBase constructor.
    *
    * @param array $configuration
@@ -84,10 +92,11 @@ class ExportCsv extends ExoListActionBase {
    * @param \Drupal\exo_list_builder\ExoListManagerInterface $element_manager
    *   The element manager service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, RendererInterface $renderer, ExoListManagerInterface $element_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, RendererInterface $renderer, ExoListManagerInterface $element_manager, SharedTempStoreFactory $tempstore) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager);
     $this->renderer = $renderer;
     $this->elementManager = $element_manager;
+    $this->temp = $tempstore->get('exo_list_builder');
   }
 
   /**
@@ -100,7 +109,8 @@ class ExportCsv extends ExoListActionBase {
       $plugin_definition,
       $container->get('entity_type.manager'),
       $container->get('renderer'),
-      $container->get('plugin.manager.exo_list_element')
+      $container->get('plugin.manager.exo_list_element'),
+      $container->get('tempstore.shared')
     );
   }
 
@@ -110,26 +120,22 @@ class ExportCsv extends ExoListActionBase {
   public function executeStart(EntityListInterface $entity_list, array &$context) {
     parent::executeStart($entity_list, $context);
 
-    $file_path = $this->prepareCsvFile($entity_list, $context);
-    $handle = fopen($file_path, 'w');
+    $this->prepareCsvFile($entity_list, $context);
     // Add BOM to fix UTF-8 in Excel.
-    fwrite($handle, (chr(0xEF) . chr(0xBB) . chr(0xBF)));
     $headers = $this->getCsvHeader($entity_list, $context);
     if ($headers) {
-      // Write headers now.
-      fputcsv($handle, $headers, static::DELIMITER);
+      $data = [$headers];
+      $this->temp->set($context['results']['csv_file_uri'], $data);
     }
-    fclose($handle);
   }
 
   /**
    * {@inheritdoc}
    */
   public function execute($entity_id, EntityListInterface $entity_list, $selected, array &$context) {
-    $handle = fopen($context['results']['csv_file_path'], 'a');
-    $row = $this->getCsvRow($entity_id, $entity_list, $selected, $context);
-    fputcsv($handle, $row, static::DELIMITER);
-    fclose($handle);
+    $data = $this->temp->get($context['results']['csv_file_uri']) ?? [];
+    $data[] = $this->getCsvRow($entity_id, $entity_list, $selected, $context);
+    $this->temp->set($context['results']['csv_file_uri'], $data);
   }
 
   /**
@@ -137,6 +143,17 @@ class ExportCsv extends ExoListActionBase {
    */
   public function executeFinish(EntityListInterface $entity_list, array &$results) {
     parent::executeFinish($entity_list, $results);
+
+    // Store data as file.
+    $data = $this->temp->get($results['csv_file_uri']) ?? [];
+    $handle = fopen($results['csv_file_path'], 'a');
+    fwrite($handle, (chr(0xEF) . chr(0xBB) . chr(0xBF)));
+    // Write headers now.
+    foreach ($data as $row) {
+      fputcsv($handle, $row, static::DELIMITER);
+    }
+    fclose($handle);
+
     // Hide default message.
     $results['entity_list_hide_message'] = TRUE;
     if (PHP_SAPI !== 'cli' && isset($results['csv_file_uri']) && file_exists($results['csv_file_uri'])) {
