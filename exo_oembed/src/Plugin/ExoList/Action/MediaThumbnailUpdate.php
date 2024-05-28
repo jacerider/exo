@@ -26,6 +26,7 @@ class MediaThumbnailUpdate extends ExoListActionBase {
   public function execute($entity_id, EntityListInterface $entity_list, $selected, array &$context) {
     /** @var \Drupal\media\Entity\Media $entity */
     $entity = \Drupal::entityTypeManager()->getStorage($entity_list->getTargetEntityTypeId())->load($entity_id);
+    $entity->get('thumbnail')->entity->delete();
     $entity->updateQueuedThumbnail();
     $entity->save();
   }
