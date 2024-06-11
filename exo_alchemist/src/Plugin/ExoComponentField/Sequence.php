@@ -286,14 +286,20 @@ class Sequence extends EntityReferenceBase {
       $component = $this->getComponentDefinition();
       $default_values = ExoComponentValues::fromFieldDefaults($this->getFieldDefinition());
       $entities = [];
-      foreach ($default_entities as $delta => $default_entity) {
-        if ($item = $items->get($delta)) {
-          $entities[] = $item->entity;
-        }
-        else {
-          $entities[] = $this->exoComponentManager()->cloneEntity($component, $default_entity);
+      if ($component->isGlobal()) {
+        $entities = $default_entities;
+      }
+      else {
+        foreach ($default_entities as $delta => $default_entity) {
+          if ($item = $items->get($delta)) {
+            $entities[$delta] = $item->entity;
+          }
+          else {
+            $entities[$delta] = $this->exoComponentManager()->cloneEntity($component, $default_entity);
+          }
         }
       }
+      $entities = array_filter($entities);
       foreach ($entities as $delta => $entity) {
         $item_component = isset($default_values[$delta]) ? $this->getComponentDefinitionWithValue($default_values[$delta]) : $component;
         $item_component->addParentFieldDelta($this->getFieldDefinition(), $delta);
