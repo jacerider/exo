@@ -30,6 +30,8 @@ class ImageStyleDownloadController extends CoreImageStyleDownloadController {
    *   The file scheme, defaults to 'private'.
    * @param \Drupal\image\ImageStyleInterface $image_style
    *   The image style to deliver.
+   * @param string $required_derivative_scheme
+   *   The required derivative scheme.
    *
    * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Symfony\Component\HttpFoundation\Response
    *   The transferred file as response or some error response.
@@ -41,12 +43,12 @@ class ImageStyleDownloadController extends CoreImageStyleDownloadController {
    * @throws \Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException
    *   Thrown when the file is still being generated.
    */
-  public function deliver(Request $request, $scheme, ImageStyleInterface $image_style) {
+  public function deliver(Request $request, $scheme, ImageStyleInterface $image_style, string $required_derivative_scheme) {
     $original_target = $request->query->get('file');
 
     // Only act on .webp images.
     if (substr($original_target, -5) !== '.webp') {
-      return parent::deliver($request, $scheme, $image_style);
+      return parent::deliver($request, $scheme, $image_style, $required_derivative_scheme);
     }
 
     $original_uri = $scheme . '://' . $original_target;
