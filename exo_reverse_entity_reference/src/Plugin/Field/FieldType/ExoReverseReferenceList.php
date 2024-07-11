@@ -232,8 +232,7 @@ class ExoReverseReferenceList extends EntityReferenceFieldItemList {
             }
           }
         }
-        $result = $query->execute();
-
+        $result = $query->accessCheck(FALSE)->execute();
       }
       catch (QueryException $e) {
         $this->logger->error(
