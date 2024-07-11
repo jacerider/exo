@@ -46,7 +46,7 @@ function exo_media_tokens($type, $tokens, array $data, array $options, Bubbleabl
           $favicon = real_favicon_load_by_theme();
           if ($favicon) {
             foreach ($found_tokens as $key => $value) {
-              $replacements[$value] = file_create_url($favicon->getManifestLargeImage());
+              $replacements[$value] = \Drupal::service('file_url_generator')->generateAbsoluteString($favicon->getManifestLargeImage());
             }
           }
         }
