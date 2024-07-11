@@ -2,6 +2,7 @@
 
 namespace Drupal\exo_list_builder\Plugin;
 
+use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\exo_list_builder\EntityListInterface;
 
@@ -138,25 +139,27 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase implements ExoLi
    */
   protected function queryAlterByField($field_id, $query, $value, EntityListInterface $entity_list, array $field) {
     $match_operator = $this->getConfiguration()['match_operator'];
-    if (!empty($field['reference_field'])) {
-      // Support reference field.
-      $field_id = str_replace(':', '.entity.', $field['reference_field']) . '.entity.' . $field_id;
-    }
-    if ($match_operator === 'IS NULL EMPTY') {
-      $group = $query->orConditionGroup();
-      $group->condition($field_id, NULL, 'IS NULL');
-      $group->condition($field_id, '', '=');
-      $query->condition($group);
-    }
-    elseif ($match_operator === 'CONTAINS_ANY') {
-      $group = $query->orConditionGroup();
-      foreach (explode(' ', $value) as $part) {
-        $group->condition($field_id, $part, 'CONTAINS');
+    if ($query instanceof QueryInterface) {
+      if (!empty($field['reference_field'])) {
+        // Support reference field.
+        $field_id = str_replace(':', '.entity.', $field['reference_field']) . '.entity.' . $field_id;
       }
-      $query->condition($group);
-    }
-    else {
-      $query->condition($field_id, $value, $match_operator);
+      if ($match_operator === 'IS NULL EMPTY') {
+        $group = $query->orConditionGroup();
+        $group->condition($field_id, NULL, 'IS NULL');
+        $group->condition($field_id, '', '=');
+        $query->condition($group);
+      }
+      elseif ($match_operator === 'CONTAINS_ANY') {
+        $group = $query->orConditionGroup();
+        foreach (explode(' ', $value) as $part) {
+          $group->condition($field_id, $part, 'CONTAINS');
+        }
+        $query->condition($group);
+      }
+      else {
+        $query->condition($field_id, $value, $match_operator);
+      }
     }
   }
 
