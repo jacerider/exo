@@ -44,7 +44,7 @@ abstract class ExoListFilterStringBase extends ExoListFilterMatchBase {
 
     $options = [];
     foreach ($entity_list->getAvailableFields() as $field) {
-      if (in_array($field['type'], ['string', 'text_long'])) {
+      if (in_array($field['type'], ['string', 'text_long', 'string_long'])) {
         $options[$field['field_name']] = $field['label'];
       }
     }
