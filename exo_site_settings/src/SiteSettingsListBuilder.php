@@ -111,6 +111,7 @@ class SiteSettingsListBuilder extends EntityListBuilder {
     return $query
       ->sort('weight')
       ->pager($this->limit)
+      ->accessCheck(FALSE)
       ->execute();
   }
 
