@@ -206,7 +206,7 @@ class ExoToolbarItemForm extends EntityForm {
     // Get all the blocks which starts with the suggested machine name.
     $query = $this->storage->getQuery();
     $query->condition('id', $suggestion, 'CONTAINS');
-    $item_ids = $query->execute();
+    $item_ids = $query->accessCheck(FALSE)->execute();
 
     $item_ids = array_map(function ($item_id) {
       $parts = explode('.', $item_id);

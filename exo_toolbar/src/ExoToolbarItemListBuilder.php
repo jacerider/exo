@@ -131,7 +131,7 @@ class ExoToolbarItemListBuilder extends ConfigEntityListBuilder implements FormI
     if ($this->limit) {
       $query->pager($this->limit);
     }
-    return $query->execute();
+    return $query->accessCheck(FALSE)->execute();
   }
 
   /**
