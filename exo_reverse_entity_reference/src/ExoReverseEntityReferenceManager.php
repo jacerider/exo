@@ -42,6 +42,13 @@ class ExoReverseEntityReferenceManager {
   protected $definitionCache;
 
   /**
+   * Definitions.
+   *
+   * @var \Drupal\Core\Field\FieldDefinitionInterface[]
+   */
+  protected $definitions = [];
+
+  /**
    * Constructs a new ExoReverseEntityReferenceManager object.
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, FieldTypePluginManagerInterface $field_type_manager) {
