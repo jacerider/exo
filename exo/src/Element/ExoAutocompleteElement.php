@@ -8,14 +8,14 @@ use Drupal\Core\Entity\EntityReferenceSelection\SelectionInterface;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionWithAutocreateInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element\CompositeFormElementTrait;
-use Drupal\Core\Render\Element\FormElement;
+use Drupal\Core\Render\Element\FormElementBase;
 
 /**
  * Provides an Autocomplete Form API element.
  *
  * @FormElement("exo_autocomplete")
  */
-class ExoAutocompleteElement extends FormElement {
+class ExoAutocompleteElement extends FormElementBase {
 
   use CompositeFormElementTrait;
 
@@ -166,7 +166,7 @@ class ExoAutocompleteElement extends FormElement {
         'target_type' => $element['#target_type'],
         'handler' => $element['#selection_handler'],
       ];
-      /** @var /Drupal\Core\Entity\EntityReferenceSelection\SelectionInterface $handler */
+      /** @var \Drupal\Core\Entity\EntityReferenceSelection\SelectionInterface $handler */
       $handler = \Drupal::service('plugin.manager.entity_reference_selection')->getInstance($options);
       $autocreate = (bool) $element['#autocreate'] && $handler instanceof SelectionWithAutocreateInterface;
 
@@ -220,7 +220,10 @@ class ExoAutocompleteElement extends FormElement {
           $valid_ids = $handler->validateReferenceableEntities($ids);
           if ($invalid_ids = array_diff($ids, $valid_ids)) {
             foreach ($invalid_ids as $invalid_id) {
-              $form_state->setError($element, t('The referenced entity (%type: %id) does not exist.', ['%type' => $element['#target_type'], '%id' => $invalid_id]));
+              $form_state->setError($element, t('The referenced entity (%type: %id) does not exist.', [
+                '%type' => $element['#target_type'],
+                '%id' => $invalid_id,
+              ]));
             }
           }
         }
@@ -246,7 +249,10 @@ class ExoAutocompleteElement extends FormElement {
 
           foreach ($invalid_new_entities as $entity) {
             /** @var \Drupal\Core\Entity\EntityInterface $entity */
-            $form_state->setError($element, t('This entity (%type: %label) cannot be referenced.', ['%type' => $element['#target_type'], '%label' => $entity->label()]));
+            $form_state->setError($element, t('This entity (%type: %label) cannot be referenced.', [
+              '%type' => $element['#target_type'],
+              '%label' => $entity->label(),
+            ]));
           }
         }
       }
@@ -284,7 +290,7 @@ class ExoAutocompleteElement extends FormElement {
    *   Value of a matching entity ID, or NULL if none.
    */
   protected static function matchEntityByTitle(SelectionInterface $handler, $input, array &$element, FormStateInterface $form_state, $strict) {
-    $entities_by_bundle = $handler->getReferenceableEntities($input, '=', 6);
+    $entities_by_bundle = $handler->getReferenceableEntities(trim($input), '=', 6);
     $entities = array_reduce($entities_by_bundle, function ($flattened, $bundle_entities) {
       return $flattened + $bundle_entities;
     }, []);
