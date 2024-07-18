@@ -254,6 +254,7 @@ class ExoFieldUpdateForm extends FormBase {
         '#type' => 'submit',
         '#value' => $this->t('Refresh'),
         '#id' => 'exo-alchemist-appearance-refresh',
+        '#op' => 'refresh',
         '#attributes' => [
           'class' => ['hidden'],
         ],
@@ -355,7 +356,9 @@ class ExoFieldUpdateForm extends FormBase {
     $op = $trigger['#op'] ?? 'submit';
     $definition = $this->exoComponentManager->getEntityComponentDefinition($this->entity);
 
-    $this->submitTargetForm($form, $form_state);
+    if ($op === 'submit') {
+      $this->submitTargetForm($form, $form_state);
+    }
 
     if ($modifier_values = $form_state->getValue('modifiers')) {
       if ($op == 'reset') {
