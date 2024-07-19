@@ -426,6 +426,7 @@ class ExoOEmbedModal extends ExoModalFieldFormatterBase {
       $resolution = explode(':', $this->getSetting('resolution'));
       $ratio = $resolution[0] / $resolution[1];
       $modal->setSetting(['modal', 'iframe'], TRUE);
+      $modal->setSetting(['modal', 'width'], '95%');
       $modal->setSetting(['modal', 'iframeURL'], $element[0]['#attributes']['src']);
       $modal->setSetting(['modal', 'iframeWidth'], '800px');
       $modal->setSetting(['modal', 'iframeHeight'], 800 * $ratio . 'px');
