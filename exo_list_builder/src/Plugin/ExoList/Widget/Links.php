@@ -30,6 +30,7 @@ class Links extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
       'group' => NULL,
       'total' => FALSE,
       'limit' => 50,
+      'reset' => TRUE,
     ] + parent::defaultConfiguration();
   }
 
@@ -39,6 +40,12 @@ class Links extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
   public function buildConfigurationForm(array $form, FormStateInterface $form_state, EntityListInterface $entity_list, ExoListFilterInterface $filter, array $field) {
     $form = parent::buildConfigurationForm($form, $form_state, $entity_list, $filter, $field);
     $configuration = $this->getConfiguration();
+    $form['reset'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Reset other filters'),
+      '#description' => $this->t('When a link is clicked, unset all other filter values.'),
+      '#default_value' => $configuration['reset'],
+    ];
     $form['total'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Show total in link'),
@@ -133,6 +140,9 @@ class Links extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
       ] : [];
       if (!$is_current && $value_total && $value_total === $total) {
         continue;
+      }
+      if (empty($configuration['reset'])) {
+        $filters += $entity_list->getHandler()->getOption('filter') ?? [];
       }
       $items[] = [
         '#type' => 'link',
