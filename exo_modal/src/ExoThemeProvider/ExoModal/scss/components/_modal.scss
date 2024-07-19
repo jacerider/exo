@@ -20,6 +20,10 @@
   flex-direction: column;
   pointer-events: auto;
 
+  &.exo-form {
+    margin-bottom: auto;
+  }
+
   &.isAttachedTop {
     .exo-modal-header {
       border-top-left-radius: 0;
