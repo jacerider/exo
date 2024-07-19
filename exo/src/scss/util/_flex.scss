@@ -26,7 +26,10 @@ $-exo-flex-direction: (
 
 /// Enables flexbox by adding `display: flex` to the element.
 @mixin flex {
-  display: flex;
+
+  & {
+    display: flex;
+  }
 }
 
 /// Horizontally or vertically aligns the items within a flex container.
@@ -51,8 +54,10 @@ $-exo-flex-direction: (
     }
   }
 
-  justify-content: $x;
-  align-items: $y;
+  & {
+    justify-content: $x;
+    align-items: $y;
+  }
 }
 
 /// Vertically align a single column within a flex row. Apply this mixin to a flex column.
@@ -68,7 +73,9 @@ $-exo-flex-direction: (
     }
   }
 
-  align-self: $y;
+  & {
+    align-self: $y;
+  }
 }
 
 /// Changes the source order of a flex child. Children with lower numbers appear first in the layout.
@@ -86,7 +93,10 @@ $-exo-flex-direction: (
 /// @param {Keyword} $medium-direction [$direction] - Flex direction to use for medium. Defaults to $direction but can be `row`, `row-reverse`, `column`, or `column-reverse`.
 /// @param {Keyword} $large-direction [$medium-direction] - Flex direction to use for large. Defaults to $medium-direction but can be `row`, `row-reverse`, `column`, or `column-reverse`.
 @mixin exo-flex-direction($direction: row, $medium-direction: $direction, $large-direction: $medium-direction) {
-  flex-direction: $direction;
+
+  & {
+    flex-direction: $direction;
+  }
 
   @if ($medium-direction != $direction) {
 
@@ -102,4 +112,3 @@ $-exo-flex-direction: (
     }
   }
 }
-
