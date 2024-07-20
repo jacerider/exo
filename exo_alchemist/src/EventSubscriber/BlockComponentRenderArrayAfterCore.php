@@ -96,6 +96,16 @@ class BlockComponentRenderArrayAfterCore implements EventSubscriberInterface {
 
         $event->addCacheableDependency($access);
         if ($access->isAllowed()) {
+          // Backward support for layout builder.
+          if (isset($contexts['layout_builder.entity'])) {
+            $layout_entity = $contexts['layout_builder.entity']->getContextValue();
+            if ($layout_entity) {
+              $contexts['entity'] = EntityContext::fromEntity($layout_entity);
+            }
+          }
+          else {
+            $contexts['layout_builder.entity'] = $contexts['entity'];
+          }
           $contexts['component_entity'] = EntityContext::fromEntity($entity);
           $contexts['component_id'] = new Context(new ContextDefinition('string'), $entity->id() ?? $entity->uuid());
           $contexts['cacheable_metadata'] = new Context(new ContextDefinition('any'), new ExoCacheableContext());
