@@ -208,7 +208,15 @@ class EntityDisplay extends ExoComponentFieldComputedBase implements ContextAwar
       }
     }
     elseif ($entity && ($entity->getEntityTypeId() !== $entity_type_id || $entity->bundle() !== $bundle)) {
-      return NULL;
+      if (isset($contexts['layout_builder.entity'])) {
+        $entity = $contexts['layout_builder.entity']->getContextValue();
+        if ($entity && ($entity->getEntityTypeId() !== $entity_type_id || $entity->bundle() !== $bundle)) {
+          return NULL;
+        }
+      }
+      else {
+        return NULL;
+      }
     }
     return $entity;
   }

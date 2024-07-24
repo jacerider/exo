@@ -419,7 +419,7 @@ class ExoLayoutBuilder extends LayoutBuilder {
       $data['ops'] = [];
     }
     else {
-      $ops_allow = array_flip((array) $build['#exo_component_ops']);
+      $ops_allow = !empty($build['#exo_component_ops']) ? array_flip((array) $build['#exo_component_ops']) : [];
       $filters_allow = FALSE;
       $filters_count = 0;
       $hide_count = 0;
