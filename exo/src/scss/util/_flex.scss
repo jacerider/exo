@@ -81,7 +81,9 @@ $-exo-flex-direction: (
 /// Changes the source order of a flex child. Children with lower numbers appear first in the layout.
 /// @param {Number} $order [0] - Order number to apply.
 @mixin flex-order($order: 0) {
-  order: $order;
+  & {
+    order: $order;
+  }
 }
 
 /// Change flex-direction
@@ -101,14 +103,18 @@ $-exo-flex-direction: (
   @if ($medium-direction != $direction) {
 
     @include breakpoint(medium) {
-      flex-direction: $medium-direction;
+      & {
+        flex-direction: $medium-direction;
+      }
     }
   }
 
   @if ($large-direction != $medium-direction) {
 
     @include breakpoint(large) {
-      flex-direction: $large-direction;
+      & {
+        flex-direction: $large-direction;
+      }
     }
   }
 }
