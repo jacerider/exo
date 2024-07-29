@@ -3,6 +3,7 @@
 namespace Drupal\exo_list_builder\Plugin\ExoList\Widget;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Markup;
 use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\exo_list_builder\EntityListInterface;
 use Drupal\exo_list_builder\Plugin\ExoListFieldPropertyInterface;
@@ -111,8 +112,11 @@ class Links extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
       $items = $this->buildLinks($entity_list, $filter, $field, array_keys($options), $current, $multiple, $total);
     }
     $element = [
-      '#theme' => 'item_list',
+      '#type' => 'item',
       '#title' => $element['#title'],
+    ];
+    $element[] = [
+      '#theme' => 'item_list',
       '#items' => $items,
       '#access' => !empty($items),
       '#prefix' => '<div class="exo-form-element exo-form-element-type-links">',
