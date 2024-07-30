@@ -119,7 +119,7 @@ class Media extends MediaBase implements ContainerFactoryPluginInterface {
     $component_field_manager = \Drupal::service('plugin.manager.exo_component_field');
     foreach (\Drupal::entityTypeManager()->getStorage('media_type')->loadMultiple($this->getEntityTypeBundles()) as $bundle => $media_type) {
       $component_field_id = 'media_' . $bundle;
-      if ($component_field = $component_field_manager->loadInstance($component_field_id, FALSE)) {
+      if ($component_field = $component_field_manager->createInstance($component_field_id, $this->configuration)) {
         $properties += array_map(function ($description) use ($media_type) {
           return $media_type->label() . ': ' . $description;
         }, $component_field->propertyInfo());
@@ -134,7 +134,7 @@ class Media extends MediaBase implements ContainerFactoryPluginInterface {
   protected function getValueEntity(ExoComponentValue $value, FieldItemInterface $item = NULL) {
     $entity = NULL;
     $component_field_id = 'media_' . $value->get('bundle');
-    if ($component_field = $this->exoComponentFieldManager->loadInstance($component_field_id)) {
+    if ($component_field = $this->exoComponentFieldManager->createInstance($component_field_id, $this->configuration)) {
       /** @var \Drupal\exo_alchemist\Plugin\ExoComponentField\MediaBase $component_field */
       $entity = $component_field->getValueEntity($value, $item);
     }
