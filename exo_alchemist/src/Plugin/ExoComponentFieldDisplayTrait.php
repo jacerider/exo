@@ -178,6 +178,7 @@ trait ExoComponentFieldDisplayTrait {
         'id' => $id,
         'label' => $this->getFieldDefinition()->getComponent()->getLabel() . ': ' . $this->getFieldDefinition()->getLabel(),
         'targetEntityType' => $entity_type_id,
+        'status' => FALSE,
       ]);
     }
     return $display;

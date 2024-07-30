@@ -976,3 +976,16 @@ function exo_alchemist_preprocess_taxonomy_term(&$variables) {
     unset($variables['name']);
   }
 }
+
+/**
+ * Implements hook_local_tasks_alter().
+ */
+function exo_alchemist_local_tasks_alter(&$local_tasks) {
+  foreach ($local_tasks as $key => $local_task) {
+    // Dynamic exo displays should not show in the standard UI.
+    $i = 'field_ui.fields:field_display_exo_field_';
+    if (substr($key, 0, strlen($i)) === $i) {
+      unset($local_tasks[$key]);
+    }
+  }
+}

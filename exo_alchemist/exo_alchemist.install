@@ -84,115 +84,38 @@ function exo_alchemist_update_8005() {
   }
   /** @var \Drupal\exo_alchemist\ExoComponentManager $exo_component_manager */
   $exo_component_manager = \Drupal::service('plugin.manager.exo_component');
-  // $exo_component_field_manager = $exo_component_manager->getExoComponentFieldManager();
-  // $entity_type_id = ExoComponentManager::ENTITY_TYPE;
-  // $entity_type_manager = \Drupal::entityTypeManager();
-  // $database = \Drupal::database();
   foreach ($exo_component_manager->getInstalledDefinitions() as $definition) {
     exo_alchemist_reference_to_revision($definition);
-    // $form_display = $exo_component_manager->getEntityTypeFormDisplay($definition);
-    // /** @var \Drupal\exo_alchemist\Definition\ExoComponentDefinition $definition */
-    // $fields = $definition->getFields();
-    // foreach ($fields as $field) {
-    //   $component_field = $exo_component_field_manager->createFieldInstance($field);
-    //   if ($component_field instanceof ExoComponentFieldFieldableInterface) {
-    //     $storage_config = $component_field->getStorageConfig();
-    //     if ($storage_config['type'] === 'entity_reference_revisions') {
-    //       $field_name = $field->getFieldName();
-    //       $field_storage = FieldStorageConfig::loadByName($entity_type_id, $field_name);
-    //       if (!$field_storage) {
-    //         continue;
-    //       }
-    //       if ($field_storage->getType() !== 'entity_reference') {
-    //         continue;
-    //       }
-    //       $target_type = $field_storage->toArray()['settings']['target_type'];
-    //       if (!$entity_types[$target_type]->isRevisionable()) {
-    //         continue;
-    //       }
+  }
+}
 
-    //       /** @var \Drupal\Core\Entity\Sql\SqlContentEntityStorage $storage */
-    //       $storage = $entity_type_manager->getStorage($target_type);
-
-    //       /** @var \Drupal\Core\Entity\Sql\DefaultTableMapping $table_mapping */
-    //       $table_mapping = $storage->getTableMapping();
-    //       $tables = [
-    //         $table_mapping->getDedicatedDataTableName($field_storage),
-    //         $table_mapping->getDedicatedRevisionTableName($field_storage),
-    //       ];
-
-    //       $table_rows = [];
-    //       foreach ($tables as $table) {
-    //         if ($database->schema()->tableExists($table)) {
-    //           // The table data to restore after the update is completed.
-    //           $table_rows[$table] = $database->select($table, 'n')
-    //             ->fields('n')
-    //             ->execute()
-    //             ->fetchAll();
-    //         }
-    //         foreach ($table_rows[$table] as $delta => $row) {
-    //           $entity = $storage->load($row->{$field_name . '_target_id'});
-    //           if ($entity instanceof RevisionableInterface) {
-    //             $row->{$field_name . '_target_revision_id'} = $entity->getRevisionId();
-    //           }
-    //           else {
-    //             unset($table_rows[$table][$delta]);
-    //           }
-    //         }
-    //       }
-
-    //       $new_fields = [];
-
-    //       // Use existing field config for new field.
-    //       foreach ($field_storage->getBundles() as $bundle => $label) {
-    //         $field = FieldConfig::loadByName($entity_type_id, $bundle, $field_name);
-    //         $new_field = $field->toArray();
-    //         $new_field['field_type'] = 'entity_reference_revisions';
-    //         $new_fields[] = $new_field;
-    //       }
-
-    //       $new_field_storage = $field_storage->toArray();
-    //       $new_field_storage['type'] = 'entity_reference_revisions';
-
-    //       // Delete existing.
-    //       $field_storage->delete();
-    //       field_purge_batch(10);
-
-    //       // Create new field storage.
-    //       $new_field_storage = FieldStorageConfig::create($new_field_storage);
-    //       $new_field_storage->save();
-
-    //       // Create new fields.
-    //       foreach ($new_fields as $new_field) {
-    //         $new_field = FieldConfig::create($new_field);
-    //         $new_field->save();
-    //       }
-
-    //       // Restore existing data in the same table.
-    //       if (!is_null($table_rows)) {
-    //         foreach ($table_rows as $table => $rows) {
-    //           foreach ($rows as $row) {
-    //             $database->insert($table)
-    //               ->fields((array) $row)
-    //               ->execute();
-    //           }
-    //         }
-
-    //         if ($config = $component_field->getWidgetConfig()) {
-    //           $weight = array_search($field->getName(), array_keys($fields));
-    //           $form_display->setComponent($field_name, $config + [
-    //             'weight' => $weight,
-    //           ]);
-    //           $form_display->save();
-    //         }
-
-    //         $entity_type_manager->clearCachedDefinitions();
-    //         $entity_type = $entity_type_manager->getDefinition($target_type);
-    //         \Drupal::entityDefinitionUpdateManager()->installEntityType($entity_type);
-    //       }
-    //     }
-    //   }
-    // }
+/**
+ * Remove incorrectly created eXo Alchemist view displays.
+ */
+function exo_alchemist_update_8006() {
+  /** @var \Drupal\Core\Entity\EntityViewModeInterface[] $modes */
+  $modes = \Drupal::entityTypeManager()->getStorage('entity_view_mode')->loadMultiple();
+  foreach ($modes as $mode) {
+    if (substr($mode->id(), strlen($mode->getTargetType()) + 1, 10) === 'exo_field_') {
+      if ($mode->get('status')) {
+        $mode->set('status', FALSE);
+        $mode->save();
+      }
+      /** @var \Drupal\exo_alchemist\Entity\ExoLayoutBuilderEntityViewDisplay[] $displays */
+      $displays = \Drupal::entityTypeManager()->getStorage('entity_view_display')->loadByProperties([
+        'targetEntityType' => $mode->getTargetType(),
+        'mode' => substr($mode->id(), strlen($mode->getTargetType()) + 1),
+      ]);
+      if (count($displays) > 1) {
+        foreach ($displays as $display) {
+          $mode_parts = explode(': ', $mode->label());
+          $display_parts = explode(' content ', $display->label());
+          if ($mode_parts[0] !== $display_parts[0]) {
+            $display->delete();
+          }
+        }
+      }
+    }
   }
 }
 
