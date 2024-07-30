@@ -45,7 +45,7 @@ class ExoVideoBase extends ExoData implements ExoVideoProviderInterface {
   }
 
   protected make() {
-    this.$video = jQuery('<div id="' + this.getId() + '-video" class="exo-video-bg" style="transform: translate(-100vw, 0);"></div>').appendTo(this.$videoWrapper).css({
+    this.$video = jQuery('<div id="' + this.getId() + '-video" class="exo-video-bg" style="transform: translate(-200vw, 0);"></div>').appendTo(this.$videoWrapper).css({
       position: this.get('sizing') === 'cover' ? 'absolute' : 'relative',
     });
 
