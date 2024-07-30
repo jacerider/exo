@@ -68,9 +68,12 @@ class Media extends MediaBase implements ContainerFactoryPluginInterface {
     $defaults = [];
     foreach ($field->getDefaults() as $delta => $default) {
       $component_field_id = 'media_' . $default->getValue('bundle');
-      if ($component_field = $this->exoComponentFieldManager->loadInstance($component_field_id)) {
+      if ($component_field = $this->exoComponentFieldManager->createInstance($component_field_id, $this->configuration)) {
         $temp_field = clone $field;
+        $temp_field->setType($component_field_id);
         $temp_field->setDefaults([$default->toArray()]);
+        $temp_field->setAdditionalValue('bundles', [$default->getValue('bundle')]);
+        $temp_field->setAdditionalValue('entity_type', 'media');
         $component_field->processDefinition($temp_field);
         $defaults[] = $temp_field->getDefaults()[0]->toArray();
       }
@@ -84,7 +87,7 @@ class Media extends MediaBase implements ContainerFactoryPluginInterface {
   public function validateValue(ExoComponentValue $value) {
     parent::validateValue($value);
     $component_field_id = 'media_' . $value->get('bundle');
-    if ($component_field = $this->exoComponentFieldManager->loadInstance($component_field_id)) {
+    if ($component_field = $this->exoComponentFieldManager->createInstance($component_field_id, $this->configuration)) {
       /** @var \Drupal\exo_alchemist\Plugin\ExoComponentField\MediaBase $component_field */
       $component_field->validateValue($value);
     }
@@ -97,7 +100,7 @@ class Media extends MediaBase implements ContainerFactoryPluginInterface {
     $output = [];
     if ($item->entity) {
       $component_field_id = 'media_' . $item->entity->bundle();
-      if ($component_field = $this->exoComponentFieldManager->loadInstance($component_field_id)) {
+      if ($component_field = $this->exoComponentFieldManager->createInstance($component_field_id, $this->configuration)) {
         /** @var \Drupal\exo_alchemist\Plugin\ExoComponentField\MediaBase $component_field */
         $media = $item->entity;
         $output = $component_field->viewValue($item, 0, $contexts) + ['bundle' => $media->bundle()];
