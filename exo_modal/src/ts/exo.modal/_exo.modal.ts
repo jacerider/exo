@@ -1090,6 +1090,10 @@ class ExoModal extends ExoData {
       this.$overlay.addClass(transitionInOverlay);
     }
 
+    if (this.get('class') !== '') {
+      this.$overlay.addClass(this.get('class') + '-overlay');
+    }
+
     // Bind behaviors. When using exoModalInsert ajax this has not yet happened.
     // Drupal.attachBehaviors(this.$element.get(0), drupalSettings);
     if (transitionIn !== '' && Drupal.Exo.animationEvent !== undefined) {
@@ -1155,6 +1159,11 @@ class ExoModal extends ExoData {
     this.event('opened').trigger(this);
     this.callCallback('onOpened');
     this.$element.addClass('isOpen');
+
+    const $trigger = this.getTriggerElement();
+    if ($trigger) {
+      $trigger.addClass('exo-modal-opened');
+    }
 
     Drupal.Exo.$document.on('keydown.' + this.name, e => {
       switch (e.which) {
@@ -1299,6 +1308,9 @@ class ExoModal extends ExoData {
         if (transitionOutOverlay) {
           this.$overlay.attr('class', this.name + '-overlay ' + transitionOutOverlay);
         }
+        if (this.get('class') !== '') {
+          this.$overlay.addClass(this.get('class') + '-overlay');
+        }
         if (this.get('navigateArrows') !== false && !Drupal.Exo.isMobile()) {
           this.$navigate.attr('class', this.name + '-navigate fadeOut');
         }
@@ -1338,6 +1350,11 @@ class ExoModal extends ExoData {
     this.event('closed').trigger(this);
     this.callCallback('onClosed');
     this.$element.removeClass('isOpen');
+
+    const $trigger = this.getTriggerElement();
+    if ($trigger) {
+      $trigger.removeClass('exo-modal-opened');
+    }
 
     if (this.get('restoreDefaultContent') === true) {
       this.$content.html(this.content);
