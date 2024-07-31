@@ -103,6 +103,9 @@ class MediaRemoteVideo extends MediaBase {
       $field = $this->getFieldDefinition();
       $source_field_definition = $media->getSource()->getSourceFieldDefinition($media->bundle->entity);
       $url = $media->{$source_field_definition->getName()}->value;
+      if (!$url) {
+        return NULL;
+      }
       /** @var \Drupal\media\OEmbed\UrlResolverInterface $url_resolver */
       $url_resolver = \Drupal::service('media.oembed.url_resolver');
       $resource_url = $url_resolver->getResourceUrl($url);
