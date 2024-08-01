@@ -2,6 +2,7 @@
 
 namespace Drupal\exo_list_builder\Plugin;
 
+use Drupal\Core\Entity\Query\ConditionInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\exo_list_builder\EntityListInterface;
@@ -139,7 +140,7 @@ abstract class ExoListFilterMatchBase extends ExoListFilterBase implements ExoLi
    */
   protected function queryAlterByField($field_id, $query, $value, EntityListInterface $entity_list, array $field) {
     $match_operator = $this->getConfiguration()['match_operator'];
-    if ($query instanceof QueryInterface) {
+    if ($query instanceof QueryInterface || $query instanceof ConditionInterface) {
       if (!empty($field['reference_field'])) {
         // Support reference field.
         $field_id = str_replace(':', '.entity.', $field['reference_field']) . '.entity.' . $field_id;

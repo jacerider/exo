@@ -89,7 +89,6 @@ abstract class ExoListFilterStringBase extends ExoListFilterMatchBase {
       foreach ($configuration['additional_fields'] as $additional_property) {
         $this->queryAlterByField($additional_property, $subquery, $value, $entity_list, $field);
       }
-      $this->queryAlterByField($field_id, $subquery, $value, $entity_list, $field);
       $query->condition($subquery);
       return;
     }
