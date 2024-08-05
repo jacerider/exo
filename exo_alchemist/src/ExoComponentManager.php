@@ -1495,11 +1495,7 @@ class ExoComponentManager extends DefaultPluginManager implements ContextAwarePl
    *   The component entity.
    */
   public function entityLoadByRevisionId($revision_id) {
-    $storage = $this->entityTypeManager->getStorage(self::ENTITY_TYPE);
-    if ($storage instanceof RevisionableStorageInterface) {
-      $revision_id = $storage->loadRevision($revision_id);
-    }
-    return NULL;
+    return $this->entityTypeManager->getStorage(self::ENTITY_TYPE)->loadRevision($revision_id);
   }
 
   /**
