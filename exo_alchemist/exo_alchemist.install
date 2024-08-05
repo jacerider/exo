@@ -101,20 +101,6 @@ function exo_alchemist_update_8006() {
         $mode->set('status', FALSE);
         $mode->save();
       }
-      /** @var \Drupal\exo_alchemist\Entity\ExoLayoutBuilderEntityViewDisplay[] $displays */
-      $displays = \Drupal::entityTypeManager()->getStorage('entity_view_display')->loadByProperties([
-        'targetEntityType' => $mode->getTargetType(),
-        'mode' => substr($mode->id(), strlen($mode->getTargetType()) + 1),
-      ]);
-      if (count($displays) > 1) {
-        foreach ($displays as $display) {
-          $mode_parts = explode(': ', $mode->label());
-          $display_parts = explode(' content ', $display->label());
-          if ($mode_parts[0] !== $display_parts[0]) {
-            $display->delete();
-          }
-        }
-      }
     }
   }
 }
