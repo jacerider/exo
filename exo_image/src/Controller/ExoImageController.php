@@ -2,6 +2,7 @@
 
 namespace Drupal\exo_image\Controller;
 
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\file\Entity\File;
 use Drupal\image\Controller\ImageStyleDownloadController;
 use Symfony\Component\HttpFoundation\Request;
@@ -9,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Drupal\exo_image\ExoImageStyleManagerInterface;
 use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Lock\LockBackendInterface;
+use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\image\ImageStyleInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -40,11 +42,15 @@ class ExoImageController extends ImageStyleDownloadController {
    *   The lock backend.
    * @param \Drupal\Core\Image\ImageFactory $image_factory
    *   The image factory.
+   * @param \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface $stream_wrapper_manager
+   *   The stream wrapper manager.
+   * @param \Drupal\Core\File\FileSystemInterface $file_system
+   *   The system service.
    * @param \Drupal\exo_image\ExoImageStyleManagerInterface $exo_image_style_manager
    *   The exo image style manager.
    */
-  public function __construct(LockBackendInterface $lock, ImageFactory $image_factory, ExoImageStyleManagerInterface $exo_image_style_manager) {
-    parent::__construct($lock, $image_factory);
+  public function __construct(LockBackendInterface $lock, ImageFactory $image_factory, StreamWrapperManagerInterface $stream_wrapper_manager, FileSystemInterface $file_system, ExoImageStyleManagerInterface $exo_image_style_manager) {
+    parent::__construct($lock, $image_factory, $stream_wrapper_manager, $file_system);
     $this->exoImageStyleManager = $exo_image_style_manager;
   }
 
@@ -55,6 +61,8 @@ class ExoImageController extends ImageStyleDownloadController {
     return new static(
       $container->get('lock'),
       $container->get('image.factory'),
+      $container->get('stream_wrapper_manager'),
+      $container->get('file_system'),
       $container->get('exo_image.style.manager')
     );
   }
@@ -70,6 +78,8 @@ class ExoImageController extends ImageStyleDownloadController {
    *   The file scheme, defaults to 'private'.
    * @param \Drupal\image\ImageStyleInterface $image_style
    *   The image style to deliver.
+   * @param string $required_derivative_scheme
+   *   The required scheme for the derivative image.
    *
    * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Symfony\Component\HttpFoundation\Response
    *   The transferred file as response or some error response.
@@ -81,8 +91,8 @@ class ExoImageController extends ImageStyleDownloadController {
    * @throws \Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException
    *   Thrown when the file is still being generated.
    */
-  public function deliver(Request $request, $scheme, ImageStyleInterface $image_style) {
-    $response = parent::deliver($request, $scheme, $image_style);
+  public function deliver(Request $request, $scheme, ImageStyleInterface $image_style, string $required_derivative_scheme = NULL) {
+    $response = parent::deliver($request, $scheme, $image_style, $required_derivative_scheme);
     if ($response->getStatusCode() === 200) {
       $file = $response->getFile();
       $uri = $file->getPath() . '/' . $file->getBasename();
