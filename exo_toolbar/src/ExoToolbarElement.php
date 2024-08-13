@@ -172,6 +172,13 @@ class ExoToolbarElement implements ExoToolbarElementInterface {
   protected $subElementTheme = 'exo_toolbar_list';
 
   /**
+   * The element tooltip.
+   *
+   * @var array
+   */
+  protected $tip;
+
+  /**
    * Constructs a new ExoToolbarElement object.
    *
    * @param array $values

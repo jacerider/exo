@@ -29,6 +29,13 @@ class View extends ExoToolbarBadgeTypeBase implements ContainerFactoryPluginInte
   protected $viewStorage;
 
   /**
+   * The view.
+   *
+   * @var \Drupal\views\ViewExecutable|null
+   */
+  protected $view;
+
+  /**
    * Adds a LocalTasksEscort instance.
    *
    * @param array $configuration
