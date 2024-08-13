@@ -106,6 +106,25 @@ function exo_alchemist_update_8006() {
 }
 
 /**
+ * Make sure all alchemist_data fields have at least an empty array.
+ */
+function exo_alchemist_update_8007() {
+  $storage = \Drupal::entityTypeManager()->getStorage(ExoComponentManager::ENTITY_TYPE);
+  $ids = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('alchemist_data', '', 'IS NULL')
+    ->execute();
+  if ($ids) {
+    /** @var \Drupal\Core\Entity\ContentEntityInterface[] $entities */
+    $entities = $storage->loadMultiple($ids);
+    foreach ($entities as $entity) {
+      $entity->set('alchemist_data', []);
+      $entity->save();
+    }
+  }
+}
+
+/**
  * Convert field from entity_reference to entity_reference_revision.
  */
 function exo_alchemist_reference_to_revision(ExoComponentDefinition $definition) {
