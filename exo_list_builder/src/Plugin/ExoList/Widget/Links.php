@@ -3,6 +3,7 @@
 namespace Drupal\exo_list_builder\Plugin\ExoList\Widget;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\OptGroup;
 use Drupal\Core\Render\Markup;
 use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\exo_list_builder\EntityListInterface;
@@ -84,6 +85,7 @@ class Links extends ExoListWidgetBase implements ExoListWidgetValuesInterface {
   public function alterElement(array &$element, EntityListInterface $entity_list, ExoListFilterInterface $filter, array $field) {
     $configuration = $this->getConfiguration();
     $options = $filter->getFilteredValueOptions($entity_list, $field);
+    $options = OptGroup::flattenOptions($options);
     $multiple = !empty($field['filter']['settings']['multiple']);
     $current = $entity_list->getHandler()->getOption(['filter', $field['id']]) ?? [];
     $total = $entity_list->getHandler()->getTotal();

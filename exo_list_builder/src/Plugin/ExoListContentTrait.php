@@ -267,6 +267,16 @@ trait ExoListContentTrait {
                   $cacheable_metadata->addCacheTags([$entity->getEntityTypeId() . '_list:' . $entity->bundle()]);
                 }
                 $cacheable_metadata->addCacheableDependency($entity);
+                if ($entity instanceof TermInterface) {
+                  // Support for single-level term parents.
+                  /** @var \Drupal\taxonomy\TermInterface[] $parents */
+                  $parents = $this->entityTypeManager()->getStorage('taxonomy_term')->loadParents($entity->id());
+                  if (count($parents) === 1) {
+                    $parent = reset($parents);
+                    $values[$parent->label()][$entity->id()] = '- ' . $entity->label();
+                    continue;
+                  }
+                }
                 $values[$entity->id()] = $entity->label();
               }
             }

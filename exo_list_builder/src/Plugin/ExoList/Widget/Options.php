@@ -3,6 +3,7 @@
 namespace Drupal\exo_list_builder\Plugin\ExoList\Widget;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\OptGroup;
 use Drupal\exo_list_builder\EntityListInterface;
 use Drupal\exo_list_builder\Plugin\ExoListFilterInterface;
 use Drupal\exo_list_builder\Plugin\ExoListWidgetBase;
@@ -48,6 +49,7 @@ class Options extends ExoListWidgetBase implements ExoListWidgetValuesInterface 
    */
   public function alterElement(array &$element, EntityListInterface $entity_list, ExoListFilterInterface $filter, array $field) {
     $options = $filter->getFilteredValueOptions($entity_list, $field);
+    $options = OptGroup::flattenOptions($options);
     $element['#type'] = 'radios';
     $element['#title'] = $filter->getConfiguration()['label'];
     $element['#options'] = $options;
