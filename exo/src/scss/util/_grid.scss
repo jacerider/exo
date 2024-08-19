@@ -104,7 +104,10 @@ $exo-block-grid-max: 8 !default;
 
       // Loop through each gutter position
       @each $value in $gutter-position {
-        #{$gutter-type}-#{$value}: unquote('#{$operator}#{$gutter}');
+
+        & {
+          #{$gutter-type}-#{$value}: unquote('#{$operator}#{$gutter}');
+        }
       }
     }
   }
@@ -113,7 +116,10 @@ $exo-block-grid-max: 8 !default;
 
     // Loop through each gutter position
     @each $value in $gutter-position {
-      #{$gutter-type}-#{$value}: unquote("#{$operator}#{$gutter}");
+
+      & {
+        #{$gutter-type}-#{$value}: unquote("#{$operator}#{$gutter}");
+      }
     }
   }
 }
@@ -132,8 +138,10 @@ $exo-block-grid-max: 8 !default;
 ) {
   @include exo-gutters-set($gutters: $padding, $gutter-type: padding);
 
-  max-width: $width;
-  margin: 0 auto;
+  & {
+    max-width: $width;
+    margin: 0 auto;
+  }
 }
 
 /////////////////////
@@ -149,7 +157,9 @@ $exo-block-grid-max: 8 !default;
 ) {
   @include exo-gutters-set($gutters: $padding, $gutter-type: margin, $gutter-position: left right, $negative: true);
 
-  max-width: $width;
+  & {
+    max-width: $width;
+  }
 }
 
 /// Creates a container for your flex cells.
