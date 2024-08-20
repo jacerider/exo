@@ -567,11 +567,11 @@ class Exo {
   }
 
   public lockOverflow($element?:HTMLElement|JQuery, options?) {
-    if ($element) {
+    if ($element && bodyScrollLock) {
       if ($element instanceof HTMLElement) {
         $element = $($element);
       }
-      bodyScrollLock.disableBodyScroll($element.get(0), options);
+      bodyScrollLock.lock($element.get(0), options);
     }
     else {
       $('body').css('top', -(document.documentElement.scrollTop) + 'px');
@@ -580,11 +580,11 @@ class Exo {
   }
 
   public unlockOverflow($element?:HTMLElement|JQuery) {
-    if ($element) {
+    if ($element && bodyScrollLock) {
       if ($element instanceof HTMLElement) {
         $element = $($element);
       }
-      bodyScrollLock.enableBodyScroll($element.get(0));
+      bodyScrollLock.unlock($element.get(0));
     }
     else {
       const scrollTop = parseInt($('body').css('top')) * -1;

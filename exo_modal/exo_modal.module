@@ -175,6 +175,7 @@ function exo_modal_ajax_render_alter(array &$data) {
             $modal->setSetting(['modal', $k], $val);
             break;
 
+          case 'classes':
           case 'dialogClass':
             $modal->addModalClass($val);
             if ($val == 'token-tree-dialog') {

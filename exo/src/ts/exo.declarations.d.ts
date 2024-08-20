@@ -31,9 +31,8 @@ interface JQuery {
 }
 
 interface BodyScrollLock {
-  disableBodyScroll?: any;
-  enableBodyScroll?: any;
-  clearAllBodyScrollLocks?: any;
+  lock?: any;
+  unlock?: any;
 }
 
 interface Window {
