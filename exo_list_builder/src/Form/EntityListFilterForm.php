@@ -21,6 +21,13 @@ class EntityListFilterForm extends FormBase {
   protected $entity;
 
   /**
+   * The redirect URL.
+   *
+   * @var \Drupal\Core\Url
+   */
+  protected $redirectUrl;
+
+  /**
    * {@inheritdoc}
    */
   public function getFormId() {
@@ -30,8 +37,9 @@ class EntityListFilterForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, EntityListInterface $entity = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, EntityListInterface $entity = NULL, Url $redirectUrl = NULL) {
     $this->entity = $entity;
+    $this->redirectUrl = $redirectUrl;
     $form = $this->form($form, $form_state);
     $form['#cache'] = [
       'tags' => $this->entity->getHandler()->getCacheTags(),
@@ -73,8 +81,12 @@ class EntityListFilterForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $handler = $this->entity->getHandler();
     $handler->submitForm($form, $form_state);
-    if ($url = $form_state->getRedirect()) {
-      /** @var \Drupal\Core\Url $url */
+    /** @var \Drupal\Core\Url $url */
+    $url = $form_state->getRedirect();
+    if ($url) {
+      if ($this->redirectUrl) {
+        $url = $this->redirectUrl->setOptions($url->getOptions());
+      }
       if ($this->entity->getUrl()) {
         $form_state->setRedirectUrl(Url::fromRoute($this->entity->getRouteName(), $url->getRouteParameters(), $url->getOptions()));
       }

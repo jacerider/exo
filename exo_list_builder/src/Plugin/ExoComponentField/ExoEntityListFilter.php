@@ -7,6 +7,7 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Url;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldComputedBase;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldDisplayFormTrait;
 use Drupal\exo_alchemist\Plugin\ExoComponentFieldPreviewEntityTrait;
@@ -102,7 +103,11 @@ class ExoEntityListFilter extends ExoComponentFieldComputedBase implements Conta
     /** @var \Drupal\exo_list_builder\EntityListInterface $entity */
     $entity = $this->entityTypeManager->getStorage('exo_entity_list')->load($field->getAdditionalValue('exo_entity_list_id'));
     if ($entity) {
-      $value['render'] = $this->formBuilder->getForm('\Drupal\exo_list_builder\Form\EntityListFilterForm', $entity);
+      $redirectUrl = NULL;
+      if ($route = $field->getAdditionalValue('exo_entity_list_redirect_route')) {
+        $redirectUrl = Url::fromRoute($route, $field->getAdditionalValue('exo_entity_list_redirect_route_prameters') ?? []);
+      }
+      $value['render'] = $this->formBuilder->getForm('\Drupal\exo_list_builder\Form\EntityListFilterForm', $entity, $redirectUrl);
     }
     return $value;
   }
