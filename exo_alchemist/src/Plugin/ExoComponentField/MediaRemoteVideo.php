@@ -148,11 +148,16 @@ class MediaRemoteVideo extends MediaBase {
         }
         if ($media->hasField('field_media_image') && !$media->get('field_media_image')->isEmpty()) {
           $image = $media->get('field_media_image')->entity->getFileUri();
-          $url = \Drupal::service('file_url_generator')->generateAbsoluteString($image);
-          $size = getimagesize($image);
-          $value['thumbnailUrl'] = Url::fromUri($url);
-          $value['thumbnailWidth'] = $size[0];
-          $value['thumbnailHeight'] = $size[1];
+          $value['thumbnailUrl'] = '';
+          if ($image) {
+            $url = \Drupal::service('file_url_generator')->generateAbsoluteString($image);
+            if (file_exists($image)) {
+              $size = getimagesize($image);
+              $value['thumbnailUrl'] = Url::fromUri($url);
+            }
+          }
+          $value['thumbnailWidth'] = $size[0] ?? '';
+          $value['thumbnailHeight'] = $size[1] ?? '';
 
           if (!empty($imagine_settings)) {
             $value['imagine'] = $media->get('field_media_image')->view([
