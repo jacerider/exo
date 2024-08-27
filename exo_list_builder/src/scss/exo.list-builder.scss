@@ -911,8 +911,10 @@
 .exo-list .exo-list-states--links {
   @include flex;
   @include flex-align(left, stretch);
+  flex-wrap: wrap;
   flex-direction: column;
   flex: 1 1 auto;
+  max-width: 100%;
 
   @include breakpoint(medium) {
     @include flex-align(right, bottom);
