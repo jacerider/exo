@@ -2,8 +2,6 @@
 
 namespace Drupal\exo_menu;
 
-use Drupal\Core\Render\RenderableInterface;
-use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Cache\RefinableCacheableDependencyTrait;
 use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -12,14 +10,13 @@ use Drupal\Core\Menu\MenuActiveTrailInterface;
 use Drupal\exo\ExoSettingsInstanceInterface;
 use Drupal\Core\Cache\Cache;
 use Drupal\exo_menu\Plugin\ExoMenuPluginManagerInterface;
-use Drupal\Core\Plugin\ObjectWithPluginCollectionInterface;
 use Drupal\exo_menu\Plugin\ExoMenuCollection;
 use Drupal\Component\Utility\Html;
 
 /**
  * Defines an eXo menu.
  */
-class ExoMenu implements ExoMenuInterface, RenderableInterface, RefinableCacheableDependencyInterface, ObjectWithPluginCollectionInterface {
+class ExoMenu implements ExoMenuInterface {
   use RefinableCacheableDependencyTrait;
   use ExoIconTranslationTrait;
 

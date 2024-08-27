@@ -159,7 +159,7 @@ class ExoMenuModalBlock extends ExoModalBlockBase {
       $this->configuration['menu']['plugin'],
       $this->configuration['menus'],
       $this->configuration['menu']['plugin_settings']
-    )->toRenderable();
+    )->addCacheContexts($this->getCacheContexts())->addCacheTags($this->getCacheTags())->toRenderable();
   }
 
   /**
