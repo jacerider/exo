@@ -1350,6 +1350,7 @@ class ExoModal extends ExoData {
     }
 
     this.event('closed').trigger(this);
+    window.dispatchEvent(new Event('dialog:afterclose'));
     this.callCallback('onClosed');
     this.$element.removeClass('isOpen');
 
