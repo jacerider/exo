@@ -1008,7 +1008,9 @@ class ExoModal extends ExoData {
     }
 
     if (this.get('bodyOverflow') || Drupal.Exo.isMobile()) {
-      Drupal.Exo.lockOverflow(this.$wrap);
+      if (Drupal.ExoModal.getVisible().count() === 0) {
+        Drupal.Exo.lockOverflow(this.$wrap);
+      }
     }
 
     this.doOpen(param);
