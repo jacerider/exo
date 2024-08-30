@@ -156,6 +156,12 @@ class EntityQuery extends ExoComponentFieldComputedBase implements ContainerFact
       }
     }
 
+    if ($tags = $field->getAdditionalValue('query_tag')) {
+      foreach ($tags as $key => $tag) {
+        $query->addTag($tag);
+      }
+    }
+
     $results = $query->execute();
     if (!empty($results)) {
       foreach ($storage->loadMultiple($results) as $entity) {
