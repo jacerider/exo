@@ -160,7 +160,7 @@ class ExoListBuilderContentStates extends ExoListBuilderContent implements ExoLi
         '#attributes' => [
           'class' => [
             'exo-list-states--state',
-            ($current_state && $current_state['id'] === $state_id) ? 'exo-list-states--active' : '',
+            ($current_state && $current_state['id'] == $state_id) ? 'exo-list-states--active' : '',
           ],
         ],
       ];

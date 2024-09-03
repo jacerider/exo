@@ -410,6 +410,10 @@
     margin-bottom: 0;
     font-size: rem-calc(12);
 
+    .exo-list-states--active {
+      font-weight: 700;
+    }
+
     @include breakpoint(large) {
       @include flex;
       @include flex-align(left, middle);
@@ -422,6 +426,7 @@
     > .exo-list-footer-first {
       @include flex;
       @include flex-align(center, top);
+      flex-wrap: wrap;
       margin-bottom: $global-margin;
 
       @include breakpoint(medium) {
@@ -430,7 +435,7 @@
       }
 
       @include breakpoint(medium) {
-        flex: 0 0 auto;
+        flex: 0 1 auto;
         margin-right: $global-margin;
       }
 
