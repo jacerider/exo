@@ -118,6 +118,19 @@
 
     .views-offset-top {
       border: 0;
+
+      &:not(:empty) {
+        overflow: visible;
+      }
+
+      .form-item {
+        max-width: 100%;
+      }
+
+      > .exo-form-element {
+        flex: 1 1 auto;
+        margin-right: $global-margin;
+      }
     }
 
     .views-offset-bottom {
