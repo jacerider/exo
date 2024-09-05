@@ -515,12 +515,19 @@ trait ExoListContentTrait {
           // Currently only supports weight fields on the data table.
           // @todo Support weights set in other fields.
           if ($reference_table_mapping->getFieldTableName('weight') === $reference_data_table) {
+            $query->fields($query->getMetaData('base_alias'), ['weight']);
             $query->orderBy($query->getMetaData('base_alias') . '.weight');
           }
         }
-        if ($label_key = $reference_entity_type->getKey('label')) {
-          $query->orderBy($query->getMetaData('base_alias') . '.' . $label_key);
-        }
+        $query->orderBy('f.' . $reference_field_column);
+        // We removed the below as reference fields should be sorted by their
+        // values and not the title of the parent entity. This may cause
+        // unexpected side effects.
+        // if ($label_key = $reference_entity_type->getKey('label')) {
+        //   ksm($reference_entity_type->id(), $query);
+        //   $query->fields($query->getMetaData('base_alias'), [$label_key]);
+        //   $query->orderBy($query->getMetaData('base_alias') . '.' . $label_key);
+        // }
         if ($status_key = $reference_entity_type->getKey('status')) {
           // Take into account a status filter that is not exposed.
           if ($entity_list->hasField($status_key)) {
