@@ -231,6 +231,7 @@ class ExoImagineMediaGalleryFormatter extends ExoImagineMediaFormatter {
     $modal->setSetting(['modal', 'borderBottom'], FALSE);
     $modal->setSetting(['modal', 'closeInBody'], TRUE);
     $modal->setSetting(['modal', 'imageUrl'], $url);
+    $modal->setModalSetting('class', 'exo-media-gallery-modal');
     $modal->setTrigger($element);
     $element = $modal->toRenderable();
   }
@@ -257,6 +258,7 @@ class ExoImagineMediaGalleryFormatter extends ExoImagineMediaFormatter {
       $modal->setSetting(['modal', 'iframeHeight'], 800 * $ratio . 'px');
       $modal->setSetting(['modal', 'iframeResponsive'], TRUE);
       $modal->setSetting(['modal', 'closeInBody'], TRUE);
+      $modal->setModalSetting('class', 'exo-media-gallery-modal');
 
       $title = [
         'text' => [
