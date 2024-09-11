@@ -22,7 +22,6 @@ use Drupal\exo_icon\ExoIconTranslationTrait;
 use Drupal\exo_imagine\ExoImagineManager;
 use Drupal\exo_modal\ExoModalGeneratorInterface;
 use Drupal\media\IFrameUrlHelper;
-use Drupal\media\MediaInterface;
 use Drupal\media\OEmbed\Resource;
 use Drupal\media\OEmbed\ResourceException;
 use Drupal\media\OEmbed\ResourceFetcherInterface;
