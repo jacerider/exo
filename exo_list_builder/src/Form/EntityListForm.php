@@ -449,6 +449,13 @@ class EntityListForm extends EntityForm {
       '#default_value' => $exo_entity_list->getSetting('hide_no_results'),
     ];
 
+    $form['settings']['disable_url_encoding'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Disable URL Encoding'),
+      '#description' => $this->t('If checked, the URL will show the raw filter query keys and values.'),
+      '#default_value' => $exo_entity_list->getSetting('disable_url_encoding'),
+    ];
+
     $form['settings']['item_wrapper_status'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Wrap each item in a DIV'),

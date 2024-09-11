@@ -383,6 +383,9 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * {@inheritdoc}
    */
   public function optionsEncode($options) {
+    if (!empty($this->getSetting('disable_url_encoding', FALSE))) {
+      return $options;
+    }
     return base64_encode(json_encode($options));
   }
 
@@ -390,7 +393,10 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
    * {@inheritdoc}
    */
   public function optionsDecode($options) {
-    return @json_decode(base64_decode($options), TRUE) ?: [];
+    if (!empty($this->getSetting('disable_url_encoding', FALSE))) {
+      return $options;
+    }
+    return is_string($options) ? (@json_decode(base64_decode($options), TRUE) ?: []) : [];
   }
 
   /**
