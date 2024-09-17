@@ -758,21 +758,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * {@inheritdoc}
    */
   public function render() {
-    $enhancedCache = $this->getEntityList()->getSetting('cache_status', FALSE);
-    if ($enhancedCache) {
-      $cid = ['exo_list_builder', $this->entityList->id()];
-      foreach ($this->getOptions() as $option => $value) {
-        if (empty($value)) {
-          continue;
-        }
-        $cid[$option] = is_array($value) ? base64_encode(json_encode($value)) : $value;
-      }
-      $cid = implode(':', $cid);
-      if ($cache = \Drupal::cache()->get($cid)) {
-        return $cache->data;
-      }
-    }
-
     $entity_list = $this->getEntityList();
     $this->cacheableMetadata = new CacheableMetadata();
 
@@ -834,10 +819,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
     }
 
-    if ($enhancedCache) {
-      \Drupal::cache()->set($cid, $build, Cache::PERMANENT, $this->getCacheTags());
-    }
-
     return $build;
   }
 
@@ -869,6 +850,20 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * {@inheritdoc}
    */
   public function buildList(array $build) {
+    $enhancedCache = $this->getEntityList()->getSetting('cache_status', FALSE);
+    if ($enhancedCache) {
+      $cid = ['exo_list_builder', $this->entityList->id()];
+      foreach ($this->getOptions() as $option => $value) {
+        if (empty($value)) {
+          continue;
+        }
+        $cid[$option] = is_array($value) ? base64_encode(json_encode($value)) : $value;
+      }
+      $cid = implode(':', $cid);
+      if ($cache = \Drupal::cache()->get($cid)) {
+        return $cache->data;
+      }
+    }
     $entity_list = $this->getEntityList();
     $render_status = $entity_list->getSetting('render_status');
     $total = $this->getTotal();
@@ -1074,6 +1069,10 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       unset($build['footer']['pager']['pager_header']);
     }
     $this->cacheableMetadata->applyTo($build);
+
+    if ($enhancedCache) {
+      \Drupal::cache()->set($cid, $build, Cache::PERMANENT, $this->getCacheTags());
+    }
 
     return $build;
   }
