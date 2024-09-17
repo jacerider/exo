@@ -456,6 +456,13 @@ class EntityListForm extends EntityForm {
       '#default_value' => $exo_entity_list->getSetting('disable_url_encoding'),
     ];
 
+    $form['settings']['cache_status'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enhanced Cache'),
+      '#description' => $this->t('If checked, additional caching will be enabled which will cache the rendered result for all users. This should only be used when the results of the list are the same for all users.'),
+      '#default_value' => $exo_entity_list->getSetting('cache_status'),
+    ];
+
     $form['settings']['item_wrapper_status'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Wrap each item in a DIV'),
