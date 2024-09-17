@@ -758,6 +758,18 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
    * {@inheritdoc}
    */
   public function render() {
+    $cid = ['exo_list_builder', $this->entityList->id()];
+    foreach ($this->getOptions() as $option => $value) {
+      if (empty($value)) {
+        continue;
+      }
+      $cid[$option] = is_array($value) ? base64_encode(json_encode($value)) : $value;
+    }
+    $cid = implode(':', $cid);
+    if ($cache = \Drupal::cache()->get($cid)) {
+      return $cache->data;
+    }
+
     $entity_list = $this->getEntityList();
     $this->cacheableMetadata = new CacheableMetadata();
 
@@ -819,6 +831,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
     }
 
+    \Drupal::cache()->set($cid, $build, Cache::PERMANENT, $this->getCacheTags());
     return $build;
   }
 
