@@ -379,8 +379,11 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected function buildOptions() {
     $query = \Drupal::request()->query->all() ?? [];
     $key = $this->getEntityList()->getKey();
-    if (!empty($query[$key]) && is_array($query[$key])) {
-      $query += $this->getEntityList()->optionsDecode($query[$key]);
+    if (!empty($query[$key])) {
+      $options = $this->getEntityList()->optionsDecode($query[$key]);
+      if (is_array($options)) {
+        $query += $options;
+      }
     }
     $this->setOptions($query);
   }
