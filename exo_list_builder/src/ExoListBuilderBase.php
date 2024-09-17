@@ -901,6 +901,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
     $format = $this->entityList->getFormat();
     $format_build = [];
+    $this->cacheableMetadata->addCacheContexts($this->getCacheContexts());
+    $this->cacheableMetadata->addCacheTags($this->getCacheTags());
     if ($render_status) {
       $format_build = [
         '#type' => 'html_tag',
@@ -910,10 +912,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
             'exo-list-content',
             'exo-list-' . str_replace('_', '-', $format),
           ],
-        ],
-        '#cache' => [
-          'contexts' => $this->getCacheContexts(),
-          'tags' => $this->getCacheTags(),
         ],
       ];
       switch ($format) {
