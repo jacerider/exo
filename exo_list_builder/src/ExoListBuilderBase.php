@@ -443,7 +443,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $query = NestedArray::mergeDeep($options_query, $query);
     $key = $entity_list->getKey();
     unset($query[$key]);
-    $query['m'] = 1;
     unset($query['check_logged_in']);
     unset($options['order']);
     unset($options['sort']);
@@ -467,6 +466,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     if (!empty($query[$key])) {
       $query[$key] = $this->getEntityList()->optionsEncode($query[$key]);
     }
+    $query['m'] = 1;
     $url->setOption('query', $query);
     return $url;
   }
