@@ -139,7 +139,8 @@ function css(cb) {
     .pipe(sourcemaps.init())
     .pipe(sass({
       outputStyle: 'compressed',
-      includePaths: config.css.includePaths
+      includePaths: config.css.includePaths,
+      silenceDeprecations: ['legacy-js-api']
     }).on('error', sass.logError))
     .pipe(autoprefixer({
       browserlist: ['last 2 versions'],

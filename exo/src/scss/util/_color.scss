@@ -1,4 +1,5 @@
 @use "sass:math";
+@use 'sass:color';
 
 // Colors
 // Retrieve color from $palette map
@@ -103,10 +104,25 @@
   @return rgba(0, 0, 0, $num * 0.01);
 }
 
+@function lighten($color, $amount) {
+  @return color.adjust($color, $lightness: $amount);
+}
+
+@function darken($color, $amount) {
+  @return color.adjust($color, $lightness: -$amount);
+}
+
+@function lightness($color) {
+  $color: color.to-space($color, hsl);
+  @return color.channel($color, 'lightness');
+}
+
 // Smart scale a color up or down for better contrast.
 @function color-fix($color1, $color2, $scale-amount: 3%, $threshold: 40%, $tolerance: 0) {
   $color1: color($color1);
+  $color1: color.to-space($color1, hsl);
   $color2: color($color2);
+  $color2: color.to-space($color2, hsl);
   $contrast: color-contrast($color1, $color2);
   $current-contrast: 0;
   $scale: $scale-amount;
@@ -115,7 +131,7 @@
     @return $color2;
   }
 
-  $darken: lightness($color1) > $threshold;
+  $darken: color.channel($color1, 'lightness') > $threshold;
 
   @while $current-contrast < $tolerance {
     $current-scale: $scale;
@@ -126,7 +142,7 @@
       $current-scale: -$current-scale;
     }
     $current-saturation: 0;
-    $current-saturation: saturation($color2);
+    $current-saturation: color.channel($color2, 'saturation');
     @if $current-saturation > 1 {
       $current-saturation: -$current-scale;
     }
@@ -146,7 +162,8 @@
 @function color-luminance($color) {
   // Adapted from: https://github.com/LeaVerou/contrast-ratio/blob/gh-pages/color.js
   // Formula: http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
-  $rgba: red($color), green($color), blue($color);
+  $color: color.to-space($color, rgb);
+  $rgba: color.channel($color, 'red'), color.channel($color, 'green'), color.channel($color, 'blue');
   $rgba2: ();
 
   @for $i from 1 through 3 {
@@ -226,7 +243,7 @@
   @if type-of($color) != 'color' {
     $color: color($color);
   }
-  @if lightness($color) > $threshold {
+  @if color.channel(color.to-space($color, hsl), 'lightness') > $threshold {
     $scale: -$scale;
   }
   @return adjust-color($color, $lightness: $scale);
@@ -243,7 +260,7 @@
   @if type-of($color) != 'color' {
     $color: color($color);
   }
-  @if lightness($color) < $threshold {
+  @if color.channel(color.to-space($color, hsl), 'lightness') < $threshold {
     $scale: -$scale;
   }
   @return adjust-color($color, $lightness: $scale);
