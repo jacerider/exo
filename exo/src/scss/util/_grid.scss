@@ -253,19 +253,27 @@ $exo-block-grid-max: 8 !default;
 @mixin -exo-cell-properties($size, $margin-gutter, $vertical) {
   $direction: if($vertical == true, height, width);
   @if($size == 'full') {
-    $val: if($margin-gutter == 0, 100%, calc(100% - #{rem-calc($margin-gutter)}));
-    #{$direction}: $val;
+    & {
+      $val: if($margin-gutter == 0, 100%, calc(100% - #{rem-calc($margin-gutter)}));
+      #{$direction}: $val;
+    }
   }
   @else if ($size == 'auto') {
-    #{$direction}: auto;
-    $val: if($margin-gutter == 0, 100%, calc(100% - #{rem-calc($margin-gutter)}));
+    & {
+      #{$direction}: auto;
+      $val: if($margin-gutter == 0, 100%, calc(100% - #{rem-calc($margin-gutter)}));
+    }
   }
   @else if ($size == 'shrink') {
-    #{$direction}: auto;
+    & {
+      #{$direction}: auto;
+    }
   }
   @else {
-    $val: if($margin-gutter == 0, #{exo-cell-size($size)}, calc(#{exo-cell-size($size)} - #{rem-calc($margin-gutter)}));
-    #{$direction}: $val;
+    & {
+      $val: if($margin-gutter == 0, #{exo-cell-size($size)}, calc(#{exo-cell-size($size)} - #{rem-calc($margin-gutter)}));
+      #{$direction}: $val;
+    }
   }
 }
 
