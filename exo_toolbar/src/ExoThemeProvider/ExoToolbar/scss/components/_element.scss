@@ -77,9 +77,9 @@
 }
 
 .exo-toolbar-element-inner {
+  flex: auto;
   @include flex;
   @include flex-align(left, middle);
-  flex: auto;
 
   @each $key, $sizes in $region-sizes {
     [data-exo-size='#{$key}'] & {
@@ -113,9 +113,9 @@
 }
 
 .exo-toolbar-element-mark {
+  text-align: center;
   @include flex;
   @include flex-align(center, middle);
-  text-align: center;
 
   @each $key, $sizes in $region-sizes {
 

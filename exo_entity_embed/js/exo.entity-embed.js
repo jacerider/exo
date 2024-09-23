@@ -1,1 +1,1 @@
-"use strict";!function(n,r){r.AjaxCommands.prototype.embed_insert=function(t,e,i){var a=n(t.element);a.html(e.data),r.runEmbedBehaviors("attach",a.get(0),e.settings||t.settings),void 0!==r.drimage&&r.drimage.init(a.get(0))}}(jQuery,Drupal);
+((n,r)=>{r.AjaxCommands.prototype.embed_insert=function(e,t,a){var i=n(e.element);i.html(t.data),r.runEmbedBehaviors("attach",i.get(0),t.settings||e.settings),void 0!==r.drimage&&r.drimage.init(i.get(0))}})(jQuery,Drupal);

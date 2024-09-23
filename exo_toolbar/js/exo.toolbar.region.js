@@ -1,1 +1,1 @@
-"use strict";!function(e){e.AjaxCommands.prototype.exoToolbarRegion=function(o,t,n){e.AjaxCommands.prototype.insert(o,t)}}((jQuery,Drupal));
+(n=>{n.AjaxCommands.prototype.exoToolbarRegion=function(o,a,e){n.AjaxCommands.prototype.insert(o,a)}})((jQuery,Drupal));

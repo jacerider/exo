@@ -1,1 +1,1 @@
-"use strict";!function(a){Drupal.behaviors.exoListBuilderDownload={attach:function(t,o){a("a[data-auto-download]",t).each(function(){var t=a(this);setTimeout(function(){window.location=t.attr("href")},2e3)})}}}(jQuery);
+(t=>{Drupal.behaviors.exoListBuilderDownload={attach:function(a,o){t("a[data-auto-download]",a).each(function(){var a=t(this);setTimeout(function(){window.location=a.attr("href")},2e3)})}}})(jQuery);

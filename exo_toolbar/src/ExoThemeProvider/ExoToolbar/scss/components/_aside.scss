@@ -22,10 +22,6 @@
   margin: 0;
 
   a {
-    // display: block;
-    @include flex;
-    @include exo-flex-direction(column);
-    @include flex-align(center, middle);
     text-align: center;
     text-transform: uppercase;
     text-rendering: optimizeLegibility;
@@ -33,6 +29,9 @@
     opacity: 0.8;
     margin: (size(margin) * 0.1) auto;
     transition: opacity $global-speed, color $global-speed;
+    @include flex;
+    @include exo-flex-direction(column);
+    @include flex-align(center, middle);
 
     &:hover {
       opacity: 1;

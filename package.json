@@ -28,5 +28,8 @@
     "gulp-util": "^3.0.8",
     "sass": "^1.58.0",
     "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "@types/node": "~20.0.0"
   }
 }

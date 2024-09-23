@@ -4,7 +4,7 @@
   TSinclude('./exo.modal/_exo.modals.ts')
 
   if (typeof $.fn.dialog === 'undefined') {
-    $.fn.dialog = function() {};
+    $.fn.dialog = function() {} as any;
     $.fn.dialog.prototype.close = function() {};
   }
 

@@ -1,11 +1,11 @@
 @use "sass:math";
 
 .exo-toolbar-element-grid {
-  @include flex;
   flex-wrap: wrap;
   margin: 0;
   padding: 0;
   width: rem-calc(320);
+  @include flex;
 
   > li {
     width: 33.33%;

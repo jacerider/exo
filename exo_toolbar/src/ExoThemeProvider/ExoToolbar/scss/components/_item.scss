@@ -1,8 +1,8 @@
 .exo-toolbar-item {
-  @include flex;
-  @include flex-align(left, top);
   position: relative;
   width: 100%;
+  @include flex;
+  @include flex-align(left, top);
 
   .is-ie & {
     width: auto;
