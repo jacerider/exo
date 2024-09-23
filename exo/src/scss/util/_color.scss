@@ -105,11 +105,22 @@
 }
 
 @function lighten($color, $amount) {
-  @return color.adjust($color, $lightness: $amount);
+  $adjusted-color: color.adjust($color, $lightness: $amount);
+  $red: round(color.channel($adjusted-color, 'red'));
+  $green: round(color.channel($adjusted-color, 'green'));
+  $blue: round(color.channel($adjusted-color, 'blue'));
+
+  @return rgb($red, $green, $blue);
+  // @return color.adjust($color, $lightness: $amount);
 }
 
 @function darken($color, $amount) {
-  @return color.adjust($color, $lightness: -$amount);
+  // @return color.adjust($color, $lightness: -$amount);
+  $adjusted-color: color.adjust($color, $lightness: -$amount);
+  $red: round(color.channel($adjusted-color, 'red'));
+  $green: round(color.channel($adjusted-color, 'green'));
+  $blue: round(color.channel($adjusted-color, 'blue'));
+  @return rgb($red, $green, $blue);
 }
 
 @function lightness($color) {
@@ -246,7 +257,11 @@
   @if color.channel(color.to-space($color, hsl), 'lightness') > $threshold {
     $scale: -$scale;
   }
-  @return adjust-color($color, $lightness: $scale);
+  $adjusted-color: color.to-space(adjust-color($color, $lightness: $scale), rgb);
+  $red: round(color.channel($adjusted-color, 'red'));
+  $green: round(color.channel($adjusted-color, 'green'));
+  $blue: round(color.channel($adjusted-color, 'blue'));
+  @return rgb($red, $green, $blue);
 }
 
 /// Scales a color to be lighter if it's light, or darker if it's dark. Use this function to tint a color appropriate to its lightness.
@@ -263,5 +278,10 @@
   @if color.channel(color.to-space($color, hsl), 'lightness') < $threshold {
     $scale: -$scale;
   }
-  @return adjust-color($color, $lightness: $scale);
+
+  $adjusted-color: adjust-color($color, $lightness: $scale);
+  $red: round(color.channel($adjusted-color, 'red'));
+  $green: round(color.channel($adjusted-color, 'green'));
+  $blue: round(color.channel($adjusted-color, 'blue'));
+  @return rgb($red, $green, $blue);
 }
