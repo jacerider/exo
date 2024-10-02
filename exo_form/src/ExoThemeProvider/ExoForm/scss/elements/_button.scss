@@ -6,8 +6,6 @@
 .is-admin .exo-form .form-actions .exo-modal-trigger,
 .is-admin .sortableviews-ajax-trigger,
 .is-admin .action-link--icon-trash.action-link--danger {
-  display: inline-block;
-  @include flex-align(center, middle);
   display: inline-flex;
   height: auto;
   margin: 0;
@@ -19,6 +17,7 @@
   line-height: 1;
   font-size: $button-font-size;
   cursor: pointer;
+  @include flex-align(center, middle);
 
   &.js-hide {
     display: none;
@@ -37,11 +36,6 @@
   box-shadow: none;
   min-height: 0;
 }
-
-// .is-admin .exo-form a.button,
-// .is-admin .action-link--icon-trash.action-link--danger {
-//   line-height: $button-height;
-// }
 
 .exo-form-style-float-inside .exo-form-button,
 .exo-form-style-float-inside .form-actions .button,
@@ -94,9 +88,9 @@
 .exo-form-element-type-actions {
 
   .form-actions {
-    @include flex-align(left);
     margin-top: 0;
     margin-bottom: 0;
+    @include flex-align(left);
   }
 
   .exo-form-element {
@@ -110,29 +104,3 @@
     }
   }
 }
-
-// .exo-form-container-button {
-
-//   .ajax-progress {
-//     position: absolute;
-//     top: 0;
-//     left: 0;
-//     right: 0;
-//     bottom: 0;
-//     background: alpha(theme-white, 0.8);
-//     font-size: 12px;
-//     padding: 0 10px 0 20px;
-//     border-radius: 3px;
-//     height: $input-height;
-//     line-height: $input-height;
-//     text-align: center;
-
-//     .throbber {
-//       padding: 0 16px 0 0;
-//     }
-
-//     .message {
-//       display: none;
-//     }
-//   }
-// }

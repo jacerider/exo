@@ -107,9 +107,9 @@
         &:first-child {
 
           > * {
+            float: none;
             @include flex;
             @include flex-align(left, middle);
-            float: none;
           }
         }
       }
@@ -177,7 +177,6 @@
 .exo-form .exo-form-container-field-multiple-table {
 
   thead {
-    // display: none;
 
     th:not(.field-label) {
       display: none !important;

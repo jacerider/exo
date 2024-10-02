@@ -1,7 +1,7 @@
 .exo-component-wrapper {
+  position: relative;
   @include flex();
   @include flex-align(center, middle);
-  position: relative;
   // Removed because it makes elements hard to style. May need to restore.
   // overflow: hidden;
 

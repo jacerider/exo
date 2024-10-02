@@ -8,10 +8,6 @@
 
     &.exo-section-edit {
       border: 1px dashed gray(20);
-
-      // a {
-      //   pointer-events: auto !important;
-      // }
     }
 
     .exo-section {
@@ -63,12 +59,12 @@
     background: gray(5);
 
     > .exo-form-element {
-      @include flex;
       max-width: rem-calc(400);
       background: gray(0);
       border-radius: $global-radius;
       margin: 0 auto;
       box-shadow: 0 0 25px alpha(color(theme-black), 0.1);
+      @include flex;
 
       > .exo-form-element {
         flex: 0 0 auto;
@@ -163,7 +159,6 @@
 
     > .exo-component {
       pointer-events: none !important;
-      // cursor: not-allowed;
     }
 
     &:hover {
@@ -171,23 +166,6 @@
     }
   }
 }
-
-// Swiper support.
-// .exo-component-edit-active .swiper .swiper-wrapper .swiper-slide.exo-component-field-edit {
-
-//   &,
-//   * {
-//     pointer-events: none !important;
-//   }
-
-//   &.swiper-slide-visible {
-
-//     &,
-//     * {
-//       pointer-events: auto !important;
-//     }
-//   }
-// }
 
 /**
  * Nested Sections
@@ -200,7 +178,6 @@
   }
 
   .exo-component-edit:not(.exo-component-edit-active) {
-    // pointer-events: auto !important;
 
     * {
       pointer-events: none !important;
@@ -257,27 +234,23 @@
 }
 
 .exo-alchemist-overlay-header {
-  @include flex;
-  @include flex-align(left, bottom);
   position: absolute;
   left: 0;
   right: 0;
   bottom: 100%;
+  @include flex;
+  @include flex-align(left, bottom);
 }
 
 .exo-alchemist-ops {
-  @include flex;
-  @include flex-align(left, bottom);
   flex-wrap: wrap;
-  // @include exo-progress-throbber();
   pointer-events: auto !important;
   flex: 1 1 auto;
+  @include flex;
+  @include flex-align(left, bottom);
 
   > span {
-    @include flex;
-    @include flex-align(center, bottom);
     flex-wrap: wrap;
-    // flex-wrap: nowrap;
     line-height: 1.2;
     font-size: rem-calc(13);
     box-shadow: 0 -5px 10px -5px alpha(color(theme-black), 0.4);
@@ -287,6 +260,8 @@
     transform-origin: center bottom;
     transition: color $global-speed, background-color $global-speed, transform $global-speed;
     background: gray(85);
+    @include flex;
+    @include flex-align(center, bottom);
 
     &.active {
       transform: scaleY(1);
@@ -299,31 +274,22 @@
     color: gray(0);
     padding: rem-calc(5 10);
     white-space: nowrap;
-    // border-radius: $global-radius $global-radius 0 0;
     margin-right: 2px;
     font-style: normal;
   }
 
   a {
-    @include flex;
-    @include flex-align(center, middle);
     padding: rem-calc(5 10);
     white-space: nowrap;
     background: gray(85);
     color: gray(0);
     transition: color $global-speed, background-color $global-speed;
+    @include flex;
+    @include flex-align(center, middle);
 
     > * {
       margin: 0 1.5px;
     }
-
-    // &:first-child {
-    //   border-radius: $global-radius 0 0 0;
-    // }
-
-    // &:last-child {
-    //   border-radius: 0 $global-radius 0 0;
-    // }
 
     &:hover,
     &:active,
@@ -400,12 +366,12 @@
 }
 
 .exo-alchemist-target-header {
-  @include flex;
-  @include flex-align(left, bottom);
   position: absolute;
   left: 0;
   right: 0;
   bottom: 100%;
+  @include flex;
+  @include flex-align(left, bottom);
 
   [data-align="right"] & {
     @include flex-align(right, bottom);
@@ -413,8 +379,6 @@
 }
 
 .exo-alchemist-target-title {
-  @include flex;
-  @include flex-align(center, bottom);
   position: absolute;
   left: 0;
   right: 0;
@@ -423,6 +387,8 @@
   transform-origin: center bottom;
   transition: color $global-speed, background-color $global-speed, transform $global-speed;
   white-space: nowrap;
+  @include flex;
+  @include flex-align(center, bottom);
 
   &.active {
     transform: scaleY(1);
@@ -434,7 +400,6 @@
     padding: rem-calc(5 8);
     background: gray(80);
     color: gray(0);
-    // font-weight: 700;
     font-size: rem-calc(11);
     border-radius: $global-radius $global-radius 0 0;
   }
@@ -484,9 +449,6 @@
 }
 
 .exo-alchemist-overlay .exo-alchemist-breadcrumbs {
-  @include flex-align(left, middle);
-  // display: none;
-  display: flex;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -496,6 +458,8 @@
   padding: 0 rem-calc(5);
   box-shadow: 0 0 25px alpha(color(theme-black), 0.8);
   pointer-events: auto !important;
+  @include flex;
+  @include flex-align(left, middle);
 
   li {
     list-style: none;
@@ -515,7 +479,6 @@
   a {
     color: color(theme-white);
     font-size: rem-calc(12);
-    // text-transform: uppercase;
   }
 
   .exo-alchemist-breadcrumb-label {

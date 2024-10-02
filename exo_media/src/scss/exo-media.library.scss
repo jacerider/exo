@@ -1,10 +1,10 @@
 @import 'exo-common';
 
 .media-library-wrapper {
-  @include flex;
-  @include flex-align(left, top);
   margin: 0 !important;
   padding: 0 !important;
+  @include flex;
+  @include flex-align(left, top);
 
   .exo-form-wrap {
     border: 0 !important;
@@ -54,7 +54,6 @@
       padding: $global-padding * 0.5 $global-padding;
       background: alpha(theme-white, 0.1);
       margin: 0;
-      // border: 1px solid gray(60);
       border: 0;
       transition: all $global-speed;
       white-space: nowrap;
@@ -99,14 +98,17 @@
     .exo-body:not(.theme-gin) & {
 
       &.views-display-link-widget {
+        margin-right: $global-margin * 0.5 !important;
         @include exo-icon(regular, f00a) {
           position: static;
           padding-right: rem-calc(5);
           mask-image: none;
           background: none;
         }
-        margin-right: $global-margin * 0.5 !important;
-        background: none !important;
+        
+        & {
+          background: none !important;
+        }
 
         &.is-active {
           font-weight: 700;
@@ -120,8 +122,10 @@
           mask-image: none;
           background: none;
         }
-        background: none !important;
-        // padding: 0 !important;
+        
+        & {
+          background: none !important;
+        }
 
         &.is-active {
           font-weight: 700;
@@ -192,11 +196,11 @@
 
   .media-library-view,
   .view-media-library {
-    @include flex;
-    @include flex-align(left, middle);
     flex-wrap: wrap;
     justify-content: space-between;
     position: relative;
+    @include flex;
+    @include flex-align(left, middle);
 
     > .view-header {
       flex: 0 0 auto;
@@ -237,7 +241,6 @@
     > .view-content {
       flex: 0 0 100%;
       order: 3;
-      // margin-top: $global-margin * 0.5;
 
       .views-table {
         width: 100%;
@@ -250,11 +253,11 @@
       margin-top: $global-margin;
 
       > ul {
-        @include flex;
-        @include flex-align(center, middle);
         list-style: none;
         margin: 0;
         padding: 0;
+        @include flex;
+        @include flex-align(center, middle);
 
         > li {
           padding: 0;
@@ -411,12 +414,12 @@
 }
 
 .exo-media-preview {
-  @include flex;
-  @include flex-align(left, middle);
   position: relative;
   cursor: pointer;
   height: 100%;
   min-height: rem-calc(40);
+  @include flex;
+  @include flex-align(left, middle);
 
   .media-library-item__preview {
     border: 0;
@@ -479,7 +482,6 @@
       width: 100%;
       height: 100%;
       max-height: 200px;
-      // overflow: hidden;
 
       > * {
         height: 100%;

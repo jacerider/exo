@@ -42,9 +42,9 @@
 }
 
 .exo-form .smartdate--time-inline {
+  margin-bottom: 0;
   @include flex;
   @include flex-align(left, middle);
-  margin-bottom: 0;
 
   + .exo-form-container-field-duration {
     margin-top: 0;
@@ -67,8 +67,8 @@
     margin-top: $global-margin * 0.5 !important;
 
     > .field-input {
-      @include flex;
       flex-direction: column;
+      @include flex;
 
       > .allday-label {
         order: 2;

@@ -37,7 +37,6 @@
     .exo-form-button {
       padding: 0 $global-padding;
       line-height: $button-height * 0.8;
-      // height: $button-height * 0.8;
     }
   }
 
@@ -150,9 +149,9 @@
     &.paragraph--type--video {
 
       > .field__items {
+        flex-wrap: wrap;
         @include flex;
         @include flex-align(left, middle);
-        flex-wrap: wrap;
       }
     }
 
@@ -160,8 +159,8 @@
     .field--type-entity-reference-revisions {
 
       > .field__items {
-        @include flex;
         flex-wrap: wrap;
+        @include flex;
       }
     }
   }

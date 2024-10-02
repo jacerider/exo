@@ -3,17 +3,13 @@
 .exo-modal.exo-paragraphs-widget {
 
   .exo-modal-content {
+    flex-wrap: wrap;
     @include flex;
     @include flex-align(center, stretch);
     @include exo-flex-direction(column, row);
-    flex-wrap: wrap;
   }
 
   .exo-button {
-    // display: block;
-    @include flex;
-    @include exo-flex-direction(column);
-    @include flex-align(center, middle);
     width: 10%;
     padding: rem-calc(30);
     text-align: center;
@@ -22,6 +18,9 @@
     font-size: rem-calc(11);
     line-height: 1.2;
     transition: background-color $global-speed;
+    @include flex;
+    @include exo-flex-direction(column);
+    @include flex-align(center, middle);
 
     .exo-icon {
       display: block;

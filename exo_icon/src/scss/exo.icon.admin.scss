@@ -1,23 +1,19 @@
 @import 'exo-common';
 
 .exo-icon-list {
-  @include exo-grid;
-  @include exo-gutters($gutters: 1px, $gutter-position: top right bottom left);
-  // @include flex;
-  // @include flex-align(justify, middle);
   flex-wrap: wrap;
   list-style-type: none;
-  // margin: 0;
   padding: 0;
   text-align: center;
+  @include exo-grid;
+  @include exo-gutters($gutters: 1px, $gutter-position: top right bottom left);
 
   > li {
-    @include exo-cell(6, $gutters: -1px, $gutter-position: top right bottom left);
     background: color(theme-offset);
-    // max-width: rem-calc(120);
     padding: size(padding) * 0.5;
     border: 1px solid color(theme-base);
     box-sizing: border-box;
+    @include exo-cell(6, $gutters: -1px, $gutter-position: top right bottom left);
 
     > div {
       margin-bottom: 0;

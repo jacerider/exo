@@ -59,8 +59,6 @@
 
   .exo-form-select-wrapper {
     @include exo-icon(regular, f078) {
-      @include flex;
-      @include flex-align(center, middle);
       position: absolute;
       top: rem-calc(5);
       right: rem-calc(5);
@@ -69,6 +67,8 @@
       height: $input-height - rem-calc(10);
       width: $input-height - rem-calc(10);
       pointer-events: none;
+      @include flex;
+      @include flex-align(center, middle);
     }
 
     position: relative;
@@ -171,12 +171,11 @@
   }
 
   &.active {
-    @include flex;
-    // @include exo-flex-direction(column);
     opacity: 0;
     transform: translate(0, 20%);
     transition: opacity 300ms, transform 300ms;
     visibility: visible;
+    @include flex;
   }
 
   &.animate {
@@ -200,11 +199,11 @@
   }
 
   .exo-form-select-list {
-    @include flex;
     flex-direction: column;
     list-style-type: none;
     padding: 0;
     margin: 0;
+    @include flex;
 
     li {
       display: block;
@@ -226,8 +225,8 @@
     }
 
     &.column--3 {
-      @include flex;
       flex-wrap: wrap;
+      @include flex;
 
       > .selector {
         width: 33.33%;
