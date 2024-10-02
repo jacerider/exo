@@ -202,21 +202,23 @@
   }
 
   .layout-builder__link--add {
-    @include exo-icon('regular', f055) {
-      padding-right: rem-calc(5);
-    };
-    display: block;
     padding: $global-padding;
     margin: $global-padding * 0.5 0 0;
     background-image: none;
     font-size: rem-calc(14);
-    // text-transform: uppercase;
-    font-weight: 400;
     transition: color $global-speed;
     background-color: gray(15);
     color: gray(80);
     transition: background-color $global-speed;
     border-radius: $global-radius;
+    @include exo-icon('regular', f055) {
+      padding-right: rem-calc(5);
+    };
+    
+    & {
+      display: block;
+      font-weight: 400;
+    }
 
     em {
       font-weight: 700;
@@ -247,34 +249,30 @@
       &:focus {
         background-color: gray(15);
       }
-      // border: 1px solid alpha(theme-gray, 0.3);
-      // outline: none;
-      // // outline: 1px dashed color(theme-gray);
-      // background-color: alpha(theme-gray, 0.1);
     }
   }
 }
 
 .layout-selection {
-  @include exo-grid;
-  @include exo-gutters(top right bottom left, $negative: true);
   padding: 0;
   list-style: none;
+  @include exo-grid;
+  @include exo-gutters(top right bottom left, $negative: true);
 
   > li {
+    text-align: center;
     @include exo-cell(6, top right bottom left);
     @include flex;
-    text-align: center;
 
     a {
-      @include flex;
-      @include flex-align(center, middle);
       flex-direction: column;
       padding: $global-padding;
       height: 100%;
       width: 100%;
       font-size: rem-calc(12);
       text-transform: uppercase;
+      @include flex;
+      @include flex-align(center, middle);
     }
   }
 }
@@ -289,9 +287,9 @@
   text-align: center;
 
   .form-actions {
+    margin-top: $global-margin;
     @include flex;
     @include flex-align(center, middle);
-    margin-top: $global-margin;
 
     .button {
       display: block !important;

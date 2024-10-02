@@ -21,8 +21,6 @@
 
   .exo-autocomplete-container,
   .autocomplete-deluxe-container {
-    @include flex;
-    @include flex-align(left, middle);
     flex-wrap: wrap;
     flex: 1 1 auto;
     background: none;
@@ -32,6 +30,8 @@
     line-height: 1;
     width: auto;
     padding-right: 15px;
+    @include flex;
+    @include flex-align(left, middle);
 
     .exo-autocomplete-form,
     .autocomplete-deluxe-form {
@@ -41,7 +41,6 @@
       padding: 0;
       flex: 1 1 auto;
       float: none;
-      // order: 1;
     }
 
     .exo-autocomplete-throbber,
@@ -50,7 +49,6 @@
       top: 50%;
       right: 0;
       margin: -7.5px 0 0 0;
-      // flex: 0 0 auto;
       height: 15px;
       width: 15px;
       background-position: 100% 0px;
@@ -72,12 +70,10 @@
     margin: rem-calc(5);
     margin-left: 0;
     white-space: nowrap;
-    // order: 2;
   }
 
   .exo-autocomplete-value-container,
   .autocomplete-deluxe-value-container {
-    // visibility: hidden;
     flex: 0 0 0%;
   }
 }

@@ -63,8 +63,6 @@
     }
 
     .exo-entity-browser-info {
-      @include flex;
-      @include flex-align(center, middle);
       position: absolute;
       left: 5px;
       right: 5px;
@@ -73,6 +71,8 @@
       color: color(theme-white);
       padding: 5px 10px;
       z-index: 1;
+      @include flex;
+      @include flex-align(center, middle);
 
       .views-field {
         font-size: rem-calc(12);
@@ -85,7 +85,6 @@
     }
 
     .exo-entity-browser-check {
-      @include flex;
       align-items: center;
       position: absolute;
       top: 0;
@@ -94,6 +93,7 @@
       bottom: 0;
       pointer-events: none;
       z-index: 2;
+      @include flex;
     }
 
     &.checked {

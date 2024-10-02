@@ -3,10 +3,10 @@
 .exo-component-choose {
 
   .exo-component-selection {
-    @include flex;
     margin: $global-margin rem-calc(-5) 0;
     padding: 0;
     list-style-type: none;
+    @include flex;
 
     > li {
       flex: 1 1 50%;
@@ -57,10 +57,6 @@
       @include exo-triangle(bottom, 6px, 6px, color(theme-white));
       margin-left: rem-calc(5);
     }
-
-    // &:hover {
-    //   background-color: darken(color(theme-gray), 10%);
-    // }
   }
 
   .item-list {

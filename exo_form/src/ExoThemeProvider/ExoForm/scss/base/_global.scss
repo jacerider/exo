@@ -97,8 +97,8 @@
   }
 
   .field-label {
-    @include flex-align(left, middle);
     display: flex !important;
+    @include flex-align(left, middle);
 
     &.exo-tooltip {
       @include flex-align(left, middle);
@@ -115,7 +115,6 @@
       }
 
       .exo-tooltip-trigger {
-        @include flex-align(center, middle);
         display: flex !important;
         font-size: $description-font-size;
         font-weight: 700;
@@ -128,6 +127,7 @@
         margin: 0 0 3px;
         pointer-events: auto;
         cursor: pointer;
+        @include flex-align(center, middle);
       }
 
       .webform-element-help {
@@ -237,18 +237,21 @@
 
     a,
     button {
-      @include exo-icon(regular, f338);
       position: absolute;
       bottom: 2px;
       right: 0;
       text-transform: uppercase;
       font-size: rem-calc(10);
-      font-weight: 300;
       white-space: nowrap;
       padding: 0;
       margin: 0 0 $global-margin * 0.5;
       overflow: hidden;
       width: 13px;
+      @include exo-icon(regular, f338);
+
+      & {
+        font-weight: 300;
+      }
 
       &:before {
         margin: 0 $global-padding 0 0;
@@ -324,12 +327,12 @@
 .exo-form-inline {
 
   @include breakpoint(medium) {
-    @include flex;
-    @include exo-flex-direction(column, row);
-    @include flex-align(justify, bottom);
     box-sizing: border-box;
     margin-left: $global-margin * 0.5 * -1;
     margin-right: $global-margin * 0.5 * -1;
+    @include flex;
+    @include exo-flex-direction(column, row);
+    @include flex-align(justify, bottom);
 
     > label {
       margin-left: $global-margin * 0.5 !important;
@@ -448,7 +451,6 @@
 
     > .exo-form-container {
       flex-basis: 100%;
-      // padding-top: $global-padding;
     }
 
     .fieldset-wrapper,

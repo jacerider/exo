@@ -20,7 +20,6 @@
       width: 100%;
       flex-basis: 100%;
       margin-left: rem-calc(5);
-      // padding-left: $global-margin;
       margin-bottom: 0;
       border-bottom: 0;
       border-left: 1px solid lighten(color(theme-gray), 45%);
@@ -32,13 +31,13 @@
   }
 
   .exo-form-inline {
-    @include flex;
-    @include flex-align(left, middle);
     flex-wrap: wrap;
     padding-top: $global-margin * 0.5;
     margin-top: $global-margin * 0.5;
     border-top: 1px solid lighten(color(theme-gray), 45%);
     white-space: nowrap;
+    @include flex;
+    @include flex-align(left, middle);
 
     a {
       margin-right: rem-calc(5);
@@ -78,8 +77,8 @@
         @include exo-gutters($negative: true, $gutters: $global-margin);
 
         > * {
-          @include exo-cell(4, $gutters: $global-margin);
           margin-bottom: 0;
+          @include exo-cell(4, $gutters: $global-margin);
         }
       }
     }

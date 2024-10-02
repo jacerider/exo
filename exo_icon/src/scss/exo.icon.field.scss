@@ -27,9 +27,6 @@
     }
 
     .exo-icon-field-icon {
-      // display: block;
-      @include flex;
-      @include flex-align(center, middle);
       font-size: rem-calc(20);
       line-height: rem-calc(20);
       height: rem-calc(40);
@@ -37,6 +34,8 @@
       width: rem-calc(50);
       padding: rem-calc(10);
       color: grey(90);
+      @include flex;
+      @include flex-align(center, middle);
 
       * {
         vertical-align: baseline;
@@ -45,8 +44,6 @@
     }
 
     .exo-modal-trigger {
-      @include flex;
-      @include flex-align(center, middle);
       padding: rem-calc(10);
       background: grey(5);
       color: grey(50);
@@ -56,6 +53,8 @@
       height: rem-calc(40);
       text-shadow: 0 1px 0 grey(0);
       border-left: 1px solid grey(20);
+      @include flex;
+      @include flex-align(center, middle);
 
       &:hover {
         background: grey(15);

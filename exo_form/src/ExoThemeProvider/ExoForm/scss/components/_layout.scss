@@ -1,33 +1,31 @@
 .exo-form {
 
-  .layout-node-form,
-  .layout-product-form,
   .layout-order-form {
-    @include exo-grid;
-    @include exo-gutters($negative: true);
     margin-bottom: 0;
     gap: 0;
+    @include exo-grid;
+    @include exo-gutters($negative: true);
   }
 
   .layout-region--node-main,
   .layout-region--product-main,
   .layout-region-order-main {
-    @include exo-cell(8);
     gap: 0;
+    @include exo-cell(8);
   }
 
   .layout-region--node-secondary,
   .layout-region--product-secondary,
   .layout-region-order-secondary {
-    @include exo-cell(4);
     margin-top: 0;
     gap: 0;
+    @include exo-cell(4);
   }
 
   .layout-region--node-footer,
   .layout-region--product-footer {
-    @include exo-cell(12);
     gap: 0;
+    @include exo-cell(12);
   }
 
   .layout-region-node-footer__content,

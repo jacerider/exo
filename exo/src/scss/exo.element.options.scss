@@ -90,11 +90,11 @@ div.exo-element-options { // sass-lint:disable-line no-qualifying-elements force
   &.exo-stacked {
 
     > div {
-      @include exo-flex-direction(column);
-      @include flex-align(center, middle);
       display: inline-flex;
       text-align: center;
       width: auto;
+      @include exo-flex-direction(column);
+      @include flex-align(center, middle);
 
       > .form-item {
         margin: 0;
@@ -205,10 +205,10 @@ div.exo-element-options { // sass-lint:disable-line no-qualifying-elements force
   &.exo-grid-compact {
 
     > div {
-      @include flex;
       flex-wrap: wrap;
       justify-content: space-between;
       margin: rem-calc(-2);
+      @include flex;
 
       > * {
         flex-grow: 1;

@@ -1,7 +1,7 @@
 .exo-form-pseudo {
-  @include flex-align(left, middle);
   display: flex !important;
   box-sizing: border-box;
+  @include flex-align(left, middle);
 
   > label {
     white-space: nowrap;

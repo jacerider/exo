@@ -16,12 +16,12 @@
     }
 
     > .exo-list-sidebar {
-      @include exo-cell(12);
       margin-bottom: $global-margin;
+      @include exo-cell(12);
 
       @include breakpoint(large) {
-        @include exo-cell(4);
         margin-bottom: 0;
+        @include exo-cell(4);
       }
     }
 
@@ -122,11 +122,11 @@
     }
 
     .exo-list-sort {
-      @include flex;
-      @include flex-align(left, middle);
       padding-left: $global-padding;
       margin-left: auto;
       margin-right: 0 !important;
+      @include flex;
+      @include flex-align(left, middle);
 
       + .exo-list-pager {
         margin-left: 0;
@@ -139,14 +139,14 @@
     }
 
     .exo-list-pager {
-      @include flex-align(left, middle);
       padding-left: $global-padding;
       margin-left: auto;
+      @include flex-align(left, middle);
 
       @include breakpoint(small only) {
-        @include flex-align(center, middle);
         padding-left: 0;
         margin-top: $global-margin * 0.5;
+        @include flex-align(center, middle);
       }
     }
   }
@@ -155,8 +155,8 @@
   .exo-list-header-second {
 
     @include breakpoint(medium) {
-      @include flex;
       width: 100%;
+      @include flex;
     }
 
     .exo-form-element {
@@ -210,11 +210,11 @@
     }
 
     .exo-list-filters-inline {
-      @include flex;
-      @include flex-align(left, bottom);
       flex-wrap: wrap;
       margin-left: 0;
       margin-right: 0;
+      @include flex;
+      @include flex-align(left, bottom);
 
       @include breakpoint(small only) {
         margin-bottom: 0;
@@ -284,7 +284,6 @@
         margin-right: auto;
         margin-bottom: 0;
         flex: 1 1 auto;
-        // padding-right: $global-padding;
       }
     }
 
@@ -315,7 +314,7 @@
 
     select {
       appearance: none;
-      // Additional resets for further consistency
+      // Additional resets for further consistency.
       background-color: gray(8);
       border: 1px solid gray(25);
       padding: rem-calc(4 8) !important;
@@ -335,13 +334,11 @@
     [type='number'] {
       background-color: gray(8);
       border: 1px solid gray(25);
-      // padding: rem-calc(3 8) !important;
       padding-top: rem-calc(3) !important;
       padding-bottom: rem-calc(3) !important;
       font-size: rem-calc(12) !important;
       line-height: rem-calc(12) !important;
       width: rem-calc(50) !important;
-      // width: rem-calc(10) !important;
       margin: 0;
       border-radius: 3px;
     }
@@ -405,10 +402,10 @@
   }
 
   .exo-list-footer {
-    @include clearfix;
     margin-top: $global-margin;
     margin-bottom: 0;
     font-size: rem-calc(12);
+    @include clearfix;
 
     .exo-list-states--active {
       font-weight: 700;
@@ -424,14 +421,14 @@
     }
 
     > .exo-list-footer-first {
-      @include flex;
-      @include flex-align(center, top);
       flex-wrap: wrap;
       margin-bottom: $global-margin;
+      @include flex;
+      @include flex-align(center, top);
 
       @include breakpoint(medium) {
-        @include flex-align(left, top);
         margin-bottom: 0;
+        @include flex-align(left, top);
       }
 
       @include breakpoint(medium) {
@@ -473,8 +470,8 @@
     }
 
     .exo-list-pager {
-      @include flex-align(center, middle);
       flex-wrap: wrap;
+      @include flex-align(center, middle);
 
       @include breakpoint(medium) {
         @include flex-align(right, middle);
@@ -511,14 +508,14 @@
   }
 
   .exo-list-pager {
-    @include flex;
     flex-wrap: wrap;
+    @include flex;
 
     // Drupal default.
     .pagination {
+      margin: 0 0 0 $global-margin;
       @include flex;
       @include flex-align(center, middle);
-      margin: 0 0 0 $global-margin;
 
       .item {
         margin-left: $global-margin;
@@ -553,10 +550,10 @@
       margin: 0 0 0 $global-margin;
 
       @include breakpoint(small only) {
-        @include flex;
-        @include flex-align(center, middle);
         width: 100%;
         margin: $global-margin * 0.5 0 0;
+        @include flex;
+        @include flex-align(center, middle);
       }
 
       .pager__item {
@@ -654,7 +651,6 @@
       .form-item {
         @include flex;
         @include flex-align(left, middle);
-        // margin-right: $global-margin;
 
         .field-label {
           margin-right: $global-margin * 0.5;
@@ -688,10 +684,10 @@
   }
 
   .exo-list-header .exo-list-filter-overview {
-    @include flex;
-    @include flex-align(left, middle);
     flex-wrap: wrap;
     margin: $global-margin 0 0 0;
+    @include flex;
+    @include flex-align(left, middle);
 
     &,
     h3 {
@@ -706,12 +702,12 @@
     }
 
     ul {
-      @include flex;
-      @include flex-align(left, middle);
       flex-wrap: wrap;
       list-style: none;
       margin: 0;
       padding: 0;
+      @include flex;
+      @include flex-align(left, middle);
 
       li {
         margin: rem-calc(0 $global-margin 5 0);
@@ -873,18 +869,18 @@
 }
 
 .exo-list-top {
-  @include flex;
-  @include flex-align(left, stretch);
   position: relative;
   margin-bottom: $global-margin;
   background: gray(3);
   border: 1px solid gray(7);
   border-bottom: 1px solid gray(10);
   padding: $global-padding * 0.5;
+  @include flex;
+  @include flex-align(left, stretch);
 
   @include breakpoint(medium) {
-    @include flex-align(right, bottom);
     padding: $global-padding $global-padding 0;
+    @include flex-align(right, bottom);
   }
 
   .exo-list-top--shadow {
@@ -903,7 +899,6 @@
       box-shadow: 0 0 20px gray(40);
       pointer-events: none;
       height: 50px;
-      // width: 100%;
       border-radius: 100px / 20px;
       opacity: 0.3;
       bottom: 100%;
@@ -914,17 +909,17 @@
 }
 
 .exo-list .exo-list-states--links {
-  @include flex;
-  @include flex-align(left, stretch);
   flex-wrap: wrap;
   flex-direction: column;
   flex: 1 1 auto;
   max-width: 100%;
+  @include flex;
+  @include flex-align(left, stretch);
 
   @include breakpoint(medium) {
-    @include flex-align(right, bottom);
     flex-direction: row;
     flex: 0 0 auto;
+    @include flex-align(right, bottom);
   }
 
   a {

@@ -31,14 +31,14 @@
   }
 
   .signature-inner {
-    @include flex;
-    @include flex-align(left, middle);
     position: relative;
     flex-direction: column;
     border: 0 !important;
     line-height: 1;
     padding: $global-padding $global-padding $global-padding * 0.5;
     background: none;
+    @include flex;
+    @include flex-align(left, middle);
 
     canvas {
       display: inline-block;
@@ -67,11 +67,11 @@
     .field-input {
 
       .field-prefix {
-        @include flex;
-        @include flex-align(center, middle);
         position: static;
         background-color: transparent;
         padding: 0 $global-margin * 0.5 !important;
+        @include flex;
+        @include flex-align(center, middle);
       }
     }
   }

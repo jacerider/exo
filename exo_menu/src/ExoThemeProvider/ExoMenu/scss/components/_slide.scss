@@ -36,8 +36,8 @@
   }
 
   .exo-menu-item {
-    @include flex;
     width: 100%;
+    @include flex;
   }
 
   .exo-menu-link {
@@ -62,7 +62,6 @@
     *:before {
       font-size: rem-calc(11);
       line-height: 1;
-      // vertical-align: middle;
     }
   }
 
