@@ -2212,12 +2212,26 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           '#title' => $this->t('Reset Filters'),
           '#url' => $this->getOptionsUrl(['filter']),
         ];
+
+        $data_attributes = '';
+
+        if ($this->entityList->getSetting('expose_filter_values_to_data_layer')) {
+
+          foreach ($filter_values as $filter_id => $filter_value) {
+            $attribute_name = 'data-' . $filter_id;
+            if (is_array($filter_value)) {
+              $filter_value = implode(',', $filter_value);
+            }
+            $data_attributes .= ' ' . $attribute_name . '="' . $filter_value . '"';
+          }
+        }
+
         $form['list'] = [
           '#theme' => 'item_list',
           '#title' => $this->t('Filtered By'),
           '#items' => $items,
           '#access' => !empty($items),
-          '#prefix' => '<div class="exo-list-filter-overview">',
+          '#prefix' => '<div class="exo-list-filter-overview"' . $data_attributes . '>',
           '#suffix' => '</div>',
         ];
       }

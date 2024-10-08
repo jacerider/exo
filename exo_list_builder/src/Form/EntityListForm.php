@@ -474,6 +474,14 @@ class EntityListForm extends EntityForm {
       ],
     ];
 
+    $form['settings']['expose_filter_values_to_data_layer'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Expose Filter Values to Data Layer'),
+      '#description' => $this->t('If checked, the filter values will be pushed to the data layer for tracking purposes.'),
+      '#default_value' => $exo_entity_list->getSetting('expose_filter_values_to_data_layer'),
+    ];
+    
+
     $form['settings']['submit_label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Override Submit Button Label'),
