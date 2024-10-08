@@ -14,10 +14,12 @@ interface ExoListFieldPropertyInterface {
    *
    * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
    *   The field definition.
+   * @param bool $allow_computed
+   *   Whether to allow computed properties.
    *
    * @return array
    *   An array of property.
    */
-  public function getPropertyOptions(FieldDefinitionInterface $field_definition);
+  public function getPropertyOptions(FieldDefinitionInterface $field_definition, $allow_computed = FALSE);
 
 }

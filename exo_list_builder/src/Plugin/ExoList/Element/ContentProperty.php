@@ -41,7 +41,7 @@ class ContentProperty extends ExoListElementContentBase {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state, EntityListInterface $entity_list, array $field) {
     $configuration = $this->getConfiguration();
-    $property = $this->getPropertyOptions($field['definition']);
+    $property = $this->getPropertyOptions($field['definition'], TRUE);
     if (empty($configuration['property'])) {
       $configuration['property'] = key($property);
     }

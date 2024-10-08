@@ -96,12 +96,14 @@ trait ExoListContentTrait {
    *
    * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
    *   The field definition.
+   * @param bool $allow_computed
+   *   Allow computed properties.
    *
    * @return array
    *   An array of property.
    */
-  public function getPropertyOptions(FieldDefinitionInterface $field_definition) {
-    $property = $this->getFieldProperties($field_definition);
+  public function getPropertyOptions(FieldDefinitionInterface $field_definition, $allow_computed = FALSE) {
+    $property = $this->getFieldProperties($field_definition, $allow_computed);
     $options = [];
     foreach ($property as $property_name => $property) {
       $options[$property_name] = $property->getLabel();
@@ -114,11 +116,13 @@ trait ExoListContentTrait {
    *
    * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
    *   The field definition.
+   * @param bool $allow_computed
+   *   Allow computed properties.
    *
    * @return array
    *   An array of property.
    */
-  protected function getPropertyReferenceOptions(FieldDefinitionInterface $field_definition) {
+  protected function getPropertyReferenceOptions(FieldDefinitionInterface $field_definition, $allow_computed = FALSE) {
     $entity_field_manager = \Drupal::service('entity_field.manager');
     $entity_type_id = $field_definition->getSetting('target_type');
     $entity_type = \Drupal::entityTypeManager()->getDefinition($entity_type_id);
@@ -129,7 +133,7 @@ trait ExoListContentTrait {
     }
     $options = [];
     foreach ($fields as $field_name => $referenced_field_definition) {
-      $property = $this->getFieldProperties($referenced_field_definition);
+      $property = $this->getFieldProperties($referenced_field_definition, $allow_computed);
       foreach ($property as $property_name => $property) {
         $options[$field_name . '.' . $property_name] = $referenced_field_definition->getLabel() . ': ' . $property->getLabel();
       }
@@ -140,15 +144,17 @@ trait ExoListContentTrait {
   /**
    * {@inheritdoc}
    */
-  public function getFieldProperties(FieldDefinitionInterface $definition) {
+  public function getFieldProperties(FieldDefinitionInterface $definition, $allow_computed = FALSE) {
     $key = $definition->getTargetEntityTypeId() . '.' . $definition->getName();
     if (empty($this->property[$key])) {
       $storage = $definition->getFieldStorageDefinition();
       $property = $storage->getPropertyDefinitions();
       // Filter out all computed property, these cannot be set.
-      $property = array_filter($property, function (DataDefinitionInterface $definition) {
-        return !$definition->isComputed();
-      });
+      if (!$allow_computed) {
+        $property = array_filter($property, function (DataDefinitionInterface $definition) {
+          return !$definition->isComputed();
+        });
+      }
 
       if ($definition->getType() === 'image') {
         unset($property['width'], $property['height']);

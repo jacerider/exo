@@ -30,8 +30,8 @@ class ContentReferenceProperty extends ContentProperty {
   /**
    * {@inheritdoc}
    */
-  public function getPropertyOptions(FieldDefinitionInterface $field_definition) {
-    return $this->getPropertyReferenceOptions($field_definition);
+  public function getPropertyOptions(FieldDefinitionInterface $field_definition, $allow_computed = FALSE) {
+    return $this->getPropertyReferenceOptions($field_definition, $allow_computed);
   }
 
   /**
