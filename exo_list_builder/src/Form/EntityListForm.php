@@ -481,7 +481,6 @@ class EntityListForm extends EntityForm {
       '#default_value' => $exo_entity_list->getSetting('expose_filter_values_to_data_layer'),
     ];
     
-
     $form['settings']['submit_label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Override Submit Button Label'),
