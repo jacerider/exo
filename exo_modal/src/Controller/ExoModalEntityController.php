@@ -163,7 +163,7 @@ class ExoModalEntityController extends ControllerBase {
     if (!$entity_type->getFormClass($display_id)) {
       throw new NotFoundHttpException();
     }
-    $data = $request->query->get('data') ?: [];
+    $data = $request->query->all()['data'] ?: [];
     if ($bundle = $entity_type->getKey('bundle')) {
       $data[$bundle] = $bundle;
     }
