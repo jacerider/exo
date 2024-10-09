@@ -2199,6 +2199,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected function buildFormFilterOverview(array $form, FormStateInterface $form_state) {
     $form = [];
     $filter_values = $this->getFormFilterOverviewValues($form, $form_state);
+  
     if ($filter_values) {
       $items = [];
       foreach ($filter_values as $filter_id => $filter_value) {
@@ -2206,6 +2207,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           $items[] = $item;
         }
       }
+
       if (!empty($items)) {
         $items[] = [
           '#type' => 'link',
@@ -2213,29 +2215,45 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           '#url' => $this->getOptionsUrl(['filter']),
         ];
 
-        $data_attributes = '';
-
-        if ($this->entityList->getSetting('expose_filter_values_to_data_layer')) {
-
-          foreach ($filter_values as $filter_id => $filter_value) {
-            $attribute_name = 'data-' . $filter_id;
-            if (is_array($filter_value)) {
-              $filter_value = implode(',', $filter_value);
-            }
-            $data_attributes .= ' ' . $attribute_name . '="' . $filter_value . '"';
-          }
-        }
-
         $form['list'] = [
           '#theme' => 'item_list',
           '#title' => $this->t('Filtered By'),
           '#items' => $items,
           '#access' => !empty($items),
-          '#prefix' => '<div class="exo-list-filter-overview"' . $data_attributes . '>',
+          '#prefix' => '<div class="exo-list-filter-overview">',
           '#suffix' => '</div>',
         ];
+
+        if ($this->entityList->getSetting('expose_filter_values_to_data_layer')) {
+
+          $data_layer_data = [
+            'event' => 'filterApplied',
+            'filters' => [],
+          ];
+
+          foreach ($filter_values as $filter_id => $filter_value) {
+
+            if (is_array($filter_value)) {
+              $filter_value = implode(',', $filter_value);
+            }
+
+            $data_layer_data['filters'][$filter_id] = $filter_value;
+          }
+
+          $data_layer_json = json_encode($data_layer_data);
+
+          $form['#attached']['html_head'][] = [
+            [
+              '#type' => 'html_tag',
+              '#tag' => 'script',
+              '#value' => "window.dataLayer = window.dataLayer || []; window.dataLayer.push({$data_layer_json});",
+            ],
+            'data_layer_push',
+          ];
+        }
       }
     }
+
     return $form;
   }
 
