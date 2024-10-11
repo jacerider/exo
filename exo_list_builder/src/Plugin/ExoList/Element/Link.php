@@ -56,10 +56,11 @@ class Link extends ExoListElementContentBase {
    * {@inheritdoc}
    */
   protected function viewItem(EntityInterface $entity, FieldItemInterface $field_item, array $field) {
+    $title = $field_item->title;
     if ($this->getConfiguration()['link_label']) {
-      $field_item->title = $entity->label();
+      $title = $entity->label();
     }
-    return CoreLink::fromTextAndUrl($field_item->title, Url::fromUri($field_item->uri, $field_item->options))->toString();
+    return CoreLink::fromTextAndUrl($title, Url::fromUri($field_item->uri, $field_item->options))->toString();
   }
 
 }
