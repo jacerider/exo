@@ -9,7 +9,7 @@
 
   Drupal.behaviors.exoElementOptions = {
     attach: function (context) {
-      $(context).find('div.exo-element-options').once('exo.element.options').each((index, element) => {
+      $(once('exo.element.options', $(context).find('div.exo-element-options'), context)).each((index, element) => {
         const $wrapper = $(element);
         if ($wrapper.hasClass('exo-form-radios-js') || $wrapper.hasClass('exo-form-checkboxes-js')) {
           // Ignore if handled by exo-form.
