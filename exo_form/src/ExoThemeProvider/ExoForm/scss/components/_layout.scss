@@ -1,10 +1,13 @@
 .exo-form {
 
   .layout-order-form {
-    margin-bottom: 0;
-    gap: 0;
-    @include exo-grid;
-    @include exo-gutters($negative: true);
+
+    &:not(.layout-commerce-form) {
+      margin-bottom: 0;
+      gap: 0;
+      @include exo-grid;
+      @include exo-gutters($negative: true);
+    }
   }
 
   .layout-region--node-main,

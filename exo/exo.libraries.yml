@@ -33,6 +33,9 @@ element.options:
   css:
     component:
       css/exo.element.options.css: { minified: true }
+  dependencies:
+  - core/jquery
+  - core/drupal
 
 visibility:
   version: VERSION

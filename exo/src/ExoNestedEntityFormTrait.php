@@ -8,6 +8,8 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
+use Drupal\exo\ExoNestedEntityFormInterface;
+
 
 /**
  * Provides a helper to for nesting entity forms.
@@ -63,8 +65,10 @@ trait ExoNestedEntityFormTrait {
       $entity = $this->getEntityTypeManager()->getStorage($entity_type_id)->create($data);
     }
     $this->innerForms[$key] = $this->getEntityTypeManager()->getFormObject($entity->getEntityTypeId(), $form_handler)->setEntity($entity);
-    $this->innerForms[$key]->innerFormKey = $key;
-    $this->innerForms[$key]->innerFormParents = $parents;
+    if ($this->innerForms[$key] instanceof ExoNestedEntityFormInterface) {
+      $this->setInnerFormKey($key);
+      $this->setInnerFormParents($key, $parents);
+    }
     return $this->getInnerForm($parents);
   }
 
@@ -354,6 +358,34 @@ trait ExoNestedEntityFormTrait {
     }
 
     return $this->entityTypeManager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getInnerFormKey($key) {
+    return $this->innerForms[$key]->innerFormKey;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getInnerFormParents($key) {
+    return $this->innerForms[$key]->innerFormParents;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setInnerFormKey($key) {
+    $this->innerForms[$key]->innerFormKey = $key;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setInnerFormParents($key, $parents) {
+    $this->innerForms[$key]->innerFormParents = $parents;
   }
 
 }
