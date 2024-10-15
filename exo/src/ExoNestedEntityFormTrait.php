@@ -8,7 +8,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
-use Drupal\Core\Entity\ContentEntityForm;
+use Drupal\exo\ExoNestedEntityFormInterface;
 
 
 /**
@@ -65,7 +65,7 @@ trait ExoNestedEntityFormTrait {
       $entity = $this->getEntityTypeManager()->getStorage($entity_type_id)->create($data);
     }
     $this->innerForms[$key] = $this->getEntityTypeManager()->getFormObject($entity->getEntityTypeId(), $form_handler)->setEntity($entity);
-    if ($this->innerForms[$key] instanceof ContentEntityForm) {
+    if ($this->innerForms[$key] instanceof ExoNestedEntityFormInterface) {
       $this->setInnerFormKey($key);
       $this->setInnerFormParents($key, $parents);
     }
