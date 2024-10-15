@@ -2,17 +2,23 @@
 
   .ief-row-entity {
 
-    td {
+    tr {
 
-      // Drag row.
-      &:first-child {
-        white-space: nowrap;
-      }
+      &.draggable {
 
-      // Operations row.
-      &:last-child {
-        width: 1%;
-        white-space: nowrap;
+        td {
+
+          // Drag row.
+          &:first-child {
+            white-space: nowrap;
+          }
+    
+          // Operations row.
+          &:last-child {
+            width: 1%;
+            white-space: nowrap;
+          }
+        }
       }
     }
   }
