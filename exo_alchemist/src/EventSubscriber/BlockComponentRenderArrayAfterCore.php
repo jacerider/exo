@@ -4,6 +4,7 @@ namespace Drupal\exo_alchemist\EventSubscriber;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockPluginInterface;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\Context\ContextDefinition;
 use Drupal\Core\Plugin\Context\EntityContext;
@@ -98,7 +99,9 @@ class BlockComponentRenderArrayAfterCore implements EventSubscriberInterface {
         if ($access->isAllowed()) {
           $contexts['component_entity'] = EntityContext::fromEntity($entity);
           $contexts['component_id'] = new Context(new ContextDefinition('string'), $entity->id() ?? $entity->uuid());
-          $contexts['cacheable_metadata'] = new Context(new ContextDefinition('any'), new ExoCacheableContext());
+          $cacheable_context = new ExoCacheableContext();
+          $cacheable_context->setCacheableMetadata(new CacheableMetadata());
+          $contexts['cacheable_metadata'] = new Context(new ContextDefinition('any'), $cacheable_context);
           $this->exoComponentManager->viewEntity($definition, $build['content'], $entity, $contexts);
           if ($event->inPreview()) {
             $preview_fallback_string = $this->t('"@block" component', ['@block' => $block->label()]);
