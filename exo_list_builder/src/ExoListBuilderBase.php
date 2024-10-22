@@ -649,6 +649,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected function addQuerySort(QueryInterface $query, $context = 'default') {
     $entity_list = $this->entityList;
     $order = $this->getOption('order') ?: $entity_list->getSort();
+    $sort = $this->getOption('sort');
     if ($order) {
       $instance = NULL;
       $sort_plugin_id = $entity_list->getSortPluginId($order);
@@ -668,7 +669,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
 
       if ($instance) {
-        $sort = $this->getOption('sort');
         if ($this->cacheableMetadata) {
           $this->cacheableMetadata->addCacheableDependency($instance);
         }
@@ -677,11 +677,16 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           $this->setOption('order', $order);
           $this->setOption('sort', $sort);
         }
+        $fields = $entity_list->getFields();
       }
     }
-    foreach ($entity_list->getFields() as $field) {
+    foreach ($fields as $field) {
       if (!empty($field['view']['sort_secondary'])) {
-        $query->sort($field['sort_field'], $sort ?? 'DESC');
+        $secondary_sort = strtolower($field['view']['sort'] ?: 'asc');
+        if (!empty($fields[$sort_plugin_value]['view']['sort']) && $fields[$sort_plugin_value]['view']['sort'] !== $sort) {
+          $secondary_sort = $secondary_sort === 'asc' ? 'desc' : 'asc';
+        }
+        $query->sort($field['sort_field'], $secondary_sort);
       }
     }
   }
