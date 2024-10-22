@@ -650,6 +650,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $entity_list = $this->entityList;
     $order = $this->getOption('order') ?: $entity_list->getSort();
     $sort = $this->getOption('sort');
+    $fields = $entity_list->getFields();
     if ($order) {
       $instance = NULL;
       $sort_plugin_id = $entity_list->getSortPluginId($order);
@@ -659,7 +660,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
       }
       if (!$instance && $entity_list->getFormat() === 'table') {
         // When using table-sorting, the order is actually the field label.
-        foreach ($this->getFields() as $field) {
+        foreach ($fields as $field) {
           if (!empty($field['sort_field']) && (string) $field['display_label'] === $sort_plugin_id) {
             $instance = $this->sortManager->createInstance('field');
             $sort_plugin_value = $field['id'];
@@ -677,7 +678,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           $this->setOption('order', $order);
           $this->setOption('sort', $sort);
         }
-        $fields = $entity_list->getFields();
       }
     }
     foreach ($fields as $field) {
