@@ -264,6 +264,7 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
       'sort_asc_label' => '@label: Up',
       'sort_desc_label' => '@label: Down',
       'sort_natsort' => FALSE,
+      'sort_secondary' => FALSE,
     ],
     'filter' => [
       'type' => '',

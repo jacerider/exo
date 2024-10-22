@@ -679,6 +679,11 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
         }
       }
     }
+    foreach ($entity_list->getFields() as $field) {
+      if (!empty($field['view']['sort_secondary'])) {
+        $query->sort($field['sort_field'], $sort ?? 'DESC');
+      }
+    }
   }
 
   /**
@@ -2199,7 +2204,7 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
   protected function buildFormFilterOverview(array $form, FormStateInterface $form_state) {
     $form = [];
     $filter_values = $this->getFormFilterOverviewValues($form, $form_state);
-  
+
     if ($filter_values) {
       $items = [];
       foreach ($filter_values as $filter_id => $filter_value) {

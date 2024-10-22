@@ -480,7 +480,7 @@ class EntityListForm extends EntityForm {
       '#description' => $this->t('If checked, the filter values will be pushed to the data layer for tracking purposes.'),
       '#default_value' => $exo_entity_list->getSetting('expose_filter_values_to_data_layer'),
     ];
-    
+
     $form['settings']['submit_label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Override Submit Button Label'),
@@ -680,6 +680,19 @@ class EntityListForm extends EntityForm {
             'sort_natsort',
           ],
           '#default_value' => $field['view']['sort_natsort'] ?? FALSE,
+        ];
+        $row['view']['options']['sort']['sort_secondary'] = [
+          '#type' => 'checkbox',
+          '#title' => $this->t('Secondary Sort'),
+          '#description' => $this->t('If checked, this field will be used as a secondary sort and will be applied after the default sort.'),
+          '#parents' => [
+            'fields',
+            $field_id,
+            'view',
+            'options',
+            'sort_secondary',
+          ],
+          '#default_value' => $field['view']['sort_secondary'] ?? FALSE,
         ];
         $row['view']['options']['sort']['sort_default'] = [
           '#type' => 'radio',
