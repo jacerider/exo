@@ -1039,7 +1039,7 @@ class ExoModal extends ExoData {
     this.debug('log', 'Do Open', '[' + this.getId() + ']', param);
     this.$trigger.trigger('blur');
     if (!this.$element.closest('#exo-modals').length) {
-      $('.exo-fixed-float:not(.exo-fixed-not-invisible)').addClass('exo-fixed-invisible');
+      $('.exo-fixed-element:not(.exo-fixed-not-invisible)').addClass('exo-fixed-invisible');
     }
 
     if (this.get('overlay') === true) {
