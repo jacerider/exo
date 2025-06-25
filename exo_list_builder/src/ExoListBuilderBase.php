@@ -868,9 +868,9 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     // Only load the entities when we want to render the results.
     $entities = $render_status ? $this->load() : [];
 
-    // Advanced cache. Needs to run after load() so that the pager will properly
-    // render.
-    $enhancedCache = $entity_list->getSetting('cache_status', FALSE);
+    // Advanced cache.
+    // Needs to run after load() so that the pager will properly.
+    $enhancedCache = !\Drupal::service('router.admin_context')->isAdminRoute();
     if ($enhancedCache) {
       $cid = ['exo_list_builder', $this->entityList->id()];
       foreach ($this->getOptions() as $option => $value) {
@@ -934,7 +934,18 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
 
     $format = $this->entityList->getFormat();
     $format_build = [];
-    $this->cacheableMetadata->addCacheContexts($this->getCacheContexts());
+    $contexts = $this->getCacheContexts();
+
+    if ($entity_list->getSetting(['enhanced_caching', 'cache_per_url'], FALSE)) {
+      foreach($contexts as $key => $context) {
+        if ($context === 'user.node_grants:view') {
+          unset($contexts[$key]);
+        }
+      }
+      $contexts[] = 'url';
+    }
+
+    $this->cacheableMetadata->addCacheContexts($contexts);
     $this->cacheableMetadata->addCacheTags($this->getCacheTags());
     if ($render_status) {
       $format_build = [
@@ -1088,7 +1099,8 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
     $this->cacheableMetadata->applyTo($build);
 
     if ($enhancedCache) {
-      \Drupal::cache()->set($cid, $build, Cache::PERMANENT, $this->cacheableMetadata->getCacheTags());
+      // Time set with performance cache age setting.
+      \Drupal::cache()->set($cid, $build, \Drupal::config('system.performance')->get('cache.page.max_age'), $this->cacheableMetadata->getCacheTags());
     }
 
     if ($this->getEntityList()->getSetting('autosubmit')) {
@@ -2709,7 +2721,6 @@ abstract class ExoListBuilderBase extends EntityListBuilder implements ExoListBu
           'specifier' => $field['sort_field'],
           'field' => $field['sort_field'],
           'sort' => $initialize_table_sort ? $field['view']['sort'] : NULL,
-          'initial_click_sort' => $field['view']['sort'],
         ];
       }
     }

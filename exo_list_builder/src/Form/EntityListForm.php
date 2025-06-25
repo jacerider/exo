@@ -456,13 +456,6 @@ class EntityListForm extends EntityForm {
       '#default_value' => $exo_entity_list->getSetting('disable_url_encoding'),
     ];
 
-    $form['settings']['cache_status'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Enhanced Cache'),
-      '#description' => $this->t('If checked, additional caching will be enabled which will cache the rendered result for all users. This should only be used when the results of the list are the same for all users.'),
-      '#default_value' => $exo_entity_list->getSetting('cache_status'),
-    ];
-
     $form['settings']['autosubmit'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Autosubmit'),
@@ -498,6 +491,18 @@ class EntityListForm extends EntityForm {
       '#title' => $this->t('Expose Filter Values to Data Layer'),
       '#description' => $this->t('If checked, the filter values will be pushed to the data layer for tracking purposes.'),
       '#default_value' => $exo_entity_list->getSetting('expose_filter_values_to_data_layer'),
+    ];
+
+    $form['settings']['enhanced_caching'] = [
+      '#type' => 'fieldset',
+      '#title' => t('Enhanced Caching'),
+    ];
+
+    $form['settings']['enhanced_caching']['cache_per_url'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enhanced Cache Per Url'),
+      '#description' => $this->t('Caching will be applied PER ENTIRE url.'),
+      '#default_value' => $exo_entity_list->getSetting(['enhanced_caching','cache_per_url']),
     ];
 
     $form['settings']['submit_label'] = [
