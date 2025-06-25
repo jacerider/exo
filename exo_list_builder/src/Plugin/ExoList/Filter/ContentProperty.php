@@ -192,10 +192,18 @@ class ContentProperty extends ExoListFilterMatchBase implements ExoListFieldValu
         if (!empty($configuration['default_from_url']['field_name'])) {
           $field_name = $configuration['default_from_url']['field_name'];
           if ($entity->hasField($field_name)) {
-            // We return an empty string so that the filter is used and no
-            // results are returned.
-            // @todo Support optional arguments. Would just need to return null.
-            return !empty($entity->get($field_name)->entity) ? $entity->get($field_name)->entity->id() : '';
+            if ($configuration['multiple']) {
+              $values = [];
+              foreach($entity->get($field_name)->getValue() as $value) {
+                $values[] = $value['target_id'];
+              }
+              return $values;
+            } else {
+              // We return an empty string so that the filter is used and no
+              // results are returned.
+              // @todo Support optional arguments. Would just need to return null.
+              return !empty($entity->get($field_name)->entity) ? $entity->get($field_name)->entity->id() : '';
+            }
           }
         }
         else {
