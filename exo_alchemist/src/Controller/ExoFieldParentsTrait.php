@@ -2,8 +2,8 @@
 
 namespace Drupal\exo_alchemist\Controller;
 
-use Drupal\block_content\Access\RefinableDependentAccessInterface;
-use Drupal\block_content\Access\RefinableDependentAccessTrait;
+use Drupal\Core\Access\RefinableDependentAccessInterface;
+use Drupal\Core\Access\RefinableDependentAccessTrait;
 use Drupal\block_content\BlockContentInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
