@@ -36,6 +36,7 @@ use Drupal\layout_builder\Entity\LayoutBuilderEntityViewDisplay;
 use Drupal\layout_builder\Entity\LayoutEntityDisplayInterface;
 use Drupal\layout_builder\Form\OverridesEntityForm;
 use Drupal\layout_builder\Plugin\SectionStorage\DefaultsSectionStorage;
+use Drupal\layout_builder\Hook\LayoutBuilderHooks;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ViewExecutable;
 
@@ -760,9 +761,13 @@ function exo_alchemist_block_content_access(EntityInterface $entity, $operation,
   if ($operation !== 'view' && substr($entity->bundle(), 0, 4) == 'exo_') {
     return AccessResult::allowedIfHasPermission($account, 'edit exo components');
   }
-  // return layout_builder_block_content_access($entity, $operation, $account);
-  // layout_builder_block_content_access() was removed in Drupal 11.
-  return AccessResult::neutral();
+
+  // layout_builderhooks changed in Drupall 11, although they still exist
+  // Tried to call with \Drupal::moduleHandler()->invoke but it might not work with class based hooks.
+  $hooks = \Drupal::classResolver(LayoutBuilderHooks::class);
+  $result = $hooks->blockContentAccess($entity, $operation, $account);
+
+  return $result;
 }
 
 /**
