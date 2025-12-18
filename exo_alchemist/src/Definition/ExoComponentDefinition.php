@@ -363,7 +363,7 @@ class ExoComponentDefinition extends PluginDefinition implements ContextAwarePlu
   /**
    * {@inheritdoc}
    */
-  public function __sleep() {
+  public function __sleep(): array {
     $vars = get_object_vars($this);
     unset($vars['handler']);
     return array_keys($vars);

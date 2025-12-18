@@ -54,12 +54,7 @@ class ExoComponentGenerator {
    */
   protected $exoComponentManager;
 
-  /**
-   * The section storage manager.
-   *
-   * @var \Drupal\layout_builder\SectionStorage\SectionStorageManagerInterface
-   */
-  protected $sectionStorageManager;
+  // Note: $sectionStorageManager is provided by LayoutEntityHelperTrait.
 
   /**
    * The UUID generator service.
