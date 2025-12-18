@@ -760,9 +760,9 @@ function exo_alchemist_block_content_access(EntityInterface $entity, $operation,
   if ($operation !== 'view' && substr($entity->bundle(), 0, 4) == 'exo_') {
     return AccessResult::allowedIfHasPermission($account, 'edit exo components');
   }
-  // Defer to layout builder content access if we are not acting on an exo
-  // component.
-  return layout_builder_block_content_access($entity, $operation, $account);
+  // return layout_builder_block_content_access($entity, $operation, $account);
+  // layout_builder_block_content_access() was removed in Drupal 11.
+  return AccessResult::neutral();
 }
 
 /**
