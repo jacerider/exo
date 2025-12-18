@@ -762,8 +762,6 @@ function exo_alchemist_block_content_access(EntityInterface $entity, $operation,
     return AccessResult::allowedIfHasPermission($account, 'edit exo components');
   }
 
-  // layout_builderhooks changed in Drupall 11, although they still exist
-  // Tried to call with \Drupal::moduleHandler()->invoke but it might not work with class based hooks.
   $hooks = \Drupal::classResolver(LayoutBuilderHooks::class);
   $result = $hooks->blockContentAccess($entity, $operation, $account);
 
