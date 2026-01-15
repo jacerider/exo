@@ -2,8 +2,8 @@
 
 namespace Drupal\exo_alchemist;
 
+use Drupal\Core\Access\AccessibleInterface;
 use Drupal\Core\Access\RefinableDependentAccessInterface;
-use Drupal\Core\Access\RefinableDependentAccessTrait;
 use Drupal\block_content\Entity\BlockContent;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\layout_builder\Plugin\Block\InlineBlock;
@@ -22,7 +22,13 @@ use Drupal\layout_builder\SectionComponent;
  * The eXo component repository.
  */
 class ExoComponentRepository {
-  use RefinableDependentAccessTrait;
+
+  /**
+   * The access dependency.
+   *
+   * @var \Drupal\Core\Access\AccessibleInterface|null
+   */
+  protected $accessDependency;
 
   /**
    * Drupal\exo_alchemist\ExoComponentManager definition.
@@ -361,6 +367,42 @@ class ExoComponentRepository {
    */
   public static function sortComponents(SectionComponent $a, SectionComponent $b) {
     return $a->getWeight() - $b->getWeight();
+  }
+
+  /**
+   * Sets the access dependency.
+   *
+   * @param \Drupal\Core\Access\AccessibleInterface $access_dependency
+   *   The object upon which access depends.
+   *
+   * @return $this
+   */
+  public function setAccessDependency(AccessibleInterface $access_dependency) {
+    $this->accessDependency = $access_dependency;
+    return $this;
+  }
+
+  /**
+   * Gets the access dependency.
+   *
+   * @return \Drupal\Core\Access\AccessibleInterface|null
+   *   The access dependency, or NULL if none is set.
+   */
+  public function getAccessDependency() {
+    return $this->accessDependency;
+  }
+
+  /**
+   * Adds an access dependency.
+   *
+   * @param \Drupal\Core\Access\AccessibleInterface $access_dependency
+   *   The object upon which access depends.
+   *
+   * @return $this
+   */
+  public function addAccessDependency(AccessibleInterface $access_dependency) {
+    $this->accessDependency = $access_dependency;
+    return $this;
   }
 
 }

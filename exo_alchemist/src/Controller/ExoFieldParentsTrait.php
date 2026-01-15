@@ -2,8 +2,8 @@
 
 namespace Drupal\exo_alchemist\Controller;
 
+use Drupal\Core\Access\AccessibleInterface;
 use Drupal\Core\Access\RefinableDependentAccessInterface;
-use Drupal\Core\Access\RefinableDependentAccessTrait;
 use Drupal\block_content\BlockContentInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
@@ -14,7 +14,12 @@ use Drupal\layout_builder\Plugin\Block\InlineBlock;
  */
 trait ExoFieldParentsTrait {
 
-  use RefinableDependentAccessTrait;
+  /**
+   * The access dependency.
+   *
+   * @var \Drupal\Core\Access\AccessibleInterface|null
+   */
+  protected $accessDependency;
 
   /**
    * The entity type manager.
@@ -279,6 +284,42 @@ trait ExoFieldParentsTrait {
       $this->exoComponentManager = \Drupal::service('plugin.manager.exo_component');
     }
     return $this->exoComponentManager;
+  }
+
+  /**
+   * Sets the access dependency.
+   *
+   * @param \Drupal\Core\Access\AccessibleInterface $access_dependency
+   *   The object upon which access depends.
+   *
+   * @return $this
+   */
+  public function setAccessDependency(AccessibleInterface $access_dependency) {
+    $this->accessDependency = $access_dependency;
+    return $this;
+  }
+
+  /**
+   * Gets the access dependency.
+   *
+   * @return \Drupal\Core\Access\AccessibleInterface|null
+   *   The access dependency, or NULL if none is set.
+   */
+  public function getAccessDependency() {
+    return $this->accessDependency;
+  }
+
+  /**
+   * Adds an access dependency.
+   *
+   * @param \Drupal\Core\Access\AccessibleInterface $access_dependency
+   *   The object upon which access depends.
+   *
+   * @return $this
+   */
+  public function addAccessDependency(AccessibleInterface $access_dependency) {
+    $this->accessDependency = $access_dependency;
+    return $this;
   }
 
 }

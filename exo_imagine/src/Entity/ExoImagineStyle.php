@@ -56,7 +56,7 @@ class ExoImagineStyle implements ExoImagineStyleInterface {
    */
   public function getStyle() {
     $style = $this->style;
-    while (is_a($style, get_class())) {
+    while ($style instanceof self) {
       /** @var \Drupal\exo_imagine\Entity\ExoImagineStyleInterface $style */
       $style = $style->getStyle();
     }

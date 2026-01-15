@@ -2,7 +2,6 @@
 
 namespace Drupal\exo_alchemist\Controller;
 
-use Drupal\Core\Access\RefinableDependentAccessTrait;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -16,7 +15,6 @@ use Drupal\exo_alchemist\Plugin\ExoComponentFieldFormInterface;
 trait ExoFieldParentsFormTrait {
 
   use ExoFieldParentsTrait;
-  use RefinableDependentAccessTrait;
 
   /**
    * The entity type manager.
