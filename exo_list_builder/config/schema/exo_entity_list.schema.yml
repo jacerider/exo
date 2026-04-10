@@ -39,6 +39,8 @@ exo_list_builder.exo_entity_list.*:
     limit_options:
       type: sequence
       label: 'Limit Options'
+      sequence:
+        type: integer
     offset:
       type: integer
       label: 'Offset'
@@ -49,7 +51,8 @@ exo_list_builder.exo_entity_list.*:
         type: mapping
         mapping:
           settings:
-            type: mapping
+            type: ignore
+            label: 'Settings'
     sorts:
       type: sequence
       label: Sorts
@@ -57,7 +60,8 @@ exo_list_builder.exo_entity_list.*:
         type: mapping
         mapping:
           settings:
-            type: mapping
+            type: ignore
+            label: 'Settings'
     sort:
       type: string
       label: Default sort field
@@ -89,7 +93,8 @@ exo_list_builder.exo_entity_list.*:
                 type: string
                 label: 'Element Type'
               settings:
-                type: mapping
+                type: ignore
+                label: 'Settings'
               toggle:
                 type: boolean
                 label: 'Toggleable'
@@ -99,6 +104,33 @@ exo_list_builder.exo_entity_list.*:
               wrapper:
                 type: string
                 label: 'Wrapper'
+              align:
+                type: string
+                label: 'Align'
+              size:
+                type: string
+                label: 'Size'
+              group_by:
+                type: boolean
+                label: 'Group By'
+              group_by_sort:
+                type: string
+                label: 'Group By Sort'
+              sort:
+                type: string
+                label: 'Sort'
+              sort_asc_label:
+                type: string
+                label: 'Sort Ascending Label'
+              sort_desc_label:
+                type: string
+                label: 'Sort Descending Label'
+              sort_natsort:
+                type: boolean
+                label: 'Natural Sort'
+              sort_secondary:
+                type: boolean
+                label: 'Secondary Sort'
           filter:
             type: mapping
             mapping:
@@ -106,12 +138,14 @@ exo_list_builder.exo_entity_list.*:
                 type: string
                 label: 'Filter Type'
               settings:
-                type: mapping
+                type: ignore
+                label: 'Settings'
           weight:
             type: integer
             label: 'Weight'
     settings:
-      type: mapping
+      type: ignore
+      label: 'Settings'
     weight:
       type: integer
       label: 'Weight'

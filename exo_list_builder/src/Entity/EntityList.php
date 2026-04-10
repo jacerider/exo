@@ -334,6 +334,16 @@ class EntityList extends ConfigEntityBase implements EntityListInterface {
   /**
    * {@inheritdoc}
    */
+  public function preSave(EntityStorageInterface $storage) {
+    parent::preSave($storage);
+    if (is_null($this->references)) {
+      $this->references = [];
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function postSave(EntityStorageInterface $storage, $update = TRUE) {
     parent::postSave($storage, $update);
     \Drupal::service('router.builder')->rebuild();
