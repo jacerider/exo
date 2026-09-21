@@ -237,8 +237,9 @@ class EntityReferenceBase extends ExoComponentFieldFieldableBase implements Cont
     $field_definition = $this->getFieldDefinition();
     // Some fields, such as webform, do not have target bundles.
     if ($from_config) {
-      if (!empty($target_bundles) && array_diff($this->getEntityTypeBundles(), $target_bundles)) {
-        $target_bundles = $from_config->getSetting('handler_settings')['target_bundles'] ?? NULL;
+      $target_bundles = $from_config->getSetting('handler_settings')['target_bundles'] ?? NULL;
+      $bundles = $this->getEntityTypeBundles();
+      if (!empty($target_bundles) && (array_diff($bundles, $target_bundles) || array_diff($target_bundles, $bundles))) {
         $changes['update'][$field_definition->getName()] = $field_definition;
       }
     }
