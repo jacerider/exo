@@ -119,8 +119,16 @@ function exo_modal_exo_modal_setting_presets($config_id) {
 function exo_modal_library_info_alter(&$libraries, $extension) {
   if ($extension == 'core') {
     $path = '/' . \Drupal::service('extension.list.module')->getPath('exo_modal') . '/js';
-    // Exo Modal overrides all dialog functionality.
-    $libraries['drupal.dialog']['js'] = [];
+    // Exo Modal overrides all dialog functionality. Only core's own dialog
+    // implementation is dropped: since Drupal 10.1 core also folds the jQuery
+    // UI widget assets (draggable, resizable, mouse, button, ...) into this
+    // library, and modules such as focal_point depend on drupal.dialog purely
+    // to get them.
+    $libraries['drupal.dialog']['js'] = array_filter(
+      $libraries['drupal.dialog']['js'],
+      static fn($file) => !str_starts_with($file, 'misc/dialog/'),
+      ARRAY_FILTER_USE_KEY
+    );
     $libraries['drupal.dialog']['dependencies'][] = 'exo_modal/theme';
     $libraries['drupal.dialog']['dependencies'][] = 'exo_modal/ajax';
 
