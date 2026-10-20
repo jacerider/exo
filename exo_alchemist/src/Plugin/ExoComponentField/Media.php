@@ -2,11 +2,13 @@
 
 namespace Drupal\exo_alchemist\Plugin\ExoComponentField;
 
+use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\exo_alchemist\ExoComponentFieldManager;
 use Drupal\exo_alchemist\ExoComponentValue;
+use Drupal\exo_alchemist\Plugin\ExoComponentFieldImageStylesTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -19,6 +21,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  */
 class Media extends MediaBase implements ContainerFactoryPluginInterface {
+
+  use ExoComponentFieldImageStylesTrait;
 
   /**
    * The eXo component field manager.
@@ -65,6 +69,7 @@ class Media extends MediaBase implements ContainerFactoryPluginInterface {
   public function processDefinition() {
     parent::processDefinition();
     $field = $this->getFieldDefinition();
+    $this->processDefinitionImageStyles($field);
     $defaults = [];
     foreach ($field->getDefaults() as $delta => $default) {
       $component_field_id = 'media_' . $default->getValue('bundle');
@@ -79,6 +84,26 @@ class Media extends MediaBase implements ContainerFactoryPluginInterface {
       }
     }
     $field->setDefaults($defaults);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * Image styles are keyed off the component field, not the media bundle, so
+   * they are built here rather than delegated. Without this, a mixed media
+   * field that declares styles would never have them created.
+   */
+  public function onInstall(ConfigEntityInterface $entity) {
+    parent::onInstall($entity);
+    $this->buildImageStyles($this->getFieldDefinition());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function onUpdate(ConfigEntityInterface $entity) {
+    parent::onUpdate($entity);
+    $this->buildImageStyles($this->getFieldDefinition());
   }
 
   /**
