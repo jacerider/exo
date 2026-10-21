@@ -27,9 +27,24 @@ exo_form.settings:
   type: config_object
   label: 'eXo Form settings'
   mapping:
+    exo_default:
+      type: integer
+      label: 'Use eXo form by default'
+    exo_preset:
+      type: string
+      label: 'Preset'
+    theme:
+      type: string
+      label: 'Theme'
     style:
       type: string
       label: 'Form style'
+    description_display:
+      type: string
+      label: 'Description display'
+    wrap:
+      type: integer
+      label: 'Wrap'
     themes:
       # Per-theme overrides produced by a pluggable eXo settings form.
       type: ignore
