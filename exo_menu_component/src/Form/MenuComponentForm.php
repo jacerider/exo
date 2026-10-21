@@ -76,16 +76,21 @@ class MenuComponentForm extends ContentEntityForm {
       $menu_link->save();
     }
 
+    // This entity type declares no label key, so label() is always NULL and
+    // cannot be passed to a message placeholder. The submitted component title
+    // is what the menu link is named, so use it as the fallback.
+    $label = $entity->label() ?? (string) $form_state->getValue('title');
+
     switch ($status) {
       case SAVED_NEW:
         $this->messenger()->addStatus($this->t('Created the %label menu component.', [
-          '%label' => $entity->label(),
+          '%label' => $label,
         ]));
         break;
 
       default:
         $this->messenger()->addStatus($this->t('Saved the %label Simple mega menu.', [
-          '%label' => $entity->label(),
+          '%label' => $label,
         ]));
     }
     $form_state->setRedirect('entity.menu.edit_form', ['menu' => $menu_id]);
