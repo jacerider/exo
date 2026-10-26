@@ -1482,10 +1482,6 @@ class ExoModal extends ExoData {
   }
 
   protected closed(param?:any) {
-    // Returning focus and releasing the overflow lock can each reset the
-    // window scroll (the lock makes body the scroller, so a sticky trigger
-    // reads as unstuck), so hold the position and restore it below.
-    const scrollY = window.scrollY;
     this.toggleContentSelector();
     this.state = this.states.CLOSED;
     this.$element.trigger(this.states.CLOSED);
@@ -1511,7 +1507,10 @@ class ExoModal extends ExoData {
     this.removeFocusTrap();
     this.$element.removeAttr('aria-modal');
     if (this.returnFocusEl && typeof this.returnFocusEl.focus === 'function' && document.contains(this.returnFocusEl)) {
-      this.returnFocusEl.focus();
+      // The page is still overflow-locked here (body is the scroller while
+      // attached), so a sticky trigger reads as unstuck and a scrolling focus
+      // would jump the page to where it would sit unstuck.
+      this.returnFocusEl.focus({preventScroll: true});
     }
     this.returnFocusEl = null;
 
@@ -1526,10 +1525,6 @@ class ExoModal extends ExoData {
 
     if ($('.' + this.name + ':visible').length === 0) {
       $('html').removeClass(this.name + '-isAttached');
-    }
-
-    if (window.scrollY !== scrollY) {
-      window.scrollTo(0, scrollY);
     }
 
     if (this.get('contentAjax')) {
