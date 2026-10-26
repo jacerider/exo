@@ -1507,7 +1507,10 @@ class ExoModal extends ExoData {
     this.removeFocusTrap();
     this.$element.removeAttr('aria-modal');
     if (this.returnFocusEl && typeof this.returnFocusEl.focus === 'function' && document.contains(this.returnFocusEl)) {
-      this.returnFocusEl.focus();
+      // The page is still overflow-locked here (body is the scroller while
+      // attached), so a sticky trigger reads as unstuck and a scrolling focus
+      // would jump the page to where it would sit unstuck.
+      this.returnFocusEl.focus({preventScroll: true});
     }
     this.returnFocusEl = null;
 
