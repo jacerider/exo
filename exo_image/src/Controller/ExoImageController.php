@@ -160,7 +160,8 @@ class ExoImageController extends ImageStyleDownloadController {
 
       // Uncomment to test the loading effect:
       // usleep(1000000);.
-      return $this->deliver($request, $scheme, $image_style);
+      // Core requires the derivative's scheme, which follows the source file's.
+      return $this->deliver($request, $scheme, $image_style, $scheme);
     }
 
     return new Response($error_msg, 500);
