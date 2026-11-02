@@ -171,6 +171,8 @@ class Link extends ExoComponentFieldFieldableBase {
       $media_id = substr($value['uri'], 13);
       $media = \Drupal::entityTypeManager()->getStorage('media')->load($media_id);
       if ($media instanceof MediaInterface) {
+        // The URL comes from the media, so replacing its file must refresh it.
+        $this->addCacheableDependency($contexts, $media);
         if (\Drupal::service('module_handler')->moduleExists('media_entity_download')) {
           $url = Url::fromRoute('media_entity_download.download', ['media' => $media->id()], [
             'query' => [ResponseHeaderBag::DISPOSITION_INLINE => NULL],
