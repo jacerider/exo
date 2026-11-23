@@ -119,7 +119,15 @@ class ExoImagineStyle implements ExoImagineStyleInterface {
    */
   public function setLastUsedTimestamp() {
     $request_time = \Drupal::time()->getCurrentTime();
+    // A day is fine enough for a last-used date, and each write costs: State
+    // is a cache collector, so set() is a database write that also
+    // invalidates the cached state every request reads. Unthrottled, every
+    // image rendered wrote it.
+    if ($request_time - $this->getLastUsedTimestamp() < 86400) {
+      return $this;
+    }
     $this->state()->set($this->getStyle()->getName(), $request_time);
+    $this->lastUsed = $request_time;
     return $this;
   }
 
