@@ -123,6 +123,11 @@ class ExoLinkitWidget extends ExoLinkWidget {
     }
     else {
       $uri_as_url = !empty($uri) ? Url::fromUri($uri)->toString() : '';
+      // Without standalone media URLs, a media item's canonical path is its
+      // edit form. Show the path the linkit autocomplete gives instead.
+      if (substr($uri, 0, 13) === 'entity:media/' && !\Drupal::config('media.settings')->get('standalone_url') && substr($uri_as_url, -5) === '/edit') {
+        $uri_as_url = substr($uri_as_url, 0, -5);
+      }
     }
     $uri_as_url = LinkitHelper::getPathByAlias($uri_as_url);
     $linkit_profile = $this->getLinkitProfile();
